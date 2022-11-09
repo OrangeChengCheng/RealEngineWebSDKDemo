@@ -82,7 +82,7 @@ function REsetBackColor(clr) {
 
 // console.log(REclrFix('FF00FF80', 255));
 // console.log(REalphaFix(255, 255));
-console.log(REsetBackColor('0x4523FF'));
+// console.log(REsetBackColor('0x4523FF'));
 // console.log(REsetBackColor('FF4523'));
 // console.log(REsetBackColor('FFFF45'));
 // console.log(parseInt(0xFF4523FF));
@@ -115,10 +115,12 @@ function colorChange(color) {
     .replace(/\)/, '')
     .replace(/[\s+]/g, '')
     .split(',');
+    console.log(arr);
   let a = parseFloat(arr[3] || 1),
       r = Math.floor(a * parseInt(arr[0]) + (1 - a) * 255),
       g = Math.floor(a * parseInt(arr[1]) + (1 - a) * 255),
       b = Math.floor(a * parseInt(arr[2]) + (1 - a) * 255);
+      console.log(a,r,b,g);
   return "0x" +
     ("0" + r.toString(16)).slice(-2) +
     ("0" + g.toString(16)).slice(-2) +
@@ -130,4 +132,4 @@ function colorConversion () {
 }
 
 
-// colorConversion();
+colorConversion();

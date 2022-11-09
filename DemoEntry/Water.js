@@ -115,6 +115,7 @@ function MainSceDown(e) {
   console.log("=========================== 引擎主场景模型加载完成 ================================");
   if (e.detail.succeed) {
     console.log("=========================== 引擎主场景模型加载 --> 成功！！！ ================================");
+    editWater();
   } else {
     console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！  ================================");
   }
@@ -135,6 +136,93 @@ function LoadingProgress(e) {
   progressFn(percent, info);
 }
 
+
+
+
+
+// MARK  编辑水面
+
+function editWater() {
+  //通过Json 创建水域对象
+BlackHole3D.RELoadWaterFromJson('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,47.136409,-11.528129],[17.0,50.136409,-11.528129],[14.0,50.136409,-11.528129]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[28.076520,47.543973,3.214592],[28.076520,50.543973,3.214592],[25.076520,50.543973,3.214592]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[22.172983,25.079871,0.0],[26.172983,25.079871,0.0],[26.172983,30.079871,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]},{"WaterName":"water_0004","Color":[0.100000,0.250000,0.300000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[28.361801,54.391705,-0.610000],[30.229191,52.810488,-0.610000],[28.219878,52.207864,-0.610000]]},{"WaterName":"water_004","Color":[0.200000,0.298039,0.800000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,58.0,-3.0],[17.0,61.0,-3.0],[14.0,61.0,-3.0]]},{"WaterName":"water_005","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[26.369429,6.870495,-6.385081],[26.369429,9.870134,-6.338464],[23.369429,9.870134,-6.338464]]}]}');
+}
+
+
+function actionFun() {
+  //进入水面编辑状态
+  BlackHole3D.REBeginWaterEdit();
+  //退出水面编辑状态
+  BlackHole3D.REEndWaterEdit();
+  //进入水面添加状态 re_WaterID 唯一
+  BlackHole3D.REBeginAddWaterRgn('water_004');
+  //退出水面添加状态
+  BlackHole3D.REEndAddWaterRgn();
+  //创建水面对象 （使用参数进行创建,部分参数可以不传）
+  const re_waterID_005 = 'water_005';
+  var re_water_info_005 = {
+    re_CornersSet: [
+      [17, 58, -3],
+      [17, 61, -3],
+      [14, 61, -3],
+    ],//水面点坐标集合 至少有三个点构成一个平面 [vec3,vec3,vec3]
+    re_ColorRGB: [0.2, 0.3, 0.8],//水面颜色 RGB vec3   取值范围 0-1   (re_ColorRGB 优先级大于 re_ColorHEX)
+    // re_ColorHEX:'0x334ccc',//水面颜色 十六进制 HEX
+    // re_Alpha:0.8,//水面透明度  取值范围 0-1
+    // re_BlendDist:1,//混合距离  取值范围 0-1
+    // re_Visible:true,//是否可见
+  };
+  BlackHole3D.RECreateWaterRgn(re_waterID_005, re_water_info_005);
+  //通过水面 ID 删除水面
+  BlackHole3D.REDelWaterByID('water_004');
+  //清空全部水面对象
+  BlackHole3D.REDelAllWaters();
+  //获取所有水面对象的名称
+  BlackHole3D.REGetAllWaterIDs();
+  //通过水面 ID 把水面加入选择集
+  BlackHole3D.REAddWaterToSelSet('water_004');
+  //通过水面 ID 把指定水面移出选择集
+  BlackHole3D.RERemoveWaterFromSelSet('water_004');
+  //清空选择集
+  BlackHole3D.REClearWaterSelSet();
+  //获取选择集中的所有水面 ID 
+  BlackHole3D.REGetAllWaterIDInSelSet();
+  //删除当前选中的水面角点
+  BlackHole3D.REDelWaterCornersInSelSet();
+  //获取指定水面对象的可见性
+  BlackHole3D.REGetWaterVisible('water_004');
+  //设置指定水面对象的可见性
+  BlackHole3D.RESetWaterVisible('water_004', true);
+  //获取水体颜色 (RGB)
+  BlackHole3D.REGetWaterColorRGB('water_004');
+  //获取水体颜色 (HEX)
+  BlackHole3D.REGetWaterColorHEX('water_004');
+  //设置水体颜色 （RGB）
+  BlackHole3D.RESetWaterColorRGB('water_004', [0.2, 0.3, 0.8]);
+  //设置水体颜色 （HEX）
+  BlackHole3D.RESetWaterColorHEX('water_004', '0x334ccc');
+  //获取水体透明度
+  BlackHole3D.REGetWaterAlpha('water_004');
+  //设置水体透明度
+  BlackHole3D.RESetWaterAlpha('water_004', 0.5);
+  //获取水体跟模型混合系数
+  BlackHole3D.REGetWaterBlendDist('water_004');
+  //设置水体跟模型混合系数
+  BlackHole3D.RESetWaterBlendDist('water_004', 0.5);
+  //获取水面角点
+  BlackHole3D.REGetWaterCorners('water_004');
+  //设置水面角点
+  var re_CornersSet = [
+    [17, 58, -3],
+    [17, 61, -3],
+    [14, 61, -3],
+  ]
+  BlackHole3D.RESetWaterCorners('water_004', re_CornersSet);
+  //通过Json 创建水域对象
+  BlackHole3D.RELoadWaterFromJson('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,58.0,-3.0],[17.0,61.0,-3.0],[14.0,61.0,-3.0]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[20.0,58.0,-3.0],[20.0,61.0,-3.0],[17.0,61.0,-3.0]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[1.0,0.0,0.0],[5.0,0.0,0.0],[5.0,5.0,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]}]}');
+  //把当前场景中所有水域对象导出为一个Json字符串
+  BlackHole3D.RESerializeWaterToJSON();
+
+}
 
 
 
