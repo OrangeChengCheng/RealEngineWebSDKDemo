@@ -4257,6 +4257,77 @@ Module.REendOSGBEdit = function(){
 
 
 
+
+
+// MARK 自定义方法
+  /**
+   * 检查参数是否为空，并打印错误提示
+   * @param {Object} param //参数
+   * @param {String} paramName //参数名
+   */
+  function checkNull(param, paramName) {
+    if (typeof param == 'undefined') {
+      console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+      return false;
+    }
+    return true;
+  }
+  /**
+   * 检查参数是否为空，参数类型是否正确
+   * @param {Object} param //参数
+   * @param {String} paramName //参数名
+   * @param {RE_Enum} re_type //枚举类型
+   */
+  function checkParamType(param, paramName, re_type) {
+    if (!checkNull(param, paramName)) return false;
+
+    switch (re_type) {
+      case RE_Enum.RE_Check_String:
+        {
+          if ((typeof param != "string")) {
+            console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+            return false;
+          }
+        }
+        break;
+      case RE_Enum.RE_Check_Array:
+        {
+          if (!(param instanceof Array)) {
+            console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+            return false;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    return true;
+  }
+
+  /**
+   * 打印错误提示
+   * @param {String} paramName //参数名
+   */
+  function logErrorWithPar(paramName) {
+    console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+  }
+
+
+
+
+
+
+// MARK RE_Enum
+  //枚举参数
+  const RE_Enum = {
+    RE_Check_String: 1,//检测字符串
+    RE_Check_Array: 2,//检测数组
+  }
+
+
+
+
+
    
   return ExtModule;
 };
