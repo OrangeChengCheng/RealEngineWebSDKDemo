@@ -154,8 +154,14 @@ function addCustomView() {
   var wnd_Info = {
     wnd_Title: 'Custom_Wnd666测试窗口',
     wnd_Flags: ["WINDOW_FLAGS_NoDocking", "WINDOW_FLAGS_NoResize", "WINDOW_FLAGS_NoScrollbar"],
-    wnd_ChildLayoutType: 0,
-    wnd_DockRgn: 9
+    wnd_DockRgn: 9,
+    wnd_SizeStyle:'SS_WND_HAVE_BORDER',
+    wnd_ClrStyle:'CS_WND_LIGHT',
+    wnd_ChildLayoutType:0,
+    wnd_BaseScrPosType:[0,0],
+    wnd_BaseScrPos:[0,0],
+    wnd_BaseLocalPos:[0,0],
+    wnd_MaxRatio:[1,1],
   };
   BlackHole3D.REUIWgtCreateWnd(UIID_wnd_custom, wnd_Info);
   BlackHole3D.REUIWgtSetExpectSize(UIID_wnd_custom, [290, 700]);
