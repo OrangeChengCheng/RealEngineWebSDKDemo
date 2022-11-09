@@ -4214,12 +4214,39 @@ Module.REendOSGBEdit = function(){
 
 
 
+// MARK 水面编辑
+  // =================== 水面编辑 相关
+  /**
+   * 进入水面编辑状态
+   */
+  Module.REBeginWaterEdit = function () {
+    return Module.RealBIMWeb.BeginWaterEdit();
+  }
+  
+  /**
+   * 退出水面编辑状态
+   */
+  Module.REEndWaterEdit = function () {
+    return Module.RealBIMWeb.EndWaterEdit();
+  }
+
+  /**
+   * 进入水面添加状态
+   * @returns 
+   */
+  Module.REEndWaterEdit = function () {
+
+    return Module.RealBIMWeb.BeginAddWaterRgn();
+  }
 
 
 
 
 
-
+	// //进入水面添加状态
+	// static bool BeginAddWaterRgn(std::wstring strWaterName);
+	// //退出水面添加状态
+	// static bool EndAddWaterRgn();
 
 
 
