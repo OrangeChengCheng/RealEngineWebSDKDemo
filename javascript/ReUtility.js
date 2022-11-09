@@ -5852,38 +5852,3 @@ Module.REendOSGBEdit = function(){
 
 
 
-
-
-
-// function search(){
-//     // 以下两句是等效的
-//     console.log(search.caller.name); 
-//     console.log(arguments.callee.caller.name)
-// }
-// function baidu(){
-//     search();
-// }
-// function google(){
-//     search();
-// }
- 
-// google();
-// baidu();
-
-
-
-// var test = function(a, b, c) {
-// 	return a + b + c;
-// };
-
-// function getParameterNames(fn) {
-//   if(typeof fn !== 'function') return [];
-//   var COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-//   var code = fn.toString().replace(COMMENTS, '');
-//   var result = code.slice(code.indexOf('(') + 1, code.indexOf(')'))
-//     .match(/([^\s,]+)/g);
-//   return result === null
-//     ? []
-//     : result;
-// }
-// console.log(getParameterNames(test)); // ['a', 'b', 'c']
