@@ -4307,7 +4307,7 @@ Module.REendOSGBEdit = function(){
   }
 
   /**
-   * 通过水面 ID 删除水面
+   * 删除指定 ID 水面
    * @param {String} re_WaterID //水面id
    */
   Module.REDelWaterByID = function (re_WaterID) {
@@ -4538,7 +4538,7 @@ Module.REendOSGBEdit = function(){
    * 通过Json 创建水域对象
    * @param {String} re_Json //水面数据  json格式
    */
-  Module.RELoadWaterFromJson = function (re_Json) {
+  Module.RELoadWaterFromJSON = function (re_Json) {
     if (!checkParamType(re_Json, 're_Json', RE_Enum.RE_Check_String)) return;
     return Module.RealBIMWeb.LoadWaterFromJson(re_Json);
   }

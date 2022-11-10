@@ -172,7 +172,7 @@ function actionFun() {
     // re_Visible:true,//是否可见
   };
   BlackHole3D.RECreateWaterRgn(re_waterID_005, re_water_info_005);
-  //通过水面 ID 删除水面
+  //删除指定 ID 水面
   BlackHole3D.REDelWaterByID('water_004');
   //清空全部水面对象
   BlackHole3D.REDelAllWaters();
@@ -218,7 +218,8 @@ function actionFun() {
   ]
   BlackHole3D.RESetWaterCorners('water_004', re_CornersSet);
   //通过Json 创建水域对象
-  BlackHole3D.RELoadWaterFromJson('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,58.0,-3.0],[17.0,61.0,-3.0],[14.0,61.0,-3.0]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[20.0,58.0,-3.0],[20.0,61.0,-3.0],[17.0,61.0,-3.0]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[1.0,0.0,0.0],[5.0,0.0,0.0],[5.0,5.0,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]}]}');
+  BlackHole3D.RELoadWaterFromJSON('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,58.0,-3.0],[17.0,61.0,-3.0],[14.0,61.0,-3.0]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[20.0,58.0,-3.0],[20.0,61.0,-3.0],[17.0,61.0,-3.0]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[1.0,0.0,0.0],[5.0,0.0,0.0],[5.0,5.0,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]}]}');
+  // BlackHole3D.RELoadWaterFromJSON('{"Waters":[{"WaterName":"water_004","Color":[0.100000,0.250000,0.300000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[26.592703,33.337026,-0.610000],[25.530531,39.639945,-0.610000],[29.366583,38.528488,-0.610000]]}]}');
   //把当前场景中所有水域对象导出为一个Json字符串
   BlackHole3D.RESerializeWaterToJSON();
 
