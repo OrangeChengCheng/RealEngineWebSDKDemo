@@ -40,6 +40,7 @@ window.onload = function (event) {
   document.addEventListener("RealBIMLoadMainSce", MainSceDown);
   document.addEventListener("RealEngineRenderReady", showCanvas);
   document.addEventListener("RealBIMLoadProgress", LoadingProgress);
+  document.addEventListener("AddWaterRgnFinishEvent", addWaterRgnFinish);
 
 
   if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
@@ -144,7 +145,7 @@ function LoadingProgress(e) {
 
 function editWater() {
   //通过Json 创建水域对象
-BlackHole3D.RELoadWaterFromJson('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,47.136409,-11.528129],[17.0,50.136409,-11.528129],[14.0,50.136409,-11.528129]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[28.076520,47.543973,3.214592],[28.076520,50.543973,3.214592],[25.076520,50.543973,3.214592]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[22.172983,25.079871,0.0],[26.172983,25.079871,0.0],[26.172983,30.079871,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]},{"WaterName":"water_0004","Color":[0.100000,0.250000,0.300000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[28.361801,54.391705,-0.610000],[30.229191,52.810488,-0.610000],[28.219878,52.207864,-0.610000]]},{"WaterName":"water_004","Color":[0.200000,0.298039,0.800000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,58.0,-3.0],[17.0,61.0,-3.0],[14.0,61.0,-3.0]]},{"WaterName":"water_005","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[26.369429,6.870495,-6.385081],[26.369429,9.870134,-6.338464],[23.369429,9.870134,-6.338464]]}]}');
+BlackHole3D.RELoadWaterFromJSON('{"Waters":[{"WaterName":"MyWater001","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[17.0,47.136409,-11.528129],[17.0,50.136409,-11.528129],[14.0,50.136409,-11.528129]]},{"WaterName":"MyWater002","Color":[0.200000,0.800000,0.800000,0.500000],"BlendDist":0.200000,"Visible":true,"Corners":[[28.076520,47.543973,3.214592],[28.076520,50.543973,3.214592],[25.076520,50.543973,3.214592]]},{"WaterName":"Water01","Color":[1.0,0.0,0.0,1.0],"BlendDist":0.500000,"Visible":true,"Corners":[[22.172983,25.079871,0.0],[26.172983,25.079871,0.0],[26.172983,30.079871,0.0]]},{"WaterName":"Water02","Color":[1.0,1.0,0.0,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[10.0,0.0,0.0],[15.0,0.0,0.0],[15.0,5.0,0.0]]},{"WaterName":"water_0004","Color":[0.100000,0.250000,0.300000,1.0],"BlendDist":1.0,"Visible":true,"Corners":[[28.361801,54.391705,-0.610000],[30.229191,52.810488,-0.610000],[28.219878,52.207864,-0.610000]]},{"WaterName":"water_005","Color":[0.200000,0.300000,0.800000,0.800000],"BlendDist":1.0,"Visible":true,"Corners":[[26.369429,6.870495,-6.385081],[26.369429,9.870134,-6.338464],[23.369429,9.870134,-6.338464]]}]}');
 }
 
 
@@ -153,8 +154,8 @@ function actionFun() {
   BlackHole3D.REBeginWaterEdit();
   //退出水面编辑状态
   BlackHole3D.REEndWaterEdit();
-  //进入水面添加状态 re_WaterID 唯一
-  BlackHole3D.REBeginAddWaterRgn('water_004');
+  //进入水面添加状态 
+  BlackHole3D.REBeginAddWaterRgn();
   //退出水面添加状态
   BlackHole3D.REEndAddWaterRgn();
   //创建水面对象 （使用参数进行创建,部分参数可以不传）
@@ -226,5 +227,8 @@ function actionFun() {
 }
 
 
-
-
+//添加水面成功回调
+function addWaterRgnFinish() {
+  //为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
+  BlackHole3D.RESetNewAddedWaterID('water_004');
+}

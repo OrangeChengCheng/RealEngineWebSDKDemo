@@ -4232,11 +4232,9 @@ Module.REendOSGBEdit = function(){
 
   /**
    * 进入水面添加状态
-   * @param {String} re_WaterID //水面id
    */
-  Module.REBeginAddWaterRgn = function (re_WaterID) {
-    if (!checkNull(re_WaterID, 're_WaterID')) return;
-    return Module.RealBIMWeb.BeginAddWaterRgn(re_WaterID);
+  Module.REBeginAddWaterRgn = function () {
+    return Module.RealBIMWeb.BeginAddWaterRgn();
   }
 
   /**
@@ -4244,6 +4242,15 @@ Module.REendOSGBEdit = function(){
    */
   Module.REEndAddWaterRgn = function () {
     return Module.RealBIMWeb.EndAddWaterRgn();
+  }
+
+  /**
+   * 为已添加的水面命名一个唯一名称（AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
+   * @param {String} re_WaterID //水面id
+   */
+   Module.RESetNewAddedWaterID = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.SetNewAddedWaterName(re_WaterID);
   }
 
   /**
