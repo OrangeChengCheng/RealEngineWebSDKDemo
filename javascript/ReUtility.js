@@ -4245,7 +4245,7 @@ Module.REendOSGBEdit = function(){
   }
 
   /**
-   * 为已添加的水面命名一个唯一名称（AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
+   * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
    * @param {String} re_WaterID //水面id
    */
    Module.RESetNewAddedWaterID = function (re_WaterID) {
