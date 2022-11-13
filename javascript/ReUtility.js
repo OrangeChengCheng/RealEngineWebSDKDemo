@@ -1,4 +1,4 @@
-//版本：v2.1.0.1611
+//版本：v2.1.0.1633
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -4557,7 +4557,348 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.SerializeWaterToString();
   }
 
+  // MARK 水面编辑
+  // =================== 水面编辑 相关
+  /**
+   * 进入水面编辑状态
+   */
+  Module.REBeginWaterEdit = function () {
+    return Module.RealBIMWeb.BeginWaterEdit();
+  }
 
+  /**
+   * 退出水面编辑状态
+   */
+  Module.REEndWaterEdit = function () {
+    return Module.RealBIMWeb.EndWaterEdit();
+  }
+
+  /**
+   * 进入水面添加状态
+   */
+  Module.REBeginAddWaterRgn = function () {
+    return Module.RealBIMWeb.BeginAddWaterRgn();
+  }
+
+  /**
+   * 退出水面添加状态
+   */
+  Module.REEndAddWaterRgn = function () {
+    return Module.RealBIMWeb.EndAddWaterRgn();
+  }
+
+  /**
+   * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
+   * @param {String} re_WaterID //水面id
+   */
+  Module.RESetNewAddedWaterID = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.SetNewAddedWaterName(re_WaterID);
+  }
+
+  /**
+   * 创建水面对象 （使用参数进行创建）
+   * @param {String} re_WaterID //水面id
+   * @param {Object} re_Info //水面参数对象 ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中↓
+   * @param {Array[Vec3]} re_CornersSet //水面点坐标集合 至少有三个点构成一个平面 [vec3,vec3,vec3]
+   * @param {Vec3} re_ColorRGB //水面颜色 RGB vec3   取值范围 0-1   (re_ColorRGB 优先级大于 re_ColorHEX)
+   * @param {String} re_ColorHEX //水面颜色 十六进制 HEX
+   * @param {Number} re_Alpha //水面透明度  取值范围 0-1
+   * @param {Number} re_BlendDist //混合距离  取值范围 0-1
+   * @param {Boolean} re_Visible //是否可见
+   */
+  Module.RECreateWaterRgn = function (re_WaterID, re_Info) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    if (!checkNull(re_Info, 're_Info')) return;
+    if (!checkParamType(re_Info.re_CornersSet, 're_CornersSet', RE_Enum.RE_Check_Array)) return;
+
+    var _clrarr = [];
+    if (typeof re_Info.re_ColorRGB != 'undefined') {
+      if (!checkParamType(re_Info.re_ColorRGB, 're_ColorRGB', RE_Enum.RE_Check_Array)) return;
+      _clrarr = re_Info.re_ColorRGB;
+    }
+    else {
+      if (typeof re_Info.re_ColorHEX != 'undefined') {
+        if (!checkParamType(re_Info.re_ColorHEX, 're_ColorHEX', RE_Enum.RE_Check_String)) return;
+
+        var _re_ColorHEX = re_Info.re_ColorHEX;
+        if (_re_ColorHEX.includes('0x')) {
+          _re_ColorHEX = _re_ColorHEX.replace('0x', '');
+        }
+        if (_re_ColorHEX.length != 6) {
+          logErrorWithPar('re_ColorHEX');
+          return;
+        }
+        var tempclr01 = _re_ColorHEX.substring(0, 2); var clr01 = (parseInt(tempclr01, 16) / 255);
+        var tempclr02 = _re_ColorHEX.substring(2, 4); var clr02 = (parseInt(tempclr02, 16) / 255);
+        var tempclr03 = _re_ColorHEX.substring(4, 6); var clr03 = (parseInt(tempclr03, 16) / 255);
+        _clrarr = [clr01, clr02, clr03];
+      }
+      else {
+        logErrorWithPar('re_ColorRGB | re_ColorHEX');
+        return;
+      }
+    }
+    var _arrCorners = new Module.RE_Vector_dvec3();
+    try {
+      re_Info.re_CornersSet.forEach(value => {
+        if (!checkParamType(value, 're_CornersSet', RE_Enum.RE_Check_Array)) throw new Error('');
+        _arrCorners.push_back(value);
+      });
+    } catch (error) { return; }
+
+    var _fAlpha = 1; var _fBlendDist = 1; var _bVisible = true;
+
+    if (typeof re_Info.re_Alpha != 'undefined') { _fAlpha = re_Info.re_Alpha; }
+    if (typeof re_Info.re_BlendDist != 'undefined') { _fBlendDist = re_Info.re_BlendDist; }
+    if (typeof re_Info.re_Visible != 'undefined') { _bVisible = re_Info.re_Visible; }
+
+    return Module.RealBIMWeb.CreateWaterRgn(re_WaterID, _arrCorners, _clrarr, _fAlpha, _fBlendDist, _bVisible);
+  }
+
+  /**
+   * 删除指定 ID 水面
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REDelWaterByID = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.DelWaterByName(re_WaterID);
+  }
+
+  /**
+   * 清空全部水面对象
+   */
+  Module.REDelAllWaters = function () {
+    return Module.RealBIMWeb.DelAllWaters();
+  }
+
+  /**
+   * 获取所有水面对象的名称
+   */
+  Module.REGetAllWaterIDs = function () {
+    var _vector = Module.RealBIMWeb.GetAllWaterNames();
+    var waterIDs = [];
+    for (let i = 0; i < _vector.size(); i++) {
+      waterIDs.push(_vector.get(i));
+    }
+    return waterIDs;
+  }
+
+  /**
+   * 通过水面 ID 把水面加入选择集
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REAddWaterToSelSet = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.AddWaterToSelSet(re_WaterID);
+  }
+
+  /**
+   * 通过水面 ID 把指定水面移出选择集
+   * @param {String} re_WaterID //水面id
+   */
+  Module.RERemoveWaterFromSelSet = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.RemoveWaterFromSelSet(re_WaterID);
+  }
+
+  /**
+   * 清空选择集
+   */
+  Module.REClearWaterSelSet = function () {
+    return Module.RealBIMWeb.ClearWaterSelSet();
+  }
+
+  /**
+   * 获取选择集中的所有水面 ID 
+   */
+  Module.REGetAllWaterIDInSelSet = function () {
+    var _vector = Module.RealBIMWeb.GetAllWaterNamesInSelSet();
+    var waterIDs = [];
+    for (let i = 0; i < _vector.size(); i++) {
+      waterIDs.push(_vector.get(i));
+    }
+    return waterIDs;
+  }
+
+  /**
+   * 删除当前选中的水面角点
+   */
+  Module.REDelWaterCornersInSelSet = function () {
+    return Module.RealBIMWeb.DelWaterCornersInSelSet();
+  }
+
+  /**
+   * 获取指定水面对象的可见性
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterVisible = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.GetWaterVisible(re_WaterID);
+  }
+
+  /**
+   * 设置指定水面对象的可见性
+   * @param {String} re_WaterID //水面id
+   * @param {Boolean} re_Visible //是否可见
+   */
+  Module.RESetWaterVisible = function (re_WaterID, re_Visible) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.SetWaterVisible(re_WaterID, re_Visible);
+  }
+
+  /**
+   * 获取水体颜色 (RGB)
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterColorRGB = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.GetWaterColor(re_WaterID);
+  }
+
+  /**
+   * 获取水体颜色 (HEX)
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterColorHEX = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+
+    var _clrarr = Module.RealBIMWeb.GetWaterColor(re_WaterID);
+    if (!_clrarr.length) return;
+
+    _r = Math.floor(_clrarr[0] * 255);
+    _g = Math.floor(_clrarr[1] * 255);
+    _b = Math.floor(_clrarr[2] * 255);
+
+    var _clrHEX = '0x' + _r.toString(16) + _g.toString(16) + _b.toString(16);
+    return _clrHEX;
+  }
+
+  /**
+   * 设置水体颜色 （RGB）
+   * @param {String} re_WaterID //水面id
+   * @param {Vec3} re_Color //水面颜色 RGB vec3
+   */
+  Module.RESetWaterColorRGB = function (re_WaterID, re_Color) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    if (!checkParamType(re_Color, 're_Color', RE_Enum.RE_Check_Array)) return;
+    return Module.RealBIMWeb.SetWaterColor(re_WaterID, re_Color);
+  }
+
+  /**
+   * 设置水体颜色 （HEX）
+   * @param {String} re_WaterID //水面id
+   * @param {Vec3} re_Color //水面颜色 十六进制  hex
+   */
+  Module.RESetWaterColorHEX = function (re_WaterID, re_Color) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    if (!checkParamType(re_Color, 're_Color', RE_Enum.RE_Check_String)) return;
+
+    var _re_ColorHEX = re_Color;
+    if (_re_ColorHEX.includes('0x')) {
+      _re_ColorHEX = _re_ColorHEX.replace('0x', '');
+    }
+    if (_re_ColorHEX.length != 6) {
+      logErrorWithPar('re_Color');
+      return;
+    }
+    var tempclr01 = _re_ColorHEX.substring(0, 2); var clr01 = (parseInt(tempclr01, 16) / 255);
+    var tempclr02 = _re_ColorHEX.substring(2, 4); var clr02 = (parseInt(tempclr02, 16) / 255);
+    var tempclr03 = _re_ColorHEX.substring(4, 6); var clr03 = (parseInt(tempclr03, 16) / 255);
+    var _clrarr = [clr01, clr02, clr03];
+
+    return Module.RealBIMWeb.SetWaterColor(re_WaterID, _clrarr);
+  }
+
+  /**
+   * 获取水体透明度
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterAlpha = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.GetWaterAlpha(re_WaterID);
+  }
+
+  /**
+   * 设置水体透明度
+   * @param {String} re_WaterID //水面id
+   * @param {Boolean} re_Alpha //水面透明度  取值范围 0-1
+   */
+  Module.RESetWaterAlpha = function (re_WaterID, re_Alpha) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.SetWaterAlpha(re_WaterID, re_Alpha);
+  }
+
+  /**
+   * 获取水体跟模型混合系数
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterBlendDist = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.GetWaterBlendDist(re_WaterID);
+  }
+
+  /**
+   * 设置水体跟模型混合系数
+   * @param {String} re_WaterID //水面id
+   * @param {Number} re_BlendDist //混合距离  取值范围 0-1
+   */
+  Module.RESetWaterBlendDist = function (re_WaterID, re_BlendDist) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.SetWaterBlendDist(re_WaterID, re_BlendDist);
+  }
+
+  /**
+   * 获取水面角点
+   * @param {String} re_WaterID //水面id
+   */
+  Module.REGetWaterCorners = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+
+    var _vector = Module.RealBIMWeb.GetWaterCorners(re_WaterID);
+    var crnersSet = [];
+    for (let i = 0; i < _vector.size(); i++) {
+      crnersSet.push(_vector.get(i));
+    }
+    return crnersSet
+  }
+
+  /**
+   * 设置水面角点
+   * @param {String} re_WaterID //水面id
+   * @param {Array[Vec3]} re_CornersSet //水面点坐标集合 至少有三个点构成一个平面 [vec3,vec3,vec3]
+   */
+  Module.RESetWaterCorners = function (re_WaterID, re_CornersSet) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    if (!checkParamType(re_CornersSet, 're_CornersSet', RE_Enum.RE_Check_Array)) return;
+
+    var _arrCorners = new Module.RE_Vector_dvec3();
+    try {
+      re_CornersSet.forEach(value => {
+        if (!checkParamType(value, 're_CornersSet', RE_Enum.RE_Check_Array)) throw new Error('');
+        _arrCorners.push_back(value);
+      });
+    } catch (error) { return; }
+
+    return Module.RealBIMWeb.SetWaterCorners(re_WaterID, _arrCorners);
+  }
+
+
+  /**
+   * 通过Json 创建水域对象
+   * @param {String} re_Json //水面数据  json格式
+   */
+  Module.RELoadWaterFromJSON = function (re_Json) {
+    if (!checkParamType(re_Json, 're_Json', RE_Enum.RE_Check_String)) return;
+    return Module.RealBIMWeb.LoadWaterFromJson(re_Json);
+  }
+
+  /**
+   * 把当前场景中所有水域对象导出为一个Json字符串
+   */
+  Module.RESerializeWaterToJSON = function () {
+    return Module.RealBIMWeb.SerializeWaterToString();
+  }
 
 
 
