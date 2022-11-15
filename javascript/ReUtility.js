@@ -4018,15 +4018,6 @@ Module.REsetCADShpAnchorScale = function(groupId,minScaleSize,maxScaleSize){
 }
 
 
-// ========开始自定义UI相关接口========
-// 设置UI按钮的可见性
-Module.REsetUIWgtVisible = function(strId,bool){
-  Module.RealBIMWeb.UIWgtSetVisible(strId,bool);
-}
-// 获取当前设置的UI按钮的可见性
-Module.REgetUIWgtVisible = function(strId){
-  Module.RealBIMWeb.UIWgtGetVisible(strId);
-}
 
 
 
@@ -4264,19 +4255,6 @@ Module.REendOSGBEdit = function(){
     if (typeof wnd_Info.wnd_BaseScrPos != 'undefined') { _vBaseScrPos = wnd_Info.wnd_BaseScrPos; }
     if (typeof wnd_Info.wnd_BaseLocalPos != 'undefined') { _vBaseLocalPos = wnd_Info.wnd_BaseLocalPos; }
     if (typeof wnd_Info.wnd_MaxRatio != 'undefined') { _vMaxRatio = wnd_Info.wnd_MaxRatio; }
-
-    // console.log("_strUIID",_strUIID);
-    // console.log("_strwnd_Title",_strwnd_Title);
-    // console.log("_Visible",_Visible);
-    // console.log("_strSizeStyleName",_strSizeStyleName);
-    // console.log("_strClrStyleName",_strClrStyleName);
-    // console.log("_wnd_Flags",_wnd_Flags);
-    // console.log("_dockRgn",_dockRgn);
-    // console.log("_ChildWgtLayoutType",_ChildWgtLayoutType);
-    // console.log("_vBaseScrPosType",_vBaseScrPosType);
-    // console.log("_vBaseScrPos",_vBaseScrPos);
-    // console.log("_vBaseLocalPos",_vBaseLocalPos);
-    // console.log("_vMaxRatio",_vMaxRatio);
     
     return Module.RealBIMWeb.UIWgtCreateWnd(_strUIID, _strwnd_Title, _Visible, _strSizeStyleName, _strClrStyleName, _wnd_Flags, _dockRgn, _ChildWgtLayoutType, _vBaseScrPosType, _vBaseScrPos, _vBaseLocalPos, _vMaxRatio);
   }
@@ -4524,11 +4502,8 @@ Module.REendOSGBEdit = function(){
     if (!checkNull(re_UIID, 're_UIID')) return;
     if (!checkNull(el_Info, 'el_Info')) return;
     if (!checkNull(el_Info.el_Text, 'el_Text')) return;
-    // if(typeof re_UIID == 'undefined' || (typeof re_UIID != "string") || re_UIID.length == 0) return false;
     var _strUIID = re_UIID;
     var _Visible = true; var _strText = ""; var _bChecked = true;
-
-    // if(typeof el_Info == 'undefined') return Module.RealBIMWeb.UIWgtCreateCheckBox(_strUIID,_Visible,_strText,_bChecked);
 
     if (typeof el_Info.el_Visible != 'undefined') { _Visible = el_Info.el_Visible; }
     if (typeof el_Info.el_Text != 'undefined') { _strText = el_Info.el_Text; }
@@ -5497,6 +5472,35 @@ Module.REendOSGBEdit = function(){
     if (!checkNull(re_UIID, 're_UIID')) return;
     return Module.RealBIMWeb.UIWgtDeleteWidget(re_UIID);
   }
+// MARK UI可见性  
+/**
+ * 获取对应UI的可见性
+ * @param {String} re_UIID //控件id
+ */
+ Module.REUIWgtGetVisible = function (re_UIID) {
+  if (!checkNull(re_UIID, 're_UIID')) return;
+  if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
+    logErrorWithPar('re_UIID');
+    return;
+  }
+  var _uiid = RE_WndPanel_ChildIDs_MateEnum[re_UIID];
+  return Module.RealBIMWeb.UIWgtGetVisible(_uiid);
+}
+
+/**
+ * 设置对应UI的可见性
+ * @param {String} re_UIID //控件id
+ * @param {Boolean} el_Visible //是否显示
+ */
+Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
+  if (!checkNull(re_UIID, 're_UIID')) return;
+  if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
+    logErrorWithPar('re_UIID');
+    return;
+  }
+  var _uiid = RE_WndPanel_ChildIDs_MateEnum[re_UIID];
+  return Module.RealBIMWeb.UIWgtSetVisible(_uiid,el_Visible);
+}
 // MARK ExpectSize
   /**
    * 获取控件期望大小
@@ -6225,6 +6229,30 @@ Module.REendOSGBEdit = function(){
   ]
 
 
+// MARK RE_Wnd_Panel_ChildBtnIDs
+  //底部主工具栏按钮对应名称
+  const RE_WndPanel_ChildIDs_Enum = [
+    "RE_PanelBtn_TerrainAlpha",//地形透明度
+    "RE_PanelBtn_Reset",//重置操作
+    "RE_PanelBtn_IsolateBuild",//隔离构件
+    "RE_PanelBtn_HideBuild",//隐藏构件
+    "RE_PanelBtn_RecoverDisplay",//恢复显示
+    "RE_PanelBtn_Measure",//测量
+    "RE_PanelBtn_Cutting",//剖切
+    "RE_PanelBtn_Setting",//设置
+  ]
+  //底部主工具栏按钮对应C++名称
+  const RE_WndPanel_ChildIDs_MateEnum = {
+    RE_PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//地形透明度
+    RE_PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//重置操作
+    RE_PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//隔离构件
+    RE_PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//隐藏构件
+    RE_PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//恢复显示
+    RE_PanelBtn_Measure: 'BuiltIn_Btn_Measure',//测量
+    RE_PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//剖切
+    RE_PanelBtn_Setting: 'BuiltIn_Btn_Setting',//设置
+  }
+  
 
 // MARK RE_Enum
   //枚举参数
