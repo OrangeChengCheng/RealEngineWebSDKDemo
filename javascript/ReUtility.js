@@ -4214,28 +4214,28 @@ Module.REendOSGBEdit = function(){
   /**
    * 进入水面编辑状态
    */
-  Module.REBeginWaterEdit = function () {
+  Module.REbeginWaterEdit = function () {
     return Module.RealBIMWeb.BeginWaterEdit();
   }
 
   /**
    * 退出水面编辑状态
    */
-  Module.REEndWaterEdit = function () {
+  Module.REendWaterEdit = function () {
     return Module.RealBIMWeb.EndWaterEdit();
   }
 
   /**
    * 进入水面添加状态
    */
-  Module.REBeginAddWaterRgn = function () {
+  Module.REbeginAddWaterRgn = function () {
     return Module.RealBIMWeb.BeginAddWaterRgn();
   }
 
   /**
    * 退出水面添加状态
    */
-  Module.REEndAddWaterRgn = function () {
+  Module.REendAddWaterRgn = function () {
     return Module.RealBIMWeb.EndAddWaterRgn();
   }
 
@@ -4243,7 +4243,7 @@ Module.REendOSGBEdit = function(){
    * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
    * @param {String} re_WaterID //水面id
    */
-  Module.RESetNewAddedWaterID = function (re_WaterID) {
+  Module.REsetNewAddedWaterID = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.SetNewAddedWaterName(re_WaterID);
   }
@@ -4259,7 +4259,7 @@ Module.REendOSGBEdit = function(){
    * @param {Number} re_BlendDist //混合距离  取值范围 0-1
    * @param {Boolean} re_Visible //是否可见
    */
-  Module.RECreateWaterRgn = function (re_WaterID, re_Info) {
+  Module.REcreateWaterRgn = function (re_WaterID, re_Info) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     if (!checkNull(re_Info, 're_Info')) return;
     if (!checkParamType(re_Info.re_CornersSet, 're_CornersSet', RE_Enum.RE_Check_Array)) return;
@@ -4312,7 +4312,7 @@ Module.REendOSGBEdit = function(){
    * 删除指定 ID 水面
    * @param {String} re_WaterID //水面id
    */
-  Module.REDelWaterByID = function (re_WaterID) {
+  Module.REdelWaterByID = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.DelWaterByName(re_WaterID);
   }
@@ -4320,14 +4320,14 @@ Module.REendOSGBEdit = function(){
   /**
    * 清空全部水面对象
    */
-  Module.REDelAllWaters = function () {
+  Module.REdelAllWaters = function () {
     return Module.RealBIMWeb.DelAllWaters();
   }
 
   /**
    * 获取所有水面对象的名称
    */
-  Module.REGetAllWaterIDs = function () {
+  Module.REgetAllWaterIDs = function () {
     var _vector = Module.RealBIMWeb.GetAllWaterNames();
     var waterIDs = [];
     for (let i = 0; i < _vector.size(); i++) {
@@ -4340,7 +4340,7 @@ Module.REendOSGBEdit = function(){
    * 通过水面 ID 把水面加入选择集
    * @param {String} re_WaterID //水面id
    */
-  Module.REAddWaterToSelSet = function (re_WaterID) {
+  Module.REaddWaterToSelSet = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.AddWaterToSelSet(re_WaterID);
   }
@@ -4349,7 +4349,7 @@ Module.REendOSGBEdit = function(){
    * 通过水面 ID 把指定水面移出选择集
    * @param {String} re_WaterID //水面id
    */
-  Module.RERemoveWaterFromSelSet = function (re_WaterID) {
+  Module.REremoveWaterFromSelSet = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.RemoveWaterFromSelSet(re_WaterID);
   }
@@ -4357,14 +4357,14 @@ Module.REendOSGBEdit = function(){
   /**
    * 清空选择集
    */
-  Module.REClearWaterSelSet = function () {
+  Module.REclearWaterSelSet = function () {
     return Module.RealBIMWeb.ClearWaterSelSet();
   }
 
   /**
    * 获取选择集中的所有水面 ID 
    */
-  Module.REGetAllWaterIDInSelSet = function () {
+  Module.REgetAllWaterIDInSelSet = function () {
     var _vector = Module.RealBIMWeb.GetAllWaterNamesInSelSet();
     var waterIDs = [];
     for (let i = 0; i < _vector.size(); i++) {
@@ -4376,7 +4376,7 @@ Module.REendOSGBEdit = function(){
   /**
    * 删除当前选中的水面角点
    */
-  Module.REDelWaterCornersInSelSet = function () {
+  Module.REdelWaterCornersInSelSet = function () {
     return Module.RealBIMWeb.DelWaterCornersInSelSet();
   }
 
@@ -4384,7 +4384,7 @@ Module.REendOSGBEdit = function(){
    * 获取指定水面对象的可见性
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterVisible = function (re_WaterID) {
+  Module.REgetWaterVisible = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.GetWaterVisible(re_WaterID);
   }
@@ -4394,7 +4394,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Boolean} re_Visible //是否可见
    */
-  Module.RESetWaterVisible = function (re_WaterID, re_Visible) {
+  Module.REsetWaterVisible = function (re_WaterID, re_Visible) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.SetWaterVisible(re_WaterID, re_Visible);
   }
@@ -4403,7 +4403,7 @@ Module.REendOSGBEdit = function(){
    * 获取水体颜色 (RGB)
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterColorRGB = function (re_WaterID) {
+  Module.REgetWaterColorRGB = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.GetWaterColor(re_WaterID);
   }
@@ -4412,7 +4412,7 @@ Module.REendOSGBEdit = function(){
    * 获取水体颜色 (HEX)
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterColorHEX = function (re_WaterID) {
+  Module.REgetWaterColorHEX = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
 
     var _clrarr = Module.RealBIMWeb.GetWaterColor(re_WaterID);
@@ -4431,7 +4431,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Vec3} re_Color //水面颜色 RGB vec3
    */
-  Module.RESetWaterColorRGB = function (re_WaterID, re_Color) {
+  Module.REsetWaterColorRGB = function (re_WaterID, re_Color) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     if (!checkParamType(re_Color, 're_Color', RE_Enum.RE_Check_Array)) return;
     return Module.RealBIMWeb.SetWaterColor(re_WaterID, re_Color);
@@ -4442,7 +4442,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Vec3} re_Color //水面颜色 十六进制  hex
    */
-  Module.RESetWaterColorHEX = function (re_WaterID, re_Color) {
+  Module.REsetWaterColorHEX = function (re_WaterID, re_Color) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     if (!checkParamType(re_Color, 're_Color', RE_Enum.RE_Check_String)) return;
 
@@ -4466,7 +4466,7 @@ Module.REendOSGBEdit = function(){
    * 获取水体透明度
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterAlpha = function (re_WaterID) {
+  Module.REgetWaterAlpha = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.GetWaterAlpha(re_WaterID);
   }
@@ -4476,7 +4476,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Boolean} re_Alpha //水面透明度  取值范围 0-1
    */
-  Module.RESetWaterAlpha = function (re_WaterID, re_Alpha) {
+  Module.REsetWaterAlpha = function (re_WaterID, re_Alpha) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.SetWaterAlpha(re_WaterID, re_Alpha);
   }
@@ -4485,7 +4485,7 @@ Module.REendOSGBEdit = function(){
    * 获取水体跟模型混合系数
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterBlendDist = function (re_WaterID) {
+  Module.REgetWaterBlendDist = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.GetWaterBlendDist(re_WaterID);
   }
@@ -4495,7 +4495,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Number} re_BlendDist //混合距离  取值范围 0-1
    */
-  Module.RESetWaterBlendDist = function (re_WaterID, re_BlendDist) {
+  Module.REsetWaterBlendDist = function (re_WaterID, re_BlendDist) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     return Module.RealBIMWeb.SetWaterBlendDist(re_WaterID, re_BlendDist);
   }
@@ -4504,7 +4504,7 @@ Module.REendOSGBEdit = function(){
    * 获取水面角点
    * @param {String} re_WaterID //水面id
    */
-  Module.REGetWaterCorners = function (re_WaterID) {
+  Module.REgetWaterCorners = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
 
     var _vector = Module.RealBIMWeb.GetWaterCorners(re_WaterID);
@@ -4520,7 +4520,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Array[Vec3]} re_CornersSet //水面点坐标集合 至少有三个点构成一个平面 [vec3,vec3,vec3]
    */
-  Module.RESetWaterCorners = function (re_WaterID, re_CornersSet) {
+  Module.REsetWaterCorners = function (re_WaterID, re_CornersSet) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     if (!checkParamType(re_CornersSet, 're_CornersSet', RE_Enum.RE_Check_Array)) return;
 
@@ -4540,7 +4540,7 @@ Module.REendOSGBEdit = function(){
    * 通过Json 创建水域对象
    * @param {String} re_Json //水面数据  json格式
    */
-  Module.RELoadWaterFromJSON = function (re_Json) {
+  Module.REloadWaterFromJSON = function (re_Json) {
     if (!checkParamType(re_Json, 're_Json', RE_Enum.RE_Check_String)) return;
     return Module.RealBIMWeb.LoadWaterFromJson(re_Json);
   }
@@ -4548,7 +4548,7 @@ Module.REendOSGBEdit = function(){
   /**
    * 把当前场景中所有水域对象导出为一个Json字符串
    */
-  Module.RESerializeWaterToJSON = function () {
+  Module.REserializeWaterToJSON = function () {
     return Module.RealBIMWeb.SerializeWaterToString();
   }
 
@@ -5824,7 +5824,7 @@ Module.REendOSGBEdit = function(){
  * 获取对应UI的可见性
  * @param {String} re_UIID //控件id
  */
- Module.REUIWgtGetVisible = function (re_UIID) {
+ Module.REgetUIWgtVisible = function (re_UIID) {
   if (!checkNull(re_UIID, 're_UIID')) return;
   if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
     logErrorWithPar('re_UIID');
@@ -5839,7 +5839,7 @@ Module.REendOSGBEdit = function(){
  * @param {String} re_UIID //控件id
  * @param {Boolean} el_Visible //是否显示
  */
-Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
+Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   if (!checkNull(re_UIID, 're_UIID')) return;
   if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
     logErrorWithPar('re_UIID');
@@ -6024,7 +6024,7 @@ Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
    * @param {String} re_FEID //有限元数据唯一标识
    * @param {String} re_FilePath //FEM文件路径
    */
-   Module.REFELoadFEMDataWithPath = function (re_FEID, re_FilePath) {
+   Module.REloadFEMDataByPath = function (re_FEID, re_FilePath) {
     if (!checkNull(re_FEID, 're_FEID')) return;
     if (!checkNull(re_FilePath, 're_FilePath')) return;
     Module.RealBIMWeb.AddFEMData(re_FEID, re_FilePath);
@@ -6034,7 +6034,7 @@ Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
    * 移除指定标识的FEM数据
    * @param {String} re_FEID //有限元数据唯一标识
    */
-  Module.REFERemoveFEMDataWithID = function (re_FEID) {
+  Module.REremoveFEMDataByID = function (re_FEID) {
     if (!checkNull(re_FEID, 're_FEID')) return;
     return Module.RealBIMWeb.RemoveFEMData(re_FEID);
   }
@@ -6043,7 +6043,7 @@ Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
    * 获取所有的标量属性字段名称集合
    * @param {String} re_FEID //有限元数据唯一标识
    */
-  Module.REFEGetAllScalarParamNameWithID = function (re_FEID) {
+  Module.REgetAllScalarParamNameByID = function (re_FEID) {
     if (!checkNull(re_FEID, 're_FEID')) return;
     var _vector = Module.RealBIMWeb.GetAllScalarsName(re_FEID);
     var scalarParamList = [];
@@ -6058,7 +6058,7 @@ Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
    * @param {String} re_FEID //有限元数据唯一标识
    * @param {String} re_ScarlarParamName //标量属性字段名称
    */
-  Module.REFESetActiveScalarWithName = function (re_FEID, re_ScarlarParamName) {
+  Module.REsetActiveScalarByName = function (re_FEID, re_ScarlarParamName) {
     if (!checkNull(re_FEID, 're_FEID')) return;
     if (!checkNull(re_ScarlarParamName, 're_ScarlarParamName')) return;
     return Module.RealBIMWeb.SetActiveScalars(re_FEID,re_ScarlarParamName);
@@ -6071,7 +6071,7 @@ Module.REUIWgtSetVisible = function (re_UIID, el_Visible) {
    * @param {Vec2} re_SaturationRange //饱和度取值范围   0-1的取值范围
    * @param {Vec2} re_ValueRange //明度取值范围   0-1的取值范围
    */
-  Module.REFESetCLUTWithHSVFormat = function (re_FEID, re_HueRange, re_SaturationRange, re_ValueRange) {
+  Module.REsetCLUTByHSVFormat = function (re_FEID, re_HueRange, re_SaturationRange, re_ValueRange) {
     if (!checkNull(re_FEID, 're_FEID')) return;
     if (!checkParamType(re_HueRange, 're_HueRange', RE_Enum.RE_Check_Array)) return;
     if (!checkParamType(re_SaturationRange, 're_SaturationRange', RE_Enum.RE_Check_Array)) return;
