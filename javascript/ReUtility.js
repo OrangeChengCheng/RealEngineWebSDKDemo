@@ -6082,35 +6082,492 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
 
 
 
+// MOD-- 概略图(小地图)
+  /**
+   * 获取概略图的显示状态
+   */
+   Module.REgetOverViewVisible = function () {
+    return Module.RealBIMWeb.GetOverViewShow();
+  }
+
+  /**
+   * 设置概略图的显示状态
+   * @param {Boolean} re_Visible //是否显示
+   */
+  Module.REsetOverViewVisible = function (re_Visible) {
+    if (!checkNull(re_Visible, 're_Visible')) return;
+    return Module.RealBIMWeb.SetOverViewShow(re_Visible);
+  }
+
+  /**
+   * 加载概略图中的CAD数据（ RealBIMLoadOverViewCAD 事件监听回调 CAD数据添加成功）
+   * @param {String} re_FilePath //CAD文件路径
+   * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
+   * @param {Number} re_CADScale //CAD的比例尺
+   */
+  Module.REloadOverViewForCADByPath = function (re_FilePath, re_CADUnit, re_CADScale) {
+    if (!checkParamType(re_FilePath, 're_FilePath', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
+
+    if (!RE_CADUnit_Enum.includes(re_CADUnit)) {
+      logErrorWithPar('re_CADUnit');
+      return;
+    }
+    var _CADUnit = eval('Module.' + re_CADUnit);
+    var _CADScale = 1.0; if (typeof re_CADScale != 'undefined') { _CADScale = re_CADScale; }
+    return Module.RealBIMWeb.LoadOverViewCAD(re_FilePath, _CADUnit, _CADScale);
+  }
+
+  /**
+   * 获取概略图的显示区域范围 (概略图显示的实际范围（像素）)
+   */
+  Module.REGetOverViewRegion = function () {
+    return Module.RealBIMWeb.GetOverViewRegion();
+  }
+
+  /**
+   * 设置概略图的显示区域比例（原点和对焦点相对主界面宽高的百分比）！！！显示范围限制在概略图最大的宽高设置
+   * @param {Vec2} re_ScaleOrigin //原点相对于主界面宽高的比例 [0,0]  取值范围0-1
+   * @param {Vec2} re_ScaleDiagonal //对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
+   */
+  Module.REsetOverViewRegion = function (re_ScaleOrigin, re_ScaleDiagonal) {
+    if (!checkArrCount(re_ScaleOrigin, 're_ScaleOrigin', 2)) return;
+    if (!checkArrCount(re_ScaleDiagonal, 're_ScaleDiagonal', 2)) return;
+    var _Region = re_ScaleOrigin.concat(re_ScaleDiagonal);
+    return Module.RealBIMWeb.SetOverViewRegion(_Region);
+  }
+
+  /**
+   * 获取概略图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+   */
+  Module.REgetOverViewMaxRegion = function () {
+    return Module.RealBIMWeb.GetOverViewMaxRegion();
+  }
+
+  /**
+   * 设置概略图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+   * @param {Vec2} re_Region //xy分别表示最大宽度和高度（像素值）
+   */
+  Module.REsetOverViewMaxRegion = function (re_Region) {
+    if (!checkArrCount(re_Region, 're_Region', 2)) return;
+    return Module.RealBIMWeb.SetOverViewMaxRegion(re_Region);
+  }
+
+  /**
+   * 获取概略图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+   */
+  Module.REgetOverViewMinRegion = function () {
+    return Module.RealBIMWeb.GetOverViewMinRegion();
+  }
+
+  /**
+   * 设置概略图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+   * @param {Vec2} re_Region //xy分别表示最小宽度和高度（像素值）
+   */
+  Module.REsetOverViewMinRegion = function (re_Region) {
+    if (!checkArrCount(re_Region, 're_Region', 2)) return;
+    return Module.RealBIMWeb.SetOverViewMinRegion(re_Region);
+  }
+
+  /**
+   * 设置概略图相机显示样式
+   * @param {String} re_IconColor //图标颜色信息（字符串格式）
+   * @param {Number} re_IconColorPercent //图标颜色所占的权重，255表示100%,0表示0%
+   * @param {Number} re_IconSize //图标大小（按屏幕分辨率） 默认值20px
+   */
+  Module.REsetOverViewIconStyle = function (re_IconColor, re_IconColorPercent, re_IconSize) {
+    if (!checkParamType(re_IconColor, 're_IconColor', RE_Enum.RE_Check_String)) return;
+    if (!checkNull(re_IconColorPercent, 're_IconColorPercent')) return;
+    if (!checkNull(re_IconSize, 're_IconSize')) return;
+
+    var clr = Module.REclrFix(re_IconColor,re_IconColorPercent); 
+    return Module.RealBIMWeb.SetOverViewCamStyle(clr, re_IconSize);
+  }
+
+  /**
+   * 设置概略图相机位置
+   * @param {Vec2} re_Postion //位置坐标 必传
+   * @param {Vec2} re_Direction //相机朝向 可不传
+   */
+  Module.REsetOverViewCameraPostion = function (re_Postion, re_Direction) {
+    if (!checkArrCount(re_Postion, 're_Postion', 2)) return;
+    var _dPosX = re_Postion[0]; var _dPosY = re_Postion[1];
+    var _dDirX = 0; var _dDirY = 0;
+    if (checkArrCount(re_Postion, 're_Postion', 2)) {
+      _dDirX = re_Direction[0];
+      _dDirY = re_Direction[1];
+    }
+    return Module.RealBIMWeb.SetOverViewCamLocation(_dPosX, _dPosY, _dDirX, _dDirY);
+  }
+// MARK 设置变换数据
+  /**
+   * 通过顶点映射获取概略图相机相对模型相机的变换数据
+   * @param {Array[Vec3]} re_BIMPoints //BIM顶点 至少大于三个点数据
+   * @param {Array[Vec2]} re_CADPoints //CAD顶点 至少大于三个点数据
+   * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
+   */
+  Module.REgetOverViewCamTransformInfoByPosMap = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
+    if (!checkParamType(re_BIMPoints, 're_BIMPoints', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_CADPoints, 're_CADPoints', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
+
+    if (re_BIMPoints.length < 3 || re_CADPoints.length < 3) {
+      logErrorWithPar("re_BIMPoints | re_CADPoints");
+      return;
+    }
+    var _vector_BIMPoints = new Module.RE_Vector_dvec3();
+    var _vector_CADPoints = new Module.RE_Vector_dvec2();
+    try {
+      re_BIMPoints.forEach(value => {
+        if (!checkArrCount(value, 're_BIMPoints', 2)) throw new Error('');
+        _vector_BIMPoints.push_back(value);
+      });
+      re_CADPoints.forEach(value => {
+        if (!checkArrCount(value, 're_CADPoints', 2)) throw new Error('');
+        _vector_CADPoints.push_back(value);
+      });
+    } catch (error) { return; }
+
+    if (!RE_CADUnit_Enum.includes(re_CADUnit)) {
+      logErrorWithPar('re_CADUnit');
+      return;
+    }
+    var _CADUnit = eval('Module.' + re_CADUnit);
+
+    var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
+
+    var _TransformInfo = {
+      re_BasePostion: _vector_TransformInfo.m_vBasePos,
+      re_Offset: _vector_TransformInfo.m_vOffset,
+      re_ScaleFactor: _vector_TransformInfo.m_dScaleFactor,
+      re_Angle: _vector_TransformInfo.m_dAngle,
+      re_Normal: _vector_TransformInfo.m_vNormal,
+      re_Axis: _vector_TransformInfo.m_vAxis,
+    }
+    return _TransformInfo;
+  }
+
+  /**
+   * 设置概略图相机变换数据 (通过顶点映射)
+   * @param {Array[Vec3]} re_BIMPoints //BIM顶点 至少大于三个点数据
+   * @param {Array[Vec2]} re_CADPoints //CAD顶点 至少大于三个点数据
+   * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
+   */
+  Module.REsetOverViewCamTransformInfoByPosMap = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
+    if (!checkParamType(re_BIMPoints, 're_BIMPoints', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_CADPoints, 're_CADPoints', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
+
+    if (re_BIMPoints.length < 3 || re_CADPoints.length < 3) {
+      logErrorWithPar("re_BIMPoints | re_CADPoints");
+      return;
+    }
+    var _vector_BIMPoints = new Module.RE_Vector_dvec3();
+    var _vector_CADPoints = new Module.RE_Vector_dvec2();
+    try {
+      re_BIMPoints.forEach(value => {
+        if (!checkArrCount(value, 're_BIMPoints', 3)) throw new Error('');
+        _vector_BIMPoints.push_back(value);
+      });
+      re_CADPoints.forEach(value => {
+        if (!checkArrCount(value, 're_CADPoints', 2)) throw new Error('');
+        _vector_CADPoints.push_back(value);
+      });
+    } catch (error) { return; }
+    if (!RE_CADUnit_Enum.includes(re_CADUnit)) {
+      logErrorWithPar('re_CADUnit');
+      return;
+    }
+    var _CADUnit = eval('Module.' + re_CADUnit);
+    var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
+    return Module.RealBIMWeb.SetOverViewCamTransformInfo(_vector_TransformInfo);
+  }
+
+  /**
+   * 设置概略图相机变换数据 (通过对象)
+   * @param {Object} re_Info //变换信息 ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中
+   * @param {Vec3} re_BasePostion //变换基点
+   * @param {Vec3} re_Offset //偏移量
+   * @param {Number} re_ScaleFactor //缩放比例
+   * @param {Number} re_Angle //旋转角度
+   * @param {Vec3} re_Normal //法向 只有(0,0,1)和(0,0,-1)
+   * @param {Vec3} re_Axis //镜像轴向以基点为基准
+   */
+  Module.REsetOverViewCamTransformInfoByObj = function (re_Info) {
+    if (!checkNull(re_Info, 're_Info')) return;
+    if (!checkArrCount(re_Info.re_BasePostion, 're_BasePostion', 3)) return;
+    if (!checkArrCount(re_Info.re_Offset, 're_Offset', 3)) return;
+    if (!checkNull(re_Info.re_ScaleFactor, 're_ScaleFactor')) return;
+    if (!checkNull(re_Info.re_Angle, 're_Angle')) return;
+    if (!checkArrCount(re_Info.re_Normal, 're_Normal', 3)) return;
+    if (!checkArrCount(re_Info.re_Axis, 're_Axis', 3)) return;
+    _TransformInfo = {
+      m_vBasePos: re_Info.re_BasePostion,
+      m_vOffset: re_Info.re_Offset,
+      m_dScaleFactor: re_Info.re_ScaleFactor,
+      m_dAngle: re_Info.re_Angle,
+      m_vNormal: re_Info.re_Normal,
+      m_vAxis: re_Info.re_Axis,
+    };
+    return Module.RealBIMWeb.SetOverViewCamTransformInfo(_TransformInfo);
+  }
+
+  /**
+   * 获取概略图相机变换数据
+   */
+  Module.REgetOverViewCamTransformInfo = function () {
+    var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfo();
+    var _TransformInfo = {
+      re_BasePostion: _vector_TransformInfo.m_vBasePos,
+      re_Offset: _vector_TransformInfo.m_vOffset,
+      re_ScaleFactor: _vector_TransformInfo.m_dScaleFactor,
+      re_Angle: _vector_TransformInfo.m_dAngle,
+      re_Normal: _vector_TransformInfo.m_vNormal,
+      re_Axis: _vector_TransformInfo.m_vAxis,
+    }
+    return _TransformInfo;
+  }
+
+// MARK CAD类型概略图矢量锚点
+  /**
+   * 添加一系列CAD类型概略图矢量锚点 (要在CAD加载完成之后添加)
+   * @param {Array[Object]} re_Info //锚点信息 [列表] ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中
+   * @param {String} re_AnchorID //锚点的ID （唯一性）
+   * @param {Vec2} re_Postion //锚点的位置 （360资源的点位位置 二维数组[x,y]）
+   * @param {String} re_ShpPath //使用的矢量文件路径 (显示样式) （该路径可包含路径宏，系统内置的路径宏有"ModuleDir"、"DefaultResRootDir"、"RealBIMAppFileCache"、"RealBIMTempFileCache"）
+   * @param {String} re_GroupID //锚点所属的组名称ID
+   * @param {String} re_Text //锚点的文字内容
+   * @param {String} re_TextColor //锚点文字的颜色 十六进制
+   * @param {Number} re_TextSize //锚点文字的大小(文字的高度)
+   * @param {RE_GridPosEnum} re_TextAlign //表示锚点文字相对矢量图标的对齐方式(九宫格：以图片为中心[0,0])) RE_GridPosEnum 枚举
+   */
+  Module.REaddOverViewShpAnchorForCADByObj = function (re_Info) {
+    if (!checkParamType(re_Info, 're_Info',RE_Enum.RE_Check_Array)) return;
+
+    var _vector_ShpAnchor = new Module.RE_Vector_CAD_SHP_ANCHOR();
+    try {
+      re_Info.forEach(value => {
+        if (!checkParamType(value.re_AnchorID, 're_AnchorID', RE_Enum.RE_Check_String)) throw new Error('');
+        if (!checkParamType(value.re_Postion, 're_Postion', RE_Enum.RE_Check_Array)) throw new Error('');
+        if (!checkParamType(value.re_ShpPath, 're_ShpPath', RE_Enum.RE_Check_String)) throw new Error('');
+        if (!checkParamType(value.re_GroupID, 're_GroupID', RE_Enum.RE_Check_String)) throw new Error('');
+        var _obj = {
+          m_strID: value.re_AnchorID,
+          m_vPos: value.re_Postion,
+          m_strShpPath: value.re_ShpPath,
+          m_strGroupID: value.re_GroupID,
+        }
+        if (checkParamNull(value.re_Text)) _obj.m_strText = value.re_Text;
+        if (checkParamNull(value.re_TextColor)) _obj.m_uTextClr = parseInt(value.re_TextColor, 16);
+        if (checkParamNull(value.re_TextSize)) _obj.m_dTextSize = value.re_TextSize;
+        if (checkParamNull(value.re_TextAlign) && Object.keys(RE_GridPosEnum).includes(value.re_TextAlign)) _obj.m_vTextAlign = RE_GridPosEnum[value.re_TextAlign];
+        _vector_ShpAnchor.push_back(_obj);
+      });
+    } catch (error) {
+      return;
+    }
+    return Module.RealBIMWeb.AddCADOverViewShpAnchors(_vector_ShpAnchor);
+  }
+
+  /**
+   * 获取系统中的CAD类型概略图矢量锚点总数
+   */
+  Module.REgetCADOverViewShpAnchorNum = function () {
+    return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();;
+  }
+
+  /**
+   * 获取系统中所有的CAD类型概略图矢量锚点信息
+   */
+  Module.REgetAllCADOverViewShpAnchors = function () {
+    var _vector_ShpAnchorList = Module.RealBIMWeb.GetAllCADOverViewShpAnchors();
+    var _shpAnchors = [];
+    for (let i = 0; i < _vector_ShpAnchorList.size(); i++) {
+      var _shpAnchor = _vector_ShpAnchorList.get(i);
+      var _obj = {
+        re_AnchorID: _shpAnchor.m_strID,
+        re_Postion: _shpAnchor.m_vPos,
+        re_ShpPath: _shpAnchor.m_strShpPath,
+        re_GroupID: _shpAnchor.m_strGroupID,
+        re_Text: _shpAnchor.m_strText,
+        re_TextColor: colorU32ToHEX(_shpAnchor.m_uTextClr),
+        re_TextAlign: _shpAnchor.m_vTextAlign,
+      }
+      _shpAnchors.push(_obj);
+    }
+    return _shpAnchors;
+  }
+
+  /**
+   * 获取一个CAD类型概略图矢量锚点的信息
+   * @param {String} re_AnchorID //CAD锚点 ID
+   */
+  Module.REgetOverViewShpAnchorForCADByID = function (re_AnchorID) {
+    if (!checkNull(re_AnchorID, 're_AnchorID')) return;
+    var _vector_ShpAnchor = Module.RealBIMWeb.GetCADOverViewShpAnchor(re_AnchorID);
+    var _ShpAnchor = {
+      re_AnchorID: _vector_ShpAnchor.m_strID,
+      re_Postion: _vector_ShpAnchor.m_vPos,
+      re_ShpPath: _vector_ShpAnchor.m_strShpPath,
+      re_GroupID: _vector_ShpAnchor.m_strGroupID,
+      re_Text: _vector_ShpAnchor.m_strText,
+      re_TextColor: colorU32ToHEX(_vector_ShpAnchor.m_uTextClr),
+      re_TextAlign: _vector_ShpAnchor.m_vTextAlign,
+    }
+    return _ShpAnchor;
+  }
+
+  /**
+   * 获取系统中所有CAD类型概略图矢量锚点组的名称
+   */
+  Module.REgetAllCADOverViewShpAnchorGroupIDs = function () {
+    var _vector_GroupIDs = Module.RealBIMWeb.GetAllCADOverViewShpAnchorGroupIDs();
+    var _groupIDs = [];
+    for (let i = 0; i < _vector_GroupIDs.size(); i++) {
+      _groupIDs.push(_vector_GroupIDs.get(i));
+    }
+    return _groupIDs;
+  }
+
+  /**
+   * 获取系统中某个CAD类型概略图矢量锚点组包含的所有CAD矢量锚点信息
+   * @param {String} re_GroupID //锚点所属的组名称ID
+   */
+  Module.REgetCADOverViewShpAnchorsForGroupByID = function (re_GroupID) {
+    if (!checkNull(re_GroupID, 're_GroupID')) return;
+    var _vector_ShpAnchorList = Module.RealBIMWeb.GetGroupCADOverViewShpAnchors(re_GroupID);
+    var _shpAnchors = [];
+    for (let i = 0; i < _vector_ShpAnchorList.size(); i++) {
+      var _shpAnchor = _vector_ShpAnchorList.get(i);
+      var _obj = {
+        re_AnchorID: _shpAnchor.m_strID,
+        re_Postion: _shpAnchor.m_vPos,
+        re_ShpPath: _shpAnchor.m_strShpPath,
+        re_GroupID: _shpAnchor.m_strGroupID,
+        re_Text: _shpAnchor.m_strText,
+        re_TextColor: colorU32ToHEX(_shpAnchor.m_uTextClr),
+        re_TextAlign: _shpAnchor.m_vTextAlign,
+      }
+      _shpAnchors.push(_obj);
+    }
+    return _shpAnchors;
+  }
+
+  /**
+   * 删除系统所有的CAD类型概略图矢量锚点
+   */
+  Module.REdelAllCADOverViewShpAnchors = function () {
+    return Module.RealBIMWeb.DelAllCADOverViewShpAnchors();
+  }
+
+  /**
+   * 删除对应ID列表的 CAD类型概略图矢量锚点
+   * @param {Array[String]} re_AnchorIDList //CAD ID
+   */
+  Module.REdelCADOverViewShpAnchorsByIDs = function (re_AnchorIDList) {
+    if (!checkParamType(re_AnchorIDList, 're_AnchorIDList', RE_Enum.RE_Check_Array)) return;
+    var _vector_AnchorIDs = new Module.RE_Vector_WStr();
+    try {
+      re_AnchorIDList.forEach(value => {
+        if (!checkParamType(value, 're_AnchorIDList', RE_Enum.RE_Check_String)) throw new Error('');
+        _vector_AnchorIDs.push_back(value);
+      });
+    } catch (error) {
+      return;
+    }
+    return Module.RealBIMWeb.DelCADOverViewShpAnchors(_vector_AnchorIDs);
+  }
+
+  /**
+   * 删除对应组 包含的所有CAD矢量锚点
+   * @param {String} re_GroupID //锚点所属的组名称ID
+   */
+  Module.REdelCADOverViewShpAnchorsForGroupByID = function (re_GroupID) {
+    if (!checkNull(re_GroupID, 're_GroupID')) return;
+    return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(re_GroupID);
+  }
+
+  /**
+   * 设置指定组 CAD类型概略图矢量锚点的相机缩放边界值
+   * @param {String} re_GroupID //锚点所属的组名称ID
+   * @param {Number} re_MinScaleSize //缩放最小边界
+   * @param {Number} re_MaxScaleSize //缩放最大边界
+   */
+  Module.REsetCADOverViewShpAnchorScaleByGroupID = function (re_GroupID, re_MinScaleSize, re_MaxScaleSize) {
+    if (!checkNull(re_GroupID, 're_GroupID')) return;
+    if (!checkNull(re_MinScaleSize, 're_MinScaleSize')) return;
+    if (!checkNull(re_MaxScaleSize, 're_MaxScaleSize')) return;
+    return Module.RealBIMWeb.SetCADOverViewShpAnchorScale(re_GroupID, re_MinScaleSize, re_MaxScaleSize);
+  }
+
+  
 
 
-// MOD-- 自定义方法
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+// MOD-- 自定义方法 (工具)
+  /**
+   * 检查参数是否为空，是否需要打印错误提示
+   * @param {Object} param //参数
+   * @param {String} paramName //参数名
+   * @param {Boolean} needErrorLog //是否需要报错信息
+   */
+  function checkNullBy(param, paramName, needErrorLog) {
+    if (typeof param == 'undefined') {
+      if (needErrorLog) logErrorWithPar(paramName);
+      return false;
+    }
+    return true;
+  }
+
   /**
    * 检查参数是否为空，并打印错误提示
    * @param {Object} param //参数
    * @param {String} paramName //参数名
    */
   function checkNull(param, paramName) {
-    if (typeof param == 'undefined') {
-      console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
-      return false;
-    }
-    return true;
+    return checkNullBy(param, paramName, true);
   }
+
   /**
-   * 检查参数是否为空，参数类型是否正确
+   * 检查参数是否为空
+   * @param {Object} param //参数
+   */
+   function checkParamNull(param) {
+    return checkNullBy(param, '', false);
+  }
+
+  /**
+   * 检查参数是否为空，参数类型是否正确,是否需要报错信息
    * @param {Object} param //参数
    * @param {String} paramName //参数名
    * @param {RE_Enum} re_type //枚举类型
+   * @param {Boolean} needErrorLog //是否需要报错信息
    */
-  function checkParamType(param, paramName, re_type) {
-    if (!checkNull(param, paramName)) return false;
+  function checkParamTypeBy(param, paramName, re_type, needErrorLog) {
+    if (!checkNullBy(param, paramName, needErrorLog)) return false;
 
     switch (re_type) {
       case RE_Enum.RE_Check_String:
         {
           if ((typeof param != "string")) {
-            console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+            if (needErrorLog) logErrorWithPar(paramName);
             return false;
           }
         }
@@ -6118,7 +6575,7 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
       case RE_Enum.RE_Check_Array:
         {
           if (!(param instanceof Array)) {
-            console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+            if (needErrorLog) logErrorWithPar(paramName);
             return false;
           }
         }
@@ -6130,12 +6587,65 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
+   * 检查参数是否为空，参数类型是否正确 并打印报错
+   * @param {Object} param //参数
+   * @param {String} paramName //参数名
+   * @param {RE_Enum} re_type //枚举类型
+   */
+  function checkParamType(param, paramName, re_type) {
+    return checkParamTypeBy(param, paramName, re_type, true);
+  }
+
+  /**
    * 打印错误提示
    * @param {String} paramName //参数名
    */
   function logErrorWithPar(paramName) {
     console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
   }
+
+  /**
+   * 判断是否是数组，且数组个数
+   * @param {Object} param //参数名
+   * @param {String} paramName //参数名
+   * @param {Number} count //检查个数
+   * @param {Boolean} needErrorLog //是否需要报错信息
+   */
+  function checkArrCountBy(param, paramName, count, needErrorLog) {
+    var isArr = checkParamTypeBy(param, paramName, RE_Enum.RE_Check_Array, needErrorLog);
+    if (isArr) {
+      if (param.length == count) {
+        return true;
+      }
+    }
+    if (needErrorLog) logErrorWithPar(paramName);
+    return false;
+  }
+
+  /**
+   * 判断是否是数组，且数组个数，并打印报错
+   * @param {Object} param //参数名
+   * @param {String} paramName //参数名
+   * @param {Number} count //检查个数
+   */
+  function checkArrCount(param, paramName, count) {
+    return checkArrCountBy(param, paramName, count, true);
+  }
+
+  /**
+   * 32位颜色转十六进制颜色
+   * @param {Number} colorU32 //32位颜色值
+   */
+   function colorU32ToHEX(colorU32) {
+     let _hexStr = (colorU32).toString(16);
+     let count = _hexStr.length;
+     for (let a = 0; a < (8 - count); a++) {
+      _hexStr = '0' + _hexStr;
+     }
+     _hexStr = '0x' + _hexStr;
+     return _hexStr;
+  }
+
 
 
 
@@ -6306,6 +6816,41 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
     RE_PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//剖切
     RE_PanelBtn_Setting: 'BuiltIn_Btn_Setting',//设置
   }
+
+// MARK RE_CADUnit_Enum
+  //CAD单位
+  const RE_CADUnit_Enum = [
+    "RE_CAD_UNIT.Meter",//米
+    "RE_CAD_UNIT.Millimeter",//毫米
+    "RE_CAD_UNIT.Centimeter",//厘米
+    "RE_CAD_UNIT.Decimeter",//分米
+    "RE_CAD_UNIT.Decameter", //十米
+    "RE_CAD_UNIT.Hectometer",//百米
+    "RE_CAD_UNIT.Kilometer",//千米
+    "RE_CAD_UNIT.Inch",//英寸
+    "RE_CAD_UNIT.Foot",//英尺
+    "RE_CAD_UNIT.Mile",//英里
+    "RE_CAD_UNIT.Microinch",//微英寸
+    "RE_CAD_UNIT.Mil",//毫英寸
+    "RE_CAD_UNIT.Nanometer",//纳米
+    "RE_CAD_UNIT.Micron",//微米
+    "RE_CAD_UNIT.Gigameter",//百万公里
+    "RE_CAD_UNIT.Lightyear",//光年
+  ]
+
+// MARK RE_GridPosEnum
+  //表示九宫格位置枚举
+  const RE_GridPosEnum = {
+    Grid_LT: [-1,1],   //左上区域
+    Grid_MT: [0,1],   //中上区域
+    Grid_RT: [1,1],   //右上区域
+    Grid_LM: [-1,0],   //左中区域
+    Grid_MM: [0,0],   //中中区域
+    Grid_RM: [1,0],   //右中区域
+    Grid_LB: [-1,-1],   //左下区域
+    Grid_MB: [0,-1],   //中下区域
+    Grid_RB: [1,-1],   //右下区域
+  }  
 
 
 // MARK RE_Enum
