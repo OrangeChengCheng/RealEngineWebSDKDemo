@@ -1,4 +1,4 @@
-//版本：v2.1.0.1669
+//版本：v2.1.0.1670
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -6082,30 +6082,30 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
 
 
 
-// MOD-- 概略图(小地图)
+// MOD-- 小地图
   /**
-   * 获取概略图的显示状态
+   * 获取小地图的显示状态
    */
-   Module.REgetOverViewVisible = function () {
+   Module.REgetMiniMapVisible = function () {
     return Module.RealBIMWeb.GetOverViewShow();
   }
 
   /**
-   * 设置概略图的显示状态
+   * 设置小地图的显示状态
    * @param {Boolean} re_Visible //是否显示
    */
-  Module.REsetOverViewVisible = function (re_Visible) {
+  Module.REsetMiniMapVisible = function (re_Visible) {
     if (!checkNull(re_Visible, 're_Visible')) return;
     return Module.RealBIMWeb.SetOverViewShow(re_Visible);
   }
 
   /**
-   * 加载概略图中的CAD数据（ RealBIMLoadOverViewCAD 事件监听回调 CAD数据添加成功）
+   * 加载小地图中的CAD数据（ RealBIMLoadMiniMapCAD 事件监听回调 CAD数据添加成功）
    * @param {String} re_FilePath //CAD文件路径
    * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
    * @param {Number} re_CADScale //CAD的比例尺
    */
-  Module.REloadOverViewForCADByPath = function (re_FilePath, re_CADUnit, re_CADScale) {
+  Module.REloadMiniMapForCAD = function (re_FilePath, re_CADUnit, re_CADScale) {
     if (!checkParamType(re_FilePath, 're_FilePath', RE_Enum.RE_Check_String)) return;
     if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
 
@@ -6119,18 +6119,18 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取概略图的显示区域范围 (概略图显示的实际范围（像素）)
+   * 获取小地图的显示区域范围 (小地图显示的实际范围（像素）)
    */
-  Module.REGetOverViewRegion = function () {
+  Module.REGetMiniMapRegion = function () {
     return Module.RealBIMWeb.GetOverViewRegion();
   }
 
   /**
-   * 设置概略图的显示区域比例（原点和对焦点相对主界面宽高的百分比）！！！显示范围限制在概略图最大的宽高设置
+   * 设置小地图的显示区域比例（原点和对焦点相对主界面宽高的百分比）！！！显示范围限制在小地图最大的宽高设置
    * @param {Vec2} re_ScaleOrigin //原点相对于主界面宽高的比例 [0,0]  取值范围0-1
    * @param {Vec2} re_ScaleDiagonal //对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
    */
-  Module.REsetOverViewRegion = function (re_ScaleOrigin, re_ScaleDiagonal) {
+  Module.REsetMiniMapRegion = function (re_ScaleOrigin, re_ScaleDiagonal) {
     if (!checkArrCount(re_ScaleOrigin, 're_ScaleOrigin', 2)) return;
     if (!checkArrCount(re_ScaleDiagonal, 're_ScaleDiagonal', 2)) return;
     var _Region = re_ScaleOrigin.concat(re_ScaleDiagonal);
@@ -6138,44 +6138,44 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取概略图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+   * 获取小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
    */
-  Module.REgetOverViewMaxRegion = function () {
+  Module.REgetMiniMapMaxRegion = function () {
     return Module.RealBIMWeb.GetOverViewMaxRegion();
   }
 
   /**
-   * 设置概略图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+   * 设置小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
    * @param {Vec2} re_Region //xy分别表示最大宽度和高度（像素值）
    */
-  Module.REsetOverViewMaxRegion = function (re_Region) {
+  Module.REsetMiniMapMaxRegion = function (re_Region) {
     if (!checkArrCount(re_Region, 're_Region', 2)) return;
     return Module.RealBIMWeb.SetOverViewMaxRegion(re_Region);
   }
 
   /**
-   * 获取概略图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+   * 获取小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
    */
-  Module.REgetOverViewMinRegion = function () {
+  Module.REgetMiniMapMinRegion = function () {
     return Module.RealBIMWeb.GetOverViewMinRegion();
   }
 
   /**
-   * 设置概略图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+   * 设置小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
    * @param {Vec2} re_Region //xy分别表示最小宽度和高度（像素值）
    */
-  Module.REsetOverViewMinRegion = function (re_Region) {
+  Module.REsetMiniMapMinRegion = function (re_Region) {
     if (!checkArrCount(re_Region, 're_Region', 2)) return;
     return Module.RealBIMWeb.SetOverViewMinRegion(re_Region);
   }
 
   /**
-   * 设置概略图相机显示样式
+   * 设置小地图相机显示样式
    * @param {String} re_IconColor //图标颜色信息（字符串格式）
    * @param {Number} re_IconColorPercent //图标颜色所占的权重，255表示100%,0表示0%
    * @param {Number} re_IconSize //图标大小（按屏幕分辨率） 默认值20px
    */
-  Module.REsetOverViewIconStyle = function (re_IconColor, re_IconColorPercent, re_IconSize) {
+  Module.REsetMiniMapIconStyle = function (re_IconColor, re_IconColorPercent, re_IconSize) {
     if (!checkParamType(re_IconColor, 're_IconColor', RE_Enum.RE_Check_String)) return;
     if (!checkNull(re_IconColorPercent, 're_IconColorPercent')) return;
     if (!checkNull(re_IconSize, 're_IconSize')) return;
@@ -6185,11 +6185,11 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 设置概略图相机位置
+   * 设置小地图相机位置
    * @param {Vec2} re_Postion //位置坐标 必传
    * @param {Vec2} re_Direction //相机朝向 可不传
    */
-  Module.REsetOverViewCameraPostion = function (re_Postion, re_Direction) {
+  Module.REsetMiniMapCameraPostion = function (re_Postion, re_Direction) {
     if (!checkArrCount(re_Postion, 're_Postion', 2)) return;
     var _dPosX = re_Postion[0]; var _dPosY = re_Postion[1];
     var _dDirX = 0; var _dDirY = 0;
@@ -6201,12 +6201,12 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 // MARK 设置变换数据
   /**
-   * 通过顶点映射获取概略图相机相对模型相机的变换数据
+   * 通过顶点映射获取小地图相机相对模型相机的变换数据
    * @param {Array[Vec3]} re_BIMPoints //BIM顶点 至少大于三个点数据
    * @param {Array[Vec2]} re_CADPoints //CAD顶点 至少大于三个点数据
    * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
    */
-  Module.REgetOverViewCamTransformInfoByPosMap = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
+  Module.REconvertMiniMapCamTransformInfo = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
     if (!checkParamType(re_BIMPoints, 're_BIMPoints', RE_Enum.RE_Check_Array)) return;
     if (!checkParamType(re_CADPoints, 're_CADPoints', RE_Enum.RE_Check_Array)) return;
     if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
@@ -6248,12 +6248,12 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 设置概略图相机变换数据 (通过顶点映射)
+   * 设置小地图相机变换数据 (通过顶点映射)
    * @param {Array[Vec3]} re_BIMPoints //BIM顶点 至少大于三个点数据
    * @param {Array[Vec2]} re_CADPoints //CAD顶点 至少大于三个点数据
    * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
    */
-  Module.REsetOverViewCamTransformInfoByPosMap = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
+  Module.REsetMiniMapCamTransformInfoByPots = function (re_BIMPoints, re_CADPoints, re_CADUnit) {
     if (!checkParamType(re_BIMPoints, 're_BIMPoints', RE_Enum.RE_Check_Array)) return;
     if (!checkParamType(re_CADPoints, 're_CADPoints', RE_Enum.RE_Check_Array)) return;
     if (!checkParamType(re_CADUnit, 're_CADUnit', RE_Enum.RE_Check_String)) return;
@@ -6284,7 +6284,7 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 设置概略图相机变换数据 (通过对象)
+   * 设置小地图相机变换数据 (通过对象)
    * @param {Object} re_Info //变换信息 ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中
    * @param {Vec3} re_BasePostion //变换基点
    * @param {Vec3} re_Offset //偏移量
@@ -6293,7 +6293,7 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
    * @param {Vec3} re_Normal //法向 只有(0,0,1)和(0,0,-1)
    * @param {Vec3} re_Axis //镜像轴向以基点为基准
    */
-  Module.REsetOverViewCamTransformInfoByObj = function (re_Info) {
+  Module.REsetMiniMapCamTransformInfo = function (re_Info) {
     if (!checkNull(re_Info, 're_Info')) return;
     if (!checkArrCount(re_Info.re_BasePostion, 're_BasePostion', 3)) return;
     if (!checkArrCount(re_Info.re_Offset, 're_Offset', 3)) return;
@@ -6313,9 +6313,9 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取概略图相机变换数据
+   * 获取小地图相机变换数据
    */
-  Module.REgetOverViewCamTransformInfo = function () {
+  Module.REgetMiniMapCamTransformInfo = function () {
     var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfo();
     var _TransformInfo = {
       re_BasePostion: _vector_TransformInfo.m_vBasePos,
@@ -6328,9 +6328,9 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
     return _TransformInfo;
   }
 
-// MARK CAD类型概略图矢量锚点
+// MARK CAD类型小地图矢量锚点
   /**
-   * 添加一系列CAD类型概略图矢量锚点 (要在CAD加载完成之后添加)
+   * 添加一系列CAD类型小地图矢量锚点 (要在CAD加载完成之后添加)
    * @param {Array[Object]} re_Info //锚点信息 [列表] ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中
    * @param {String} re_AnchorID //锚点的ID （唯一性）
    * @param {Vec2} re_Postion //锚点的位置 （360资源的点位位置 二维数组[x,y]）
@@ -6341,7 +6341,7 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
    * @param {Number} re_TextSize //锚点文字的大小(文字的高度)
    * @param {RE_GridPosEnum} re_TextAlign //表示锚点文字相对矢量图标的对齐方式(九宫格：以图片为中心[0,0])) RE_GridPosEnum 枚举
    */
-  Module.REaddOverViewShpAnchorForCADByObj = function (re_Info) {
+  Module.REaddMiniMapShpAnchorForCAD = function (re_Info) {
     if (!checkParamType(re_Info, 're_Info',RE_Enum.RE_Check_Array)) return;
 
     var _vector_ShpAnchor = new Module.RE_Vector_CAD_SHP_ANCHOR();
@@ -6370,16 +6370,16 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取系统中的CAD类型概略图矢量锚点总数
+   * 获取系统中的CAD类型小地图矢量锚点总数
    */
-  Module.REgetCADOverViewShpAnchorNum = function () {
+  Module.REgetCADMiniMapShpAnchorNum = function () {
     return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();;
   }
 
   /**
-   * 获取系统中所有的CAD类型概略图矢量锚点信息
+   * 获取系统中所有的CAD类型小地图矢量锚点信息
    */
-  Module.REgetAllCADOverViewShpAnchors = function () {
+  Module.REgetAllCADMiniMapShpAnchors = function () {
     var _vector_ShpAnchorList = Module.RealBIMWeb.GetAllCADOverViewShpAnchors();
     var _shpAnchors = [];
     for (let i = 0; i < _vector_ShpAnchorList.size(); i++) {
@@ -6399,10 +6399,10 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取一个CAD类型概略图矢量锚点的信息
+   * 获取一个CAD类型小地图矢量锚点的信息
    * @param {String} re_AnchorID //CAD锚点 ID
    */
-  Module.REgetOverViewShpAnchorForCADByID = function (re_AnchorID) {
+  Module.REgetMiniMapShpAnchorForCAD = function (re_AnchorID) {
     if (!checkNull(re_AnchorID, 're_AnchorID')) return;
     var _vector_ShpAnchor = Module.RealBIMWeb.GetCADOverViewShpAnchor(re_AnchorID);
     var _ShpAnchor = {
@@ -6418,9 +6418,9 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取系统中所有CAD类型概略图矢量锚点组的名称
+   * 获取系统中所有CAD类型小地图矢量锚点组的名称
    */
-  Module.REgetAllCADOverViewShpAnchorGroupIDs = function () {
+  Module.REgetAllCADMiniMapShpAnchorGroupIDs = function () {
     var _vector_GroupIDs = Module.RealBIMWeb.GetAllCADOverViewShpAnchorGroupIDs();
     var _groupIDs = [];
     for (let i = 0; i < _vector_GroupIDs.size(); i++) {
@@ -6430,10 +6430,10 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 获取系统中某个CAD类型概略图矢量锚点组包含的所有CAD矢量锚点信息
+   * 获取系统中某个CAD类型小地图矢量锚点组包含的所有CAD矢量锚点信息
    * @param {String} re_GroupID //锚点所属的组名称ID
    */
-  Module.REgetCADOverViewShpAnchorsForGroupByID = function (re_GroupID) {
+  Module.REgetCADMiniMapShpAnchorsForGroup = function (re_GroupID) {
     if (!checkNull(re_GroupID, 're_GroupID')) return;
     var _vector_ShpAnchorList = Module.RealBIMWeb.GetGroupCADOverViewShpAnchors(re_GroupID);
     var _shpAnchors = [];
@@ -6454,17 +6454,17 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   }
 
   /**
-   * 删除系统所有的CAD类型概略图矢量锚点
+   * 删除系统所有的CAD类型小地图矢量锚点
    */
-  Module.REdelAllCADOverViewShpAnchors = function () {
+  Module.REdelAllCADMiniMapShpAnchors = function () {
     return Module.RealBIMWeb.DelAllCADOverViewShpAnchors();
   }
 
   /**
-   * 删除对应ID列表的 CAD类型概略图矢量锚点
+   * 删除对应ID列表的 CAD类型小地图矢量锚点
    * @param {Array[String]} re_AnchorIDList //CAD ID
    */
-  Module.REdelCADOverViewShpAnchorsByIDs = function (re_AnchorIDList) {
+  Module.REdelCADMiniMapShpAnchors = function (re_AnchorIDList) {
     if (!checkParamType(re_AnchorIDList, 're_AnchorIDList', RE_Enum.RE_Check_Array)) return;
     var _vector_AnchorIDs = new Module.RE_Vector_WStr();
     try {
@@ -6482,18 +6482,18 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
    * 删除对应组 包含的所有CAD矢量锚点
    * @param {String} re_GroupID //锚点所属的组名称ID
    */
-  Module.REdelCADOverViewShpAnchorsForGroupByID = function (re_GroupID) {
+  Module.REdelCADMiniMapShpAnchorsForGroup = function (re_GroupID) {
     if (!checkNull(re_GroupID, 're_GroupID')) return;
     return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(re_GroupID);
   }
 
   /**
-   * 设置指定组 CAD类型概略图矢量锚点的相机缩放边界值
+   * 设置指定组 CAD类型小地图矢量锚点的相机缩放边界值
    * @param {String} re_GroupID //锚点所属的组名称ID
    * @param {Number} re_MinScaleSize //缩放最小边界
    * @param {Number} re_MaxScaleSize //缩放最大边界
    */
-  Module.REsetCADOverViewShpAnchorScaleByGroupID = function (re_GroupID, re_MinScaleSize, re_MaxScaleSize) {
+  Module.REsetCADMiniMapGroupShpAnchorScale = function (re_GroupID, re_MinScaleSize, re_MaxScaleSize) {
     if (!checkNull(re_GroupID, 're_GroupID')) return;
     if (!checkNull(re_MinScaleSize, 're_MinScaleSize')) return;
     if (!checkNull(re_MaxScaleSize, 're_MaxScaleSize')) return;
