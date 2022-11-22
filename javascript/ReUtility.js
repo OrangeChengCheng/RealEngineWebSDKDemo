@@ -1,4 +1,4 @@
-//版本：v2.1.0.1670
+//版本：v2.1.0.1678
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -299,25 +299,37 @@ Module.REworldPosToScreenPos_Ext = function(vWorldPos, dScaleDist){
 }
 
 //相机方位相关
-// dirInfo:表示六个主视图方向
+// dirInfo:表示26个方向  RE_ViewCudePerspectiveEnum 枚举值
 // bScanAllSce：表示是否定位到整个场景，true表示定位到整个场景，false表示相机原地调整方向
 Module.RElocateCamToMainDir = function(dirInfo,bScanAllSce){
   var _camdir = true; 
   if(typeof bScanAllSce != 'undefined'){_camdir = bScanAllSce;}
-  if(dirInfo=="default"){
-    Module.RealBIMWeb.RestoreCamLocation();
-  }else if(dirInfo=="down"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.TOP,_camdir);
-  }else if(dirInfo=="up"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BOTTOM,_camdir);
-  }else if(dirInfo=="left"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.LEFT,_camdir);
-  }else if(dirInfo=="right"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.RIGHT,_camdir);
-  }else if(dirInfo=="front"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.FRONT,_camdir);
-  }else if(dirInfo=="back"){
-    Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BACK,_camdir);
+
+  var oldSDKParams = ["default","down","up","left","right","front","back",];
+  if (oldSDKParams.includes(dirInfo)) {
+    if(dirInfo=="default"){
+      Module.RealBIMWeb.RestoreCamLocation();
+    }else if(dirInfo=="down"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.TOP,_camdir);
+    }else if(dirInfo=="up"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BOTTOM,_camdir);
+    }else if(dirInfo=="left"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.LEFT,_camdir);
+    }else if(dirInfo=="right"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.RIGHT,_camdir);
+    }else if(dirInfo=="front"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.FRONT,_camdir);
+    }else if(dirInfo=="back"){
+      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BACK,_camdir);
+    }
+  } 
+  else if (Object.keys(RE_ViewCudePerspectiveEnum).includes(dirInfo)) {
+    var enumEval = eval(RE_ViewCudePerspectiveEnum[dirInfo]);
+    Module.RealBIMWeb.ResetCamToTotalSce(enumEval,_camdir);
+  } 
+  else {
+    logErrorWithPar('dirInfo');
+    return;
   }
 }
 
@@ -3396,13 +3408,15 @@ Module.REdelAllCustomShps = function(){
 //arrPath 动态墙路径及高度(x,y,z)表示位置 w表示高度
 //strTexPath 动态墙纹理路径
 //bNormalDir 是否法线方向，true为法线方向，false为切线方向
-Module.REaddAnimationWall = function(strGroupName, strWallName, arrPath, strTexPath, bNormalDir)
+//bClose 表示路径是否强制闭合
+Module.REaddAnimationWall = function(strGroupName, strWallName, arrPath, strTexPath, bNormalDir, bClose)
 {
   var temparr =new Module.RE_Vector_dvec4();
   for(var i=0;i<arrPath.length;++i){
     temparr.push_back(arrPath[i]);
   }
-  return Module.RealBIMWeb.AddAnimationWall(strGroupName, strWallName, temparr, strTexPath, bNormalDir);
+  var _bClose = true; if (typeof bClose != 'undefined') { _bClose = bClose; }
+  return Module.RealBIMWeb.AddAnimationWall(strGroupName, strWallName, temparr, strTexPath, bNormalDir, _bClose);
 }
 //创建一个扫描面
 //strGroupName 对象组名称
@@ -6850,6 +6864,38 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
     Grid_LB: [-1,-1],   //左下区域
     Grid_MB: [0,-1],   //中下区域
     Grid_RB: [1,-1],   //右下区域
+  }  
+
+// MARK RE_ViewCudePerspectiveEnum
+  //表示ViewCude视图的类型
+  const RE_ViewCudePerspectiveEnum = {
+    RE_FACE_FR: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
+    RE_FACE_BK: "Module.RE_CAM_DIR.BACK",//面-后视图
+    RE_FACE_L: "Module.RE_CAM_DIR.LEFT",//面-左视图
+    RE_FACE_R: "Module.RE_CAM_DIR.RIGHT",//面-右视图
+    RE_FACE_T: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
+    RE_FACE_B: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
+    RE_DEGE_T_FR: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
+    RE_DEGE_T_R: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
+    RE_DEGE_T_BK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
+    RE_DEGE_T_L: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
+    RE_DEGE_L_FR: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
+    RE_DEGE_R_FR: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
+    RE_DEGE_R_BK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
+    RE_DEGE_L_BK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
+    RE_DEGE_B_FR: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
+    RE_DEGE_B_R: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
+    RE_DEGE_B_BK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
+    RE_DEGE_B_L: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
+    RE_VERTEX_T_R_BK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
+    RE_VERTEX_T_L_BK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
+    RE_VERTEX_T_L_FR: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
+    RE_VERTEX_T_R_FR: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
+    RE_VERTEX_B_R_BK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
+    RE_VERTEX_B_L_BK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
+    RE_VERTEX_B_L_FR: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
+    RE_VERTEX_B_R_FR: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
+    RE_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
   }  
 
 
