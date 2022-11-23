@@ -1,4 +1,4 @@
-//版本：v2.1.0.1678
+//版本：v2.1.0.1684
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -6514,7 +6514,12 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
     return Module.RealBIMWeb.SetCADOverViewShpAnchorScale(re_GroupID, re_MinScaleSize, re_MaxScaleSize);
   }
 
-  
+  /**
+   * 调整CAD小地图显示，缩放到当前小地图展示范围
+   */
+   Module.REadjustCADMiniMapShowRange = function () {
+    return Module.RealBIMWeb.CADOverViewFocusToAll();
+  }  
 
 
   
