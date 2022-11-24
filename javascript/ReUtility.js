@@ -4035,7 +4035,7 @@ Module.REsetCADShpAnchorScale = function(groupId,minScaleSize,maxScaleSize){
 
 
 
-// ========开始模型编辑功能接口========
+// MOD-- 模型编辑功能
 // 进入位置编辑状态
 Module.REenterSceneNodeEditMode = function(){
   Module.RealBIMWeb.EnterSceneNodeEditMode();
@@ -4060,6 +4060,20 @@ Module.REgetEditNodeLevel = function(){
   console.log(cureditlevel);
   return cureditlevel;
 }
+
+  /**
+   * 打开位置编辑放射变换窗口 
+   */
+  Module.REopenAffineTransEditWnd = function () {
+    return Module.RealBIMWeb.UIWgtGetVisible(RE_SYSWnd_MateEnum[RE_SYSWnd_AffineTransMode],true);
+  }
+
+  /**
+   * 关闭位置编辑放射变换窗口
+   */
+  Module.REcloseAffineTransEditWnd = function () {
+    return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_MateEnum[RE_SYSWnd_AffineTransMode],false);
+  }
 
 // pak编辑状态下将pak加入到选择集
 // {  "m_strProjID" : "pro01", "m_strHModelID" : "3a05e1ea0a86e8832e1f3102357ab6f4"    };//一个pak结构对象
