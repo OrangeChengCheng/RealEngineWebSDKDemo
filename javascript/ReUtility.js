@@ -4065,14 +4065,14 @@ Module.REgetEditNodeLevel = function(){
    * 打开位置编辑放射变换窗口 
    */
   Module.REopenAffineTransEditWnd = function () {
-    return Module.RealBIMWeb.UIWgtGetVisible(RE_SYSWnd_MateEnum[RE_SYSWnd_AffineTransMode],true);
+    return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_MateEnum["RE_SYSWnd_AffineTransMode"],true);
   }
 
   /**
    * 关闭位置编辑放射变换窗口
    */
   Module.REcloseAffineTransEditWnd = function () {
-    return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_MateEnum[RE_SYSWnd_AffineTransMode],false);
+    return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_MateEnum["RE_SYSWnd_AffineTransMode"],false);
   }
 
 // pak编辑状态下将pak加入到选择集
