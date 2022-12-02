@@ -1,4 +1,4 @@
-//版本：v2.1.0.1694
+//版本：v2.1.0.1706
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -6401,7 +6401,7 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
    * 获取系统中的CAD类型小地图矢量锚点总数
    */
   Module.REgetCADMiniMapShpAnchorNum = function () {
-    return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();;
+    return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();
   }
 
   /**
@@ -6535,9 +6535,49 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
     return Module.RealBIMWeb.CADOverViewFocusToAll();
   }  
 
-
+// MOD-- 土方测量
+  /**
+   * 进入土方测量区域绘制状态
+   */
+  Module.REenterEarthworkCreateMode = function () {
+    return Module.RealBIMWeb.EnterEarthworkCreateMode();
+  }
   
+  /**
+   * 退出土方测量区域绘制状态，退出时会触发EarthworkRgnFinish事件
+   */
+  Module.REexitEarthworkCreateMode = function () {
+    return Module.RealBIMWeb.ExitEarthworkCreateMode();
+  }
 
+  /**
+   * 获取土方测量绘制区域的顶点数组,监听到EarthworkRgnFinish时间后即可获取，获取一次后系统会将顶点信息清除
+   */
+  Module.REgetCnrsOfEarthworkRgn = function () {
+    var _pos = Module.RealBIMWeb.GetCnrsOfEarthworkRgn();
+    var _cnrCoords = [];
+    for(let i = 0; i<_pos.size(); ++i){
+      _cnrCoords.push(_pos.get(i));
+    }
+    return _cnrCoords;  
+  }
+
+  /**
+   * 进行指定区域的填挖方计算
+   * @param {Array[Number]} re_ArrCnrs //挖填方区域顶点信息
+   * @param {Number} re_Elevation //挖填方高度
+   * @param {String} re_ProjName //参与计算的项目名称
+   */
+  Module.REcalcEarthworkValues = function (re_ArrCnrs, re_Elevation, re_ProjName) {
+    if (!checkNull(re_ArrCnrs, 're_ArrCnrs')) return;
+    if (!checkNull(re_Elevation, 're_Elevation')) return;
+    if (!checkNull(re_ProjName, 're_ProjName')) return;
+    var temparrpos =new Module.RE_Vector_dvec3();
+    for(var i=0;i<re_ArrCnrs.length;++i){
+      temparrpos.push_back(re_ArrCnrs[i]);
+    }
+    Module.RealBIMWeb.CalcEarthworkValues(temparrpos, re_Elevation, re_ProjName, "", 18);
+  }
 
 
 
