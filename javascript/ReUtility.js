@@ -5848,34 +5848,53 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtDeleteWidget(re_UIID);
   }
 // MARK UI可见性  
-/**
- * 获取对应UI的可见性
- * @param {String} re_UIID //控件id
- */
- Module.REgetUIWgtVisible = function (re_UIID) {
-  if (!checkNull(re_UIID, 're_UIID')) return;
-  if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
-    logErrorWithPar('re_UIID');
-    return;
+  /**
+   * 获取对应系统UI的可见性
+   * @param {String} re_UIID //控件id
+   */
+  Module.REgetUIWgtVisible = function (re_UIID) {
+    if (!checkNull(re_UIID, 're_UIID')) return;
+    if (!Object.keys(RE_SYSWnd_MateEnum).includes(re_UIID)) {
+      logErrorWithPar('re_UIID');
+      return;
+    }
+    var _uiid = RE_SYSWnd_MateEnum[re_UIID];
+    return Module.RealBIMWeb.UIWgtGetVisible(_uiid);
   }
-  var _uiid = RE_WndPanel_ChildIDs_MateEnum[re_UIID];
-  return Module.RealBIMWeb.UIWgtGetVisible(_uiid);
-}
 
-/**
- * 设置对应UI的可见性
- * @param {String} re_UIID //控件id
- * @param {Boolean} el_Visible //是否显示
- */
-Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
-  if (!checkNull(re_UIID, 're_UIID')) return;
-  if (!RE_WndPanel_ChildIDs_Enum.includes(re_UIID)) {
-    logErrorWithPar('re_UIID');
-    return;
+  /**
+   * 设置对应系统UI的可见性
+   * @param {String} re_UIID //控件id
+   * @param {Boolean} el_Visible //是否显示
+   */
+  Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
+    if (!checkNull(re_UIID, 're_UIID')) return;
+    if (!Object.keys(RE_SYSWnd_MateEnum).includes(re_UIID)) {
+      logErrorWithPar('re_UIID');
+      return;
+    }
+    var _uiid = RE_SYSWnd_MateEnum[re_UIID];
+    return Module.RealBIMWeb.UIWgtSetVisible(_uiid, el_Visible);
   }
-  var _uiid = RE_WndPanel_ChildIDs_MateEnum[re_UIID];
-  return Module.RealBIMWeb.UIWgtSetVisible(_uiid,el_Visible);
-}
+
+  /**
+   * 获取对应自定义UI的可见性
+   * @param {String} re_UIID //控件id
+   */
+  Module.REgetCustomUIWgtVisible = function (re_UIID) {
+    if (!checkParamType(re_UIID, 're_UIID',RE_Enum.RE_Check_String)) return;
+    return Module.RealBIMWeb.UIWgtGetVisible(re_UIID);
+  }
+
+  /**
+   * 设置对应自定义UI的可见性
+   * @param {String} re_UIID //控件id
+   * @param {Boolean} el_Visible //是否显示
+   */
+  Module.REsetCustomUIWgtVisible = function (re_UIID, el_Visible) {
+    if (!checkParamType(re_UIID, 're_UIID',RE_Enum.RE_Check_String)) return;
+    return Module.RealBIMWeb.UIWgtSetVisible(re_UIID, el_Visible);
+  }
 // MARK ExpectSize
   /**
    * 获取控件期望大小
@@ -6866,28 +6885,18 @@ Module.REsetUIWgtVisible = function (re_UIID, el_Visible) {
   ]
 
 
-// MARK RE_Wnd_Panel_ChildBtnIDs
-  //底部主工具栏按钮对应名称
-  const RE_WndPanel_ChildIDs_Enum = [
-    "RE_PanelBtn_TerrainAlpha",//地形透明度
-    "RE_PanelBtn_Reset",//重置操作
-    "RE_PanelBtn_IsolateBuild",//隔离构件
-    "RE_PanelBtn_HideBuild",//隐藏构件
-    "RE_PanelBtn_RecoverDisplay",//恢复显示
-    "RE_PanelBtn_Measure",//测量
-    "RE_PanelBtn_Cutting",//剖切
-    "RE_PanelBtn_Setting",//设置
-  ]
-  //底部主工具栏按钮对应C++名称
-  const RE_WndPanel_ChildIDs_MateEnum = {
-    RE_PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//地形透明度
-    RE_PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//重置操作
-    RE_PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//隔离构件
-    RE_PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//隐藏构件
-    RE_PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//恢复显示
-    RE_PanelBtn_Measure: 'BuiltIn_Btn_Measure',//测量
-    RE_PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//剖切
-    RE_PanelBtn_Setting: 'BuiltIn_Btn_Setting',//设置
+// MARK RE_SYSWnd_MateEnum
+  //系统界面对应C++名称
+  const RE_SYSWnd_MateEnum = {
+    RE_PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//底部主工具栏-地形透明度
+    RE_PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//底部主工具栏-重置操作
+    RE_PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//底部主工具栏-隔离构件
+    RE_PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//底部主工具栏-隐藏构件
+    RE_PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//底部主工具栏-恢复显示
+    RE_PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
+    RE_PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
+    RE_PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
+    RE_SYSWnd_AffineTransMode: 'AffineTransModeWnd',//位置编辑仿射变换窗口
   }
 
 // MARK RE_CADUnit_Enum
