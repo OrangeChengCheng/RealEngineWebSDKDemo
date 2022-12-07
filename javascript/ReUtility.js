@@ -1,4 +1,4 @@
-//版本：v2.1.0.1714
+//版本：v2.1.0.1730
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -4580,6 +4580,14 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.SerializeWaterToString();
   }
 
+  /**
+   * 根据 ID 定位到水面
+   * @param {String} re_WaterID //水面id
+   */
+  Module.RElocateToWaterByID = function (re_WaterID) {
+    if (!checkNull(re_WaterID, 're_WaterID')) return;
+    return Module.RealBIMWeb.LocateToWater(re_WaterID);
+  }
 
 
 
