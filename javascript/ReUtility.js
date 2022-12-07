@@ -1,4 +1,4 @@
-//版本：v2.1.0.1730
+//版本：v2.1.0.1732
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
