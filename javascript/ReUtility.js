@@ -1,4 +1,4 @@
-//版本：v2.1.0.1732
+//版本：v2.1.0.1759
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -4281,9 +4281,8 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_WaterID //水面id
    * @param {Object} re_Info //水面参数对象 ↓ ↓ ↓ ↓ 以下参数均包含在re_Info中↓
    * @param {Array[Vec3]} re_CornersSet //水面点坐标集合 至少有三个点构成一个平面 [vec3,vec3,vec3]
-   * @param {Vec3} re_ColorRGB //水面颜色 RGB vec3   取值范围 0-1   (re_ColorRGB 优先级大于 re_ColorHEX)
    * @param {String} re_ColorHEX //水面颜色 十六进制 HEX
-   * @param {Number} re_Alpha //水面透明度  取值范围 0-1
+   * @param {Number} re_Alpha //水面透明度  取值范围 0~255，0表示全透明，255表示不透明
    * @param {Number} re_BlendDist //混合距离  取值范围 0-1
    * @param {Boolean} re_Visible //是否可见
    */
@@ -4293,32 +4292,20 @@ Module.REendOSGBEdit = function(){
     if (!checkParamType(re_Info.re_CornersSet, 're_CornersSet', RE_Enum.RE_Check_Array)) return;
 
     var _clrarr = [];
-    if (typeof re_Info.re_ColorRGB != 'undefined') {
-      if (!checkParamType(re_Info.re_ColorRGB, 're_ColorRGB', RE_Enum.RE_Check_Array)) return;
-      _clrarr = re_Info.re_ColorRGB;
-    }
-    else {
-      if (typeof re_Info.re_ColorHEX != 'undefined') {
-        if (!checkParamType(re_Info.re_ColorHEX, 're_ColorHEX', RE_Enum.RE_Check_String)) return;
+    if (typeof re_Info.re_ColorHEX != 'undefined') {
+      if (!checkParamType(re_Info.re_ColorHEX, 're_ColorHEX', RE_Enum.RE_Check_String)) return;
 
-        var _re_ColorHEX = re_Info.re_ColorHEX;
-        if (_re_ColorHEX.includes('0x')) {
-          _re_ColorHEX = _re_ColorHEX.replace('0x', '');
-        }
-        if (_re_ColorHEX.length != 6) {
-          logErrorWithPar('re_ColorHEX');
-          return;
-        }
-        var tempclr01 = _re_ColorHEX.substring(0, 2); var clr01 = (parseInt(tempclr01, 16) / 255);
-        var tempclr02 = _re_ColorHEX.substring(2, 4); var clr02 = (parseInt(tempclr02, 16) / 255);
-        var tempclr03 = _re_ColorHEX.substring(4, 6); var clr03 = (parseInt(tempclr03, 16) / 255);
-        _clrarr = [clr01, clr02, clr03];
-      }
-      else {
-        logErrorWithPar('re_ColorRGB | re_ColorHEX');
+      _clrarr = clrHEXToRGB(re_Info.re_ColorHEX);
+      if (!_clrarr.length) {
+        logErrorWithPar('re_ColorHEX');
         return;
       }
     }
+    else {
+      logErrorWithPar('re_ColorHEX');
+      return;
+    }
+    
     var _arrCorners = new Module.RE_Vector_dvec3();
     try {
       re_Info.re_CornersSet.forEach(value => {
@@ -4329,7 +4316,7 @@ Module.REendOSGBEdit = function(){
 
     var _fAlpha = 1; var _fBlendDist = 1; var _bVisible = true;
 
-    if (typeof re_Info.re_Alpha != 'undefined') { _fAlpha = re_Info.re_Alpha; }
+    if (typeof re_Info.re_Alpha != 'undefined') { _fAlpha = re_Info.re_Alpha / 255; }
     if (typeof re_Info.re_BlendDist != 'undefined') { _fBlendDist = re_Info.re_BlendDist; }
     if (typeof re_Info.re_Visible != 'undefined') { _bVisible = re_Info.re_Visible; }
 
@@ -4446,12 +4433,7 @@ Module.REendOSGBEdit = function(){
     var _clrarr = Module.RealBIMWeb.GetWaterColor(re_WaterID);
     if (!_clrarr.length) return;
 
-    _r = Math.floor(_clrarr[0] * 255);
-    _g = Math.floor(_clrarr[1] * 255);
-    _b = Math.floor(_clrarr[2] * 255);
-
-    var _clrHEX = '0x' + _r.toString(16) + _g.toString(16) + _b.toString(16);
-    return _clrHEX;
+    return clrRBGToHEX(_clrarr);
   }
 
   /**
@@ -4468,24 +4450,17 @@ Module.REendOSGBEdit = function(){
   /**
    * 设置水体颜色 （HEX）
    * @param {String} re_WaterID //水面id
-   * @param {Vec3} re_Color //水面颜色 十六进制  hex
+   * @param {String} re_Color //水面颜色 十六进制  hex
    */
   Module.REsetWaterColorHEX = function (re_WaterID, re_Color) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
     if (!checkParamType(re_Color, 're_Color', RE_Enum.RE_Check_String)) return;
 
-    var _re_ColorHEX = re_Color;
-    if (_re_ColorHEX.includes('0x')) {
-      _re_ColorHEX = _re_ColorHEX.replace('0x', '');
-    }
-    if (_re_ColorHEX.length != 6) {
+    var _clrarr = clrHEXToRGB(re_Color);
+    if (!_clrarr.length) {
       logErrorWithPar('re_Color');
       return;
     }
-    var tempclr01 = _re_ColorHEX.substring(0, 2); var clr01 = (parseInt(tempclr01, 16) / 255);
-    var tempclr02 = _re_ColorHEX.substring(2, 4); var clr02 = (parseInt(tempclr02, 16) / 255);
-    var tempclr03 = _re_ColorHEX.substring(4, 6); var clr03 = (parseInt(tempclr03, 16) / 255);
-    var _clrarr = [clr01, clr02, clr03];
 
     return Module.RealBIMWeb.SetWaterColor(re_WaterID, _clrarr);
   }
@@ -4496,17 +4471,19 @@ Module.REendOSGBEdit = function(){
    */
   Module.REgetWaterAlpha = function (re_WaterID) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
-    return Module.RealBIMWeb.GetWaterAlpha(re_WaterID);
+    var _alpha = Module.RealBIMWeb.GetWaterAlpha(re_WaterID);
+    return Math.floor(_alpha * 255);
   }
 
   /**
    * 设置水体透明度
    * @param {String} re_WaterID //水面id
-   * @param {Boolean} re_Alpha //水面透明度  取值范围 0-1
+   * @param {Number} re_Alpha //水面透明度  取值范围 0~255，0表示全透明，255表示不透明
    */
   Module.REsetWaterAlpha = function (re_WaterID, re_Alpha) {
     if (!checkNull(re_WaterID, 're_WaterID')) return;
-    return Module.RealBIMWeb.SetWaterAlpha(re_WaterID, re_Alpha);
+    var _a = (parseInt(re_Alpha) / 255);
+    return Module.RealBIMWeb.SetWaterAlpha(re_WaterID, _a);
   }
 
   /**
@@ -4563,21 +4540,61 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.SetWaterCorners(re_WaterID, _arrCorners);
   }
 
-
+// MARK JSON数据转换
   /**
    * 通过Json 创建水域对象
    * @param {String} re_Json //水面数据  json格式
    */
   Module.REloadWaterFromJSON = function (re_Json) {
     if (!checkParamType(re_Json, 're_Json', RE_Enum.RE_Check_String)) return;
-    return Module.RealBIMWeb.LoadWaterFromJson(re_Json);
+
+    var jsonObj = JSON.parse(re_Json);
+    if (!checkParamType(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array)) return;
+
+    var jsonObjTemp = deepClone(jsonObj);
+    var count = jsonObjTemp["Waters"].length;
+    for (let i = 0; i < count; i++) {
+      let obj = (jsonObjTemp["Waters"])[i];
+      let _clrarr = obj["Color"];
+      if (!_clrarr.length) continue;
+
+      let clrArrTemp = clrHEXToRGB(_clrarr[0]);
+      var _a = (parseInt(_clrarr[1]) / 255);
+      clrArrTemp.push(_a);
+
+      obj["Color"] = clrArrTemp;//替换数据
+    }
+
+    return Module.RealBIMWeb.LoadWaterFromJson(JSON.stringify(jsonObjTemp));
   }
 
   /**
    * 把当前场景中所有水域对象导出为一个Json字符串
    */
   Module.REserializeWaterToJSON = function () {
-    return Module.RealBIMWeb.SerializeWaterToString();
+    var re_Json = Module.RealBIMWeb.SerializeWaterToString();
+
+    var jsonObj = JSON.parse(re_Json);
+    if (!checkParamTypeBy(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
+
+    var jsonObjTemp = deepClone(jsonObj);
+    var count = jsonObjTemp["Waters"].length;
+    for (let i = 0; i < count; i++) {
+      let obj = (jsonObjTemp["Waters"])[i];
+      let _clrarr = obj["Color"];
+      if (!_clrarr.length) continue;
+
+      _a = Math.floor(_clrarr[3] * 255);
+      let _clrHEX = clrRBGToHEX(_clrarr);
+
+      let _ColorArr = [];
+      _ColorArr.push(_clrHEX);
+      _ColorArr.push(_a.toString());
+
+      obj["Color"] = _ColorArr;//替换数据
+    }
+
+    return JSON.stringify(jsonObjTemp);
   }
 
   /**
@@ -6736,15 +6753,60 @@ Module.REendOSGBEdit = function(){
    * 32位颜色转十六进制颜色
    * @param {Number} colorU32 //32位颜色值
    */
-   function colorU32ToHEX(colorU32) {
-     let _hexStr = (colorU32).toString(16);
-     let count = _hexStr.length;
-     for (let a = 0; a < (8 - count); a++) {
+  function colorU32ToHEX(colorU32) {
+    let _hexStr = (colorU32).toString(16);
+    let count = _hexStr.length;
+    for (let a = 0; a < (8 - count); a++) {
       _hexStr = '0' + _hexStr;
-     }
-     _hexStr = '0x' + _hexStr;
-     return _hexStr;
+    }
+    _hexStr = '0x' + _hexStr;
+    return _hexStr;
   }
+
+  /**
+   * 十六进制颜色转换RGB
+   * @param {String} clrHEX //十六进制颜色
+   */
+  function clrHEXToRGB(clrHEX) {
+    if (!checkParamTypeBy(clrHEX, '', RE_Enum.RE_Check_String, false)) return [];
+    var _re_ColorHEX = deepClone(clrHEX);
+    if (_re_ColorHEX.includes('0x')) {
+      _re_ColorHEX = _re_ColorHEX.replace('0x', '');
+    }
+    if (_re_ColorHEX.length != 6)  return [];
+    var _RTemp = _re_ColorHEX.substring(0, 2); var _R = (parseInt(_RTemp, 16) / 255);
+    var _GTemp = _re_ColorHEX.substring(2, 4); var _G = (parseInt(_GTemp, 16) / 255);
+    var _BTemp = _re_ColorHEX.substring(4, 6); var _B = (parseInt(_BTemp, 16) / 255);
+
+    return [_R, _G, _B];
+  }
+
+  /**
+   * RBG颜色转换十六进制
+   * @param {Array} clrRBG //RBG颜色
+   */
+  function clrRBGToHEX(clrRBG) {
+    if (!checkParamTypeBy(clrRBG, '', RE_Enum.RE_Check_Array, false)) return '';
+    var _re_ColorRGB = deepClone(clrRBG);
+    if (_re_ColorRGB.length < 3)  return '';
+    _r = Math.floor(_re_ColorRGB[0] * 255);
+    _g = Math.floor(_re_ColorRGB[1] * 255);
+    _b = Math.floor(_re_ColorRGB[2] * 255);
+    var _clrHEX = _r.toString(16) + _g.toString(16) + _b.toString(16);
+    
+    return _clrHEX;
+  }
+
+  /**
+   * 深拷贝
+   * @param {Object} obj //拷贝数据
+   */
+  function deepClone(obj) {
+    var _obj = JSON.stringify(obj); //  对象转成字符串
+    var objClone = JSON.parse(_obj); //  字符串转成对象
+    return objClone;
+  }
+
 
 
 
