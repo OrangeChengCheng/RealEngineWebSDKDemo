@@ -3590,7 +3590,11 @@ Module.REgetAllPanSceNames = function(){
 }
 //卸载一个或多个全景场景，传空数组时，卸载所有的全景场景
 Module.REremovePanSceData = function(arrPanNames){
-  Module.RealBIMWeb.UnLoadPanSce(arrPanNames);
+  var _panNames = new Module.RE_Vector_WStr();
+  for (i = 0; i < arrPanNames.length; i++) {
+    _panNames.push_back(arrPanNames[i]);
+  }
+  Module.RealBIMWeb.UnLoadPanSce(_panNames);
 }
 //当所有的全景资源加载完成时，获取某一全景图资源的点位信息
 //strPanSceID  全景资源唯一标识
@@ -6759,7 +6763,6 @@ Module.REendOSGBEdit = function(){
     for (let a = 0; a < (8 - count); a++) {
       _hexStr = '0' + _hexStr;
     }
-    _hexStr = '0x' + _hexStr;
     return _hexStr;
   }
 
