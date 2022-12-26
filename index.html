@@ -172,9 +172,9 @@
 
     <!-- 引擎初始化 -->
     <script type='text/javascript'>
-        function progressFn(percent, info, canvasName) {
+        function progressFn(percent, info, canvasID) {
 
-            if (canvasName == "canvas01") {
+            if (canvasID == "canvas01") {
                 var progBoxCntr01 = document.getElementById('prog-box-cntr01');
                 var progBar01 = document.getElementById('prog-bar01');
                 var progValue01 = document.getElementById('prog-value01');
@@ -191,7 +191,7 @@
                     progBoxCntr01.style.display = "none";
                 }
             }
-            else if (canvasName == "canvas02") {
+            else if (canvasID == "canvas02") {
                 var progBoxCntr02 = document.getElementById('prog-box-cntr02');
                 var progBar02 = document.getElementById('prog-bar02');
                 var progValue02 = document.getElementById('prog-value02');

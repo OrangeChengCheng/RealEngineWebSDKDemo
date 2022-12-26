@@ -36,11 +36,11 @@ window.onload = function (event) {
   }
 
   console.log("======== 添加监听事件 =========  ");
-  BlackHole3D.canvas.addEventListener("RealEngineReady", RealBIMInitSys);
-  BlackHole3D.canvas.addEventListener("RealBIMInitSys", RealBIMLoadMainSce);
-  BlackHole3D.canvas.addEventListener("RealBIMLoadMainSce", MainSceDown);
-  BlackHole3D.canvas.addEventListener("RealEngineRenderReady", showCanvas);
-  BlackHole3D.canvas.addEventListener("RealBIMLoadProgress", LoadingProgress);
+  document.addEventListener("RealEngineReady", RealBIMInitSys);
+  document.addEventListener("RealBIMInitSys", RealBIMLoadMainSce);
+  document.addEventListener("RealBIMLoadMainSce", MainSceDown);
+  document.addEventListener("RealEngineRenderReady", showCanvas);
+  document.addEventListener("RealBIMLoadProgress", LoadingProgress, true);
 
   document.addEventListener("RealBIMLoadMinMapCAD", RealBIMLoadMinMapCAD);
 
