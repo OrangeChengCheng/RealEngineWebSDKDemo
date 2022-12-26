@@ -18,23 +18,38 @@
             flex-direction: row;
         }
 
+        #canvas-cntr {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
         #canvas-cntr01 {
             width: 50%;
             height: 100%;
-            background: rgb(244, 158, 60);
             display: flex;
         }
 
         #canvas-cntr02 {
             flex: 1;
             height: 100%;
-            background: aquamarine;
             display: flex;
         }
 
+        #canvas,
         #canvas01,
         #canvas01 {
             flex: 1;
+        }
+
+        #prog-box-cntr {
+            position: absolute;
+            margin-left: 25%;
+            top: 45%;
+            height: 80px;
+            width: 50%;
+            background: rgba(255, 255, 255, 0.0);
+            z-index: 999;
         }
 
         #prog-box-cntr01,
@@ -48,6 +63,7 @@
             z-index: 999;
         }
 
+        #prog-bar-cntr,
         #prog-bar-cntr01,
         #prog-bar-cntr02 {
             position: absolute;
@@ -59,6 +75,7 @@
             border: 1px solid #C8C8C8;
         }
 
+        #prog-bar,
         #prog-bar01,
         #prog-bar02 {
             position: absolute;
@@ -77,6 +94,7 @@
             background: #00A1F5;
         }
 
+        #prog-value,
         #prog-value01,
         #prog-value02 {
             position: absolute;
@@ -94,6 +112,7 @@
             background: rgba(255, 255, 255, 0.0);
         }
 
+        #prog-info,
         #prog-info01,
         #prog-info02 {
             position: absolute;
@@ -114,7 +133,20 @@
 </head>
 
 <body>
-    <!-- 引擎窗口 -->
+    <!-- 单引擎窗口 -->
+    <!-- <div id="canvas-cntr">
+        <canvas id="canvas" style="width:100%; height:100%;" oncontextmenu="event.preventDefault()"
+            tabindex="1"></canvas>
+        <div id="prog-box-cntr">
+            <div id="prog-bar-cntr">
+                <div id="prog-bar"></div>
+            </div>
+            <div id="prog-value">0%</div>
+            <div id="prog-info"></div>
+        </div>
+    </div> -->
+
+    <!-- 多引擎窗口 -->
     <div id="canvas-cntr01">
         <canvas id="canvas01" style="width:100%; height:100%;" oncontextmenu="event.preventDefault()"
             tabindex="1"></canvas>
@@ -141,46 +173,12 @@
     <!-- 引擎初始化 -->
     <script type='text/javascript'>
         function progressFn(percent, info, canvasName) {
-            var progBoxCntr01 = document.getElementById('prog-box-cntr01');
-            var progBar01 = document.getElementById('prog-bar01');
-            var progValue01 = document.getElementById('prog-value01');
-            var progInfo01 = document.getElementById('prog-info01');
 
-
-            var progBoxCntr02 = document.getElementById('prog-box-cntr02');
-            var progBar02 = document.getElementById('prog-bar02');
-            var progValue02 = document.getElementById('prog-value02');
-            var progInfo02 = document.getElementById('prog-info02');
-
-            if (typeof canvasName != 'undefined') {
-                if (canvasName == "canvas01") {
-                    if (percent < 100) {
-                        progBoxCntr01.style.display = "block";
-                        var allWidth01 = parseInt(getStyle(progBoxCntr01, 'width'));
-                        // 修改clip的的宽度值
-                        progBar01.style.clip = 'rect(0px, ' + percent / 100 * allWidth01 + 'px, 40px, 0px)';
-                        // 设定内层两个div的文字内容一样
-                        progValue01.innerHTML = percent + "%  ";
-                        progInfo01.innerHTML = info;
-                    } else {
-                        progBoxCntr01.style.display = "none";
-                    }
-                }
-                else if (canvasName == "canvas02") {
-                    if (percent < 100) {
-                        progBoxCntr02.style.display = "block";
-                        var allWidth02 = parseInt(getStyle(progBoxCntr02, 'width'));
-                        // 修改clip的的宽度值
-                        progBar02.style.clip = 'rect(0px, ' + percent / 100 * allWidth02 + 'px, 40px, 0px)';
-                        // 设定内层两个div的文字内容一样
-                        progValue02.innerHTML = percent + "%  ";
-                        progInfo02.innerHTML = info;
-                    } else {
-                        progBoxCntr02.style.display = "none";
-                    }
-                }
-            }
-            else {
+            if (canvasName == "canvas01") {
+                var progBoxCntr01 = document.getElementById('prog-box-cntr01');
+                var progBar01 = document.getElementById('prog-bar01');
+                var progValue01 = document.getElementById('prog-value01');
+                var progInfo01 = document.getElementById('prog-info01');
                 if (percent < 100) {
                     progBoxCntr01.style.display = "block";
                     var allWidth01 = parseInt(getStyle(progBoxCntr01, 'width'));
@@ -192,7 +190,12 @@
                 } else {
                     progBoxCntr01.style.display = "none";
                 }
-
+            }
+            else if (canvasName == "canvas02") {
+                var progBoxCntr02 = document.getElementById('prog-box-cntr02');
+                var progBar02 = document.getElementById('prog-bar02');
+                var progValue02 = document.getElementById('prog-value02');
+                var progInfo02 = document.getElementById('prog-info02');
                 if (percent < 100) {
                     progBoxCntr02.style.display = "block";
                     var allWidth02 = parseInt(getStyle(progBoxCntr02, 'width'));
@@ -205,6 +208,25 @@
                     progBoxCntr02.style.display = "none";
                 }
             }
+            else {
+                var progBoxCntr = document.getElementById('prog-box-cntr');
+                var progBar = document.getElementById('prog-bar');
+                var progValue = document.getElementById('prog-value');
+                var progInfo = document.getElementById('prog-info');
+
+                if (percent < 100) {
+                    progBoxCntr.style.display = "block";
+                    var allWidth = parseInt(getStyle(progBoxCntr, 'width'));
+                    // 修改clip的的宽度值
+                    progBar.style.clip = 'rect(0px, ' + percent / 100 * allWidth + 'px, 40px, 0px)';
+                    // 设定内层两个div的文字内容一样
+                    progValue.innerHTML = percent + "%  ";
+                    progInfo.innerHTML = info;
+                } else {
+                    progBoxCntr.style.display = "none";
+                }
+            }
+
 
 
             // 获取当前元素的属性值
@@ -216,9 +238,9 @@
                 }
             }
         }
-        progressFn(0.1, "MainJSFiles Begin Init");
     </script>
     <script type="text/javascript" src="DemoEntry/MoveCanvas.js"></script>
+    <!-- <script type="text/javascript" src="DemoEntry/main_360.js"></script> -->
     <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
     <script async type="text/javascript" src="javascript/ReUtility.js"></script>
 </body>
