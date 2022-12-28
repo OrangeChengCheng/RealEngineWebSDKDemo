@@ -325,7 +325,8 @@ function addOverViewShpAnchor(pandata) {
     anchorObj.re_Postion = [pandata[i].m_vPos[0],pandata[i].m_vPos[1]];
     anchorObj.re_ShpPath = "https://yingshi.blob.core.chinacloudapi.cn/insite-blob/common/icon/a2698bbc07482b806df7c9c5e7d952fa.svg";
     anchorObj.re_Text = "666";
-    anchorObj.re_TextColor = "0xF56C6CFF";
+    anchorObj.re_TextColor = "ff0000";
+    anchorObj.re_TextAlpha = 204;
     anchorObj.re_TextSize = 20;
     anchorObj.re_TextAlign = "Grid_MM";
     if (i < 10) {
