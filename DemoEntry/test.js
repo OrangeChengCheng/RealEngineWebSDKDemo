@@ -742,8 +742,8 @@ function customshp01(){
     "textcolor":0xffffffff,
     "textbordercolor":0x80000000
   };
-  BlackHole3D.REaddCustomPolylineShp("shp001", arrPots, 1, 0xffffffff, 0x80ffff00, 2.5, textinfo, -1.0, 300.0, true);
-  BlackHole3D.REaddCustomPotShp("shp002", [21001560.75060378, -20091037.177998625, -3.53481759008978], 4, 0xff0000ff, textinfo, -1.0, 300.0);
+  var addlineShpBool = BlackHole3D.REaddCustomPolylineShp("shp001", arrPots, 1, 0xffffffff, 0x80ffff00, 2.5, textinfo, -1.0, 300.0, true);
+  var addposShpBool = BlackHole3D.REaddCustomPotShp("shp002", [21001560.75060378, -20091037.177998625, -3.53481759008978], 4, 0xff0000ff, textinfo, -1.0, 300.0);
 }
 
 //创建自定义矢量02
@@ -758,6 +758,90 @@ function customshp02(){
   };
   BlackHole3D.REaddCustomPotShp("shp002", [0.0, 0.0, 0.0], 4, 0xff0000ff, textinfo, -1.0, -1.0, false);
 }
+
+
+//创建自定义矢量02
+function customshp03(){
+  var re_Info = {
+    "vPos": [0.0, 0.0, 0.0],
+    "uPotSize": 4,
+    "potColor": "ff0000",
+    "potClrAlpha": 255,
+    "cTextInfo": {
+      "textinfo": "未拆迁",
+      "textbias": [1, 0],
+      "fontname": "RealBIMFont001",
+      "textcolor": "ffffff",
+      "textAlpha": 255,
+      "textbordercolor": "000000",
+      "textborderAlpha": 204,
+      "textbackmode": 2, "textbackborder": 2,
+      "textbackclr": "000000",
+      "textbackAlpha": 204,
+    },
+    "fASDist": -1.0,
+    "fVisDist": -1.0,
+    "bContactSce": false,
+  }
+
+  var addposShpBool = BlackHole3D.REaddPotShp("shp002", re_Info);
+  console.log(addposShpBool);
+}
+
+function customshp04() {
+  var shpName = "shp001";
+  var re_Info = {
+    "arrPots": [[21001559.75060378, -20091037.177998625, -3.53481759008978],
+    [21001559.804146506, -20091020.742508937, -3.534819487695543],
+    [21001556.62521952, -20091015.434710402, -3.535072640479207],
+    [21001539.664617974, -20091013.005593244, -3.53507184860268],
+    [21001531.680727087, -20091035.878917348, -1.34154536465282],
+    [21001548.01155875, -20091023.784406953, -3.534515200947073],
+    [21001555.416419413, -20091041.657161415, -3.5348201403919006]],
+    "uFillState": 1,
+    "lineColor": "ffffff",
+    "lineClrAlpha": 255,
+    "fillColor": "00ffff",
+    "fillClrAlpha": 128,
+    "fTextPos": 2.5,
+    "cTextInfo": {
+      "textinfo": "测试画线",
+      "textbias": [1, 0],
+      "fontname": "RealBIMFont001",
+      "textcolor": "ffffff",
+      "textAlpha": 255,
+      "textbordercolor": "000000",
+      "textborderAlpha": 128,
+      "textbackmode": 2,
+      "textbackborder": 2,
+      "textbackclr": "000000",
+      "textbackAlpha": 128,
+    },
+    "fASDist": -1.0,
+    "fVisDist": 300.0,
+    "bContactSce": 1,
+    "uLineWidth": 2,
+  }
+
+  var addlineShpBool = BlackHole3D.REaddPolylineShp(shpName, re_Info);
+  console.log(addlineShpBool);
+}
+
+
+function customshp05() {
+  var projName = "pro01";
+  var objArr = [684, 685, 686, 687];
+  var arrPots = [[21001559.75060378, -20091037.177998625, -3.53481759008978],
+    [21001559.804146506, -20091020.742508937, -3.534819487695543],
+    [21001556.62521952, -20091015.434710402, -3.535072640479207],
+    [21001539.664617974, -20091013.005593244, -3.53507184860268],
+    [21001531.680727087, -20091035.878917348, -1.34154536465282],
+    [21001548.01155875, -20091023.784406953, -3.534515200947073],
+    [21001555.416419413, -20091041.657161415, -3.5348201403919006]];
+  var potsNotInElems = BlackHole3D.REgetPotsNotInElems(projName, objArr, arrPots);
+  console.log(potsNotInElems);
+}
+
 
 //测试锚点
 function testanchors01(){
