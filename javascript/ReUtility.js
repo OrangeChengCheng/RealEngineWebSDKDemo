@@ -3362,7 +3362,9 @@ Module.REaddCustomPotShp = function(shpName, vPos, uPotSize, uClr, cTextInfo, fA
     if (typeof cTextInfo.textbackmode != 'undefined') { _textbackmode = cTextInfo.textbackmode; }
     if (typeof cTextInfo.textbackborder != 'undefined') { _textbackborder = cTextInfo.textbackborder; }
     if (typeof cTextInfo.textbackclr != 'undefined') { _textbackclr = clrHEXAToU32ABGR(cTextInfo.textbackclr, cTextInfo.textbackAlpha); }
+    
     var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+    var uPotSize = 0; if (checkParamNull(re_Info.uPotSize)) uPotSize = re_Info.uPotSize;
     if (_textbias[0] < 0) {
       TempTextRect[0] = -uPotSize - 2; TempTextRect[2] = -uPotSize - 1; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
     } else if (_textbias[0] == 0) {
@@ -3391,7 +3393,7 @@ Module.REaddCustomPotShp = function(shpName, vPos, uPotSize, uClr, cTextInfo, fA
     var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
     var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.potColor)) _uClr = clrHEXAToU32ABGR(re_Info.potColor, re_Info.potClrAlpha);
 
-    return Module.RealBIMWeb.AddCustomPotShp(shpName, re_Info.vPos, re_Info.uPotSize, _uClr, textobj, re_Info.fASDist, re_Info.fVisDist, _bContactSce);
+    return Module.RealBIMWeb.AddCustomPotShp(shpName, re_Info.vPos, uPotSize, _uClr, textobj, re_Info.fASDist, re_Info.fVisDist, _bContactSce);
   }
 
 
@@ -3663,7 +3665,7 @@ Module.REdelAllCustomShps = function(){
       Module.RealBIMWeb.ReAllocHeapViews(_obgCountByte8);//分配一系列堆内存块的观察窗口
       var elemIds = Module.RealBIMWeb.GetHeapView_U32(0);//获取一个堆内存块的观察窗口
       for (let i = 0; i < _ObjCount; i++) {
-        var eleid = objarr[i];
+        var eleid = objArr[i];
         elemIds.set([eleid, projid], i * 2);
       }
       Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(projName, elemIds.byteLength, elemIds.byteOffset, _temparrpos);
@@ -3672,7 +3674,7 @@ Module.REdelAllCustomShps = function(){
     //创建接收不在构件内的顶点集合
     var potsNotInElems = [];
     for (let i = 0; i < _temparrpos.size(); i++) {
-      potsNotInElems.push(_temparrpos[i]);
+      potsNotInElems.push(_temparrpos.get(i));
     }
 
     return potsNotInElems;
