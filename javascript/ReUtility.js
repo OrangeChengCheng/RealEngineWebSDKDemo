@@ -1,4 +1,4 @@
-//版本：v2.1.0.1780
+//版本：v2.1.0.1786
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -3269,6 +3269,8 @@ Module.RErefreshHugeObjMainData = function(projName,sceName,bLoadNewData){
   Module.RealBIMWeb.RefreshHugeObjMainData(projName,sceName,bLoadNewData);
 }
 
+
+// MOD-- 创建矢量对象（点线面）相关
 //创建自定义顶点矢量
 //shpName：表示矢量标识名，若已有同名的矢量则覆盖之
 //vPos：表示顶点位置
@@ -3317,6 +3319,84 @@ Module.REaddCustomPotShp = function(shpName, vPos, uPotSize, uClr, cTextInfo, fA
   if(typeof bContactSce != 'undefined'){_bContactSce = bContactSce;}
   return Module.RealBIMWeb.AddCustomPotShp(shpName, vPos, uPotSize, uClr, textobj, fASDist, fVisDist, _bContactSce);
 }
+
+  /**
+   * 创建自定义顶点矢量
+   * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
+   * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {DVec3} vPos //表示顶点位置
+   * @param {Number} uPotSize //表示顶点的像素大小
+   * @param {String} potColor //顶点的颜色 十六进制 HEX
+   * @param {Number} potClrAlpha //顶点的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {Object} cTextInfo //表示顶点的文字标注信息 ↓ ↓ ↓ ↓ ↓ 以下参数包含在 cTextInfo 中  ↑ ↑ ↑ ↑ ↑
+   * ↓ ↓ ↓ ↓ ↓
+   * @param {String} textinfo //表示文字的内容
+   * @param {DVec2} textbias //表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
+   * @param {String} fontname //表示锚点的字体样式
+   * @param {String} textcolor //文字颜色，十六进制
+   * @param {Number} textAlpha //文字颜色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {String} textbordercolor //文字边框颜色，十六进制
+   * @param {Number} textborderAlpha //文字边框颜色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {Number} textbackmode //表示文字背景的处理模式： 0：表示禁用文字背景 1：表示启用文字背景，文字背景是文字所占的矩形区域
+   * @param {Number} textbackborder //表示文字背景的边界带的像素宽度
+   * @param {String} textbackclr //表示文本背景色, 十六进制
+   * @param {Number} textbackAlpha //文本背景色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * ↑ ↑ ↑ ↑ ↑
+   * @param {Number} fASDist //表示屏幕空间矢量的自动缩放起始距离
+   * @param {Number} fVisDist //表示屏幕空间矢量的可视距离
+   * @param {Boolean} bContactSce //表示矢量是否与场景发生深度遮挡
+   * @returns 
+  */
+  Module.REaddPotShp = function (shpName, re_Info) {
+    if (!checkNull(shpName, 'shpName')) return;
+    if (!checkNull(re_Info, 're_Info')) return;
+
+    var _textbias = [0, 0]; var _GolFontID = "RealBIMFont001"; var _textcolor = 0xffffffff; var _textbordercolor = 0xff000000;
+    var _textbackmode = 0; var _textbackborder = 0; var _textbackclr = 0x00000000;
+    var cTextInfo = {}; if (checkParamNull(re_Info.cTextInfo)) cTextInfo = re_Info.cTextInfo;
+
+    if (typeof cTextInfo.textbias != 'undefined') { _textbias = cTextInfo.textbias; }
+    if (typeof cTextInfo.fontname != 'undefined') { _GolFontID = cTextInfo.fontname; }
+    if (typeof cTextInfo.textcolor != 'undefined') { _textcolor = clrHEXAToU32ABGR(cTextInfo.textcolor, cTextInfo.textAlpha); }
+    if (typeof cTextInfo.textbordercolor != 'undefined') { _textbordercolor = clrHEXAToU32ABGR(cTextInfo.textbordercolor, cTextInfo.textborderAlpha); }
+    if (typeof cTextInfo.textbackmode != 'undefined') { _textbackmode = cTextInfo.textbackmode; }
+    if (typeof cTextInfo.textbackborder != 'undefined') { _textbackborder = cTextInfo.textbackborder; }
+    if (typeof cTextInfo.textbackclr != 'undefined') { _textbackclr = clrHEXAToU32ABGR(cTextInfo.textbackclr, cTextInfo.textbackAlpha); }
+    
+    var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+    var uPotSize = 0; if (checkParamNull(re_Info.uPotSize)) uPotSize = re_Info.uPotSize;
+    if (_textbias[0] < 0) {
+      TempTextRect[0] = -uPotSize - 2; TempTextRect[2] = -uPotSize - 1; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+    } else if (_textbias[0] == 0) {
+      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
+    } else {
+      TempTextRect[0] = uPotSize + 1; TempTextRect[2] = uPotSize + 2; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+    }
+    if (_textbias[1] < 0) {
+      TempTextRect[1] = -uPotSize - 2; TempTextRect[3] = -uPotSize - 1; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+    } else if (_textbias[1] == 0) {
+      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
+    } else {
+      TempTextRect[1] = uPotSize + 1; TempTextRect[3] = uPotSize + 2; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+    }
+    var textobj = {
+      m_strGolFontID: _GolFontID,
+      m_bTextWeight: false,
+      m_strText: cTextInfo.textinfo,
+      m_uTextClr: _textcolor,
+      m_uTextBorderClr: _textbordercolor,
+      m_qTextRect: TempTextRect,
+      m_uTextFmtFlag: TempTextFmtFlag,
+      m_uTextBackMode: _textbackmode, m_sTextBackBorder: _textbackborder, m_uTextBackClr: _textbackclr
+    };
+
+    var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
+    var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.potColor)) _uClr = clrHEXAToU32ABGR(re_Info.potColor, re_Info.potClrAlpha);
+
+    return Module.RealBIMWeb.AddCustomPotShp(shpName, re_Info.vPos, uPotSize, _uClr, textobj, re_Info.fASDist, re_Info.fVisDist, _bContactSce);
+  }
+
+
 //创建自定义多边形折线矢量
 //shpName：表示矢量标识名，若已有同名的矢量则覆盖之
 //arrPots：表示多边形折线序列
@@ -3376,6 +3456,95 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
   if(typeof uLineWidth != 'undefined'){_linewidth = uLineWidth;}
   return Module.RealBIMWeb.AddCustomPolylineShp(shpName, temparrpos, uFillState, uClr, uFillClr, fTextPos, textobj, fASDist, fVisDist, _bContactSce, _linewidth);
 }
+
+
+  /**
+   * 创建自定义多边形折线矢量
+   * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
+   * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {Array} arrPots //表示多边形折线序列
+   * @param {Number} uFillState //表示多边形的文字标注的位置 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+   * @param {String} lineColor //表示多边形的颜色 十六进制 HEX
+   * @param {Number} lineClrAlpha //多边形的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {String} fillColor //表示多边形的填充颜色 十六进制 HEX
+   * @param {Number} fillClrAlpha //多边形的填充颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {Number} fTextPos //表示多边形折线填充样式： 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+   * @param {Object} cTextInfo //表示顶点的文字标注信息 ↓ ↓ ↓ ↓ ↓ 以下参数包含在 cTextInfo 中  ↑ ↑ ↑ ↑ ↑
+   * ↓ ↓ ↓ ↓ ↓
+   * @param {DVec2} textbias //表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
+   * @param {String} fontname //表示锚点的字体样式
+   * @param {String} textcolor //文字颜色，十六进制
+   * @param {Number} textAlpha //文字颜色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {String} textbordercolor //文字边框颜色，十六进制
+   * @param {Number} textborderAlpha //文字边框颜色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {Number} textbackmode //表示文字背景的处理模式： 0：表示禁用文字背景 1：表示启用文字背景，文字背景是文字所占的矩形区域
+   * @param {Number} textbackborder //表示文字背景的边界带的像素宽度
+   * @param {String} textbackclr //表示文本背景色, 十六进制
+   * @param {Number} textbackAlpha //文本背景色的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * ↑ ↑ ↑ ↑ ↑
+   * @param {Number} fASDist //表示屏幕空间矢量的自动缩放起始距离
+   * @param {Number} fVisDist //表示屏幕空间矢量的可视距离
+   * @param {Boolean} bContactSce //表示矢量是否与场景发生深度遮挡
+   * @param {Number} uLineWidth //选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
+   * @returns 
+  */
+  Module.REaddPolylineShp = function (shpName, re_Info) {
+    if (!checkNull(shpName, 'shpName')) return;
+    if (!checkNull(re_Info, 're_Info')) return;
+    if (!checkParamType(re_Info.arrPots, 'arrPots', RE_Enum.RE_Check_Array)) return;
+
+    var temparrpos = new Module.RE_Vector_dvec3();
+    for (var i = 0; i < re_Info.arrPots.length; ++i) {
+      temparrpos.push_back(re_Info.arrPots[i]);
+    }
+    var _textbias = [0, 0]; var _GolFontID = "RealBIMFont001"; var _textcolor = 0xffffffff; var _textbordercolor = 0xff000000;
+    var _textbackmode = 0; var _textbackborder = 0; var _textbackclr = 0x00000000;
+    var cTextInfo = {}; if (checkParamNull(re_Info.cTextInfo)) cTextInfo = re_Info.cTextInfo;
+
+    if (typeof cTextInfo.textbias != 'undefined') { _textbias = cTextInfo.textbias; }
+    if (typeof cTextInfo.fontname != 'undefined') { _GolFontID = cTextInfo.fontname; }
+    if (typeof cTextInfo.textcolor != 'undefined') { _textcolor = clrHEXAToU32ABGR(cTextInfo.textcolor, cTextInfo.textAlpha); }
+    if (typeof cTextInfo.textbordercolor != 'undefined') { _textbordercolor = clrHEXAToU32ABGR(cTextInfo.textbordercolor, cTextInfo.textborderAlpha); }
+    if (typeof cTextInfo.textbackmode != 'undefined') { _textbackmode = cTextInfo.textbackmode; }
+    if (typeof cTextInfo.textbackborder != 'undefined') { _textbackborder = cTextInfo.textbackborder; }
+    if (typeof cTextInfo.textbackclr != 'undefined') { _textbackclr = clrHEXAToU32ABGR(cTextInfo.textbackclr, cTextInfo.textbackAlpha); }
+    var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+    if (_textbias[0] < 0) {
+      TempTextRect[0] = -1; TempTextRect[2] = 0; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+    } else if (_textbias[0] == 0) {
+      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+    } else {
+      TempTextRect[0] = 0; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+    }
+    if (_textbias[1] < 0) {
+      TempTextRect[1] = -1; TempTextRect[3] = 0; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+    } else if (_textbias[1] == 0) {
+      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+    } else {
+      TempTextRect[1] = 0; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+    }
+    var textobj = {
+      m_strGolFontID: _GolFontID,
+      m_bTextWeight: false,
+      m_strText: cTextInfo.textinfo,
+      m_uTextClr: _textcolor,
+      m_uTextBorderClr: _textbordercolor,
+      m_qTextRect: TempTextRect,
+      m_uTextFmtFlag: TempTextFmtFlag,
+      m_uTextBackMode: _textbackmode, m_sTextBackBorder: _textbackborder, m_uTextBackClr: _textbackclr
+    };
+
+    var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
+    var _linewidth = 1; if (checkParamNull(re_Info.uLineWidth)) _linewidth = re_Info.uLineWidth;
+    var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.lineColor)) _uClr = clrHEXAToU32ABGR(re_Info.lineColor, re_Info.lineClrAlpha);
+    var _uFillClr = 0xFFFFFFFF; if (checkParamNull(re_Info.fillColor)) _uClr = clrHEXAToU32ABGR(re_Info.fillColor, re_Info.fillClrAlpha);
+
+    return Module.RealBIMWeb.AddCustomPolylineShp(shpName, temparrpos, re_Info.uFillState, _uClr, _uFillClr, re_Info.fTextPos, textobj, re_Info.fASDist, re_Info.fVisDist, _bContactSce, _linewidth);
+  }
+
+
+
+
 //创建自定义多边形围栏矢量
 //shpName：表示矢量标识名，若已有同名的矢量则覆盖之
 //arrPots：表示多边形折线序列，xyzw, w分量表示端点处的围栏高度
@@ -3390,8 +3559,42 @@ Module.REaddCustomPolyFenceShp = function(shpName, arrPots, bClose, uClr, fASDis
   for(var i=0;i<arrPots.length;++i){
     temparrpos.push_back(arrPots[i]);
   }
-  Module.RealBIMWeb.AddCustomPolyFenceShp(shpName, temparrpos, bClose, uClr, fASDist, fVisDist, bContactSce);
+  Module.RealBIMWeb.AddCustomPolyFenceShp(shpName, temparrpos, bClose, uClr, fASDist, fVisDist, _bContactSce);
 }
+
+
+
+  /**
+   * 创建自定义多边形围栏矢量
+   * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
+   * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {Array} arrPots //表示多边形折线序列，xyzw, w分量表示端点处的围栏高度
+   * @param {Boolean} bClose //表示是否闭合
+   * @param {String} fenceColor //表示多边形围栏的颜色
+   * @param {Number} fenceClrAlpha //多边形围栏的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   * @param {Number} fASDist //表示屏幕空间矢量的自动缩放起始距离
+   * @param {Number} fVisDist //表示屏幕空间矢量的可视距离
+   * @param {Boolean} bContactSce //表示矢量是否与场景发生深度遮挡
+   * @returns 
+  */
+  Module.REaddPolyFenceShp = function (shpName, re_Info) {
+    if (!checkNull(shpName, 'shpName')) return;
+    if (!checkNull(re_Info, 're_Info')) return;
+    if (!checkParamType(re_Info.arrPots, 'arrPots', RE_Enum.RE_Check_Array)) return;
+
+    var temparrpos = new Module.RE_Vector_dvec4();
+    for (var i = 0; i < re_Info.arrPots.length; ++i) {
+      temparrpos.push_back(re_Info.arrPots[i]);
+    }
+
+    var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
+    var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.fenceColor)) _uClr = clrHEXAToU32ABGR(re_Info.fenceColor, re_Info.fenceClrAlpha);
+
+    Module.RealBIMWeb.AddCustomPolyFenceShp(shpName, temparrpos, re_Info.bClose, _uClr, re_Info.fASDist, re_Info.fVisDist, _bContactSce);
+  }
+
+
+
 //删除某个自定义矢量对象
 Module.REdelCustomShp = function(shpName){ 
   return Module.RealBIMWeb.DelCustomShp(shpName);
@@ -3401,7 +3604,90 @@ Module.REdelAllCustomShps = function(){
   Module.RealBIMWeb.DelAllCustomShps();
 }
 
+  /**
+   * 设置自定义矢量对象的颜色
+   * @param {String} shpName //表示矢量标识名
+   * @param {String} re_Color //顶点的颜色 十六进制 HEX
+   * @param {Number} re_Alpha //顶点的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   */
+  Module.REsetShpColor = function (shpName, re_Color, re_Alpha) {
+    if (!checkNull(shpName, 'shpName')) return;
+    if (!checkNull(re_Color, 're_Color')) return;
+    Module.RealBIMWeb.SetCustomShpColor(shpName, clrHEXAToU32ABGR(re_Color, re_Alpha));
+  }
 
+  /**
+   * 聚焦相机到指定的矢量对象
+   * @param {String} shpName //表示矢量标识名
+   * @param {Number} dBackwardAmp //dBackwardAmp：表示相机在锚点中心处向后退的强度 >=0.0 表示相机的后退距离相对于锚点覆盖范围的比例(若锚点覆盖范围无效则视为绝对后退距离) <0.0 表示相机的后退距离的绝对值的负
+   */
+  Module.REfocusCamToShp = function (shpName, dBackwardAmp) {
+    if (!checkNull(shpName, 'shpName')) return;
+    Module.RealBIMWeb.FocusCamToCustomShp(shpName, dBackwardAmp);
+  }
+
+  /**
+   * 设置矢量是否允许顶点捕捉
+   * @param {Boolean} bCapture //顶点捕捉状态
+   */
+  Module.REsetShpPotCapture = function (bCapture) {
+    Module.RealBIMWeb.SetShpPotCapture(bCapture);
+  }
+
+  /**
+   * 获取矢量是否允许顶点捕捉
+   */
+  Module.REgetShpPotCapture = function () {
+    return Module.RealBIMWeb.GetShpPotCapture();
+  }
+
+  /**
+   * 判断顶点集合是否在指定的构件集合内，并返还不在指定构件集合内的顶点集合
+   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
+   * @param {Array} objArr //表示要处理的构件id数组，若为空串则表示处理所有的构件id
+   * @param {Array} arrPots //表示要判断的顶点集合
+   */
+  Module.REgetPotsNotInElems = function (projName, objArr, arrPots) {
+    var _ObjCount = objArr.length;
+    var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
+    //处理顶点集合对应数据类型
+    var _temparrpos = new Module.RE_Vector_dvec3();
+    for (var i = 0; i < arrPots.length; ++i) {
+      _temparrpos.push_back(arrPots[i]);
+    }
+
+    if (_ObjCount == 0) {
+      //如果构件ID集合为空，则默认为所有构件
+      Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(projName, 0xffffffff, 0, _temparrpos);
+    }
+    else {
+      var _obgCountByte8 = (_ObjCount * 8).toString();//创建的观察窗口的字节大小
+      Module.RealBIMWeb.ReAllocHeapViews(_obgCountByte8);//分配一系列堆内存块的观察窗口
+      var elemIds = Module.RealBIMWeb.GetHeapView_U32(0);//获取一个堆内存块的观察窗口
+      for (let i = 0; i < _ObjCount; i++) {
+        var eleid = objArr[i];
+        elemIds.set([eleid, projid], i * 2);
+      }
+      Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(projName, elemIds.byteLength, elemIds.byteOffset, _temparrpos);
+    }
+
+    //创建接收不在构件内的顶点集合
+    var potsNotInElems = [];
+    for (let i = 0; i < _temparrpos.size(); i++) {
+      potsNotInElems.push(_temparrpos.get(i));
+    }
+
+    return potsNotInElems;
+  }
+
+  
+
+
+
+  
+
+
+// MOD-- 动画与特效相关
 //创建一个动态墙
 //strGroupName 对象组名称
 //strWallName 对象名称
@@ -6414,6 +6700,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} re_GroupID //锚点所属的组名称ID
    * @param {String} re_Text //锚点的文字内容
    * @param {String} re_TextColor //锚点文字的颜色 十六进制
+   * @param {Number} re_TextAlpha //锚点文字的透明度 取值范围 0~255，0表示全透明，255表示不透明
    * @param {Number} re_TextSize //锚点文字的大小(文字的高度)
    * @param {RE_GridPosEnum} re_TextAlign //表示锚点文字相对矢量图标的对齐方式(九宫格：以图片为中心[0,0])) RE_GridPosEnum 枚举
    */
@@ -6434,12 +6721,13 @@ Module.REendOSGBEdit = function(){
           m_strGroupID: value.re_GroupID,
         }
         if (checkParamNull(value.re_Text)) _obj.m_strText = value.re_Text;
-        if (checkParamNull(value.re_TextColor)) _obj.m_uTextClr = parseInt(value.re_TextColor, 16);
+        if (checkParamNull(value.re_TextColor)) _obj.m_uTextClr = clrHEXAToU32ABGR(value.re_TextColor, value.re_TextAlpha);
         if (checkParamNull(value.re_TextSize)) _obj.m_dTextSize = value.re_TextSize;
         if (checkParamNull(value.re_TextAlign) && Object.keys(RE_GridPosEnum).includes(value.re_TextAlign)) _obj.m_vTextAlign = RE_GridPosEnum[value.re_TextAlign];
         _vector_ShpAnchor.push_back(_obj);
       });
     } catch (error) {
+      console.error(error);
       return;
     }
     return Module.RealBIMWeb.AddCADOverViewShpAnchors(_vector_ShpAnchor);
@@ -6467,6 +6755,7 @@ Module.REendOSGBEdit = function(){
         re_GroupID: _shpAnchor.m_strGroupID,
         re_Text: _shpAnchor.m_strText,
         re_TextColor: colorU32ToHEX(_shpAnchor.m_uTextClr),
+        re_TextAlpha: colorU32ToAlpha(_shpAnchor.m_uTextClr),
         re_TextAlign: _shpAnchor.m_vTextAlign,
       }
       _shpAnchors.push(_obj);
@@ -6488,6 +6777,7 @@ Module.REendOSGBEdit = function(){
       re_GroupID: _vector_ShpAnchor.m_strGroupID,
       re_Text: _vector_ShpAnchor.m_strText,
       re_TextColor: colorU32ToHEX(_vector_ShpAnchor.m_uTextClr),
+      re_TextAlpha: colorU32ToAlpha(_vector_ShpAnchor.m_uTextClr),
       re_TextAlign: _vector_ShpAnchor.m_vTextAlign,
     }
     return _ShpAnchor;
@@ -6522,6 +6812,7 @@ Module.REendOSGBEdit = function(){
         re_GroupID: _shpAnchor.m_strGroupID,
         re_Text: _shpAnchor.m_strText,
         re_TextColor: colorU32ToHEX(_shpAnchor.m_uTextClr),
+        re_TextAlpha: colorU32ToAlpha(_shpAnchor.m_uTextClr),
         re_TextAlign: _shpAnchor.m_vTextAlign,
       }
       _shpAnchors.push(_obj);
@@ -6754,7 +7045,7 @@ Module.REendOSGBEdit = function(){
   }
 
   /**
-   * 32位颜色转十六进制颜色
+   * 32位颜色转十六进制颜色 ABGR -> RBG_HEX
    * @param {Number} colorU32 //32位颜色值
    */
   function colorU32ToHEX(colorU32) {
@@ -6763,7 +7054,23 @@ Module.REendOSGBEdit = function(){
     for (let a = 0; a < (8 - count); a++) {
       _hexStr = '0' + _hexStr;
     }
-    return _hexStr;
+    // ABGR -> RGBA
+    var _hexStr_Reverse = _hexStr.split('').reverse().join('');
+    return _hexStr_Reverse.substring(0, 6);
+  }
+
+  /**
+   * 32位颜色转透明度 ABGR -> alpha (0~255)
+   * @param {Number} colorU32 //32位颜色值
+   */
+  function colorU32ToAlpha(colorU32) {
+    let _hexStr = (colorU32).toString(16);
+    let count = _hexStr.length;
+    for (let a = 0; a < (8 - count); a++) {
+      _hexStr = '0' + _hexStr;
+    }
+    var hexAlpha = _hexStr.substring(0, 2);
+    return (parseInt(hexAlpha, 16) / 255);
   }
 
   /**
@@ -6782,6 +7089,31 @@ Module.REendOSGBEdit = function(){
     var _BTemp = _re_ColorHEX.substring(4, 6); var _B = (parseInt(_BTemp, 16) / 255);
 
     return [_R, _G, _B];
+  }
+
+  /**
+   * 十六进制颜色+透明度->U32_ABGR
+   * @param {String} clrHEX 
+   * @param {Number} alpha 
+   * @returns 
+   */
+  function clrHEXAToU32ABGR(clrHEX, alpha) {
+    var _re_ColorHEX = deepClone(clrHEX);
+    if (_re_ColorHEX.includes('0x')) {
+      _re_ColorHEX = _re_ColorHEX.replace('0x', '');
+    }
+    if (_re_ColorHEX.length != 6)  return 0xFFFFFFFF;
+    // RGB->BGR  c++要地址位从低到高存储 ABGR
+    var clrHEX_R = _re_ColorHEX.substring(0, 2);
+    var clrHEX_G = _re_ColorHEX.substring(2, 4);
+    var clrHEX_B = _re_ColorHEX.substring(4, 6);
+    var clrHEX_BGR = clrHEX_B + clrHEX_G + clrHEX_R;
+    var _alphaNum = 255; if (checkParamNull(alpha)) _alphaNum = alpha;
+    var intAlpha = Math.round(alpha);
+    var alphaHEX = (intAlpha > 15 ? (intAlpha.toString(16)) : ("0" + intAlpha.toString(16)));
+    var clrHEX_ABGR = "0x" + alphaHEX + clrHEX_BGR; 
+    var intClr_ABGR = parseInt(clrHEX_ABGR);
+    return intClr_ABGR;
   }
 
   /**
