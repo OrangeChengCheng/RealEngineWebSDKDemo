@@ -3537,7 +3537,7 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
     var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
     var _linewidth = 1; if (checkParamNull(re_Info.uLineWidth)) _linewidth = re_Info.uLineWidth;
     var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.lineColor)) _uClr = clrHEXAToU32ABGR(re_Info.lineColor, re_Info.lineClrAlpha);
-    var _uFillClr = 0xFFFFFFFF; if (checkParamNull(re_Info.fillColor)) _uClr = clrHEXAToU32ABGR(re_Info.fillColor, re_Info.fillClrAlpha);
+    var _uFillClr = 0xFFFFFFFF; if (checkParamNull(re_Info.fillColor)) _uFillClr = clrHEXAToU32ABGR(re_Info.fillColor, re_Info.fillClrAlpha);
 
     return Module.RealBIMWeb.AddCustomPolylineShp(shpName, temparrpos, re_Info.uFillState, _uClr, _uFillClr, re_Info.fTextPos, textobj, re_Info.fASDist, re_Info.fVisDist, _bContactSce, _linewidth);
   }
