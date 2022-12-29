@@ -153,6 +153,11 @@ Module.REloadMainSce = function(urlRes,projResName,verInfo,projName){
 //             }
 //            ]
 Module.REloadMainSce_projs = function(projInfo,preclear){
+  if (isRepeat(projInfo, 'projName')) {
+    console.error('【REError】: projName 唯一标识名，不能为空不可重复');
+    return;
+  }
+
   var _l = projInfo.length; 
   for(var i=0; i<_l; ++i){
     var _defMainProjResRoot = ((i==0) ? projInfo[i].urlRes : ""); var _defMainProjCamFile = ""; 
@@ -3855,6 +3860,11 @@ Module.REgetCamProjType = function(){
 //             }
 //            ]
 Module.REaddPanSceData = function(projInfo){
+  if (isRepeat(projInfo, 'projName')) {
+    console.error('【REError】: projName 唯一标识名，不能为空不可重复');
+    return;
+  }
+
   var _l = projInfo.length; 
   for(var i=0; i<_l; ++i){
     var _path = projInfo[i].urlRes+projInfo[i].projResName+"/360/total.xml";
@@ -7013,7 +7023,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} paramName //参数名
    */
   function logErrorWithPar(paramName) {
-    console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+    console.error("【REError】: errMsg: 传入参数格式不正确！-> " + paramName);
   }
 
   /**
@@ -7140,6 +7150,34 @@ Module.REendOSGBEdit = function(){
     var _obj = JSON.stringify(obj); //  对象转成字符串
     var objClone = JSON.parse(_obj); //  字符串转成对象
     return objClone;
+  }
+
+  /**
+   * 判断是否有重复值
+   * @param {Array} array //列表
+   * @param {String} paramName //需要判断的key 
+   * @returns 
+   */
+  function isRepeat(array, paramName) {
+    var objlist = [];
+    for (const key in array) {
+      if (Object.hasOwnProperty.call(array, key)) {
+        const element = array[key];
+        objlist.push(element[paramName]);
+      }
+      else {continue;}
+    }
+
+    var hash = {};
+    for (const key in objlist) {
+      const element = objlist[key];
+      if (hash[element]) {
+        return true;
+      }
+      // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
+      hash[element] = true;
+    }
+    return false;
   }
 
 
