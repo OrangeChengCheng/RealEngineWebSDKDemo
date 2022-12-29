@@ -3435,14 +3435,14 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
   if(_textbias[0] < 0){
       TempTextRect[0] =-1; TempTextRect[2] =0; TempTextFmtFlag |=0x20/*TEXT_FMT_RIGHT*/;
   }else if(_textbias[0] == 0){
-      TempTextRect[0] =-1; TempTextRect[2] =1; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
+      TempTextRect[0] =-1; TempTextRect[2] =1; TempTextFmtFlag |=0x10/*TEXT_FMT_LEFT*/;
   }else{
       TempTextRect[0] =0; TempTextRect[2] =1; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
   }
   if(_textbias[1] < 0){
       TempTextRect[1] =-1; TempTextRect[3] =0; TempTextFmtFlag |=0x4/*TEXT_FMT_TOP*/;
   }else if(_textbias[1] == 0){
-      TempTextRect[1] =-1; TempTextRect[3] =1; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
+      TempTextRect[1] =-1; TempTextRect[3] =1; TempTextFmtFlag |=0x2/*TEXT_FMT_BOTTOM*/;
   }else{
       TempTextRect[1] =0; TempTextRect[3] =1; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
   }
@@ -3517,14 +3517,14 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
     if (_textbias[0] < 0) {
       TempTextRect[0] = -1; TempTextRect[2] = 0; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
     } else if (_textbias[0] == 0) {
-      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
     } else {
       TempTextRect[0] = 0; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
     }
     if (_textbias[1] < 0) {
       TempTextRect[1] = -1; TempTextRect[3] = 0; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
     } else if (_textbias[1] == 0) {
-      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
     } else {
       TempTextRect[1] = 0; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
     }
