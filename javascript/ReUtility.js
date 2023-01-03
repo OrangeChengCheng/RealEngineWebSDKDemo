@@ -1912,6 +1912,9 @@ Module.REgetCurCombProbeRet = function(){
   return combret;
 }
 
+
+
+// MOD-- 剖切相关
 //获取剖切后的构件ID
 Module.REgetClipID = function(deleteCrossPart){
   var data = Module.RealBIMWeb.GetClippedElementIds(deleteCrossPart);
@@ -1958,6 +1961,36 @@ Module.REtargetToCilpElem = function(strDirInfo, dScale){
   var bool = Module.RealBIMWeb.TargetToCilpElem(_strDirInfo, _dScale);
   return bool;
 }
+
+/**
+   * 根据轴网对场景裁剪
+   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
+   * @param {String} gridGroupName //表示轴网所属组的唯一标识
+   * @param {String} re_Info  //轴网裁剪相关信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {Array} arrGridName //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+   * @param {DVec4} vOffset //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+   * @param {Number} dMinHeight //表示Z轴上多边形裁剪区域的最小高度
+   * @param {Number} dMaxHeight //表示Z轴上多边形裁剪区域的最大高度
+   * @param {Boolean} bOnlyVisible //表示是否仅包含可见元素
+   * @param {Boolean} bIncludeInter //表示是否包含与多边形区域边界相交的元素
+   */
+Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
+  if (!checkNull(projName, 'projName')) return;
+  if (!checkNull(gridGroupName, 'gridGroupName')) return;
+  if (!checkNull(re_Info, 're_Info')) return;
+  if (!checkParamType(re_Info.arrGridName, 'arrGridName', RE_Enum.RE_Check_Array)) return;
+
+  var tempArrGridName = new BlackHole3D.RE_Vector_WStr();
+  for (let i = 0; i < re_Info.arrGridName.length; i++) {
+    tempArrGridName.push_back(re_Info.arrGridName[i]);
+  }
+  Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(projName,gridGroupName,tempArrGridName,
+                                              re_Info.vOffset,re_Info.dMinHeight,re_Info.dMaxHeight,
+                                              re_Info.bOnlyVisible,re_Info.bIncludeInter);
+}
+
+
+
 
 //设置项目局部可投射矢量区域信息
 //projName：表示要处理的项目名称，不能为空串
@@ -2636,36 +2669,6 @@ Module.REsetGridContactSce = function(bEnable){
 Module.REgetGridContactSce = function(){
   Module.RealBIMWeb.GetGridContactSce();
 }
-
-  /**
-   * 根据轴网对场景裁剪
-   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
-   * @param {String} gridGroupName //表示轴网所属组的唯一标识
-   * @param {String} re_Info  //轴网裁剪相关信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
-   * @param {Array} arrGridName //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
-   * @param {DVec4} vOffset //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
-   * @param {Number} dMinHeight //表示Z轴上多边形裁剪区域的最小高度
-   * @param {Number} dMaxHeight //表示Z轴上多边形裁剪区域的最大高度
-   * @param {Boolean} bOnlyVisible //表示是否仅包含可见元素
-   * @param {Boolean} bIncludeInter //表示是否包含与多边形区域边界相交的元素
-   */
-  Module.REClipHugeObjSubElemsByGrid = function (projName, gridGroupName, re_Info) {
-    if (!checkNull(projName, 'projName')) return;
-    if (!checkNull(gridGroupName, 'gridGroupName')) return;
-    if (!checkNull(re_Info, 're_Info')) return;
-    if (!checkParamType(re_Info.arrGridName, 'arrGridName', RE_Enum.RE_Check_Array)) return;
-
-    var tempArrGridName = new BlackHole3D.RE_Vector_WStr();
-    for (let groupName in re_Info.arrGridName) {
-      tempArrGridName.push_back(groupName);
-    }
-    Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(projName,gridGroupName,tempArrGridName,
-                                                re_Info.vOffset,re_Info.dMinHeight,re_Info.dMaxHeight,
-                                                re_Info.bOnlyVisible,re_Info.bIncludeInter);
-  }
-
-
-
 
 
 // MOD-- 标高相关
@@ -6502,6 +6505,20 @@ Module.REendOSGBEdit = function(){
   }
 
   /**
+   * 设置小地图的背景颜色
+   * @param {String} re_Color //背景颜色
+   * @param {Number} re_Alpha //透明度  默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   */
+  Module.REsetMiniMapBackColor = function (re_Color,re_Alpha) {
+    if (!checkNull(re_Color, 're_Color')) return false;
+    let clrArrTemp = clrHEXToRGB(re_Color);
+    var _a = 1.0; if (checkParamNull(re_Alpha))  _a = (parseInt(re_Alpha) / 255);
+    clrArrTemp.push(_a);
+    Module.RealBIMWeb.SetOverViewBackColor(clrArrTemp);
+    return true;
+  }
+
+  /**
    * 加载小地图中的CAD数据（ RealBIMLoadMiniMapCAD 事件监听回调 CAD数据添加成功）
    * @param {String} re_FilePath //CAD文件路径
    * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
@@ -6518,6 +6535,24 @@ Module.REendOSGBEdit = function(){
     var _CADUnit = eval('Module.' + re_CADUnit);
     var _CADScale = 1.0; if (typeof re_CADScale != 'undefined') { _CADScale = re_CADScale; }
     return Module.RealBIMWeb.LoadOverViewCAD(re_FilePath, _CADUnit, _CADScale);
+  }
+
+  /**
+   * 加载小地图中的图片文件
+   * @param {String} re_TexPath //图片路径
+   * @param {DVec2} re_PicSize //图片尺寸
+   * @param {DVec2} re_TexSize //材质像素尺寸
+   * @param {ivec2} re_InsertPos //材质相对插入点
+   * @param {Number} re_Alpha //材质透明度 默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   */
+  Module.REloadMiniMapForImage = function (re_TexPath,re_PicSize,re_TexSize,re_InsertPos,re_Alpha) {
+    if (!checkParamType(re_TexPath, 're_TexPath', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(re_PicSize, 're_PicSize', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_TexSize, 're_TexSize', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_InsertPos, 're_InsertPos', RE_Enum.RE_Check_Array)) return;
+
+    var _a = 1.0; if (checkParamNull(re_Alpha))  _a = (parseInt(re_Alpha) / 255);
+    return Module.RealBIMWeb.LoadOverViewImage(re_TexPath,re_TexSize[0],re_TexSize[1],re_InsertPos,re_PicSize[0],re_PicSize[1],_a);
   }
 
   /**
