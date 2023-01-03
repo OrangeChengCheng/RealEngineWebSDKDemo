@@ -2531,8 +2531,7 @@ Module.REdelGeoCoordInfo = function(name){
   return Module.RealBIMWeb.DelGeoCoordInfo(name);
 }
 
-
-// 轴网相关
+// MOD-- 轴网相关
 //设置一组的轴网数据
 //strGroupName:组名称
 //arrGridData:轴网数据集合
@@ -2638,7 +2637,38 @@ Module.REgetGridContactSce = function(){
   Module.RealBIMWeb.GetGridContactSce();
 }
 
-//标高相关
+  /**
+   * 根据轴网对场景裁剪
+   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
+   * @param {String} gridGroupName //表示轴网所属组的唯一标识
+   * @param {String} re_Info  //轴网裁剪相关信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {Array} arrGridName //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+   * @param {DVec4} vOffset //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+   * @param {Number} dMinHeight //表示Z轴上多边形裁剪区域的最小高度
+   * @param {Number} dMaxHeight //表示Z轴上多边形裁剪区域的最大高度
+   * @param {Boolean} bOnlyVisible //表示是否仅包含可见元素
+   * @param {Boolean} bIncludeInter //表示是否包含与多边形区域边界相交的元素
+   */
+  Module.REClipHugeObjSubElemsByGrid = function (projName, gridGroupName, re_Info) {
+    if (!checkNull(projName, 'projName')) return;
+    if (!checkNull(gridGroupName, 'gridGroupName')) return;
+    if (!checkNull(re_Info, 're_Info')) return;
+    if (!checkParamType(re_Info.arrGridName, 'arrGridName', RE_Enum.RE_Check_Array)) return;
+
+    var tempArrGridName = new BlackHole3D.RE_Vector_WStr();
+    for (let groupName in re_Info.arrGridName) {
+      tempArrGridName.push_back(groupName);
+    }
+    Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(projName,gridGroupName,tempArrGridName,
+                                                re_Info.vOffset,re_Info.dMinHeight,re_Info.dMaxHeight,
+                                                re_Info.bOnlyVisible,re_Info.bIncludeInter);
+  }
+
+
+
+
+
+// MOD-- 标高相关
 //设置一组的标高数据
 //strGroupName:组名称
 //arrLevelData:标高数据集合
