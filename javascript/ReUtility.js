@@ -1,4 +1,4 @@
-//版本：v2.1.0.1786
+//版本：v2.1.0.1793
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -153,6 +153,11 @@ Module.REloadMainSce = function(urlRes,projResName,verInfo,projName){
 //             }
 //            ]
 Module.REloadMainSce_projs = function(projInfo,preclear){
+  if (isRepeat(projInfo, 'projName')) {
+    console.error('【REError】: projName 唯一标识名，不能为空不可重复');
+    return;
+  }
+
   var _l = projInfo.length; 
   for(var i=0; i<_l; ++i){
     var _defMainProjResRoot = ((i==0) ? projInfo[i].urlRes : ""); var _defMainProjCamFile = ""; 
@@ -1907,6 +1912,9 @@ Module.REgetCurCombProbeRet = function(){
   return combret;
 }
 
+
+
+// MOD-- 剖切相关
 //获取剖切后的构件ID
 Module.REgetClipID = function(deleteCrossPart){
   var data = Module.RealBIMWeb.GetClippedElementIds(deleteCrossPart);
@@ -1953,6 +1961,36 @@ Module.REtargetToCilpElem = function(strDirInfo, dScale){
   var bool = Module.RealBIMWeb.TargetToCilpElem(_strDirInfo, _dScale);
   return bool;
 }
+
+/**
+   * 根据轴网对场景裁剪
+   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
+   * @param {String} gridGroupName //表示轴网所属组的唯一标识
+   * @param {String} re_Info  //轴网裁剪相关信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+   * @param {Array} arrGridName //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+   * @param {DVec4} vOffset //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+   * @param {Number} dMinHeight //表示Z轴上多边形裁剪区域的最小高度
+   * @param {Number} dMaxHeight //表示Z轴上多边形裁剪区域的最大高度
+   * @param {Boolean} bOnlyVisible //表示是否仅包含可见元素
+   * @param {Boolean} bIncludeInter //表示是否包含与多边形区域边界相交的元素
+   */
+Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
+  if (!checkNull(projName, 'projName')) return;
+  if (!checkNull(gridGroupName, 'gridGroupName')) return;
+  if (!checkNull(re_Info, 're_Info')) return;
+  if (!checkParamType(re_Info.arrGridName, 'arrGridName', RE_Enum.RE_Check_Array)) return;
+
+  var tempArrGridName = new BlackHole3D.RE_Vector_WStr();
+  for (let i = 0; i < re_Info.arrGridName.length; i++) {
+    tempArrGridName.push_back(re_Info.arrGridName[i]);
+  }
+  Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(projName,gridGroupName,tempArrGridName,
+                                              re_Info.vOffset,re_Info.dMinHeight,re_Info.dMaxHeight,
+                                              re_Info.bOnlyVisible,re_Info.bIncludeInter);
+}
+
+
+
 
 //设置项目局部可投射矢量区域信息
 //projName：表示要处理的项目名称，不能为空串
@@ -2526,8 +2564,7 @@ Module.REdelGeoCoordInfo = function(name){
   return Module.RealBIMWeb.DelGeoCoordInfo(name);
 }
 
-
-// 轴网相关
+// MOD-- 轴网相关
 //设置一组的轴网数据
 //strGroupName:组名称
 //arrGridData:轴网数据集合
@@ -2633,7 +2670,8 @@ Module.REgetGridContactSce = function(){
   Module.RealBIMWeb.GetGridContactSce();
 }
 
-//标高相关
+
+// MOD-- 标高相关
 //设置一组的标高数据
 //strGroupName:组名称
 //arrLevelData:标高数据集合
@@ -3430,14 +3468,14 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
   if(_textbias[0] < 0){
       TempTextRect[0] =-1; TempTextRect[2] =0; TempTextFmtFlag |=0x20/*TEXT_FMT_RIGHT*/;
   }else if(_textbias[0] == 0){
-      TempTextRect[0] =-1; TempTextRect[2] =1; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
+      TempTextRect[0] =-1; TempTextRect[2] =1; TempTextFmtFlag |=0x10/*TEXT_FMT_LEFT*/;
   }else{
       TempTextRect[0] =0; TempTextRect[2] =1; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
   }
   if(_textbias[1] < 0){
       TempTextRect[1] =-1; TempTextRect[3] =0; TempTextFmtFlag |=0x4/*TEXT_FMT_TOP*/;
   }else if(_textbias[1] == 0){
-      TempTextRect[1] =-1; TempTextRect[3] =1; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
+      TempTextRect[1] =-1; TempTextRect[3] =1; TempTextFmtFlag |=0x2/*TEXT_FMT_BOTTOM*/;
   }else{
       TempTextRect[1] =0; TempTextRect[3] =1; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
   }
@@ -3512,14 +3550,14 @@ Module.REaddCustomPolylineShp = function(shpName, arrPots, uFillState, uClr, uFi
     if (_textbias[0] < 0) {
       TempTextRect[0] = -1; TempTextRect[2] = 0; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
     } else if (_textbias[0] == 0) {
-      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+      TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
     } else {
       TempTextRect[0] = 0; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
     }
     if (_textbias[1] < 0) {
       TempTextRect[1] = -1; TempTextRect[3] = 0; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
     } else if (_textbias[1] == 0) {
-      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+      TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
     } else {
       TempTextRect[1] = 0; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
     }
@@ -3855,6 +3893,11 @@ Module.REgetCamProjType = function(){
 //             }
 //            ]
 Module.REaddPanSceData = function(projInfo){
+  if (isRepeat(projInfo, 'projName')) {
+    console.error('【REError】: projName 唯一标识名，不能为空不可重复');
+    return;
+  }
+
   var _l = projInfo.length; 
   for(var i=0; i<_l; ++i){
     var _path = projInfo[i].urlRes+projInfo[i].projResName+"/360/total.xml";
@@ -6462,6 +6505,20 @@ Module.REendOSGBEdit = function(){
   }
 
   /**
+   * 设置小地图的背景颜色
+   * @param {String} re_Color //背景颜色
+   * @param {Number} re_Alpha //透明度  默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   */
+  Module.REsetMiniMapBackColor = function (re_Color,re_Alpha) {
+    if (!checkNull(re_Color, 're_Color')) return false;
+    let clrArrTemp = clrHEXToRGB(re_Color);
+    var _a = 1.0; if (checkParamNull(re_Alpha))  _a = (parseInt(re_Alpha) / 255);
+    clrArrTemp.push(_a);
+    Module.RealBIMWeb.SetOverViewBackColor(clrArrTemp);
+    return true;
+  }
+
+  /**
    * 加载小地图中的CAD数据（ RealBIMLoadMiniMapCAD 事件监听回调 CAD数据添加成功）
    * @param {String} re_FilePath //CAD文件路径
    * @param {RE_CADUnit_Enum} re_CADUnit //CAD单位 RE_CADUnit_Enum 枚举值
@@ -6478,6 +6535,24 @@ Module.REendOSGBEdit = function(){
     var _CADUnit = eval('Module.' + re_CADUnit);
     var _CADScale = 1.0; if (typeof re_CADScale != 'undefined') { _CADScale = re_CADScale; }
     return Module.RealBIMWeb.LoadOverViewCAD(re_FilePath, _CADUnit, _CADScale);
+  }
+
+  /**
+   * 加载小地图中的图片文件
+   * @param {String} re_TexPath //图片路径
+   * @param {DVec2} re_PicSize //图片尺寸
+   * @param {DVec2} re_TexSize //材质像素尺寸
+   * @param {ivec2} re_InsertPos //材质相对插入点
+   * @param {Number} re_Alpha //材质透明度 默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+   */
+  Module.REloadMiniMapForImage = function (re_TexPath,re_PicSize,re_TexSize,re_InsertPos,re_Alpha) {
+    if (!checkParamType(re_TexPath, 're_TexPath', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(re_PicSize, 're_PicSize', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_TexSize, 're_TexSize', RE_Enum.RE_Check_Array)) return;
+    if (!checkParamType(re_InsertPos, 're_InsertPos', RE_Enum.RE_Check_Array)) return;
+
+    var _a = 1.0; if (checkParamNull(re_Alpha))  _a = (parseInt(re_Alpha) / 255);
+    return Module.RealBIMWeb.LoadOverViewImage(re_TexPath,re_TexSize[0],re_TexSize[1],re_InsertPos,re_PicSize[0],re_PicSize[1],_a);
   }
 
   /**
@@ -7013,7 +7088,7 @@ Module.REendOSGBEdit = function(){
    * @param {String} paramName //参数名
    */
   function logErrorWithPar(paramName) {
-    console.error("* errMsg: 传入参数格式不正确！-> " + paramName);
+    console.error("【REError】: errMsg: 传入参数格式不正确！-> " + paramName);
   }
 
   /**
@@ -7140,6 +7215,34 @@ Module.REendOSGBEdit = function(){
     var _obj = JSON.stringify(obj); //  对象转成字符串
     var objClone = JSON.parse(_obj); //  字符串转成对象
     return objClone;
+  }
+
+  /**
+   * 判断是否有重复值
+   * @param {Array} array //列表
+   * @param {String} paramName //需要判断的key 
+   * @returns 
+   */
+  function isRepeat(array, paramName) {
+    var objlist = [];
+    for (const key in array) {
+      if (Object.hasOwnProperty.call(array, key)) {
+        const element = array[key];
+        objlist.push(element[paramName]);
+      }
+      else {continue;}
+    }
+
+    var hash = {};
+    for (const key in objlist) {
+      const element = objlist[key];
+      if (hash[element]) {
+        return true;
+      }
+      // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
+      hash[element] = true;
+    }
+    return false;
   }
 
 

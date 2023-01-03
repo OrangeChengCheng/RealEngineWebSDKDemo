@@ -791,18 +791,18 @@ function customshp03(){
 function customshp04() {
   var shpName = "shp001";
   var re_Info = {
-    "arrPots": [[15.821551318975999, 17.619940136002967, 0.000018728150966040857],
-    [15.821551745332034, 18.969940110334004, 0.00001945166156147593],
-    [13.771586103520088, 17.619892309623157, -0.00000452473561729505]],
+    "arrPots": [[15.821551318975999, 17.619940136002967, 0],
+    [15.821551745332034, 18.969940110334004, 0],
+    [13.771586103520088, 17.619892309623157, 1]],
     "uFillState": 1,
-    "lineColor": "ff0000",
+    "lineColor": "ffffff",
     "lineClrAlpha": 255,
-    "fillColor": "ffffff",
+    "fillColor": "ff0000",
     "fillClrAlpha": 128,
     "fTextPos": -2,
     "cTextInfo": {
-      "textinfo": "测试画线",
-      "textbias": [1, 0],
+      "textinfo": "测试画线测试画线测试画线测试画线测试画线测试画线测试画线测试画线测试画线测试画线",
+      "textbias": [0, 1],
       "fontname": "RealBIMFont001",
       "textcolor": "ffffff",
       "textAlpha": 255,
