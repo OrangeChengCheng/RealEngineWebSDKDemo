@@ -1,4 +1,4 @@
-//版本：v2.1.0.1793
+//版本：v2.1.0.1794
 var RE2SDKCreateModule =function(ExtModule){
 
   ExtModule = ExtModule || {};
@@ -8,6 +8,35 @@ var RE2SDKCreateModule =function(ExtModule){
     ExtModule = instance;
   }); //创建引擎模块
 
+// MOD-- 授权信息相关
+  /**
+   * 添加一个HTTP路径授权信息
+   * @param {String} strName //表示信息的逻辑标识名
+   * @param {string} strFilePath //授权文件路径
+   * @returns 
+   */
+  Module.REaddAURLPathCtrl_AuthorPath = function (strName, strFilePath) {
+    if (!checkParamType(strName, 'strName', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(strFilePath, 'strFilePath', RE_Enum.RE_Check_String)) return;
+    return Module.RealBIMWeb.AddAURLPathCtrl_AuthorPath(strName, strFilePath);
+  }
+
+  /**
+   * 添加一个HTTP路径授权信息
+   * @param {String} strName //表示信息的逻辑标识名
+   * @param {string} strURLRootDir //表示路径索引对应的跟文件夹
+   * @param {string} strFilePath //授权文件路径
+   * @returns 
+   */
+  Module.REaddAURLPathCtrl_PathIndex = function (strName, strURLRootDir, strFilePath) {
+    if (!checkParamType(strName, 'strName', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(strURLRootDir, 'strURLRootDir', RE_Enum.RE_Check_String)) return;
+    if (!checkParamType(strFilePath, 'strFilePath', RE_Enum.RE_Check_String)) return;
+    return Module.RealBIMWeb.AddAURLPathCtrl_PathIndex(strName, strURLRootDir, strFilePath);
+  }
+
+
+// MOD-- 场景
 //场景初始化
 Module.REinitSys = function(strWorkerjsPath,uWidth,uHeight,strCommonUrl,strUserName,strPassWord){
   var _bPhoneMode =false;
