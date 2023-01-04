@@ -6656,7 +6656,7 @@ Module.REendOSGBEdit = function(){
     var _vector_CADPoints = new Module.RE_Vector_dvec2();
     try {
       re_BIMPoints.forEach(value => {
-        if (!checkArrCount(value, 're_BIMPoints', 2)) throw new Error('');
+        if (!checkArrCount(value, 're_BIMPoints', 3)) throw new Error('');
         _vector_BIMPoints.push_back(value);
       });
       re_CADPoints.forEach(value => {
