@@ -7019,7 +7019,7 @@ Module.REendOSGBEdit = function(){
     for(var i=0;i<re_ArrCnrs.length;++i){
       temparrpos.push_back(re_ArrCnrs[i]);
     }
-    Module.RealBIMWeb.CalcEarthworkValues(temparrpos, re_Elevation, re_ProjName, "", 18);
+    Module.RealBIMWeb.CalcEarthworkValues(temparrpos, re_Elevation, re_ProjName, "", 9);
   }
 
 
