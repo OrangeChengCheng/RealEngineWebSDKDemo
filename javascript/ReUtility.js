@@ -37,8 +37,13 @@ var RE2SDKCreateModule =function(ExtModule){
 
 
 // MOD-- 场景
+/**
+ * 场景初始化
+ * @param {String} mainWndName //表示主窗口的名称,对应document.title
+ * @returns 
+ */
 //场景初始化
-Module.REinitSys = function(strWorkerjsPath,uWidth,uHeight,strCommonUrl,strUserName,strPassWord){
+Module.REinitSys = function(strWorkerjsPath,uWidth,uHeight,strCommonUrl,strUserName,strPassWord,mainWndName){
   var _bPhoneMode =false;
   if(_bPhoneMode){
     Module['m_re_em_force_threadnum'] =1; //强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
@@ -47,7 +52,8 @@ Module.REinitSys = function(strWorkerjsPath,uWidth,uHeight,strCommonUrl,strUserN
   }
   Module["m_re_em_window_width"] = uWidth; 
   Module["m_re_em_window_height"] = uHeight;
-  var bool =Module.RealBIMWeb.CreateEmuMgr(strWorkerjsPath,"BlackHole",uWidth, uHeight, 
+  var _strMainWndName = "BlackHole"; if (checkParamNull(mainWndName)) _strMainWndName = mainWndName;
+  var bool =Module.RealBIMWeb.CreateEmuMgr(strWorkerjsPath,_strMainWndName,uWidth, uHeight, 
                                   false, 500, "", strCommonUrl, "/ModuleDir/TempFile/", "/WebCache0001/", 
                                   strUserName, strPassWord);
   if(_bPhoneMode){
