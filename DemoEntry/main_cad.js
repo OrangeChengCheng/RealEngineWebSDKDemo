@@ -25,7 +25,7 @@ window.addEventListener('load', function() {
 
   document.addEventListener("RealEngineRenderReady", showCanvas);
 
-  document.addEventListener("RealBIMLoadProgress", function(e){LoadingProgress(e.detail.progress,e.detail.info);});
+  document.addEventListener("RealBIMLoadProgress", LoadingProgress);
   if((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')){
     console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
     RealBIMInitSys();
@@ -35,10 +35,11 @@ window.addEventListener('load', function() {
 //场景初始化，需正确传递相关参数
 function RealBIMInitSys(isSuccess){
   console.log("Listen RealEngineReady!！！！！！！！！！！！！！！！！！！！！！！！！");
+  progressFn(0.5, "RealEngine/WorkerJS Begin Init");
   var workerjspath = "javascript/RealBIMWeb_Worker.js";
   var width = window.innerWidth; var height = window.innerHeight;
-  // var commonurl = "https://demo.bjblackhole.com/default.aspx?dir=url_res360&path=res_gol001";
-  var commonurl = "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_gol001";
+  var commonurl = "https://demo.bjblackhole.com/default.aspx?dir=url_res360&path=res_gol001";
+  // var commonurl = "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_gol001";
   var username = "admin"; var password = "xiyangyang";
   BlackHole3D.REinitSys(workerjspath,width,height,commonurl,username,password);
 }
@@ -74,10 +75,10 @@ function RealBIMLoadMainSce(isSuccess){
     // BlackHole3D.REsetPageLoadLev(2);
 
     BlackHole3D.REsetViewMode("", "CAD", 0);
-    // BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/dwg/BF00-AR01-01(1).dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
+    BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/dwg/BF00-AR01-01(1).dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
     // BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
 
-    BlackHole3D.REloadCAD("https://bjrealbim.bjblackhole.cn/engineweb/default.aspx?dir=url_res04&path=cad/a102-plans.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
+    // BlackHole3D.REloadCAD("https://bjrealbim.bjblackhole.cn/engineweb/default.aspx?dir=url_res04&path=cad/a102-plans.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
 
   }else{
     console.log("场景初始化失败！！！！！！！！！！！！！！！！！！！！！！！！");
@@ -92,9 +93,10 @@ function MainSceDown(isSuccess){
   }
 }
 
-// 以下为加载进度条的示例代码，仅供参考
-function LoadingProgress(percent,info){
-  console.log("进度百分比:"+percent+"info:"+info);
+// 加载进度条
+function LoadingProgress(e) {
+  var percent = e.detail.progress; var info = e.detail.info;
+  progressFn(percent, info);
 }
 
 //图形窗口改变时，需实时传递给引擎，否则模型会变形
