@@ -192,7 +192,6 @@ Module.REloadMainSce_projs = function(projInfo,preclear){
     console.error('【REError】: projName 唯一标识名，不能为空不可重复');
     return;
   }
-
   var _l = projInfo.length; 
   for(var i=0; i<_l; ++i){
     var _defMainProjResRoot = ((i==0) ? projInfo[i].urlRes : ""); var _defMainProjCamFile = ""; 
@@ -204,13 +203,15 @@ Module.REloadMainSce_projs = function(projInfo,preclear){
     var _minLoadDist = 1e30;
     var _maxLoadDist = 1e30;
     var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(projInfo[i].projName);
-    var _ver = {m_sVer0:0x7fffffff, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:intprojid, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
+    var _ver = {m_sVer0:0x7fffffff, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:0, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
     _isMainProj = (((((typeof preclear == 'undefined') || preclear) && (i==0))) ? true : false);
     if(typeof projInfo[i].projCRS != 'undefined'){_projCRS =projInfo[i].projCRS;}
     if(typeof projInfo[i].projNorth != 'undefined'){_projNorth =projInfo[i].projNorth;}
-    if(!projInfo[i].useNewVer){
-      _verInfo = projInfo[i].verInfo;
-      _ver = {m_sVer0:_verInfo, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:intprojid, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
+    if(typeof projInfo[i].useNewVer!='undefined' && !projInfo[i].useNewVer){
+      _ver.m_sVer0 =projInfo[i].verInfo; _ver.m_uVer0GolIDBias_H32 =intprojid;
+    }
+    if(typeof projInfo[i].useNewVer2!='undefined' && !projInfo[i].useNewVer2){
+      _ver.m_sVer1 =projInfo[i].verInfo2; _ver.m_uVer1GolIDBias_H32 =intprojid;
     }
     if(projInfo[i].useTransInfo){_deftransinfo = projInfo[i].transInfo;}
     if((typeof projInfo[i].minLoadDist != 'undefined')&&(projInfo[i].minLoadDist!=0)){_minLoadDist = projInfo[i].minLoadDist;}
