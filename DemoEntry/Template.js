@@ -40,6 +40,8 @@ window.onload = function (event) {
   document.addEventListener("RealEngineRenderReady", showCanvas);
   document.addEventListener("RealBIMLoadProgress", LoadingProgress);
 
+  document.addEventListener("RealBIMPolyClipping", RealBIMPolyClipping);
+
 
   if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
     console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
@@ -47,6 +49,9 @@ window.onload = function (event) {
   }
 }
 
+function RealBIMPolyClipping(e) {
+  console.log(e);
+}
 
 
 //场景初始化，需正确传递相关参数

@@ -75,8 +75,8 @@ function RealBIMLoadMainSce(isSuccess){
     // BlackHole3D.REsetPageLoadLev(2);
 
     BlackHole3D.REsetViewMode("", "CAD", 0);
-    BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/dwg/BF00-AR01-01(1).dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
-    // BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
+    // BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/dwg/BF00-AR01-01(1).dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
+    BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
 
     // BlackHole3D.REloadCAD("https://bjrealbim.bjblackhole.cn/engineweb/default.aspx?dir=url_res04&path=cad/a102-plans.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
 

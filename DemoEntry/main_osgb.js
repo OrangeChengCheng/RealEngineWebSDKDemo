@@ -19,6 +19,7 @@ window.addEventListener('load', function() {
   document.addEventListener("RealBIMInitSys", function(e){RealBIMLoadMainSce(e.detail.succeed)});
   document.addEventListener("RealBIMLoadMainSce", function(e){MainSceDown(e.detail.succeed)});
   document.addEventListener("RealBIMSelShape",getselshapeinfo);
+  document.addEventListener("RealBIMFrameSel",RealBIMFrameSel);
   // 一个新区域添加完成
   document.addEventListener("NewOBSectionFinish", function(e){addosgb(e.detail.sectionID,e.detail.flatten)});
   // 一个区域脚点拖动结束
@@ -30,6 +31,11 @@ window.addEventListener('load', function() {
     RealBIMInitSys();
   }
 });
+
+function RealBIMFrameSel(e) {
+  console.log(e);
+  console.log('----------');
+}
 
 //场景初始化，需正确传递相关参数
 function RealBIMInitSys(isSuccess){
@@ -61,15 +67,16 @@ function RealBIMLoadMainSce(isSuccess){
         "verInfo": 0,
         "useTransInfo": false,
         "transInfo": ""
-      },{
-        "projName": "pro02",
-        "urlRes": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-        "projResName": "res_taizhou",  
-        "useNewVer": true,
-        "verInfo": 0,
-        "useTransInfo": true,
-        "transInfo":[[1.0,1.0,1.0],[0.0,0.0,0.0,1.0],[0.0,1000.0,20.0]]
       }
+      // ,{
+      //   "projName": "pro02",
+      //   "urlRes": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+      //   "projResName": "res_taizhou",  
+      //   "useNewVer": true,
+      //   "verInfo": 0,
+      //   "useTransInfo": true,
+      //   "transInfo":[[1.0,1.0,1.0],[0.0,0.0,0.0,1.0],[0.0,1000.0,20.0]]
+      // }
     ];
     BlackHole3D.REloadMainSce_projs(projInfo);
 
