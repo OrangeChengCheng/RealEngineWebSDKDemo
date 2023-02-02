@@ -67,13 +67,12 @@ function RealBIMInitSys() {
     sysModel.userName = "admin";
     sysModel.passWord = "xiyangyang";
     BlackHole3D.initEngineSys(sysModel);
-    BlackHole3D.REsetUseWebCache(false);//是否允许使用浏览器缓存
+    BlackHole3D.Common.setUseWebCache(false);//是否允许使用浏览器缓存
 }
 
 //初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RealBIMLoadMainSce(e) {
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
-    console.log(BlackHole3D.RE_ViewportType.BIM);
 
 
     console.log("=========================== 场景初始化完成");
@@ -96,10 +95,10 @@ function RealBIMLoadMainSce(e) {
         ];
         BlackHole3D.REloadMainSce_projs(projInfo);
         // 设置全局渲染性能控制参数
-        BlackHole3D.REsetMaxResMemMB(5500);
-        BlackHole3D.REsetExpectMaxInstMemMB(4500);
-        BlackHole3D.REsetExpectMaxInstDrawFaceNum(20000000);
-        BlackHole3D.REsetPageLoadLev(2);
+        BlackHole3D.Common.setMaxResMemMB(5500);
+        BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+        BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+        BlackHole3D.Common.setPageLoadLev(2);
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
     }

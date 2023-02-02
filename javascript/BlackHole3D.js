@@ -106,17 +106,148 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
     }
 
-
-
-
-    //设置网络资源加载是否使用缓存
-    Module.REsetUseWebCache = function (bUseWebCache) {
-        Module.RealBIMWeb.SetUseWebCache(bUseWebCache);
+    /**
+     * 设置360相机与BIM相机是否同步
+     * @param {Boolean} isSync //是否同步
+     */
+    Module.setViewSyn = function (isSync) {
+        Module.RealBIMWeb.SetViewSyn(isSync);
     }
-    //获取网络资源加载是否使用缓存
-    Module.REgetUseWebCache = function () {
+
+    /**
+     * 获取当前设置的360相机与BIM相机是否同步状态
+     */
+    Module.getViewSyn = function () {
+        return Module.RealBIMWeb.GetViewSyn();
+    }
+
+
+    // MOD-- 公共模块（Common）
+    Module.Common = typeof Module.Common !== "undefined" ? Module.Common : {};//增加 Common 模块
+    // MARK sdk函数
+    /**
+     * 设置渲染时引擎最大允许的内存占用空间(以MB为单位)
+     * @param {Number} size //显存占用空间值(以MB为单位)
+     */
+    Module.Common.setMaxResMemMB = function (size) {
+        Module.RealBIMWeb.SetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK, size);
+    }
+
+    /**
+     * 获取渲染时引擎最大允许的内存占用空间(以MB为单位)
+     */
+    Module.Common.getMaxResMemMB = function () {
+        return Module.RealBIMWeb.GetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK);
+    }
+
+    /**
+     * 设置渲染时引擎建议分配的内存空间(以MB为单位)
+     * @param {Number} size //显存占用空间值(以MB为单位)
+     */
+    Module.Common.setExpectMaxInstMemMB = function (size) {
+        Module.RealBIMWeb.SetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, size);
+    }
+
+    /**
+     * 获取渲染时引擎建议分配的内存空间(以MB为单位)
+     */
+    Module.Common.getExpectMaxInstMemMB = function () {
+        return Module.RealBIMWeb.GetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
+    }
+
+    /**
+     * 设置模型每帧最大渲染面数
+     * @param {Number} size //每帧渲染的面数
+     */
+    Module.Common.setExpectMaxInstDrawFaceNum = function (size) {
+        Module.RealBIMWeb.SetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, size);
+    }
+
+    /**
+     * 获取模型每帧最大渲染面数
+     */
+    Module.Common.getExpectMaxInstDrawFaceNum = function () {
+        return Module.RealBIMWeb.GetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
+    }
+
+    /**
+     * 设置页面调度等级
+     * @param {Number} level //页面调度等级
+     */
+    Module.Common.setPageLoadLev = function (level) {
+        Module.RealBIMWeb.SetPageLoadLev(level);
+    }
+
+    /**
+     * 获取页面调度等级
+     */
+    Module.Common.getPageLoadLev = function () {
+        return Module.RealBIMWeb.GetPageLoadLev();
+    }
+
+    /**
+     * 设置每帧允许的最大资源加载总数
+     * @param {Number} count //每帧允许的资源加载设定参数
+     */
+    Module.Common.setTotalResMaxLoadNum = function (count) {
+        if (count == 0) {
+            Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0);
+        } else if (count == 1) {
+            Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0xffffffff);
+        }
+    }
+
+    /**
+     * 获取每帧允许的最大资源加载总数
+     */
+    Module.Common.getTotalResMaxLoadNum = function () {
+        return Module.RealBIMWeb.GetTotalResMaxLoadNumPerFrame();
+    }
+
+    /**
+     * 设置网络资源加载是否使用缓存
+     * @param {Number} isUse //使用缓存状态
+     */
+    Module.Common.setUseWebCache = function (isUse) {
+        Module.RealBIMWeb.SetUseWebCache(isUse);
+    }
+
+    /**
+     * 获取网络资源加载是否使用缓存
+     */
+    Module.Common.getUseWebCache = function () {
         return Module.RealBIMWeb.GetUseWebCache();
     }
+
+
+
+    // MOD-- 模型加载（Model）
+    Module.Model = typeof Module.Model !== "undefined" ? Module.Model : {};//增加 Model 模块
+    // MARK 构造函数模型
+    class REDataSetModel {
+        // 引擎参数模型
+        constructor() {
+            this.dataSetId = '';//数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
+            this.resourcesAddress = '';//数据集资源包地址
+            this.useNewVer = true; //表示是否加载最新版本，默认true
+            this.assginVersion = '';//指定版本号，不加载最新版本的时候，会用此版本号
+            this.useTransInfo = false;//表示该项目是否需要调整位置，默认false
+            this.transInfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]];//项目的偏移信息，依次为缩放、旋转（四元数）、平移
+            this.minLoadDist = 1e30;//项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+            this.maxLoadDist = 1e30;//项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
+            this.projCRS = '';//当前子项的坐标系标识
+            this.projNorth = 0.0;//当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）projCRS为空时此参数无定意义
+        }
+    }
+    // MARK sdk函数
+
+    Module.Model.loadDataSet = function () {
+
+    }
+
+
+
+
 
     Module.REloadMainSce_projs = function (projInfo, preclear) {
         if (isRepeat(projInfo, 'projName')) {
@@ -160,55 +291,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    //设置渲染时引擎最大允许的内存占用空间(以MB为单位)
-    Module.REsetMaxResMemMB = function (val) {
-        Module.RealBIMWeb.SetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK, val);
-    }
-    //获取渲染时引擎最大允许的内存占用空间(以MB为单位)
-    Module.REgetMaxResMemMB = function () {
-        var val = Module.RealBIMWeb.GetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK);
-        return val;
-    }
-    //设置渲染时引擎建议分配的内存空间(以MB为单位)
-    Module.REsetExpectMaxInstMemMB = function (val) {
-        Module.RealBIMWeb.SetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, val);
-    }
-    //获取渲染时引擎建议分配的内存空间(以MB为单位)
-    Module.REgetExpectMaxInstMemMB = function () {
-        var val = Module.RealBIMWeb.GetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-        return val;
-    }
-    //设置模型每帧最大渲染面数
-    Module.REsetExpectMaxInstDrawFaceNum = function (val) {
-        Module.RealBIMWeb.SetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, val);
-    }
-    //获取模型每帧最大渲染面数
-    Module.REgetExpectMaxInstDrawFaceNum = function () {
-        var val = Module.RealBIMWeb.GetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-        return val;
-    }
-    //设置页面调度等级
-    Module.REsetPageLoadLev = function (val) {
-        Module.RealBIMWeb.SetPageLoadLev(val);
-    }
-    //获取页面调度等级
-    Module.REgetPageLoadLev = function () {
-        var val = Module.RealBIMWeb.GetPageLoadLev();
-        return val;
-    }
-    //设置每帧允许的最大资源加载总数
-    Module.REsetTotalResMaxLoadNum = function (val) {
-        if (val == 0) {
-            Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0);
-        } else if (val == 1) {
-            Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0xffffffff);
-        }
-    }
-    //获取每帧允许的最大资源加载总数
-    Module.REgetTotalResMaxLoadNum = function () {
-        var val = Module.RealBIMWeb.GetTotalResMaxLoadNumPerFrame();
-        return val;
-    }
+
+
+
 
 
 
@@ -590,7 +675,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule.RE_ViewportType = RE_ViewportType;
 
     //视图排列方式
-    const RE_ViewportRank  = {
+    const RE_ViewportRank = {
         Single: 0,//视图0/视图1任一为空字符串：屏幕中只显示一个内容有效的视图
         LR: 1,//屏幕自左向右依次显示视图0、视图1
         TB: -1,//屏幕自下向上依次显示视图0、视图1
@@ -601,7 +686,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    
+
 
 
 
