@@ -1,31 +1,31 @@
 
-var creatModel = function() {
+var creatModel = function () {
   var model = {};
-  model.test = function() {
-      console.log('test()->',arguments.callee.name);
-      console.log('test()->',arguments.callee.caller.name);
-      console.log('test()->',model.test.caller.name);
-      logName();
-      console.log(SizeStyleEnum[5])
-      console.log(TypeS.TypeS_a)
+  model.test = function () {
+    console.log('test()->', arguments.callee.name);
+    console.log('test()->', arguments.callee.caller.name);
+    console.log('test()->', model.test.caller.name);
+    logName();
+    console.log(SizeStyleEnum[5])
+    console.log(TypeS.TypeS_a)
   }
   const SizeStyleEnum = [
-      "RE_UI_SIZE_OF_Alpha",						//float 作用于整个动态UI系统的全局透明度
-      "RE_UI_SIZE_OF_DisabledAlpha",				//float 指定内部开始禁用时的透明度，跟Alpha的值相乘
-      "RE_UI_SIZE_OF_WindowPadding",				//Vec2  指定窗口对象内边距（像素，x,y两个方向分别指定）
-      "RE_UI_SIZE_OF_WindowRounding",			    //float 指定窗口对象的圆角尺寸，0表示创建矩形窗口，过大的值会导致各种外观异常，所以不建议取值过大
-      "RE_UI_SIZE_OF_WindowBorderSize",			//float 指定窗口边框尺寸，一般取值为0或1，其它值可能会导致未定义问题并对性能造成影响
-      "RE_UI_SIZE_OF_WindowMinSize",           	//Vec2  指定窗口最小尺寸，这是一个全局设置
-      "RE_UI_SIZE_OF_WindowTitleAlign",        	//Vec2	窗口标题的对齐比例，缺省值为（0.0,0.5）左对齐,垂直居中
+    "RE_UI_SIZE_OF_Alpha",						//float 作用于整个动态UI系统的全局透明度
+    "RE_UI_SIZE_OF_DisabledAlpha",				//float 指定内部开始禁用时的透明度，跟Alpha的值相乘
+    "RE_UI_SIZE_OF_WindowPadding",				//Vec2  指定窗口对象内边距（像素，x,y两个方向分别指定）
+    "RE_UI_SIZE_OF_WindowRounding",			    //float 指定窗口对象的圆角尺寸，0表示创建矩形窗口，过大的值会导致各种外观异常，所以不建议取值过大
+    "RE_UI_SIZE_OF_WindowBorderSize",			//float 指定窗口边框尺寸，一般取值为0或1，其它值可能会导致未定义问题并对性能造成影响
+    "RE_UI_SIZE_OF_WindowMinSize",           	//Vec2  指定窗口最小尺寸，这是一个全局设置
+    "RE_UI_SIZE_OF_WindowTitleAlign",        	//Vec2	窗口标题的对齐比例，缺省值为（0.0,0.5）左对齐,垂直居中
   ]
   const TypeS = {
-      TypeS_a: 1,
-      TypeS_b: 2,
-      TypeS_c: 3,
+    TypeS_a: 1,
+    TypeS_b: 2,
+    TypeS_c: 3,
   }
   function logName() {
-      console.log('logName()->',arguments.callee.name);
-      console.log('logName()->',arguments.callee.caller.name);
+    console.log('logName()->', arguments.callee.name);
+    console.log('logName()->', arguments.callee.caller.name);
   }
   return model;
 }
@@ -54,7 +54,7 @@ function REclrFix(clr, clrPercent) {
 }
 
 
-function REalphaFix(alpha, alphaPercent) {  
+function REalphaFix(alpha, alphaPercent) {
   var intalphainfo = Math.round(alpha);
   var intalphaper = Math.round(alphaPercent);
   var newalphainfo = (intalphainfo > 15 ? (intalphainfo.toString(16)) : ("0" + intalphainfo.toString(16)));
@@ -67,9 +67,9 @@ function REalphaFix(alpha, alphaPercent) {
 function REsetBackColor(clr) {
   var _clrT = clr;
   if (clr.includes('0x')) {
-    _clrT = _clrT.replace('0x','');
+    _clrT = _clrT.replace('0x', '');
     console.log(_clrT);
-    
+
   }
   var tempclr01 = clr.substring(0, 2); var clr01 = (parseInt(tempclr01, 16) / 255);
   var tempclr02 = clr.substring(2, 4); var clr02 = (parseInt(tempclr02, 16) / 255);
@@ -94,7 +94,7 @@ function REsetBackColor(clr) {
 
 
 function test() {
-  var tt = [1,2,3,4];
+  var tt = [1, 2, 3, 4];
   var _vNum = [];
   for (let i = 0; i < 4; i++) {
     if (i < tt.length) {
@@ -104,7 +104,7 @@ function test() {
     _vNum.push(0);
   }
   console.log(_vNum);
-  
+
 }
 // test()
 
@@ -116,15 +116,15 @@ function colorChange(color) {
     .replace(/[\s+]/g, '')
     .split(',');
   let a = parseFloat(arr[3] || 1),
-      r = Math.floor(a * parseInt(arr[0]) + (1 - a) * 255),
-      g = Math.floor(a * parseInt(arr[1]) + (1 - a) * 255),
-      b = Math.floor(a * parseInt(arr[2]) + (1 - a) * 255);
+    r = Math.floor(a * parseInt(arr[0]) + (1 - a) * 255),
+    g = Math.floor(a * parseInt(arr[1]) + (1 - a) * 255),
+    b = Math.floor(a * parseInt(arr[2]) + (1 - a) * 255);
   return "0x" +
     ("0" + r.toString(16)).slice(-2) +
     ("0" + g.toString(16)).slice(-2) +
     ("0" + b.toString(16)).slice(-2);
 }
-function colorConversion () {
+function colorConversion() {
   let myHex = colorChange('rgba(11, 161, 148, 0.3)')
   console.log(myHex);
 }
@@ -150,5 +150,45 @@ function parseIntTest() {
   console.log((intClr).toString(16));
 }
 
-parseIntTest();
+// parseIntTest();
+
+
+
+
+
+// (function(){
+//   function isEmptyLog(value) {
+//     console.log(arguments.callee.caller.toString().match(/isEmptyLog\((\S)\)/)[1] + ' = '+ value)
+//   }
+//   var x = {aa:'66'}
+//   isEmptyttLog(x)
+// })()
+
+
+function isEmptyLog(value) {
+  // console.log(arguments.callee.caller.caller.toString());
+  console.log(arguments.callee.caller.toString().match(/isEmptyLog\((\S)\)/) + ' = ' + value)
+}
+
+function test(aaa) {
+  var x = 1
+  isEmptyLog(x)
+  var y = 1
+  isEmptyLog(y)
+  var z = 1
+  isEmptyLog(z)
+}
+
+
+function aaaa() {
+  var x = 666
+  test(x)
+}
+
+// var x = 666
+// test(x)
+aaaa()
+
+
+
 
