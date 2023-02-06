@@ -11,7 +11,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MOD-- 引擎模块
-    // MARK 构造函数模型
     class RESysModel {
         // 引擎参数模型
         constructor() {
@@ -21,12 +20,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.commonUrl = 0;//引擎调用的公共资源的路径
             this.userName = 0;//引擎资源发布服务配套的用户名
             this.passWord = 0;//引擎资源发布服务配套的密码
-            this.mainWndName = 0;//表示主窗口的名称,对应document.title，默认值 "BlackHole"
+            this.mainWndName = 'BlackHole';//表示主窗口的名称,对应document.title，默认值 "BlackHole"
         }
     }
     ExtModule.RESysModel = RESysModel;
 
-    // MARK sdk函数
     /**
      * 初始化引擎
      * @param {RESysModel} sysModel //引擎设置参数
@@ -124,7 +122,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MOD-- 公共模块（Common）
     Module.Common = typeof Module.Common !== "undefined" ? Module.Common : {};//增加 Common 模块
-    // MARK sdk函数
     /**
      * 设置渲染时引擎最大允许的内存占用空间(以MB为单位)
      * @param {Number} size //显存占用空间值(以MB为单位)
@@ -223,89 +220,326 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MOD-- 模型加载（Model）
     Module.Model = typeof Module.Model !== "undefined" ? Module.Model : {};//增加 Model 模块
-    // MARK 构造函数模型
-    class REDataSetModel {
-        // 引擎参数模型
-        constructor() {
-            this.dataSetId = '';//数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
-            this.resourcesAddress = '';//数据集资源包地址
-            this.useNewVer = true; //表示是否加载最新版本，默认true
-            this.assginVersion = '';//指定版本号，不加载最新版本的时候，会用此版本号
-            this.useTransInfo = false;//表示该项目是否需要调整位置，默认false
-            this.transInfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]];//项目的偏移信息，依次为缩放、旋转（四元数）、平移
-            this.minLoadDist = 1e30;//项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
-            this.maxLoadDist = 1e30;//项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
-            this.projCRS = '';//当前子项的坐标系标识
-            this.projNorth = 0.0;//当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）projCRS为空时此参数无定意义
-        }
-    }
-    // MARK sdk函数
 
-    Module.Model.loadDataSet = function () {
-
-    }
-
-
-
-
-
-    Module.REloadMainSce_projs = function (projInfo, preclear) {
-        if (isRepeat(projInfo, 'projName')) {
-            console.error('【REError】: projName 唯一标识名，不能为空不可重复');
+    /**
+     * 加载数据集资源
+     * @param {Boolean} clearLoaded //是否清除掉已经加载好的项目
+     * @param {Array} dataSetList //数据集集合  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} dataSetId //数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
+     * @param {String} resourcesAddress //数据集资源包地址
+     * @param {String} resRootPath //数据集资源包root地址
+     * @param {Boolean} useTransInfo //表示该项目是否需要调整位置，默认false
+     * @param {Array} transInfo //项目的偏移信息，依次为缩放、旋转（四元数）、平移
+     * @param {Number} minLoadDist //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+     * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
+     * @param {String} dataSetCRS //当前子项的坐标系标识
+     * @param {Number} dataSetCRSNorth //当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）dataSetCRS 为空时此参数无定意义
+     * @param {Boolean} useAssginVer  //表示是否加载指定版本，默认 false
+     * @param {String} assginVer //指定版本号，加载指定版本的时候，会用此版本号
+     */
+    Module.Model.loadDataSet = function (dataSetList, clearLoaded) {
+        if (isRepeat(dataSetList, 'dataSetId')) {
+            console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
             return;
         }
-        var _l = projInfo.length;
-        for (var i = 0; i < _l; ++i) {
-            var _defMainProjResRoot = ((i == 0) ? projInfo[i].urlRes : ""); var _defMainProjCamFile = "";
-            var _deftransinfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]];
-            var _isMainProj = false;
-            var _projCRS = "";
-            var _projNorth = 0.0;
+        let count = dataSetList.length;
+        for (let i = 0; i < count; i++) {
+            let dataSetModel = dataSetList[i];
+            var _deftransinfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]]; if (dataSetModel.useTransInfo) _deftransinfo = dataSetModel.transInfo;
             var _useCamPost = false;
-            var _minLoadDist = 1e30;
-            var _maxLoadDist = 1e30;
-            var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(projInfo[i].projName);
-            var _ver = { m_sVer0: 0x7fffffff, m_sVer1: -1, m_uVer0GolIDBias_L32: 0, m_uVer0GolIDBias_H32: 0, m_uVer1GolIDBias_L32: 0, m_uVer1GolIDBias_H32: 0 };
-            _isMainProj = (((((typeof preclear == 'undefined') || preclear) && (i == 0))) ? true : false);
-            if (typeof projInfo[i].projCRS != 'undefined') { _projCRS = projInfo[i].projCRS; }
-            if (typeof projInfo[i].projNorth != 'undefined') { _projNorth = projInfo[i].projNorth; }
-            if (typeof projInfo[i].useNewVer != 'undefined' && !projInfo[i].useNewVer) {
-                _ver.m_sVer0 = projInfo[i].verInfo; _ver.m_uVer0GolIDBias_H32 = intprojid;
+            var _minLoadDist = 1e30; if (!isEmpty(dataSetModel.minLoadDist)) _minLoadDist = dataSetModel.minLoadDist;
+            var _maxLoadDist = 1e30; if (!isEmpty(dataSetModel.maxLoadDist)) _maxLoadDist = dataSetModel.maxLoadDist;
+            var _projCRS = ""; if (!isEmpty(dataSetModel.dataSetCRS)) _projCRS = dataSetModel.dataSetCRS;
+            var _projNorth = 0.0; if (!isEmpty(dataSetModel.dataSetCRSNorth)) _projNorth = dataSetModel.dataSetCRSNorth;
+            let _defMainProjResRoot = ((i == 0) ? dataSetModel.resRootPath : "");
+            var _defMainProjCamFile = "";
+            var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
+            var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
+            var _ver = {
+                m_sVer0: 0x7fffffff,
+                m_sVer1: -1,
+                m_uVer0GolIDBias_L32: 0,
+                m_uVer0GolIDBias_H32: 0,
+                m_uVer1GolIDBias_L32: 0,
+                m_uVer1GolIDBias_H32: 0
+            };
+            if (dataSetModel.useAssginVer) {
+                _ver.m_sVer0 = dataSetModel.assginVer; _ver.m_uVer0GolIDBias_H32 = intprojid;
             }
-            if (typeof projInfo[i].useNewVer2 != 'undefined' && !projInfo[i].useNewVer2) {
-                _ver.m_sVer1 = projInfo[i].verInfo2; _ver.m_uVer1GolIDBias_H32 = intprojid;
+            if (dataSetModel.useNewVer2) {
+                _ver.m_sVer1 = dataSetModel.assginVer2; _ver.m_uVer1GolIDBias_H32 = intprojid;
             }
-            if (projInfo[i].useTransInfo) { _deftransinfo = projInfo[i].transInfo; }
-            if ((typeof projInfo[i].minLoadDist != 'undefined') && (projInfo[i].minLoadDist != 0)) { _minLoadDist = projInfo[i].minLoadDist; }
-            if ((typeof projInfo[i].maxLoadDist != 'undefined') && (projInfo[i].maxLoadDist != 0)) { _maxLoadDist = projInfo[i].maxLoadDist; }
-            Module.RealBIMWeb.LoadMainSceExt(projInfo[i].projName, _isMainProj, _projCRS, _projNorth, projInfo[i].urlRes + projInfo[i].projResName + "/total.xml",
-                _deftransinfo[0], _deftransinfo[1], _deftransinfo[2], _minLoadDist, _maxLoadDist,
-                _defMainProjResRoot, _defMainProjCamFile, _useCamPost);
-            var verbool = Module.RealBIMWeb.SetSceVersionInfoExt(projInfo[i].projName, _ver);
+            Module.RealBIMWeb.LoadMainSceExt(
+                dataSetModel.dataSetId,
+                _isMainProj,
+                _projCRS, _projNorth,
+                dataSetModel.resourcesAddress,
+                _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
+                _minLoadDist, _maxLoadDist,
+                _defMainProjResRoot,
+                _defMainProjCamFile, _useCamPost
+            );
+            Module.RealBIMWeb.SetSceVersionInfoExt(dataSetModel.dataSetId, _ver);
+        }
+
+    }
+
+    /**
+     * 获取当前加载的所有数据集id
+     */
+    Module.Model.getAllDataSetId = function () {
+        var tempArr = Module.RealBIMWeb.GetAllMainSceNames();
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+
+    /**
+     * 卸载一个数据集
+     * @param {Number} dataSetId //数据集的唯一标识名
+     */
+    Module.Model.unloadDataSet = function (dataSetId) {
+        Module.RealBIMWeb.UnLoadMainSce(dataSetId);
+    }
+
+    /**
+     * 卸载所有数据集
+     */
+    Module.Model.unloadAllDataSet = function () {
+        var tempArr = Module.RealBIMWeb.GetAllMainSceNames();
+        for (i = 0; i < tempArr.size(); ++i) {
+            var tempProjName = tempArr.get(i);
+            Module.RealBIMWeb.UnLoadMainSce(tempProjName);
         }
     }
 
 
 
+    // MOD-- 相机（Camera）
+    Module.Camera = typeof Module.Camera !== "undefined" ? Module.Camera : {};//增加 Camera 模块
+    class RECamLoc {
+        // 相机方位信息
+        constructor() {
+            this.camPos = [0, 0, 0];//相机位置
+            this.camRotate = [0, 0, 0, 0];//相机的朝向
+            this.camDir = [0, 0, 0];//相机的朝向（欧拉角）
+        }
+    }
+    ExtModule.RECamLoc = RECamLoc;
+
+    /**
+     * 获取当前加载的所有数据集id
+     */
+    Module.Camera.getCamLocate = function () {
+        var camLoc = new RECamLoc();
+        var _camLoc01 = Module.RealBIMWeb.GetCamLocation();
+        var _camLoc02 = Module.RealBIMWeb.GetCamLocation_Dir();
+        camLoc.camPos = _camLoc01.m_vCamPos;
+        camLoc.camRotate = _camLoc01.m_qCamRotate;
+        camLoc.camDir = _camLoc02.m_qCamDir;
+        return camLoc;
+    }
+
+    /**
+     * 调整相机到目标方位
+     * @param {RECamLoc} camLoc //相机方位信息
+     * @param {Number} locDelay //转动相机前的延时时间（秒）默认0
+     * @param {Number} locTime //相机的运动速度（秒） 默认1.0
+     */
+    Module.Camera.setCamLocateTo = function (camLoc) {
+        if (isEmptyLog(camLoc)) return;
+        if (isEmptyLog(camLoc.camPos)) return;
+        if (isEmpty(camLoc.camRotate) && isEmpty(camLoc.camDir)) { logParErr('camRotate | camDir'); return; }
+        var _delay = 0; if (!isEmpty(camLoc.locDelay)) _delay = camLoc.locDelay;
+        var _time = 1.0; if (!isEmpty(camLoc.locTime)) _delay = camLoc.locTime;
+        if (camLoc.camRotate) {
+            Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
+            return;
+        }
+        if (camLoc.camDir) {
+            Module.RealBIMWeb.LocateCamTo_Dir(camLoc.camPos, camLoc.camDir, _delay, _time);
+        }
+    }
+
+    /**
+     * 设置是否固定主相机的方位（BIM相机）
+     * @param {dvec3} camPos //相机位置
+     * @param {dvec4} camRotate //相机的朝向
+     * @param {Boolean} toLoc //是否调整到设置方位，默认false
+     */
+    Module.Camera.setFixDataSetCam = function (camPos, camRotate, toLoc) {
+        if (isEmptyLog(camPos)) return;
+        if (isEmptyLog(camRotate)) return;
+        var _bFixMainCam = false; if (!isEmpty(toLoc)) _bFixMainCam = toLoc;
+        Module.RealBIMWeb.IsFixMainCam(_bFixMainCam, camPos, camRotate);
+    }
+
+    /**
+     * 调整相机到默认视角方位
+     * @param {RE_ViewCudePerspective} locType //表示26个方向 RE_ViewCudePerspectiveEnum 枚举值
+     * @param {Boolean} scanAllDataSet //是否定位到整个数据集，默认true，true表示定位到整个场景，false表示相机原地调整方向
+     */
+    Module.Camera.setCamLocateDefault = function (locType, scanAllDataSet) {
+        if (isEmptyLog(locType)) return;
+        var _bScanAllSce = true; if (!isEmpty(scanAllDataSet)) _bScanAllSce = scanAllDataSet;
+        var enumEval = eval(locType);
+        Module.RealBIMWeb.ResetCamToTotalSce(enumEval, _bScanAllSce);
+    }
+
+    /**
+     * 调整相机方位到对准构件集合
+     * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
+     * @param {Array} locIDList //目标ID集合 包含  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {Array} elemIdList //构件的标识名 集合
+     */
+    Module.Camera.setCamLocateToElem = function (locIDList, backDepth) {
+        if (isEmptyLog(locIDList)) return;
+        var obj_s = 0;
+        var _offset = 0;
+        for (var i = 0; i < locIDList.length; ++i) {
+            obj_s += locIDList[i].elemIdList.length;
+        }
+        var _s01 = (obj_s * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01); _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (var i = 0; i < locIDList.length; ++i) {
+            var dataSetId = locIDList[i].dataSetId;
+            var projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var tempobjarr = locIDList[i].elemIdList;
+            for (var j = 0; j < tempobjarr.length; ++j) {
+                var eleid = tempobjarr[j];
+                _elemIds.set([eleid, projid], _offset);
+                _offset += 2;
+            }
+        }
+        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth);
+    }
+
+    /**
+     * 获取相机自动动画启用状态
+     */
+    Module.Camera.getAutoCamAnimEnable = function () {
+        return Module.RealBIMWeb.GetAutoCamAnimEnable();
+    }
+
+    /**
+     * 设置相机自动动画参数
+     * @param {dvec3} point //自动旋转的参考中心点坐标，数组形式[x,y,z]
+     * @param {Boolean} speed //旋转一周所用时间，单位为秒
+     * @param {Boolean} rotateEnable //是否开启自动旋转
+     */
+    Module.Camera.setAutoCamAnimParams = function (point, speed, rotateEnable) {
+        var _dRotSpeed = 2 * 3.1415 / speed;
+        Module.RealBIMWeb.SetAutoCamAnimParams(point, _dRotSpeed);
+        Module.RealBIMWeb.SetAutoCamAnimEnable(rotateEnable);
+    }
+
+    /**
+     * 设置相机位置的世界空间范围
+     * @param {Array} arrCamBound //表示相机的移动范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
+     */
+    Module.Camera.setCamBound = function (arrCamBound) {
+        Module.RealBIMWeb.SetCamBound(arrCamBound);
+    }
+
+    /**
+     * 获取相机位置的世界空间范围
+     */
+    Module.Camera.getCamBound = function () {
+        return Module.RealBIMWeb.GetCamBound();
+    }
+
+    /**
+     * 重置相机位置的默认世界空间范围
+     */
+    Module.Camera.resetCamBound = function () {
+        Module.RealBIMWeb.SetCamBound([[-1e30, -1e30, -1e30], [1e30, 1e30, 1e30]]);
+    }
+
+    /**
+     * 设置相机的强制近裁面/远裁面
+     * @param {Array} arrNearFar //二维数组[强制近裁面,强制远裁面](小于0表示使用资源中的设置；0~1e37表示强制使用指定值；大于1e37表示强制使用自动计算值)
+     */
+    Module.Camera.setCamForcedNearFar = function (arrNearFar) {
+        Module.RealBIMWeb.SetCamForcedZNearFar(arrNearFar);
+    }
+
+    /**
+     * 获取相机的强制近裁面/远裁面
+     */
+    Module.Camera.getCamForcedNearFar = function () {
+        return Module.RealBIMWeb.GetCamForcedZNearFar();
+    }
+
+    //设置相机朝向是否允许头朝下
+    Module.REsetCamUpsideDown = function (bEnable) {
+        Module.RealBIMWeb.SetCamUpsideDown(bEnable);
+    }
+    //获取相机朝向是否允许头朝下
+    Module.REgetCamUpsideDown = function () {
+        return Module.RealBIMWeb.GetCamUpsideDown();
+    }
+
+    /**
+     * 设置相机朝向是否允许头朝下
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Camera.setCamUpsideDown = function (enable) {
+        Module.RealBIMWeb.SetCamUpsideDown(enable);
+    }
+
+    /**
+     * 获取相机朝向是否允许头朝下
+     */
+    Module.Camera.getCamUpsideDown = function () {
+        return Module.RealBIMWeb.GetCamUpsideDown();
+    }
+
+    /**
+     * 设置当相机运动或模型运动时是否偏向于渲染流畅性
+     * @param {Boolean} prefer //是否偏向
+     */
+    Module.Camera.setCamPreferFPS = function (prefer) {
+        Module.RealBIMWeb.SetPreferFPS(prefer);
+    }
+
+    /**
+     * 获取当相机运动或模型运动时是否偏向于渲染流畅性
+     */
+    Module.Camera.getCamPreferFPS = function () {
+        return Module.RealBIMWeb.GetPreferFPS();
+    }
+
+    /**
+     * 设置主场景相机的投影类型
+     * @param {Number} type //是否偏向
+     */
+    Module.Camera.setCamPreferFPS = function (type) {
+        Module.RealBIMWeb.SetCamProjType(type);
+    }
+
+    /**
+     * 获取主场景相机的投影类型
+     */
+    Module.Camera.getCamPreferFPS = function () {
+        return Module.RealBIMWeb.GetCamProjType();
+    }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //设置天空的启用状态
+    Module.REsetSkyEnable = function (bool) {
+        Module.RealBIMWeb.SetSkyEnable(bool);
+    }
+    //获取天空的启用状态
+    Module.REgetSkyEnable = function () {
+        var bool = Module.RealBIMWeb.GetSkyEnable();
+        return bool;
+        var namearr = ["sce01", "sce02"];
+    }
 
 
 
@@ -331,8 +565,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 是不是空对象
      */
     function isEmpty(value) {
-        if (!value) return true;
         if (typeof value == 'undefined') return true;
+        // if (!value) return true;
         if ((Object.keys(value).length === 0 && value.constructor === Object)) return true;
         return false;
     }
@@ -682,10 +916,38 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.RE_ViewportRank = RE_ViewportRank;
 
-
-
-
-
+    // MARK CamLoc
+    //表示ViewCude视图的类型
+    const RE_ViewCudePerspective = {
+        RE_FACE_FR: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
+        RE_FACE_BK: "Module.RE_CAM_DIR.BACK",//面-后视图
+        RE_FACE_L: "Module.RE_CAM_DIR.LEFT",//面-左视图
+        RE_FACE_R: "Module.RE_CAM_DIR.RIGHT",//面-右视图
+        RE_FACE_T: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
+        RE_FACE_B: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
+        RE_DEGE_T_FR: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
+        RE_DEGE_T_R: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
+        RE_DEGE_T_BK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
+        RE_DEGE_T_L: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
+        RE_DEGE_L_FR: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
+        RE_DEGE_R_FR: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
+        RE_DEGE_R_BK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
+        RE_DEGE_L_BK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
+        RE_DEGE_B_FR: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
+        RE_DEGE_B_R: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
+        RE_DEGE_B_BK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
+        RE_DEGE_B_L: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
+        RE_VERTEX_T_R_BK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
+        RE_VERTEX_T_L_BK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
+        RE_VERTEX_T_L_FR: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
+        RE_VERTEX_T_R_FR: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
+        RE_VERTEX_B_R_BK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
+        RE_VERTEX_B_L_BK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
+        RE_VERTEX_B_L_FR: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
+        RE_VERTEX_B_R_FR: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
+        RE_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
+    }
+    ExtModule.RE_ViewCudePerspective = RE_ViewCudePerspective;
 
 
 

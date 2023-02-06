@@ -8,120 +8,6 @@ var RE2SDKCreateModule =function(ExtModule){
     ExtModule = instance;
   }); //创建引擎模块
 
-// MOD-- 授权信息相关
-  /**
-   * 添加一个HTTP路径授权信息
-   * @param {String} strName //表示信息的逻辑标识名
-   * @param {string} strFilePath //授权文件路径
-   * @returns 
-   */
-  Module.REaddAURLPathCtrl_AuthorPath = function (strName, strFilePath) {
-    if (!checkParamType(strName, 'strName', RE_Enum.RE_Check_String)) return;
-    if (!checkParamType(strFilePath, 'strFilePath', RE_Enum.RE_Check_String)) return;
-    return Module.RealBIMWeb.AddAURLPathCtrl_AuthorPath(strName, strFilePath);
-  }
-
-  /**
-   * 添加一个HTTP路径授权信息
-   * @param {String} strName //表示信息的逻辑标识名
-   * @param {string} strURLRootDir //表示路径索引对应的跟文件夹
-   * @param {string} strFilePath //授权文件路径
-   * @returns 
-   */
-  Module.REaddAURLPathCtrl_PathIndex = function (strName, strURLRootDir, strFilePath) {
-    if (!checkParamType(strName, 'strName', RE_Enum.RE_Check_String)) return;
-    if (!checkParamType(strURLRootDir, 'strURLRootDir', RE_Enum.RE_Check_String)) return;
-    if (!checkParamType(strFilePath, 'strFilePath', RE_Enum.RE_Check_String)) return;
-    return Module.RealBIMWeb.AddAURLPathCtrl_PathIndex(strName, strURLRootDir, strFilePath);
-  }
-
-
-// MOD-- 场景
-/**
- * 场景初始化
- * @param {String} mainWndName //表示主窗口的名称,对应document.title
- * @returns 
- */
-//场景初始化
-Module.REinitSys = function(strWorkerjsPath,uWidth,uHeight,strCommonUrl,strUserName,strPassWord,mainWndName){
-  var _bPhoneMode =false;
-  if(_bPhoneMode){
-    Module['m_re_em_force_threadnum'] =1; //强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
-  }else{
-    Module['m_re_em_force_threadnum'] =8;
-  }
-  Module["m_re_em_window_width"] = uWidth; 
-  Module["m_re_em_window_height"] = uHeight;
-  var _strMainWndName = "BlackHole"; if (checkParamNull(mainWndName)) _strMainWndName = mainWndName;
-  var bool =Module.RealBIMWeb.CreateEmuMgr(strWorkerjsPath,_strMainWndName,uWidth, uHeight, 
-                                  false, 500, "", strCommonUrl, "/ModuleDir/TempFile/", "/WebCache0001/", 
-                                  strUserName, strPassWord);
-  if(_bPhoneMode){
-    Module.REsetSkyAtmActive(false);
-    Module.REsetReflState(false);
-    Module.REsetShadowState(false);
-    Module.REsetGhostState(false);
-    Module.REsetAOState(false);
-    Module.REsetSceOITLev(0);
-  }
-  return bool;
-}
-
-//获取当前js版本
-Module.REgetJsVersion = function(){
-  var ver =Module.RealBIMWeb.GetRealEngineVersion();
-  return ver;
-}
-
-//设置渲染时引擎最大允许的内存占用空间(以MB为单位)
-Module.REsetMaxResMemMB = function(val){
-  Module.RealBIMWeb.SetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK, val);
-}
-//获取渲染时引擎最大允许的内存占用空间(以MB为单位)
-Module.REgetMaxResMemMB = function(){
-  var val =Module.RealBIMWeb.GetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK);
-  return val;
-}
-//设置渲染时引擎建议分配的内存空间(以MB为单位)
-Module.REsetExpectMaxInstMemMB = function(val){
-  Module.RealBIMWeb.SetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, val);
-}
-//获取渲染时引擎建议分配的内存空间(以MB为单位)
-Module.REgetExpectMaxInstMemMB = function(){
-  var val =Module.RealBIMWeb.GetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-  return val;
-}
-//设置模型每帧最大渲染面数
-Module.REsetExpectMaxInstDrawFaceNum = function(val){
-  Module.RealBIMWeb.SetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, val);
-}
-//获取模型每帧最大渲染面数
-Module.REgetExpectMaxInstDrawFaceNum = function(){
-  var val =Module.RealBIMWeb.GetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-  return val;
-}
-//设置页面调度等级
-Module.REsetPageLoadLev = function(val){
-  Module.RealBIMWeb.SetPageLoadLev(val);
-}
-//获取页面调度等级
-Module.REgetPageLoadLev = function(){
-  var val =Module.RealBIMWeb.GetPageLoadLev();
-  return val;
-}
-//设置每帧允许的最大资源加载总数
-Module.REsetTotalResMaxLoadNum = function(val){
-  if(val==0){
-    Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0);
-  }else if(val==1){
-    Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0xffffffff);
-  }
-}
-//获取每帧允许的最大资源加载总数
-Module.REgetTotalResMaxLoadNum = function(){
-  var val =Module.RealBIMWeb.GetTotalResMaxLoadNumPerFrame();
-  return val;
-}
 //刷新场景数据
 Module.RErefreshMainData = function(bLoadNewData){
   Module.RealBIMWeb.RefreshMainData(bLoadNewData);
@@ -162,71 +48,6 @@ Module.REloadMainSce = function(urlRes,projResName,verInfo,projName){
   Module.RealBIMWeb.SetSceVersionInfoExt(_projname,_ver);
 }
 
-//多个场景加载
-//加载多个场景时，必须以第一个为主场景，加载主场景时会把前边的场景清空
-// projInfo = [
-//             {
-//               "projName":"proj01",
-//               "urlRes":"https://www.bjblackhole.cn:8009/default.aspx?dir=url_res03&path=",
-//               "projResName":"res_test1",
-//               "useNewVer":true,
-//               "verInfo":0,
-//               "useTransInfo":false,
-//               "transInfo":"",
-//               "minLoadDist"1000, 
-//               "maxLoadDist":5000
-//             },{
-//               "projName":"proj02",
-//               "urlRes":"https://www.bjblackhole.cn:8009/default.aspx?dir=url_res03&path=",
-//               "projResName":"res_test2",
-//               "useNewVer":true,
-//               "verInfo":0,
-//               "useTransInfo":false,
-//               "transInfo":"",
-//               "minLoadDist":-10,
-//               "maxLoadDist":-50
-//             }
-//            ]
-Module.REloadMainSce_projs = function(projInfo,preclear){
-  if (isRepeat(projInfo, 'projName')) {
-    console.error('【REError】: projName 唯一标识名，不能为空不可重复');
-    return;
-  }
-  var _l = projInfo.length; 
-  for(var i=0; i<_l; ++i){
-    var _defMainProjResRoot = ((i==0) ? projInfo[i].urlRes : ""); var _defMainProjCamFile = ""; 
-    var _deftransinfo = [[1,1,1],[0,0,0,1],[0,0,0]];
-    var _isMainProj = false;
-    var _projCRS ="";
-    var _projNorth =0.0;
-    var _useCamPost = false;
-    var _minLoadDist = 1e30;
-    var _maxLoadDist = 1e30;
-    var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(projInfo[i].projName);
-    var _ver = {m_sVer0:0x7fffffff, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:0, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
-    _isMainProj = (((((typeof preclear == 'undefined') || preclear) && (i==0))) ? true : false);
-    if(typeof projInfo[i].projCRS != 'undefined'){_projCRS =projInfo[i].projCRS;}
-    if(typeof projInfo[i].projNorth != 'undefined'){_projNorth =projInfo[i].projNorth;}
-    if(typeof projInfo[i].useNewVer!='undefined' && !projInfo[i].useNewVer){
-      _ver.m_sVer0 =projInfo[i].verInfo; _ver.m_uVer0GolIDBias_H32 =intprojid;
-    }
-    if(typeof projInfo[i].useNewVer2 != 'undefined'){
-      if(projInfo[i].useNewVer2){
-        _ver.m_sVer1 =0x7fffffff; _ver.m_uVer1GolIDBias_H32 =intprojid;
-      }else{
-        _ver.m_sVer1 =projInfo[i].verInfo2; _ver.m_uVer1GolIDBias_H32 =intprojid;
-      }
-    }
-    if(projInfo[i].useTransInfo){_deftransinfo = projInfo[i].transInfo;}
-    if((typeof projInfo[i].minLoadDist != 'undefined')&&(projInfo[i].minLoadDist!=0)){_minLoadDist = projInfo[i].minLoadDist;}
-    if((typeof projInfo[i].maxLoadDist != 'undefined')&&(projInfo[i].maxLoadDist!=0)){_maxLoadDist = projInfo[i].maxLoadDist;}
-    Module.RealBIMWeb.LoadMainSceExt(projInfo[i].projName, _isMainProj, _projCRS, _projNorth, projInfo[i].urlRes+projInfo[i].projResName+"/total.xml",
-                                     _deftransinfo[0], _deftransinfo[1], _deftransinfo[2], _minLoadDist, _maxLoadDist,
-                                     _defMainProjResRoot, _defMainProjCamFile, _useCamPost);
-    var verbool =Module.RealBIMWeb.SetSceVersionInfoExt(projInfo[i].projName,_ver);
-  }
-}
-
 // 项目集设置单项目的位置偏移
 // 表示要处理的项目名称，为空串则表示处理所有项目
 // 表示偏移信息（缩放旋转平移）[[1,1,1],[0,0,0,1],[0,0,0]]
@@ -253,33 +74,9 @@ Module.REgetMainSceAutoLoadDist = function(projName){
   return Module.RealBIMWeb.GetMainSceAutoLoadDist(projName);
 }
 
-// 获取当前加载的所有项目名称
-Module.REgetAllMainSceNames = function(){
-  var tempArr =Module.RealBIMWeb.GetAllMainSceNames();
-  var nameArr = [];
-  for(i =0; i<tempArr.size(); ++i){
-    nameArr.push(tempArr.get(i));
-  }
-  return nameArr;
-}
-//卸载一个场景
-Module.REunloadMainSce = function(projName){
-  Module.RealBIMWeb.UnLoadMainSce(projName);
-}
-// 卸载所有场景
-Module.REunloadAllMainSce = function(){
-  var tempArr =Module.RealBIMWeb.GetAllMainSceNames();
-  for(i =0; i<tempArr.size(); ++i){
-    var tempProjName = tempArr.get(i);
-    Module.RealBIMWeb.UnLoadMainSce(tempProjName);
-  }
-}
-//退出引擎界面
-//bClearWebWorker：表示是否要清除引擎相关WebWorker资源
-Module.REreleaseEngine = function(bClearWebWorker){
-  var _bClearWebWorker =false; if(typeof bClearWebWorker != 'undefined'){_bClearWebWorker = bClearWebWorker;}
-  Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
-}
+
+
+
 
 //相机定位到构件ID集合
 Module.REfocusCamTo = function(objArr,backDepth,projName){
@@ -295,31 +92,7 @@ Module.REfocusCamTo = function(objArr,backDepth,projName){
   }
   Module.RealBIMWeb.FocusCamToSubElems("","",elemIds.byteLength,elemIds.byteOffset,backDepth); //backdepth表示相机后退的强度，可设置
 }
-//相机定位到构件ID集合多个项目
-// projIdInfo = [
-//               {"projName":"test1","objarr":[1,2,3]},
-//               {"projName":"test2","objarr":[1,2,3]}
-//              ]
-Module.REfocusCamTo_projs = function(projIdInfo,backDepth){
-  var obj_s = 0;
-  var _offset=0;
-  for(var i=0;i<projIdInfo.length;++i){
-    obj_s += projIdInfo[i].objarr.length;
-  }
-  var _s01 = (obj_s*8).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(var i=0;i<projIdInfo.length;++i){
-    var projname = projIdInfo[i].projName;
-    var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projname);
-    var tempobjarr = projIdInfo[i].objarr;
-    for(var j=0;j<tempobjarr.length;++j){
-      var eleid = tempobjarr[j];
-      elemIds.set([eleid,projid],_offset);
-      _offset+=2;
-    }
-  }
-  Module.RealBIMWeb.FocusCamToSubElems("","",elemIds.byteLength,elemIds.byteOffset,backDepth); //backdepth表示相机后退的强度，可设置
-}
+
 //相机定位到场景节点
 Module.REfocusCamToSce = function(projName,sceName,backDepth){
   var _projname = "";
@@ -343,76 +116,15 @@ Module.REworldPosToScreenPos_Ext = function(vWorldPos, dScaleDist){
   return Module.RealBIMWeb.WorldPosToScreenPos(vWorldPos, dScaleDist);
 }
 
-//相机方位相关
-// dirInfo:表示26个方向  RE_ViewCudePerspectiveEnum 枚举值
-// bScanAllSce：表示是否定位到整个场景，true表示定位到整个场景，false表示相机原地调整方向
-Module.RElocateCamToMainDir = function(dirInfo,bScanAllSce){
-  var _camdir = true; 
-  if(typeof bScanAllSce != 'undefined'){_camdir = bScanAllSce;}
 
-  var oldSDKParams = ["default","down","up","left","right","front","back",];
-  if (oldSDKParams.includes(dirInfo)) {
-    if(dirInfo=="default"){
-      Module.RealBIMWeb.RestoreCamLocation();
-    }else if(dirInfo=="down"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.TOP,_camdir);
-    }else if(dirInfo=="up"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BOTTOM,_camdir);
-    }else if(dirInfo=="left"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.LEFT,_camdir);
-    }else if(dirInfo=="right"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.RIGHT,_camdir);
-    }else if(dirInfo=="front"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.FRONT,_camdir);
-    }else if(dirInfo=="back"){
-      Module.RealBIMWeb.ResetCamToTotalSce(Module.RE_CAM_DIR.BACK,_camdir);
-    }
-  } 
-  else if (Object.keys(RE_ViewCudePerspectiveEnum).includes(dirInfo)) {
-    var enumEval = eval(RE_ViewCudePerspectiveEnum[dirInfo]);
-    Module.RealBIMWeb.ResetCamToTotalSce(enumEval,_camdir);
-  } 
-  else {
-    logErrorWithPar('dirInfo');
-    return;
-  }
-}
 
-//获取当前相机方位(四元数)
-Module.REgetCamLocation = function(){
-  var camloc = Module.RealBIMWeb.GetCamLocation();
-  return camloc;
-}
 
-//调整相机到方位(四元数)
-//delay：表示自动定位前的延迟时间(秒)
-//time：表示自动定位的时长(>=0表示绝对时长(秒)；<0表示定位的运动速率(米/秒))
-Module.RElocateCamTo = function(pos,dir,delay,time){
-  var _time =1.0; if(typeof time != 'undefined'){_time =time;}
-  Module.RealBIMWeb.LocateCamTo(pos,dir,delay,_time);
-}
 
-//设置是否固定主相机（BIM相机）
-//bool:设为true，则固定当前场景BIM相机，false，不固定
-//camPos：固定相机的位置，数组，例[0,0,0]
-//camDir：固定相机的方向，四元数，例[0,0,0,1]，相机的位置和朝向均可通过获取当前相机方位接口REgetCamLocation获取
-Module.REisFixMainCam = function(bool,camPos,camDir){
-  Module.RealBIMWeb.IsFixMainCam(bool,camPos,camDir);
-}
 
-//获取当前相机方位
-Module.REgetCamLocationDir = function(){
-  var camloc = Module.RealBIMWeb.GetCamLocation_Dir();
-  return camloc;
-}
 
-//调整相机到方位
-//delay：表示自动定位前的延迟时间(秒)
-//time：表示自动定位的时长(>=0表示绝对时长(秒)；<0表示定位的运动速率(米/秒))
-Module.RElocateCamToDir = function(pos,dir,delay,time){
-  var _time =1.0; if(typeof time != 'undefined'){_time =time;}
-  Module.RealBIMWeb.LocateCamTo_Dir(pos,dir,delay,_time);
-}
+
+
+
 
 //生成屏幕快照
 Module.REgetScreenPrintImage = function(){
@@ -2285,16 +1997,7 @@ Module.REgetMouseMoveEventParam = function(){
 
 
 //天空盒相关
-//设置天空的启用状态
-Module.REsetSkyEnable = function(bool){
-  Module.RealBIMWeb.SetSkyEnable(bool);
-}
-//获取天空的启用状态
-Module.REgetSkyEnable = function(){
-  var bool = Module.RealBIMWeb.GetSkyEnable();
-  return bool;
-  var namearr = ["sce01","sce02"];
-}
+
 
 //设置天空盒的相关信息
 Module.REsetSkyInfo = function(info){
@@ -2565,16 +2268,8 @@ Module.REsetSlopeVisible = function(bool){
 }
 
 
-//获取相机自动动画启用状态
-Module.REgetAutoCamAnimEnable = function(){
-  return Module.RealBIMWeb.GetAutoCamAnimEnable();
-}
-//设置相机自动动画参数
-Module.REsetAutoCamAnimParams = function(pot,speed,bool){
-  var val = 2*3.1415/speed;
-  Module.RealBIMWeb.SetAutoCamAnimParams(pot,val);
-  Module.RealBIMWeb.SetAutoCamAnimEnable(bool);
-}
+
+
 
 
 //设置引擎世界空间对应的坐标参考系信息
@@ -2955,16 +2650,7 @@ Module.REresumeRenderLoop = function()
 }
 
 
-//设置网络资源加载是否使用缓存
-Module.REsetUseWebCache = function(bUseWebCache)
-{
-  Module.RealBIMWeb.SetUseWebCache(bUseWebCache);
-}
-//获取网络资源加载是否使用缓存
-Module.REgetUseWebCache = function()
-{
-  return Module.RealBIMWeb.GetUseWebCache();
-}
+
 
 
 // 字体设置相关
@@ -3926,53 +3612,13 @@ Module.REdelShpAnimation = function(strGroupName, arrNames)
 }
 
 
-//设置相机位置的世界空间范围
-//[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
-Module.REsetCamBound = function(arrCamBound){
-  Module.RealBIMWeb.SetCamBound(arrCamBound);
-}
-//获取相机位置的世界空间范围
-Module.REgetCamBound = function(){
-  return Module.RealBIMWeb.GetCamBound();
-}
 
-//设置相机朝向是否允许头朝下
-Module.REsetCamUpsideDown = function(bEnable){
-  Module.RealBIMWeb.SetCamUpsideDown(bEnable);
-}
-//获取相机朝向是否允许头朝下
-Module.REgetCamUpsideDown = function(){
-  return Module.RealBIMWeb.GetCamUpsideDown();
-}
 
-//设置相机的强制近裁面/远裁面
-//arrNearFar：<强制近裁面,强制远裁面>(小于0表示使用资源中的设置；0~1e37表示强制使用指定值；大于1e37表示强制使用自动计算值)
-Module.REsetCamForcedNearFar = function(arrNearFar){
-  Module.RealBIMWeb.SetCamForcedZNearFar(arrNearFar);
-}
-//获取相机的强制近裁面/远裁面
-Module.REgetCamForcedNearFar = function(){
-  return Module.RealBIMWeb.GetCamForcedZNearFar();
-}
 
-//设置当相机运动或模型运动时是否偏向于渲染流畅性(即是否允许相机运动的过程中加载模型，默认true，不加载模型，偏向渲染流畅)
-Module.REsetPreferFPS = function(bPrefer){
-  Module.RealBIMWeb.SetPreferFPS(bPrefer);
-}
-//获取当相机运动或模型运动时是否偏向于渲染流畅性(即是否允许相机运动的过程中加载模型，默认true，不加载模型，偏向渲染流畅)
-Module.REgetPreferFPS = function(){
-  return Module.RealBIMWeb.GetPreferFPS();
-}
 
-//设置主场景相机的投影类型
-//uType：0->透视投影；1->正交投影
-Module.REsetCamProjType = function(uType){
-  Module.RealBIMWeb.SetCamProjType(uType);
-}
-//获取主场景相机的投影类型
-Module.REgetCamProjType = function(){
-  return Module.RealBIMWeb.GetCamProjType();
-}
+
+
+
 
 //加载一个或多个全景场景
 // projInfo = [
@@ -4041,14 +3687,7 @@ Module.REgetPanSceElemInfos = function(strPanName){
 Module.REloadPan = function(strPanId,uPanWindow){
   Module.RealBIMWeb.LoadPan(strPanId,uPanWindow);
 }
-// 设置360相机与BIM相机是否同步
-Module.REsetViewSyn = function(bool){
-  Module.RealBIMWeb.SetViewSyn(bool);
-}
-//获取当前设置的360相机与BIM相机是否同步状态
-Module.REgetViewSyn = function(){
-  Module.RealBIMWeb.GetViewSyn();
-}
+
 //设置360相机的朝向
 //camDir:360相机的朝向，7个有效值：
 // “Default”，相机回到默认方位
@@ -4163,20 +3802,7 @@ Module.REgetPicPosBySelPos = function(pos,strPanId){
   return Module.RealBIMWeb.GetTexPos(pos,strPanId);
 }
 
-//设置当前窗口的显示模式
-//viewport0/viewport1：分别表示第0/1个视图要显示的场景内容
-//                      ""：该视图不显示任何内容
-//                      "BIM"：该视图显示BIM场景模型
-//                      "CAD"：该视图显示CAD图纸
-//                      360全景图ID：该视图显示ID指定的360全景图
-//screenMode：表示视图0与视图1在屏幕上的排列方式
-//            视图0/视图1任一为空串""，或screenMode==0：屏幕中只显示一个内容有效的视图（第一个）
-//            screenMode=1：屏幕自左向右依次显示视图0、视图1
-//            screenMode=-1：屏幕自下向上依次显示视图0、视图1
-//            视图组合为<"BIM","BIM">/<"CAD","CAD">/<"","">的情况，目前暂不支持
-Module.REsetViewMode = function(viewport0, viewport1, screenMode){
-  Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
-}
+
 
   
 //加载CAD文件
@@ -7536,37 +7162,6 @@ Module.REendOSGBEdit = function(){
     Grid_RB: [1,-1],   //右下区域
   }  
 
-// MARK RE_ViewCudePerspectiveEnum
-  //表示ViewCude视图的类型
-  const RE_ViewCudePerspectiveEnum = {
-    RE_FACE_FR: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
-    RE_FACE_BK: "Module.RE_CAM_DIR.BACK",//面-后视图
-    RE_FACE_L: "Module.RE_CAM_DIR.LEFT",//面-左视图
-    RE_FACE_R: "Module.RE_CAM_DIR.RIGHT",//面-右视图
-    RE_FACE_T: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
-    RE_FACE_B: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
-    RE_DEGE_T_FR: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
-    RE_DEGE_T_R: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
-    RE_DEGE_T_BK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
-    RE_DEGE_T_L: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
-    RE_DEGE_L_FR: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
-    RE_DEGE_R_FR: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
-    RE_DEGE_R_BK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
-    RE_DEGE_L_BK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
-    RE_DEGE_B_FR: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
-    RE_DEGE_B_R: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
-    RE_DEGE_B_BK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
-    RE_DEGE_B_L: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
-    RE_VERTEX_T_R_BK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
-    RE_VERTEX_T_L_BK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
-    RE_VERTEX_T_L_FR: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
-    RE_VERTEX_T_R_FR: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
-    RE_VERTEX_B_R_BK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
-    RE_VERTEX_B_L_BK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
-    RE_VERTEX_B_L_FR: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
-    RE_VERTEX_B_R_FR: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
-    RE_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
-  }  
 
 
 // MARK RE_Enum

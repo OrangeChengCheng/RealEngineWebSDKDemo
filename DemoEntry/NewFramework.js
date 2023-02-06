@@ -39,8 +39,8 @@ window.onload = function (event) {
     document.addEventListener("RealBIMLoadMainSce", MainSceDown);
     document.addEventListener("RealEngineRenderReady", showCanvas);
     document.addEventListener("RealBIMLoadProgress", LoadingProgress);
-
-    document.addEventListener("RealBIMPolyClipping", RealBIMPolyClipping);
+    
+    document.addEventListener("RealBIMLocateCam", RealBIMLocateCam);
 
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
@@ -49,7 +49,7 @@ window.onload = function (event) {
     }
 }
 
-function RealBIMPolyClipping(e) {
+function RealBIMLocateCam(e) {
     console.log(e);
 }
 
@@ -81,19 +81,16 @@ function RealBIMLoadMainSce(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
         //倾斜摄影proj1的测试场景
-        var projInfo = [
+        var dataSetList = [
             {
-                "projName": "pro01",
-                "urlRes": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-                "projResName": "res_jifang",
-                "useNewVer": true,
-                "verInfo": 0,
+                "dataSetId": "dataSet01",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                "projCRS": "",
-                "projNorth": 0.0
+                "dataSetCRS": "", "dataSetCRSNorth": 0.0
             }
         ];
-        BlackHole3D.REloadMainSce_projs(projInfo);
+        BlackHole3D.Model.loadDataSet(dataSetList);
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
         BlackHole3D.Common.setExpectMaxInstMemMB(4500);
