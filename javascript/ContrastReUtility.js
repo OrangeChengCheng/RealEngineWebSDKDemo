@@ -1976,15 +1976,6 @@ Module.REgetUnVerHugeGroupProjToSelf = function(projName, sceName){
 }
 
 
-//设置鼠标悬停事件的参数
-//dWaitTime：表示鼠标静止后等待多长时间才发送悬停事件
-Module.REsetMouseHoverEventParam = function(dWaitTime){
-  Module.RealBIMWeb.SetMouseHoverEventParam(dWaitTime);
-}
-//获取鼠标悬停事件的参数
-Module.REgetMouseHoverEventParam = function(){
-  return Module.RealBIMWeb.GetMouseHoverEventParam();
-}
 //设置鼠标移动事件的参数
 //bEnable：表示是否向外界发送鼠标移动事件
 Module.REsetMouseMoveEventParam = function(bEnable){
@@ -2043,39 +2034,9 @@ Module.REgetSkyInfo = function(){
   return realengine_realbim_inner_skyinfo;
 }
 
-//设置天空盒的背景颜色
-Module.REsetBackColor = function(clr){
-  var tempclr01 = clr.substring(0,2); var clr01 = (parseInt(tempclr01,16)/255);
-  var tempclr02 = clr.substring(2,4); var clr02 = (parseInt(tempclr02,16)/255);
-  var tempclr03 = clr.substring(4,6); var clr03 = (parseInt(tempclr03,16)/255);
-  var clrarr=[clr01,clr02,clr03];
-  Module.RealBIMWeb.SetBackColor(clrarr);
-}
-//获取天空盒的背景颜色
-Module.REgetBackColor = function(){
-  var color= Module.RealBIMWeb.GetBackColor();
-  return color;
-}
 
-//设置天空大气散射激活状态
-//bActive：若激活则禁用静态天空盒及一系列相关光照参数；否则恢复静态天空盒及一系列光照参数
-Module.REsetSkyAtmActive = function(bActive){
-  Module.RealBIMWeb.SetSkyAtmActive(bActive);
-}
-//获取天空大气散射激活状态
-Module.REgetSkyAtmActive = function(){
-  return Module.RealBIMWeb.GetSkyAtmActive();
-}
-//设置天空大气散射的雾效强度
-//范围0~10
-Module.REsetSkyAtmFogAmp = function(fAmp){
-  var tempamp = Math.max(0,Math.min(fAmp,10));
-  Module.RealBIMWeb.SetSkyAtmFogAmp(tempamp);
-}
-//获取天空大气散射的雾效强度
-Module.REgetSkyAtmFogAmp = function(){
-  return Module.RealBIMWeb.GetSkyAtmFogAmp();
-}
+
+
 
 //获取场景所有地形和倾斜摄影模型的节点
 Module.REgetAllUnVerHugeGroupIDs = function(projName) {
@@ -2719,16 +2680,7 @@ Module.REgetShadowInfo = function(){
   return Module.RealBIMWeb.GetSceShadowInfo();
 }
 
-//设置场景光源方向
-Module.REsetLightDir = function(vDir){
-  var sinfo = Module.RealBIMWeb.GetSceLightInfo(); 
-  sinfo.m_vDirectLDir =vDir;
-  Module.RealBIMWeb.SetSceLightInfo(sinfo);
-}
-//获取当前场景光源方向
-Module.REgetLightDir = function(){
-  return Module.RealBIMWeb.GetSceLightInfo().m_vDirectLDir;
-}
+
 
 //设置场景光晕开关状态
 Module.REsetGhostState = function(bool){

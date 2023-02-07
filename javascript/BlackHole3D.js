@@ -11,7 +11,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MOD-- 引擎模块
-    class RESysModel {
+    class RESysInfo {
         // 引擎参数模型
         constructor() {
             this.workerjsPath = '';//相对于html页面的RealBIMWeb_Worker.js的路径
@@ -23,26 +23,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.mainWndName = 'BlackHole';//表示主窗口的名称,对应document.title，默认值 "BlackHole"
         }
     }
-    ExtModule.RESysModel = RESysModel;
+    ExtModule.RESysInfo = RESysInfo;
 
     /**
      * 初始化引擎
-     * @param {RESysModel} sysModel //引擎设置参数
+     * @param {RESysInfo} sysInfo //引擎设置参数
      */
-    Module.initEngineSys = function (sysModel) {
-        if (isEmptyLog(sysModel, 'sysModel')) return;
-        if (isEmpty(sysModel.workerjsPath) || isEmpty(sysModel.commonUrl)) {
-            logParErr('sysModel');
+    Module.initEngineSys = function (sysInfo) {
+        if (isEmptyLog(sysInfo, 'sysInfo')) return;
+        if (isEmpty(sysInfo.workerjsPath) || isEmpty(sysInfo.commonUrl)) {
+            logParErr('sysInfo');
             return;
         }
-
+        // if (!isEmpty(sysInfo.commonUrl)) sessionStorage.setItem("RECommonUrl", sysInfo.commonUrl);//保存资源地址
         Module['m_re_em_force_threadnum'] = isPhoneMode ? 1 : 8;//移动端强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
-        Module["m_re_em_window_width"] = sysModel.renderWidth;
-        Module["m_re_em_window_height"] = sysModel.renderHieght;
-        var _strMainWndName = "BlackHole"; if (!isEmpty(sysModel.mainWndName)) _strMainWndName = sysModel.mainWndName;
-        var bool = Module.RealBIMWeb.CreateEmuMgr(sysModel.workerjsPath, _strMainWndName, sysModel.renderWidth, sysModel.renderHieght,
-            false, 500, "", sysModel.commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
-            sysModel.userName, sysModel.passWord);
+        Module["m_re_em_window_width"] = sysInfo.renderWidth;
+        Module["m_re_em_window_height"] = sysInfo.renderHieght;
+        var _strMainWndName = "BlackHole"; if (!isEmpty(sysInfo.mainWndName)) _strMainWndName = sysInfo.mainWndName;
+        var bool = Module.RealBIMWeb.CreateEmuMgr(sysInfo.workerjsPath, _strMainWndName, sysInfo.renderWidth, sysInfo.renderHieght,
+            false, 500, "", sysInfo.commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
+            sysInfo.userName, sysInfo.passWord);
         if (isPhoneMode) {
             Module.REsetSkyAtmActive(false);
             Module.REsetReflState(false);
@@ -122,6 +122,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MOD-- 公共模块（Common）
     Module.Common = typeof Module.Common !== "undefined" ? Module.Common : {};//增加 Common 模块
+    class REColor {
+        //颜色公共模型
+        constructor() {
+            this.red = 255;//红色
+            this.green = 255;//绿色
+            this.blue = 255;//蓝色
+            this.alpha = 255;//透明度
+        }
+    }
+    ExtModule.REColor = REColor;
+
+
     /**
      * 设置渲染时引擎最大允许的内存占用空间(以MB为单位)
      * @param {Number} size //显存占用空间值(以MB为单位)
@@ -529,17 +541,257 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+    // MOD-- 天空盒（SkyBox）
+    Module.SkyBox = typeof Module.SkyBox !== "undefined" ? Module.SkyBox : {};//增加 SkyBox 模块
 
-    //设置天空的启用状态
-    Module.REsetSkyEnable = function (bool) {
-        Module.RealBIMWeb.SetSkyEnable(bool);
+    class RESkyInfo {
+        //天空信息
+        constructor() {
+            this.skyTexPaths = null;//天空盒图片路径，字符串数组，顺序分别为X+、X-、Z+、Z-、Y+、Y-，
+            this.sunMode = 1;//光照模式 0：表示默认没有太阳 1：使用天空盒自带的太阳/月亮 2：根据光照方向arrSunDir自动生成太阳
+            this.sunDir = null;//光源方向，设置方法为，将太阳放置屏幕空间中心位置，通过REgetCamLocationDir接口获取当前的相机方向m_qCamDir，取反即可，例如：获取到的方向m_qCamDir为[-0.59, -0.62, 0.5]，则此参数填[0.59, 0.62, -0.5]即可
+            this.isNight = false;//表示是否晚上，true表示晚上，false表示白天
+            this.exposeScale = 1.0;//曝光度，大于0，默认设为1即可，值越大，场景越亮
+        }
     }
-    //获取天空的启用状态
-    Module.REgetSkyEnable = function () {
-        var bool = Module.RealBIMWeb.GetSkyEnable();
-        return bool;
-        var namearr = ["sce01", "sce02"];
+    ExtModule.RESkyInfo = RESkyInfo;
+
+
+    /**
+     * 设置天空的启用状态
+     * @param {Boolean} enable //是否启用
+     */
+    Module.SkyBox.setEnable = function (enable) {
+        Module.RealBIMWeb.SetSkyEnable(enable);
     }
+
+    /**
+     * 获取天空的启用状态
+     */
+    Module.SkyBox.getEnable = function () {
+        return Module.RealBIMWeb.GetSkyEnable();
+    }
+
+    /**
+     * 设置天空盒的背景颜色
+     * @param {REColor} color //颜色
+     */
+    Module.SkyBox.setBackClr = function (color) {
+        if (isEmptyLog(color)) return;
+        var _red = color.red / 255.0;
+        var _green = color.green / 255.0;
+        var _blue = color.blue / 255.0;
+        var clrarr = [_red, _green, _blue];
+        Module.RealBIMWeb.SetBackColor(clrarr);
+    }
+
+    /**
+     * 获取天空盒的背景颜色
+     */
+    Module.SkyBox.getBackClr = function () {
+        var _clrarr = Module.RealBIMWeb.GetBackColor();
+        var color = new REColor();
+        color.red = Math.round(_clrarr[0] * 255);
+        color.green = Math.round(_clrarr[1] * 255);
+        color.blue = Math.round(_clrarr[2] * 255);
+        return color;
+    }
+
+    /**
+     * 设置天空盒的相关信息
+     * @param {RESkyInfo} skyInfo //天空信息
+     */
+    Module.SkyBox.setSkyInfo = function (skyInfo) {
+        if (isEmptyLog(skyInfo)) return;
+        if (isEmptyLog(skyInfo.skyTexPaths)) return;
+        var _sunMode = 1; if (!isEmpty(skyInfo.sunMode)) _sunMode = skyInfo.sunMode;
+        var _sunDir = [0.59215283, 0.63194525, -0.50000012]; if (!isEmpty(skyInfo.sunDir)) _sunDir = skyInfo.sunDir;
+        var _isNight = false; if (!isEmpty(skyInfo.isNight)) _isNight = skyInfo.isNight;
+        var _exposeScale = 1.0; if (!isEmpty(skyInfo.exposeScale)) _exposeScale = skyInfo.exposeScale;
+
+        var pathTemps = new Module.RE_Vector_Str();
+        for (let i = 0; i < skyInfo.skyTexPaths.length; i++) {
+            pathTemps.push_back(skyInfo.skyTexPaths[i]);
+        }
+        var _SkyInfo = {
+            m_arrSkyTexPaths: pathTemps,
+            m_bRightHand: true,
+            m_bAutoSun: (_sunMode > 1) ? true : false,
+            m_vDirectLDir: _sunDir,
+            m_vAmbLightClr: [2.0, 2.0, 2.0],
+            m_vDirLightClr: ((_sunMode > 0) ? (_isNight ? [1.0, 1.0, 1.0] : [8.0, 8.0, 8.0]) : [0.0, 0.0, 0.0]),
+            m_fDynExposeAmp: _isNight ? _exposeScale * 0.1 : _exposeScale * 1.0,
+            m_fDynExposeRange: 10.0
+        };
+        Module.RealBIMWeb.SetSkyInfo(_SkyInfo);
+    }
+
+    /**
+     * 获取天空盒的相关信息
+     */
+    Module.SkyBox.getSkyInfo = function () {
+        var _skyInfo = Module.RealBIMWeb.GetSkyInfo();
+        var skyInfo = new RESkyInfo();
+        var pathTemps = [];
+        for (let i = 0; i < _skyInfo.m_arrSkyTexPaths.size(); i++) {
+            pathTemps.push(_skyInfo.m_arrSkyTexPaths.get(i));
+        }
+        var _sunMode = _skyInfo.m_bAutoSun ? 2 : ((_skyInfo.m_vDirLightClr.toString() === [0, 0, 0].toString()) ? 0 : 1);
+        var _isNight = (_skyInfo.m_vDirLightClr.toString() === [1, 1, 1].toString()) ? true : false;
+        var _exposeScale = _isNight ? _skyInfo.m_fDynExposeAmp * 10 : _skyInfo.m_fDynExposeAmp;
+        skyInfo.skyTexPaths = pathTemps;
+        skyInfo.sunMode = _sunMode;
+        skyInfo.sunDir = _skyInfo.m_vDirectLDir;
+        skyInfo.isNight = _isNight;
+        skyInfo.exposeScale = _exposeScale;
+        return skyInfo;
+    }
+
+    /**
+     * 获取天空盒的相关信息
+     */
+    Module.SkyBox.resetSkyInfo = function () {
+        var defaultSkyInfo = new RESkyInfo();
+        defaultSkyInfo.skyTexPaths = [
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_right.jpg.dds",
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_left.jpg.dds",
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_front.jpg.dds",
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_back.jpg.dds",
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_top.jpg.dds",
+            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_bottom.jpg.dds"
+        ];
+        console.log(defaultSkyInfo.skyTexPaths);
+        defaultSkyInfo.sunMode = 1;
+        defaultSkyInfo.sunDir = [0.59215283, 0.63194525, -0.50000012];
+        defaultSkyInfo.isNight = false;
+        defaultSkyInfo.exposeScale = 1.0;
+        Module.SkyBox.setSkyInfo(defaultSkyInfo);
+    }
+
+    /**
+     * 设置场景光源方向
+     * @param {dvec3} sunDir //光源方向
+     */
+    Module.SkyBox.setLightLocate = function (sunDir) {
+        if (isEmptyLog(sunDir)) return;
+        var _lightInfo = Module.RealBIMWeb.GetSceLightInfo();
+        _lightInfo.m_vDirectLDir = sunDir;
+        Module.RealBIMWeb.SetSceLightInfo(_lightInfo);
+    }
+
+    /**
+     * 获取当前场景光源方向
+     */
+    Module.SkyBox.getLightLocate = function () {
+        return Module.RealBIMWeb.GetSceLightInfo().m_vDirectLDir;
+    }
+
+    /**
+     * 设置天空大气散射激活状态
+     * @param {Boolean} active //是否激活
+     */
+    Module.SkyBox.setSkyAtmActive = function (active) {
+        Module.RealBIMWeb.SetSkyAtmActive(active);
+    }
+
+    /**
+     * 获取天空大气散射激活状态
+     */
+    Module.SkyBox.getSkyAtmActive = function () {
+        return Module.RealBIMWeb.GetSkyAtmActive();
+    }
+
+    /**
+     * 设置天空大气散射的雾效强度
+     * @param {Number} amp //强度，默认值为1，取值范围0~10
+     */
+    Module.SkyBox.setSkyAtmFogAmp = function (amp) {
+        var _fAmp = 1.0; if (!isEmpty(amp)) _fAmp = Math.max(0, Math.min(amp, 10));
+        Module.RealBIMWeb.SetSkyAtmFogAmp(_fAmp);
+    }
+
+    /**
+     * 获取天空大气散射的雾效强度
+     */
+    Module.SkyBox.getSkyAtmFogAmp = function () {
+        return Module.RealBIMWeb.GetSkyAtmFogAmp();
+    }
+
+
+
+
+    // MOD-- 鼠标探测（Probe）
+    Module.Probe = typeof Module.Probe !== "undefined" ? Module.Probe : {};//增加 Probe 模块
+
+
+    /**
+     * 设置鼠标悬停事件的参数
+     * @param {Number} waitTime //鼠标静止后等待多长时间才发送悬停事件
+     */
+    Module.Probe.setMouseHoverEventTime = function (waitTime) {
+        Module.RealBIMWeb.SetMouseHoverEventParam(waitTime);
+    }
+
+    /**
+     * 获取鼠标悬停事件的参数
+     */
+    Module.Probe.getMouseHoverEventTime = function () {
+        return Module.RealBIMWeb.GetMouseHoverEventParam();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -566,6 +818,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function isEmpty(value) {
         if (typeof value == 'undefined') return true;
+        if (value == null) return true;
         // if (!value) return true;
         if ((Object.keys(value).length === 0 && value.constructor === Object)) return true;
         return false;

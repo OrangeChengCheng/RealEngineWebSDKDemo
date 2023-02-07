@@ -39,7 +39,7 @@ window.onload = function (event) {
     document.addEventListener("RealBIMLoadMainSce", MainSceDown);
     document.addEventListener("RealEngineRenderReady", showCanvas);
     document.addEventListener("RealBIMLoadProgress", LoadingProgress);
-    
+
     document.addEventListener("RealBIMLocateCam", RealBIMLocateCam);
 
 
@@ -51,6 +51,12 @@ window.onload = function (event) {
 
 function RealBIMLocateCam(e) {
     console.log(e);
+
+    // var color = new BlackHole3D.REColor();
+    // color.red = 128;
+    // color.green = 255;
+    // color.blue = 204;
+    // BlackHole3D.SkyBox.setBackClr(color);
 }
 
 
@@ -59,14 +65,14 @@ function RealBIMInitSys() {
     console.log("=========================== 引擎底层初始化完成");
     progressFn(0.5, "RealEngine/WorkerJS Begin Init");
 
-    var sysModel = new BlackHole3D.RESysModel();
-    sysModel.workerjsPath = "javascript/RealBIMWeb_Worker.js";
-    sysModel.renderWidth = BlackHole3D.canvas.clientWidth;
-    sysModel.renderHieght = BlackHole3D.canvas.clientHeight;
-    sysModel.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
-    sysModel.userName = "admin";
-    sysModel.passWord = "xiyangyang";
-    BlackHole3D.initEngineSys(sysModel);
+    var sysInfo = new BlackHole3D.RESysInfo();
+    sysInfo.workerjsPath = "javascript/RealBIMWeb_Worker.js";
+    sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
+    sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
+    sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
+    sysInfo.userName = "admin";
+    sysInfo.passWord = "xiyangyang";
+    BlackHole3D.initEngineSys(sysInfo);
     BlackHole3D.Common.setUseWebCache(false);//是否允许使用浏览器缓存
 }
 
@@ -129,5 +135,65 @@ function LoadingProgress(e) {
 
 
 
+function setSky() {
+    var skyInfo = new BlackHole3D.RESkyInfo();
+    skyInfo.skyTexPaths = [
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/right.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/left.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/front.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/back.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/top.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/bottom.jpg"
+    ];
+    skyInfo.sunMode = 1;
+    skyInfo.sunDir = [-0.707005, 0.700468, -0.097413];
+    skyInfo.isNight = true;
+    skyInfo.exposeScale = 1.0;
+    BlackHole3D.SkyBox.setSkyInfo(skyInfo);
+    
+}
 
+
+
+//添加标签
+function addTags() {
+    var tagInfo = [
+        {
+            "tagname": "tag01",
+            "pos": [-151, -95, 67],
+            "info": [{
+                "picpath": "",
+                "textinfo": "测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag002测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag003测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag004测试文字"
+            }
+            ]
+        }, {
+            "tagname": "tag012",
+            "pos": [-246, 18, 16],
+            "info": [{
+                "picpath": "",
+                "textinfo": "测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag0012测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag0013测试文字"
+            }, {
+                "picpath": "",
+                "textinfo": "tag0014测试文字"
+            }
+            ]
+        }
+    ];
+    BlackHole3D.REaddTags(tagInfo);
+}
 
