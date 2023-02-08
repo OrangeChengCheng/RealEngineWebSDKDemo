@@ -41,12 +41,22 @@ window.onload = function (event) {
     document.addEventListener("RealBIMLoadProgress", LoadingProgress);
 
     document.addEventListener("RealBIMLocateCam", RealBIMLocateCam);
+    document.addEventListener("RealBIMSelModel", RealBIMSelModel);
+    // document.addEventListener("RealBIMSelShape", RealBIMSelShape);
 
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
         RealBIMInitSys();
     }
+}
+
+function RealBIMSelModel(e) {
+    console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
+}
+function RealBIMSelShape(e) {
+    console.log(e);
+    console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 function RealBIMLocateCam(e) {
@@ -93,6 +103,13 @@ function RealBIMLoadMainSce(e) {
                 "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
                 "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+                "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            },
+            {
+                "dataSetId": "dataSet02",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             }
         ];
@@ -150,7 +167,7 @@ function setSky() {
     skyInfo.isNight = true;
     skyInfo.exposeScale = 1.0;
     BlackHole3D.SkyBox.setSkyInfo(skyInfo);
-    
+
 }
 
 
@@ -162,7 +179,7 @@ function addTags() {
             "tagname": "tag01",
             "pos": [-151, -95, 67],
             "info": [{
-                "picpath": "",
+                "picpath": "common",
                 "textinfo": "测试文字"
             }, {
                 "picpath": "",
@@ -179,7 +196,7 @@ function addTags() {
             "tagname": "tag012",
             "pos": [-246, 18, 16],
             "info": [{
-                "picpath": "",
+                "picpath": "common",
                 "textinfo": "测试文字"
             }, {
                 "picpath": "",
@@ -197,3 +214,112 @@ function addTags() {
     BlackHole3D.REaddTags(tagInfo);
 }
 
+
+
+//添加锚点
+function addAnc() {
+    var ancList = [
+        {
+            "groupName": "camera",
+            "ancName": "anc01",
+            "pos": [-20, -20, 10],
+            "picPath": "",
+            "textInfo": "未拆迁",
+            "picWidth": 32,
+            "picHeight": 32,
+            "useLod": true,
+            "linePos": [0, 100],
+            "lineClr": new BlackHole3D.REColor(255, 0, 0, 255),//红色
+            "ancSize": 60,
+            "selfAutoScaleDist": -1,
+            "selfVisDist": -1,
+            "textBias": [1, 0],
+            "textFocus": [0, 0]
+        }, {
+            "ancName": "anc02",
+            "pos": [70.8, 76.481, 0],
+            "picPath": "",
+            "textInfo": "已拆迁",
+            "picWidth": 32,
+            "picHeight": 32,
+            "useLod": true,
+            "linePos": [0, 50],
+            "lineClr": { red: 255, green: 0, blue: 0, alpha: 255 },//红色
+            "ancSize": 60,
+            "selfAutoScaledist": -1,
+            "selfVisDist": -1,
+            "textBias": [1, 0],
+            "textFocus": [0, 0]
+        }
+    ];
+    BlackHole3D.Anchor.addAnc(ancList);
+}
+
+//添加闪烁锚点
+function addAncAnim() {
+    var ancList = [
+        {
+            "ancName": "anc01",
+            "pos": [-25, -26, 10],
+            "picPath": "",
+            "picWidth": 32,
+            "picHeight": 32,
+            "textInfo": "张三",
+            "picNum": 3,
+            "playFrame": 2
+        }
+    ];
+    BlackHole3D.Anchor.addAnimAnc(ancList);
+}
+
+//设置聚合锚点
+function addAncLOD() {
+    //锚点样式信息
+    var mergestyle = new BlackHole3D.REAncInfo();
+    mergestyle.picPath = "";
+    mergestyle.picWidth = 60;
+    mergestyle.picHeight = 60;
+    mergestyle.textBias = [1, 0];
+    mergestyle.fontName = "RealBIMFont001";
+    mergestyle.textColor = new BlackHole3D.REColor(255, 255, 255, 255);
+    mergestyle.textBorderColor = new BlackHole3D.REColor(0, 0, 0, 128);
+    //聚合信息
+    var ancLODInfo = new BlackHole3D.REAncLODInfo();
+    ancLODInfo.groupName = "group01";
+    ancLODInfo.lodLevel = 10;
+    ancLODInfo.useCustomBV = true;
+    ancLODInfo.customBV = [[100, 100, -100], [500, 500, 500]];
+    ancLODInfo.lodMergePxl = 300.0;
+    ancLODInfo.lodMergeCap = 3;
+    ancLODInfo.mergeStyle = mergestyle;
+    //设置聚合锚点信息
+    BlackHole3D.Anchor.setAncLODInfo(ancLODInfo);
+}
+
+
+//添加矢量点
+function addPointShp() {
+    //矢量文字信息
+    var shpTextInfo = new BlackHole3D.REShpTextInfo();
+    shpTextInfo.text = "未拆迁";
+    shpTextInfo.textbias = [1, 0];
+    shpTextInfo.fontname = "RealBIMFont001";
+    shpTextInfo.textclr = new BlackHole3D.REColor(255,255,255,255);
+    shpTextInfo.textborderclr = new BlackHole3D.REColor(0,0,0,204);
+    shpTextInfo.textbackmode = 2;
+    shpTextInfo.textbackborder = 2;
+    shpTextInfo.textbackclr = new BlackHole3D.REColor(0,0,0,204);
+    //矢量点信息
+    var potShpInfo = new BlackHole3D.REPotShpInfo();
+    potShpInfo.shpName = "potShp001";
+    potShpInfo.pos = [5.394, 14.598, 0.0];
+    potShpInfo.potSize = 4;
+    potShpInfo.potClr = new BlackHole3D.REColor(255,0,0,255);
+    potShpInfo.scrASDist = -1.0;
+    potShpInfo.scrVisDist = -1.0;
+    potShpInfo.contactSce = false;
+    potShpInfo.textInfo = shpTextInfo;
+
+    var addPosShpBool = BlackHole3D.Geometry.addPotShp(potShpInfo);
+    console.log(addPosShpBool);
+}
