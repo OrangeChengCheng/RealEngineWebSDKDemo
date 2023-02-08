@@ -1499,11 +1499,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     class RELineShpInfo {
         constructor() {
-
+            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.arrPots = null;//表示多边形折线序列
+            this.fillState = null;//示顶点的像素大小
+            this.potClr = null;//顶点的颜色（REColor 类型）
+            this.textInfo = null;//表示顶点的文字标注信息（REShpTextInfo 类型）
+            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
+            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
         }
     }
     ExtModule.RELineShpInfo = RELineShpInfo;
-
+    // * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
+    // * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
+    // * @param {Array} arrPots //表示多边形折线序列
+    // * @param {Number} uFillState //表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+    // * @param {String} lineColor //表示多边形的颜色 十六进制 HEX
+    // * @param {Number} lineClrAlpha //多边形的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+    // * @param {String} fillColor //表示多边形的填充颜色 十六进制 HEX
+    // * @param {Number} fillClrAlpha //多边形的填充颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+    // * @param {Number} fTextPos //表示多边形折线填充样式： 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+    // * @param {Object} cTextInfo //表示顶点的文字标注信息 ↓ ↓ ↓ ↓ ↓ 以下参数包含在 cTextInfo 中  ↑ ↑ ↑ ↑ ↑
 
     /**
      * 创建自定义顶点矢量
@@ -1572,7 +1588,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
      * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
      * @param {Array} arrPots //表示多边形折线序列
-     * @param {Number} uFillState //表示多边形的文字标注的位置 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+     * @param {Number} uFillState //表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
      * @param {String} lineColor //表示多边形的颜色 十六进制 HEX
      * @param {Number} lineClrAlpha //多边形的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
      * @param {String} fillColor //表示多边形的填充颜色 十六进制 HEX
