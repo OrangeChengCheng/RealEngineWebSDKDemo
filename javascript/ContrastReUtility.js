@@ -169,31 +169,7 @@ Module.REpbrFix = function(newEmis,newEmisPercent,newSmooth,newMetal,newSmmePerc
   return pbr;
 }
 
-//改变构件集合颜色(永久)
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REsetElemClr = function(objArr,newClr,newClrPercent,newAlpha,newAlphaPercent,projName,elemScope){
-  var _projName = "DefaultProj"; if(typeof projName != 'undefined'){_projName = projName;}
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  var projid = Module.RealBIMWeb.ConvGolStrID2IntID(_projName);
-  var clr = Module.REclrFix(newClr,newClrPercent); 
-  var alpha = Module.REalphaFix(newAlpha,newAlphaPercent);
-  var _s = objArr.length;
-  if(_s ==0){  //如果构件ID集合为空，则默认为改变所有构件的信息
-    var _l = (16).toString();
-    Module.RealBIMWeb.ReAllocHeapViews(_l); clrs =Module.RealBIMWeb.GetHeapView_U32(0);
-    clrs.set([0,projid,alpha,clr], 0);
-    Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName,"", 0xffffffff, clrs.byteOffset, _elemScope);
-  }else{
-    var _s01 = (_s*16).toString();
-    Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs =Module.RealBIMWeb.GetHeapView_U32(0);
-    for(i =0; i<_s; ++i)
-    {
-      var eleid = objArr[i];
-      clrs.set([eleid,projid,alpha,clr], i*4);
-    }
-    Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName,"", clrs.byteLength, clrs.byteOffset, _elemScope);
-  }
-}
+
 
 //批量获取当前构件设置的颜色
 Module.REgetElemClr = function(projName,objArr){
@@ -2710,121 +2686,17 @@ Module.REaddCustomPolyFenceShp = function(shpName, arrPots, bClose, uClr, fASDis
 
 
 
-  /**
-   * 创建自定义多边形围栏矢量
-   * @param {String} shpName //表示矢量标识名，若已有同名的矢量则覆盖之
-   * @param {Object} re_Info //标识顶点矢量信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
-   * @param {Array} arrPots //表示多边形折线序列，xyzw, w分量表示端点处的围栏高度
-   * @param {Boolean} bClose //表示是否闭合
-   * @param {String} fenceColor //表示多边形围栏的颜色
-   * @param {Number} fenceClrAlpha //多边形围栏的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
-   * @param {Number} fASDist //表示屏幕空间矢量的自动缩放起始距离
-   * @param {Number} fVisDist //表示屏幕空间矢量的可视距离
-   * @param {Boolean} bContactSce //表示矢量是否与场景发生深度遮挡
-   * @returns 
-  */
-  Module.REaddPolyFenceShp = function (shpName, re_Info) {
-    if (!checkNull(shpName, 'shpName')) return;
-    if (!checkNull(re_Info, 're_Info')) return;
-    if (!checkParamType(re_Info.arrPots, 'arrPots', RE_Enum.RE_Check_Array)) return;
-
-    var temparrpos = new Module.RE_Vector_dvec4();
-    for (var i = 0; i < re_Info.arrPots.length; ++i) {
-      temparrpos.push_back(re_Info.arrPots[i]);
-    }
-
-    var _bContactSce = false; if (checkParamNull(re_Info.bContactSce)) _bContactSce = re_Info.bContactSce;
-    var _uClr = 0xFFFFFFFF; if (checkParamNull(re_Info.fenceColor)) _uClr = clrHEXAToU32ABGR(re_Info.fenceColor, re_Info.fenceClrAlpha);
-
-    Module.RealBIMWeb.AddCustomPolyFenceShp(shpName, temparrpos, re_Info.bClose, _uClr, re_Info.fASDist, re_Info.fVisDist, _bContactSce);
-  }
 
 
 
-//删除某个自定义矢量对象
-Module.REdelCustomShp = function(shpName){ 
-  return Module.RealBIMWeb.DelCustomShp(shpName);
-}
-//清空所有的自定义矢量对象
-Module.REdelAllCustomShps = function(){ 
-  Module.RealBIMWeb.DelAllCustomShps();
-}
 
-  /**
-   * 设置自定义矢量对象的颜色
-   * @param {String} shpName //表示矢量标识名
-   * @param {String} re_Color //顶点的颜色 十六进制 HEX
-   * @param {Number} re_Alpha //顶点的颜色透明度，默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
-   */
-  Module.REsetShpColor = function (shpName, re_Color, re_Alpha) {
-    if (!checkNull(shpName, 'shpName')) return;
-    if (!checkNull(re_Color, 're_Color')) return;
-    Module.RealBIMWeb.SetCustomShpColor(shpName, clrHEXAToU32ABGR(re_Color, re_Alpha));
-  }
 
-  /**
-   * 聚焦相机到指定的矢量对象
-   * @param {String} shpName //表示矢量标识名
-   * @param {Number} dBackwardAmp //dBackwardAmp：表示相机在锚点中心处向后退的强度 >=0.0 表示相机的后退距离相对于锚点覆盖范围的比例(若锚点覆盖范围无效则视为绝对后退距离) <0.0 表示相机的后退距离的绝对值的负
-   */
-  Module.REfocusCamToShp = function (shpName, dBackwardAmp) {
-    if (!checkNull(shpName, 'shpName')) return;
-    Module.RealBIMWeb.FocusCamToCustomShp(shpName, dBackwardAmp);
-  }
+ 
 
-  /**
-   * 设置矢量是否允许顶点捕捉
-   * @param {Boolean} bCapture //顶点捕捉状态
-   */
-  Module.REsetShpPotCapture = function (bCapture) {
-    Module.RealBIMWeb.SetShpPotCapture(bCapture);
-  }
+  
 
-  /**
-   * 获取矢量是否允许顶点捕捉
-   */
-  Module.REgetShpPotCapture = function () {
-    return Module.RealBIMWeb.GetShpPotCapture();
-  }
 
-  /**
-   * 判断顶点集合是否在指定的构件集合内，并返还不在指定构件集合内的顶点集合
-   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
-   * @param {Array} objArr //表示要处理的构件id数组，若为空串则表示处理所有的构件id
-   * @param {Array} arrPots //表示要判断的顶点集合
-   */
-  Module.REgetPotsNotInElems = function (projName, objArr, arrPots) {
-    var _ObjCount = objArr.length;
-    var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-    //处理顶点集合对应数据类型
-    var _temparrpos = new Module.RE_Vector_dvec3();
-    for (var i = 0; i < arrPots.length; ++i) {
-      _temparrpos.push_back(arrPots[i]);
-    }
 
-    if (_ObjCount == 0) {
-      //如果构件ID集合为空，则默认为所有构件
-      Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(projName, 0xffffffff, 0, _temparrpos);
-    }
-    else {
-      var _obgCountByte8 = (_ObjCount * 8).toString();//创建的观察窗口的字节大小
-      Module.RealBIMWeb.ReAllocHeapViews(_obgCountByte8);//分配一系列堆内存块的观察窗口
-      var elemIds = Module.RealBIMWeb.GetHeapView_U32(0);//获取一个堆内存块的观察窗口
-      for (let i = 0; i < _ObjCount; i++) {
-        var eleid = objArr[i];
-        elemIds.set([eleid, projid], i * 2);
-      }
-      Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(projName, elemIds.byteLength, elemIds.byteOffset, _temparrpos);
-    }
-
-    //创建接收不在构件内的顶点集合
-    var potsNotInElems = [];
-    for (let i = 0; i < _temparrpos.size(); i++) {
-      potsNotInElems.push(_temparrpos.get(i));
-    }
-
-    return potsNotInElems;
-  }
 
   
 
@@ -5998,48 +5870,10 @@ Module.REendOSGBEdit = function(){
   }  
 
 // MOD-- 土方测量
-  /**
-   * 进入土方测量区域绘制状态
-   */
-  Module.REenterEarthworkCreateMode = function () {
-    return Module.RealBIMWeb.EnterEarthworkCreateMode();
-  }
   
-  /**
-   * 退出土方测量区域绘制状态，退出时会触发EarthworkRgnFinish事件
-   */
-  Module.REexitEarthworkCreateMode = function () {
-    return Module.RealBIMWeb.ExitEarthworkCreateMode();
-  }
 
-  /**
-   * 获取土方测量绘制区域的顶点数组,监听到EarthworkRgnFinish时间后即可获取，获取一次后系统会将顶点信息清除
-   */
-  Module.REgetCnrsOfEarthworkRgn = function () {
-    var _pos = Module.RealBIMWeb.GetCnrsOfEarthworkRgn();
-    var _cnrCoords = [];
-    for(let i = 0; i<_pos.size(); ++i){
-      _cnrCoords.push(_pos.get(i));
-    }
-    return _cnrCoords;  
-  }
+  
 
-  /**
-   * 进行指定区域的填挖方计算
-   * @param {Array[Number]} re_ArrCnrs //挖填方区域顶点信息
-   * @param {Number} re_Elevation //挖填方高度
-   * @param {String} re_ProjName //参与计算的项目名称
-   */
-  Module.REcalcEarthworkValues = function (re_ArrCnrs, re_Elevation, re_ProjName) {
-    if (!checkNull(re_ArrCnrs, 're_ArrCnrs')) return;
-    if (!checkNull(re_Elevation, 're_Elevation')) return;
-    if (!checkNull(re_ProjName, 're_ProjName')) return;
-    var temparrpos =new Module.RE_Vector_dvec3();
-    for(var i=0;i<re_ArrCnrs.length;++i){
-      temparrpos.push_back(re_ArrCnrs[i]);
-    }
-    Module.RealBIMWeb.CalcEarthworkValues(temparrpos, re_Elevation, re_ProjName, "", 9);
-  }
 
 
 

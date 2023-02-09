@@ -105,13 +105,13 @@ function RealBIMLoadMainSce(e) {
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             },
-            {
-                "dataSetId": "dataSet02",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
-                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-                "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            }
+            // {
+            //     "dataSetId": "dataSet02",
+            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // }
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
         // 设置全局渲染性能控制参数
@@ -302,19 +302,19 @@ function addPointShp() {
     //矢量文字信息
     var shpTextInfo = new BlackHole3D.REShpTextInfo();
     shpTextInfo.text = "未拆迁";
-    shpTextInfo.textbias = [1, 0];
-    shpTextInfo.fontname = "RealBIMFont001";
-    shpTextInfo.textclr = new BlackHole3D.REColor(255,255,255,255);
-    shpTextInfo.textborderclr = new BlackHole3D.REColor(0,0,0,204);
-    shpTextInfo.textbackmode = 2;
-    shpTextInfo.textbackborder = 2;
-    shpTextInfo.textbackclr = new BlackHole3D.REColor(0,0,0,204);
+    shpTextInfo.textBias = [1, 0];
+    shpTextInfo.fontName = "RealBIMFont001";
+    shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+    shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 204);
+    shpTextInfo.textBackMode = 2;
+    shpTextInfo.textBackBorder = 2;
+    shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 204);
     //矢量点信息
     var potShpInfo = new BlackHole3D.REPotShpInfo();
     potShpInfo.shpName = "potShp001";
     potShpInfo.pos = [5.394, 14.598, 0.0];
     potShpInfo.potSize = 4;
-    potShpInfo.potClr = new BlackHole3D.REColor(255,0,0,255);
+    potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
     potShpInfo.scrASDist = -1.0;
     potShpInfo.scrVisDist = -1.0;
     potShpInfo.contactSce = false;
@@ -323,3 +323,64 @@ function addPointShp() {
     var addPosShpBool = BlackHole3D.Geometry.addPotShp(potShpInfo);
     console.log(addPosShpBool);
 }
+
+// 添加矢量折线
+function addLineShp() {
+    //矢量文字信息
+    var shpTextInfo = new BlackHole3D.REShpTextInfo();
+    shpTextInfo.text = "测试画线";
+    shpTextInfo.textBias = [1, 0];
+    shpTextInfo.fontName = "RealBIMFont001";
+    shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+    shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+    shpTextInfo.textBackMode = 2;
+    shpTextInfo.textBackBorder = 2;
+    shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+    //矢量线信息
+    var lineShpInfo = new BlackHole3D.RELineShpInfo();
+    lineShpInfo.shpName = "lineShp001";
+    lineShpInfo.potList = [[15.821551318975999, 17.619940136002967, 0.000018728150966040857],
+    [15.821551745332034, 18.969940110334004, 0.00001945166156147593],
+    [13.771586103520088, 17.619892309623157, -0.00000452473561729505]];
+    lineShpInfo.fillState = 1;
+    lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+    lineShpInfo.textPos = -2;
+    lineShpInfo.scrASDist = -1.0;
+    lineShpInfo.scrVisDist = 300.0;
+    lineShpInfo.contactSce = false;
+    lineShpInfo.lineWidth = 2;
+    lineShpInfo.textInfo = shpTextInfo;
+
+    var addlineShpBool = BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+    console.log(addlineShpBool);
+}
+
+//添加多边形围栏
+function addFenceShp() {
+    //矢量围栏信息
+    var fenceShpInfo = new BlackHole3D.REFenceShpInfo();
+    fenceShpInfo.shpName = "fenceShp001";
+    fenceShpInfo.potList = [[14.717769348031592, 57.95791001082713, -0.000030016697266432857, 3],
+    [11.833832403710415, 57.88562541960681, -0.000031201471490049926, 4],
+    [12.011666543451309, 54.24507412739243, -0.00003062040975443381, 2],
+    [14.82709974581475, 54.341189629415496, -0.00003190398601304878, 2]];
+    fenceShpInfo.isClose = true;
+    fenceShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
+    fenceShpInfo.scrASDist = -1.0;
+    fenceShpInfo.scrVisDist = 300.0;
+    fenceShpInfo.contactSce = true;
+
+    var addFenceeShpBool = BlackHole3D.Geometry.addPolyFenceShp(fenceShpInfo);
+    console.log(addFenceeShpBool);
+}
+
+
+
+
+
+
+
+
+
+
