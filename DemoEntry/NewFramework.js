@@ -105,13 +105,13 @@ function RealBIMLoadMainSce(e) {
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             },
-            // {
-            //     "dataSetId": "dataSet02",
-            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
-            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // }
+            {
+                "dataSetId": "dataSet02",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+                "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            }
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
         // 设置全局渲染性能控制参数
@@ -376,11 +376,107 @@ function addFenceShp() {
 }
 
 
+//改变构件颜色
+function changeElemClr() {
+    var dataSetId = "dataSet01";
+    var elemIdList = [1062, 1014];
+    var clr = new BlackHole3D.REColor(255, 0, 0, -1);
+    BlackHole3D.BIM.setElemClr(dataSetId, elemIdList, clr);
+}
+
+//设置构件混合属性
+function changeElemBlendAttr() {
+    // 设置构件发光
+    var elemBlendAttr = new BlackHole3D.REElemBlendAttr();
+    elemBlendAttr.dataSetId = "dataSet01";
+    elemBlendAttr.elemIdList = [1062, 1014];
+    elemBlendAttr.elemClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    elemBlendAttr.elemEmis = 255;
+    elemBlendAttr.elemEmisPercent = 255;
+    elemBlendAttr.elemSmooth = 0;
+    elemBlendAttr.elemMetal = 0;
+    elemBlendAttr.elemSmmePercent = 0;
+    BlackHole3D.BIM.setElemBlendAttr(elemBlendAttr);
+}
 
 
+//添加动态墙
+function addAnimWall() {
+    var animWallInfo = new BlackHole3D.REAnimWallInfo();
+    animWallInfo.groupName = "wall";
+    animWallInfo.name = "wall01";
+    animWallInfo.potList = [[14.717769348031592, 57.95791001082713, -0.000030016697266432857, 3],
+    [11.833832403710415, 57.88562541960681, -0.000031201471490049926, 3],
+    [12.011666543451309, 54.24507412739243, -0.00003062040975443381, 3],
+    [14.82709974581475, 54.341189629415496, -0.00003190398601304878, 3]];
+    animWallInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    animWallInfo.normalDir = false;
+    animWallInfo.isClose = true;
+    BlackHole3D.BIM.addAnimationWall(animWallInfo);
+    BlackHole3D.REsetShapeAnimStyle("wall", ["wall01"], "00ffff", 255, [2.0, 0.0, -0.5, 0.0]);
+}
 
 
+//创建一个扫描面
+function addAnimPlane() {
+    var animPlaneInfo = new BlackHole3D.REAnimWallInfo();
+    animPlaneInfo.groupName = "plane";
+    animPlaneInfo.name = "plane01";
+    animPlaneInfo.potList = [[14.717769348031592, 57.95791001082713, 2],
+    [11.833832403710415, 57.88562541960681, 2],
+    [12.011666543451309, 54.24507412739243, 2],
+    [14.82709974581475, 54.341189629415496, 2]];
+    animPlaneInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    BlackHole3D.BIM.addAnimationPlane(animPlaneInfo);
+    BlackHole3D.REsetShapeAnimStyle("plane", ["plane01"], "00ffff", 255, [2.0, 0.0, -0.5, 0.0]);
+}
 
 
+//创建一个扫描球面
+function addAnimSphere() {
+    var animSphereInfo = new BlackHole3D.REAnimSphereInfo();
+    animSphereInfo.groupName = "sphere";
+    animSphereInfo.nameList = ["sphere01","sphere02"];
+    animSphereInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
+    [12.98287890648843, 34.08362504945755, 1]];
+    animSphereInfo.radius = 10;
+    animSphereInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    BlackHole3D.BIM.addAnimationSpheres(animSphereInfo);
+    BlackHole3D.REsetShapeAnimStyle("sphere", [], "00ffff", 255, [0.0, 0.0, 0.5, 0.0]);
+}
 
+
+//创建一个多边形
+function addAnimPolygon() {
+    var animPolygonInfo = new BlackHole3D.REAnimPolygonInfo();
+    animPolygonInfo.groupName = "polygon";
+    animPolygonInfo.nameList = ["polygon01","polygon02"];
+    animPolygonInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
+    [12.98287890648843, 34.08362504945755, 1]];
+    animPolygonInfo.radius = 10;
+    animPolygonInfo.radarScan = false;
+    animPolygonInfo.isRing = false;
+    animPolygonInfo.edgeNum = 6;
+    animPolygonInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    BlackHole3D.BIM.addAnimationPolygons(animPolygonInfo);
+    BlackHole3D.REsetShapeAnimStyle("polygon", [], "00ffff", 255, [0.0, 0.0, 0.5, 0.0]);
+}
+
+
+//创建一个多边形动态墙
+function addAnimPolyWall() {
+    var animPolyWallInfo = new BlackHole3D.REAnimPolyWallInfo();
+    animPolyWallInfo.groupName = "polyWall";
+    animPolyWallInfo.nameList = ["polyWall01","polyWall02"];
+    animPolyWallInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
+    [12.98287890648843, 34.08362504945755, 1]];
+    animPolyWallInfo.radius = 10;
+    animPolyWallInfo.height = 5;
+    animPolyWallInfo.isRing = false;
+    animPolyWallInfo.edgeNum = 6;
+    animPolyWallInfo.normalDir = true;
+    animPolyWallInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    BlackHole3D.BIM.addAnimationPolygonWalls(animPolyWallInfo);
+    BlackHole3D.BIM.setShapeAnimStyle("polyWall", [], new BlackHole3D.REColor(0,255,255,255), [0.0, 0.0, 0.5, 0.0]);
+}
 

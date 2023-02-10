@@ -230,6 +230,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+    // MARK 渲染效果
+
+
+    /**
+     * 设置边缘高光效果的启用状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Common.setBorderEmisEnable = function (enable) {
+        Module.RealBIMWeb.SetHugeModelBorderEmisEnable(enable);
+    }
+
+    /**
+     * 获取边缘高光效果的启用状态
+     */
+    Module.Common.getBorderEmisEnable = function () {
+        return Module.RealBIMWeb.GetHugeModelBorderEmisEnable();
+    }
+
+
+
+
 
     // MOD-- 模型加载（Model）
     Module.Model = typeof Module.Model !== "undefined" ? Module.Model : {};//增加 Model 模块
@@ -1810,170 +1831,729 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- BIM（BIM）
     Module.BIM = typeof Module.BIM !== "undefined" ? Module.BIM : {};//增加 BIM 模块
 
+    class REElemBlendAttr {
+        constructor() {
+            this.dataSetId = null;//数据集标识
+            this.elemIdList = null;//构件id集合
+            this.elemClr = null;//构件颜色（REColor 类型）
+            this.elemEmis = null;//	表示构件的自发光强度，0~255
+            this.elemEmisPercent = null;//	表示构件自发光强度所占的权重，0~255
+            this.elemSmooth = null;//	表示构件的光泽度，0~255
+            this.elemMetal = null;//	表示构件的金属质感，0~255
+            this.elemSmmePercent = null;//	表示光泽度和金属质感的权重，0~255
+        }
+    }
+    ExtModule.REElemBlendAttr = REElemBlendAttr;
+
+    class REAnimWallInfo {
+        constructor() {
+            this.groupName = null;//	动态墙组名称
+            this.name = null;//	动态墙名称
+            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
+            this.texPath = null;//	动态墙纹理路径
+            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
+            this.isClose = null;//	动态墙是否强制闭合，默认闭合
+        }
+    }
+    ExtModule.REAnimWallInfo = REAnimWallInfo;
+
+    class REAnimPlaneInfo {
+        constructor() {
+            this.groupName = null;//不规则平面组名称
+            this.name = null;//不规则平面名称
+            this.potList = null;//不规则平面路径顶点坐标 (x,y,z)表示位置 w表示高度
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimPlaneInfo = REAnimPlaneInfo;
+
+    class REAnimSphereInfo {
+        constructor() {
+            this.groupName = null;//扫描球组名称
+            this.nameList = null;//扫描球名称数组
+            this.potCenterList = null;//扫描球中心点坐标数组
+            this.radius = null;//当前批次扫描球半径
+            this.sphere = null;//是否为圆球，true表示圆球，false表示半球
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimSphereInfo = REAnimSphereInfo;
+
+    class REAnimPolygonInfo {
+        constructor() {
+            this.groupName = null;//扫描平面组名称
+            this.nameList = null;//扫描平面名称数组
+            this.potCenterList = null;//扫描平面中心点坐标数组
+            this.radius = null;//当前批次扫描平面半径
+            this.radarScan = null;//扫描效果是否为雷达扫描，true为雷达扫描，false为扩散扫描
+            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null;//多边形的边数
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimPolygonInfo = REAnimPolygonInfo;
+
+    class REAnimPolyWallInfo {
+        constructor() {
+            this.groupName = null;//扫描多边形动态墙组名称
+            this.nameList = null;//扫描多边形动态墙名称数组
+            this.potCenterList = null;//扫描多边形动态墙中心点坐标数组
+            this.radius = null;//当前批次扫描多边形动态墙半径
+            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null;//多边形的边数
+            this.height = null;//高度
+            this.texPath = null;//纹理路径
+            this.normalDir = null;//贴图是否沿法线方向，true为法线方向，false为切线方向
+        }
+    }
+    ExtModule.REAnimPolyWallInfo = REAnimPolyWallInfo;
+
+    
+
+
+
 
     // MARK 构件属性
     /**
      * 设置构件颜色
-     * @param {*} dataSetId //数据集标识
-     * @param {*} elemIdList //构件id集合
-     * @param {*} elemClr //构件颜色（REColor 类型）
-     * @param {*} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {REColor} elemClr //构件颜色（REColor 类型）
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemClr = function (dataSetId, elemIdList, elemClr, elemScope) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(elemIdList, "elemIdList")) return;
         if (isEmptyLog(elemClr, "elemClr")) return;
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
-
-        var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
         var _clr = clrToU32_WBGR(elemClr);
-        var _alpha = alphaToU32_WA(_elemAttrInfo.elemClr.alpha);
 
-    }
-
-
-    //改变构件集合颜色(永久)
-    //elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-    Module.REsetElemClr = function (objArr, newClr, newClrPercent, newAlpha, newAlphaPercent, projName, elemScope) {
-        var _projName = "DefaultProj"; if (typeof projName != 'undefined') { _projName = projName; }
-        var _elemScope = 0; if (typeof elemScope != 'undefined') { _elemScope = elemScope; }
-        var projid = Module.RealBIMWeb.ConvGolStrID2IntID(_projName);
-        var clr = Module.REclrFix(newClr, newClrPercent);
-        var alpha = Module.REalphaFix(newAlpha, newAlphaPercent);
-        var _s = objArr.length;
-        if (_s == 0) {  //如果构件ID集合为空，则默认为改变所有构件的信息
-            var _l = (16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_l); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            clrs.set([0, projid, alpha, clr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, "", 0xffffffff, clrs.byteOffset, _elemScope);
-        } else {
-            var _s01 = (_s * 16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
-                var eleid = objArr[i];
-                clrs.set([eleid, projid, alpha, clr], i * 4);
-            }
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, "", clrs.byteLength, clrs.byteOffset, _elemScope);
+        if (dataSetId == "") {
+            //多数据集设置
+            if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) { logErr("设置所有数据集的构件颜色需要包含透明度！"); return; }
+            var _alpha = alphaToU32_WA(elemClr.alpha);
+            var _moemory = (16).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, _clr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
         }
-    }
-
-
-    //多项目恢复构件集合颜色(永久)
-    //elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-    Module.REresetElemClr_projs = function (projName, objArr, elemScope) {
-        var _elemScope = 0; if (typeof elemScope != 'undefined') { _elemScope = elemScope; }
-        var clr = 0x000000ff;
-        var alpha = 0x0080ffff;
-        var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-        var _s = objArr.length;
-        if (projName == "") {
-            var _l = (16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_l); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            clrs.set([0, 0, alpha, clr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, clrs.byteOffset, _elemScope);
-        } else {
-            if (_s == 0) {  //如果构件ID集合为空，则默认为改变所有构件的信息
-                var _l = (16).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_l); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                clrs.set([0, projid, alpha, clr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(projName, "", 0xffffffff, clrs.byteOffset, _elemScope);
-            } else {
-                var _s01 = (_s * 16).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _s; ++i) {
-                    var eleid = objArr[i];
-                    clrs.set([eleid, projid, alpha, clr], i * 4);
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) { logErr("设置数据集内所有构件颜色需要包含透明度！"); return; }
+                var _alpha = alphaToU32_WA(elemClr.alpha);
+                var _moemory = (16).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, _clr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            }
+            else {
+                var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
+                var _moemory = (_count * 16).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    var _alpha;
+                    if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
+                        //单独设置颜色不改变透明度
+                        _alpha = alphaToU32_WA(_elemAttrInfo[i].elemClr.alpha);
+                    } else {
+                        _alpha = alphaToU32_WA(elemClr.alpha);
+                    }
+                    _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(projName, "", clrs.byteLength, clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
     }
 
-
-    //单独改变构件集合颜色信息，透明度保持不变
-    //elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-    Module.REsetElemClrData = function (objArr, newClr, newClrPercent, projName, elemScope) {
-        var _elemScope = 0; if (typeof elemScope != 'undefined') { _elemScope = elemScope; }
-        var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-        var clr = Module.REclrFix(newClr, newClrPercent);
-        var elemclrinfo = Module.REgetElemClr(projName, objArr);
-        var _s = objArr.length;
-        if (_s == 0) {  //如果构件ID集合为空，则默认为改变所有构件的信息
-            console.log("请输入有效的构件id")
-        } else {
-            var _s01 = (_s * 16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
-                var alpha = Module.REalphaFix(elemclrinfo[i].alpha, elemclrinfo[i].alphaWeight);
-                clrs.set([objArr[i], projid, alpha, clr], i * 4);
-            }
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos(projName, "", clrs.byteLength, clrs.byteOffset, _elemScope);
-        }
-    }
-
-
-
+    /**
+     * 获取当前构件设置的颜色
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     */
     Module.BIM.getElemClr = function (dataSetId, elemIdList) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
-        if (_count == 0) {
-            logErr("请输入有效的构件id");
-        } else {
-            var _moemory = (_count * 16).toString();
+        var _moemory = (_count * 16).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = elemIdList[i];
+            _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
+        }
+        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var elemAttrList = [];
+        for (var i = 0; i < clrinfoarr.length; i += 4) {
+            let elemAttrInfo = {};
+            elemAttrInfo.elemId = clrinfoarr[i];
+            let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
+            let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
+            let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
+            let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
+            elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
+            elemAttrList.push(elemAttrInfo);
+        }
+        return elemAttrList;
+    }
+
+    /**
+     * 单独改变构件集合透明度信息，颜色保持不变
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} elemAlpha //构件透明度，取值范围0~255
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, elemScope) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        var _alpha = alphaToU32_WA(elemAlpha);
+        var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
+
+        var _count = elemIdList.length;
+        var _moemory = (_count * 16).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
+            _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
+        }
+        Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+
+    }
+
+    /**
+     * 恢复构件的默认属性
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.resetElemAttr = function (dataSetId, elemIdList, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _clr = 0x000000ff;
+        var _alpha = 0x0080ffff;
+
+        if (dataSetId == "") {
+            //多数据集设置
+            var _moemory = (16).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, _clr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                var _moemory = (16).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, _clr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            }
+            else {
+                var _moemory = (_count * 16).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+            }
+        }
+    }
+
+    /**
+     * 设置构件混合属性
+     * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
+     */
+    Module.BIM.setElemBlendAttr = function (elemBlendAttr) {
+        if (isEmptyLog(elemBlendAttr, "elemBlendAttr")) return;
+        if (isEmptyLog(elemBlendAttr.dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemBlendAttr.elemClr, "elemClr")) return;
+
+        var _elemScope = 0; if (!isEmpty(elemBlendAttr.elemScope)) { _elemScope = elemBlendAttr.elemScope; }
+
+        var _clr = clrToU32_WBGR(elemBlendAttr.elemClr);
+        var _alpha = alphaToU32_WA(elemBlendAttr.elemClr.alpha);
+        var _pbr = convPBR(elemBlendAttr);
+
+        if (elemBlendAttr.dataSetId == "") {
+            //多数据集设置
+            var _moemory = (24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemBlendAttr.dataSetId);
+            var _count = elemBlendAttr.elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                var _moemory = (24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            }
+            else {
+                var _moemory = (_count * 24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _clrs.set([elemBlendAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+            }
+        }
+    }
+
+    /**
+     * 恢复构件的默认属性
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.resetElemBlendAttr = function (dataSetId, elemIdList, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _clr = 0x000000ff;
+        var _alpha = 0x0080ffff;
+        var _pbr = 0x00000000;
+
+        if (dataSetId == "") {
+            //多数据集设置
+            var _moemory = (24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);  //分配空间
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                var _moemory = (24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            }
+            else {
+                var _moemory = (_count * 24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+            }
+        }
+    }
+
+    /**
+     * 根据id判断一个构件是否被设为透明
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} elemId //构件id
+     */
+    Module.BIM.getElemHideState = function (dataSetId, elemId) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmptyLog(elemId, "elemId")) return;
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        Module.RealBIMWeb.ReAllocHeapViews("16"); //分配空间
+        _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+        _clrs.set([elemId, _projid, 0x00000000, 0x00000000], 0);
+        var retarray = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var alphainfo = retarray[2].toString(16);
+        var isusenewalpha = alphainfo.substring(6, 8);
+        var newalpha = alphainfo.substring(2, 4);
+        var newalphapercent = alphainfo.substring(0, 2);
+        var temp01 = parseInt(isusenewalpha, 16);
+        var temp02 = parseInt(newalpha, 16)
+        var temp03 = parseInt(newalphapercent, 16)
+        if (temp01 > 0 && temp02 == 0 && temp03 == 255) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
+    // MARK 选择集
+
+    /**
+     * 设置选择集的颜色、透明度、探测掩码（即是否可以被选中）
+     * @param {REColor} elemClr //构件颜色（REColor 类型）
+     * @param {Number} probeMask //探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
+     * @param {Boolean} attrValid //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
+     */
+    Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid) {
+        if (isEmptyLog(elemClr, "elemClr")) return;
+        var _attrvalid = true; if (!isEmpty(attrValid)) { _attrvalid = attrValid; }
+        var obj_attr = {
+            m_bAttrValid: _attrvalid,
+            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
+            m_vAlphaBlend: [(elemClr.alpha / 255), 1.0],
+            m_uProbeMask: probeMask
+        }
+        Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
+    }
+
+    /**
+     * 单独设置选择集的颜色
+     * @param {REColor} setSelElemsClr //构件颜色（REColor 类型）
+     */
+    Module.BIM.setSelElemsClr = function (elemClr) {
+        if (isEmptyLog(elemClr, "elemClr")) return;
+        var _curattr = Module.RealBIMWeb.GetSelElemsAttr();
+        var _attrvalid = _curattr.m_bAttrValid;
+        var _selAlpha = _curattr.m_vAlphaBlend;
+        var _selProbeMask = _curattr.m_uProbeMask
+        var obj_attr = {
+            m_bAttrValid: _attrvalid,
+            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
+            m_vAlphaBlend: _selAlpha,
+            m_uProbeMask: _selProbeMask
+        }
+        return Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
+    }
+
+    /**
+     * 单独设置选择集的透明度
+     * @param {Number} elemAlpha //构件透明度，取值范围0-255
+     */
+    Module.BIM.setSelElemsAlpha = function (elemAlpha) {
+        var _curattr = Module.RealBIMWeb.GetSelElemsAttr();
+        var _attrvalid = _curattr.m_bAttrValid;
+        var _selClr = _curattr.m_qClrBlend;
+        var _selProbeMask = _curattr.m_uProbeMask
+        var obj_attr = {
+            m_bAttrValid: _attrvalid,
+            m_qClrBlend: _selClr,
+            m_vAlphaBlend: [(elemAlpha / 255), 1.0],
+            m_uProbeMask: _selProbeMask
+        }
+        return Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
+    }
+
+    /**
+     *  获取当前选择集的属性信息
+     */
+    Module.BIM.getSelElemsAttr = function () {
+        var curattr = Module.RealBIMWeb.GetSelElemsAttr();
+        var tempselclr = curattr.m_qClrBlend;
+        var _clr_R = parseInt(tempselclr[0] * 255, 10);
+        var _clr_G = parseInt(tempselclr[1] * 255, 10);
+        var _clr_B = parseInt(tempselclr[2] * 255, 10);
+        var _clr_A = parseInt(tempselclr[3] * 255, 10);
+
+        var objAttr = {
+            elemClr: new REColor(_clr_R, _clr_G, _clr_B, _clr_A),
+            probeMask: curattr.m_uProbeMask / 255,
+            attrValid: curattr.m_bAttrValid,
+        }
+        return objAttr;
+    }
+
+    /**
+     *  重置选择集的属性信息为默认值
+     */
+    Module.BIM.resetSelElemsAttr = function () {
+        return Module.RealBIMWeb.SetSelElemsAttr({ m_bAttrValid: true, m_qClrBlend: [1, 0, 0, 0.8], m_vAlphaBlend: [0.29, 1], m_uProbeMask: 1 });
+    }
+
+    /**
+     *  获取当前选择集的构件ID集合
+     */
+    Module.BIM.getSelElemIDs = function () {
+        var tempselids = new Uint32Array(Module.RealBIMWeb.GetSelElemIDs());
+        var projidarr = [];
+        if (tempselids.length < 2) {
+            return [];
+        }
+        var curprojid = tempselids[1];
+        var curprojelemarr = [];
+        for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i + 1] == curprojid) {
+                curprojelemarr.push(tempselids[i]);
+            } else {
+                if (curprojelemarr.length > 0) {
+                    var curprojinfo = {};
+                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo["elemIdList"] = curprojelemarr;
+                    projidarr.push(curprojinfo);
+                    curprojelemarr = [];
+                }
+                curprojid = tempselids[i + 1];
+                curprojelemarr.push(tempselids[i]);
+            }
+        }
+        if (curprojelemarr.length > 0) {
+            var curprojinfo = {};
+            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo["elemIdList"] = curprojelemarr;
+            projidarr.push(curprojinfo);
+            curprojelemarr = [];
+        }
+        return projidarr;
+    }
+
+    /**
+     * 往当前选择集合添加构件
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     */
+    Module.BIM.addToSelElems = function (dataSetId, elemIdList) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        var _count = elemIdList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid, _projid], i * 2);
+        }
+        Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 从当前选择集合删除构件
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     */
+    Module.BIM.delFromSelElems = function (dataSetId, elemIdList) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        var _count = elemIdList.length;
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        if (_count == 0 || dataSetId == "") {
+            Module.RealBIMWeb.RemoveFromSelElemIDs(0xffffffff, 0); //删除全部构件
+        } else {
+            var _moemory = (_count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
             for (i = 0; i < _count; ++i) {
                 var eleid = elemIdList[i];
-                _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
+                _elemIds.set([eleid, _projid], i * 2);
             }
-            var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
-            var elemAttrList = [];
-            for (var i = 0; i < clrinfoarr.length; i += 4) {
-                let elemAttrInfo = {};
-                elemAttrInfo.elemId = clrinfoarr[i];
-                let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
-                let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
-                let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
-                let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
-                elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
-                elemAttrList.push(elemAttrInfo);
-            }
-            return elemAttrList;
+            Module.RealBIMWeb.RemoveFromSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         }
     }
 
-
-    //批量获取当前构件设置的颜色
-    Module.REgetElemClr = function (projName, objArr) {
-        var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-        var _s = objArr.length;
-        if (_s == 0) {
-            console.log("请输入有效的构件id");
-        } else {
-            var _s01 = (_s * 16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
-                var eleid = objArr[i];
-                clrs.set([eleid, projid, 0x00000000, 0x00000000], i * 4);
-            }
-            var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(projName, "", clrs.byteLength, clrs.byteOffset);
-            var elemclrinfoarr = [];
-            for (var i = 0; i < clrinfoarr.length; i += 4) {
-                var curelemclrinfo = {};
-                curelemclrinfo["id"] = clrinfoarr[i];
-                curelemclrinfo["alpha"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
-                curelemclrinfo["alphaWeight"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
-                curelemclrinfo["color"] = (clrinfoarr[i + 3]).toString(16).substring(6, 8) + (clrinfoarr[i + 3]).toString(16).substring(4, 6) + (clrinfoarr[i + 3]).toString(16).substring(2, 4);
-                curelemclrinfo["colorWeight"] = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
-                elemclrinfoarr.push(curelemclrinfo);
-            }
-            // console.log(elemclrinfoarr);
-            return elemclrinfoarr;
-        }
+    /**
+     * 清空选择集
+     */
+    Module.BIM.delAllSelElems = function () {
+        Module.RealBIMWeb.RemoveFromSelElemIDs(0xffffffff, 0);
     }
+
+    /**
+     * 获取当前场景的所有可见元素id
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} visibalOnly //是否去除当前设置透明度为0的构件id
+     */
+    Module.BIM.delFromSelElems = function (dataSetId, visibalOnly) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, "", visibalOnly));
+        var elemIds = [];
+        for (i = 0; i < tempelemids.length; i += 2) {
+            elemIds.push(tempelemids[i]);
+        }
+        return elemIds;
+    }
+
+
+
+    // MARK 动画与特效
+
+    /**
+     * 设置模型边缘高光属性
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} amp //表示边缘发光强度，范围（0~1），建议设为0.1~0.3左右即可
+     * @param {Number} range //表示边缘区域范围，（0~n），建议设为0.5~1左右即可
+     */
+    Module.BIM.setBorderEmis = function (dataSetId, amp, range) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        var emis = [amp, range];
+        return Module.RealBIMWeb.SetHugeObjBorderEmis(dataSetId, "", emis);
+    }
+
+    /**
+     * 获取模型边缘高光属性
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getBorderEmis = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetHugeObjBorderEmis(dataSetId, "");
+    }
+
+    /**
+     * 创建一个动态墙
+     * @param {REAnimWallInfo} animWallInfo //动态墙信息
+     */
+    Module.BIM.addAnimationWall = function (animWallInfo) {
+        if (isEmptyLog(animWallInfo, "animWallInfo")) return;
+        var temparr = new Module.RE_Vector_dvec4();
+        for (var i = 0; i < animWallInfo.potList.length; ++i) {
+            temparr.push_back(animWallInfo.potList[i]);
+        }
+        var _bClose = true; if (!isEmpty(animWallInfo.isClose)) { _bClose = animWallInfo.isClose; }
+        return Module.RealBIMWeb.AddAnimationWall(animWallInfo.groupName, animWallInfo.name, temparr, animWallInfo.texPath, animWallInfo.normalDir, _bClose);
+    }
+
+    /**
+     * 创建一个扫描面
+     * @param {REAnimPlaneInfo} animPlaneInfo //扫描面信息
+     */
+    Module.BIM.addAnimationPlane = function (animPlaneInfo) {
+        if (isEmptyLog(animPlaneInfo, "animPlaneInfo")) return;
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPlaneInfo.potList.length; ++i) {
+            temparr.push_back(animPlaneInfo.potList[i]);
+        }
+        return Module.RealBIMWeb.AddAnimationPlane(animPlaneInfo.groupName, animPlaneInfo.name, temparr, animPlaneInfo.texPath);
+    }
+
+    /**
+     * /创建一组半球体动画
+     * @param {REAnimSphereInfo} animSphereInfo //球体信息
+     */
+    Module.BIM.addAnimationSpheres = function (animSphereInfo) {
+        if (isEmptyLog(animSphereInfo, "animSphereInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animSphereInfo.nameList.length; ++i) { temparr0.push_back(animSphereInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animSphereInfo.potCenterList.length; ++i) { temparr.push_back(animSphereInfo.potCenterList[i]); }
+        var _isSphere = true; if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
+        return Module.RealBIMWeb.AddAnimationSpheres(animSphereInfo.groupName, temparr0, temparr, animSphereInfo.radius, _isSphere, animSphereInfo.texPath);
+    }
+
+    /**
+     * 创建一组规则平面多边形动画
+     * @param {REAnimPolygonInfo} animPolygonInfo //多边形信息
+     */
+    Module.BIM.addAnimationPolygons = function (animPolygonInfo) {
+        if (isEmptyLog(animPolygonInfo, "animPolygonInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animPolygonInfo.nameList.length; ++i) { temparr0.push_back(animPolygonInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPolygonInfo.potCenterList.length; ++i) { temparr.push_back(animPolygonInfo.potCenterList[i]); }
+        var _isRing = false; if (!isEmpty(animPolygonInfo.isRing)) _isRing = animPolygonInfo.isRing;
+        var _radarScan = false; if (!isEmpty(animPolygonInfo.radarScan)) _radarScan = animPolygonInfo.radarScan;
+        var _edgeNum = 3; if (!isEmpty(animPolygonInfo.edgeNum)) _edgeNum = animPolygonInfo.edgeNum;
+        return Module.RealBIMWeb.AddAnimationPolygons(animPolygonInfo.groupName, temparr0, temparr, animPolygonInfo.radius, animPolygonInfo.texPath, _radarScan, _isRing, _edgeNum);
+    }
+
+    /**
+     * 创建一组规则多边形动态墙
+     * @param {REAnimPolyWallInfo} animPolyWallInfo //多边形动态墙信息
+     */
+    Module.BIM.addAnimationPolygonWalls = function (animPolyWallInfo) {
+        if (isEmptyLog(animPolyWallInfo, "animPolyWallInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animPolyWallInfo.nameList.length; ++i) { temparr0.push_back(animPolyWallInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPolyWallInfo.potCenterList.length; ++i) { temparr.push_back(animPolyWallInfo.potCenterList[i]); }
+        var _isRing = false; if (!isEmpty(animPolyWallInfo.isRing)) _isRing = animPolyWallInfo.isRing;
+        var _radarScan = false; if (!isEmpty(animPolyWallInfo.radarScan)) _radarScan = animPolyWallInfo.radarScan;
+        var _edgeNum = 4; if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
+        var _height = 0; if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
+        return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
+    }
+
+    /**
+     * 按组名称设置矢量动画的参数
+     * @param {String} groupName //矢量动画组名称，此参数不能为空
+     * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
+     * @param {REColor} animClr //期望的矢量动画颜色（REColor 类型）
+     * @param {dvec4} scaleAndOffset //动画速度及方向，正负控制方向，数值控制速度,[]
+     */
+    Module.BIM.setShapeAnimStyle = function (groupName, nameList, animClr, scaleAndOffset) {
+        if (isEmptyLog(groupName, "groupName")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
+        var tempClr = clrToU32(animClr);
+        return Module.RealBIMWeb.SetShapeAnimStyle(groupName, temparr0, tempClr, scaleAndOffset);
+    }
+
+    /**
+     * 删除矢量动画
+     * @param {String} groupName //矢量动画组名称，此参数不能为空
+     * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则删除该组下所有的矢量动画信息；
+     */
+    Module.BIM.delShpAnimation = function (groupName, nameList) {
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
+        return Module.RealBIMWeb.DelShpAnimation(groupName, temparr0);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2312,6 +2892,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} alpha 
      */
     function alphaToU32_WA(alpha) {
+        if (isEmpty(alpha)) return 0xFFFFFFFF;
         var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
         var clrHEX_W = (255).toString(16);
         var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + "ffff";
@@ -2333,6 +2914,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _clrHEX = _r.toString(16) + _g.toString(16) + _b.toString(16);
 
         return _clrHEX;
+    }
+
+    /**
+     * 发光和PBR转换工具函数
+     * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
+     */
+    function convPBR(elemBlendAttr) {
+        var intemis = (isEmpty(elemBlendAttr.elemEmis)) ? 0 : Math.round(elemBlendAttr.elemEmis);
+        var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 255 : Math.round(elemBlendAttr.elemEmisPercent);
+        var intsmoothtemp = (isEmpty(elemBlendAttr.elemSmooth)) ? 0 : Math.round(elemBlendAttr.elemSmooth);
+        var intmetaltemp = (isEmpty(elemBlendAttr.elemMetal)) ? 0 : Math.round(elemBlendAttr.elemMetal);
+        var intsmmeratio = (isEmpty(elemBlendAttr.elemSmmePercent)) ? 0 : Math.round(elemBlendAttr.elemSmmePercent);
+        var intsmooth = Math.round(intsmoothtemp / 255 * 63);
+        var intmetal = Math.round(intmetaltemp / 255 * 3);
+        var pbrtemp = intemis + intemisratio * 256 + intsmooth * 65536 + intmetal * 4194304 + intsmmeratio * 268435456;
+        var pbr = Math.round(pbrtemp);
+        return pbr;
     }
 
     /**
