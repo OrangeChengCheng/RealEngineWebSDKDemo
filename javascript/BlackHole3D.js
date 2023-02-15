@@ -248,6 +248,205 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetHugeModelBorderEmisEnable();
     }
 
+    /**
+     * 设置阴影开关状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Common.setShadowState = function (enable) {
+        var sinfo = Module.RealBIMWeb.GetSceShadowInfo();
+        sinfo.m_bShadowEnable = enable;
+        Module.RealBIMWeb.SetSceShadowInfo(sinfo);
+    }
+
+    /**
+     * 获取当前阴影开关状态
+     */
+    Module.Common.getShadowState = function () {
+        var shadowinfo = Module.RealBIMWeb.GetSceShadowInfo();
+        return shadowinfo.m_bShadowEnable;
+    }
+
+    /**
+     * 设置场景光晕开关状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Common.setGhostState = function (enable) {
+        var sinfo = Module.RealBIMWeb.GetSceLightInfo();
+        if (enable) { sinfo.m_fGhostAmp = 0.5; } else { sinfo.m_fGhostAmp = 0; }
+        Module.RealBIMWeb.SetSceLightInfo(sinfo);
+    }
+
+    /**
+     * 获取当前场景光晕开关状态
+     */
+    Module.Common.getGhostState = function () {
+        var ghostinfo = Module.RealBIMWeb.GetSceLightInfo();
+        var _info = (ghostinfo.m_fGhostAmp == 0) ? 0 : 1;
+        return _info;
+    }
+
+    /**
+     * 设置场景环境遮蔽开关状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Common.setAOState = function (enable) {
+        var _info = Module.RealBIMWeb.GetSceAOInfo();
+        if (enable) { _info.m_fMinLum = 0.1; } else { _info.m_fMinLum = 1.0; }
+        Module.RealBIMWeb.SetSceAOInfo(_info);
+    }
+
+    /**
+     * 获取当前场景环境遮蔽开关状态
+     */
+    Module.Common.getAOState = function () {
+        var _info = Module.RealBIMWeb.GetSceAOInfo();
+        return (_info.m_fMinLum < 0.999) ? true : false;
+    }
+
+    /**
+     * 设置场景实时反射开关状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Common.setReflState = function (enable) {
+        var _info = Module.RealBIMWeb.GetSceReflInfo();
+        if (enable) { _info.m_uQuality = 1; } else { _info.m_uQuality = 0; }
+        Module.RealBIMWeb.SetSceReflInfo(_info);
+    }
+
+    /**
+     * 获取当前场景实时反射开关状态
+     */
+    Module.Common.getReflState = function () {
+        var _info = Module.RealBIMWeb.GetSceReflInfo();
+        return (_info.m_uQuality > 0) ? true : false;
+    }
+
+    /**
+     * 设置场景OIT渲染等级
+     * @param {Boolean} level //等级(0->关闭OIT；1->UI开启；2->场景矢量开启1；3->模型开启；4->场景矢量开启2)
+     */
+    Module.Common.setSceOITLev = function (level) {
+        Module.RealBIMWeb.SetSceOITLev(level);
+    }
+
+    /**
+     * 获取场景OIT渲染等级
+     */
+    Module.Common.getSceOITLev = function () {
+        return Module.RealBIMWeb.GetSceOITLev();
+    }
+
+
+
+
+
+
+
+
+
+    // MARK 字体
+
+    class REFontInfo {
+        constructor() {
+            this.fontId = null;//自定义的全局字体的id，不可重复
+            this.fontType = null;//字体的逻辑类型名,系统目前支持的类型名为："宋体","微软雅黑"
+            this.texAtlasName = null;//文字使用的纹理拼接器标识名
+            this.width = null;//字体的宽
+            this.height = null;//字体的高
+            this.weight = null;//字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
+            this.weightAmp = null;//文字采用粗体显示时的粗细权重，单位为1/64逻辑像素，==0：原始宽度，<0：文字变细，>0：文字变粗
+            this.italicRatio = null;//表示文字采用斜体显示时的倾斜角的正切，==0：无倾斜，>0：值越大倾斜度越强
+            this.silhouetteAmp = null;//文字的轮廓强度，单位为1/64逻辑像素，==0：没有轮廓，<0：生成尖锐边界的轮廓，>0：生成圆滑边界的轮廓
+            this.antialiased = null;//文字是否启用抗锯齿显示
+        }
+    }
+    ExtModule.REFontInfo = REFontInfo;
+
+    /**
+     * 增加一种全局字体
+     * @param {REFontInfo} fontInfo //字体信息
+     */
+    Module.Common.addGolFont = function (fontInfo) {
+        if (isEmptyLog(fontInfo, 'fontInfo')) return;
+        if (isEmptyLog(fontInfo.fontId, 'fontId')) return;
+
+        var _fontinfo = {
+            m_bAntialiased: false,
+            m_fItalicRatio: 0,
+            m_sSilhouetteAmp: -64,
+            m_sWeightAmp: fontInfo.weight * 64,
+            m_uHeight: fontInfo.height,
+            m_uWidth: fontInfo.width,
+            m_strFontType: "宋体",
+            m_strGolFontID: fontInfo.fontId.toString(),
+            m_strTexAtlasName: ""
+        };
+        return Module.RealBIMWeb.AddAGolFont(_fontinfo);
+    }
+
+    /**
+     * 获取一种全局字体信息
+     * @param {String} fontId //字体id
+     */
+    Module.Common.getGolFont = function (fontId) {
+        if (isEmptyLog(fontId, 'fontId')) return;
+        var _golfontInfo = Module.RealBIMWeb.GetAGolFont(fontId.toString());
+        var fontInfo = new REFontInfo();
+        fontInfo.fontId = _golfontInfo.m_strGolFontID;
+        fontInfo.fontType = _golfontInfo.m_strFontType;
+        fontInfo.texAtlasName = _golfontInfo.m_strTexAtlasName;
+        fontInfo.width = _golfontInfo.m_uWidth;
+        fontInfo.height = _golfontInfo.m_uHeight;
+        fontInfo.weight = _golfontInfo.m_sWeightAmp / 64;
+        fontInfo.weightAmp = _golfontInfo.m_sWeightAmp;
+        fontInfo.italicRatio = _golfontInfo.m_fItalicRatio;
+        fontInfo.silhouetteAmp = _golfontInfo.m_sSilhouetteAmp;
+        fontInfo.antialiased = _golfontInfo.m_bAntialiased;
+        return fontInfo;
+    }
+
+    /**
+     * 删除一种全局字体
+     * @param {String} fontId //字体id
+     */
+    Module.Common.delGolFont = function (fontId) {
+        if (isEmptyLog(fontId, 'fontId')) return;
+        return Module.RealBIMWeb.DelAGolFont(fontId.toString());
+    }
+
+    /**
+     * 获取全局字体数量
+     */
+    Module.Common.getGolFontNum = function () {
+        return Module.RealBIMWeb.GetGolFontNum();
+    }
+
+    /**
+     * 获取全部全局字体信息
+     */
+    Module.Common.getAllGolFont = function () {
+        var _fontList = Module.RealBIMWeb.GetAllGolFonts();
+        var fontInfoList = [];
+        for (let i = 0; i < _fontList.size(); i++) {
+            let _fontInfo = _fontList.get(i);
+            let fontInfo = new REFontInfo();
+            fontInfo.fontId = _fontInfo.m_strGolFontID;
+            fontInfo.fontType = _fontInfo.m_strFontType;
+            fontInfo.texAtlasName = _fontInfo.m_strTexAtlasName;
+            fontInfo.width = _fontInfo.m_uWidth;
+            fontInfo.height = _fontInfo.m_uHeight;
+            fontInfo.weight = _fontInfo.m_sWeightAmp / 64;
+            fontInfo.weightAmp = _fontInfo.m_sWeightAmp;
+            fontInfo.italicRatio = _fontInfo.m_fItalicRatio;
+            fontInfo.silhouetteAmp = _fontInfo.m_sSilhouetteAmp;
+            fontInfo.antialiased = _fontInfo.m_bAntialiased;
+            fontInfoList.push(fontInfo);
+        }
+        return fontInfoList;
+    }
+
+
+
 
 
 
@@ -450,6 +649,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth);
+    }
+
+    /**
+     * 调整相机定位到数据集
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
+     */
+    Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth) {
+        var _projname = ""; if (!isEmpty(dataSetId)) { _projname = dataSetId; }
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth);
     }
 
     /**
@@ -741,6 +950,226 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+
+    // MOD-- 坐标（Coordinate）
+    Module.Coordinate = typeof Module.Coordinate !== "undefined" ? Module.Coordinate : {};//增加 Coordinate 模块
+
+    class RELocInfo {
+        constructor() {
+            this.scale = null;//缩放
+            this.rotate = null;//旋转
+            this.offset = null;//平移
+        }
+    }
+    ExtModule.RELocInfo = RELocInfo;
+
+    /**
+     * 增加一套地理信息坐标系
+     * @param {String} name //坐标系的显示名称
+     * @param {String} displayCRS //显示的坐标值的坐标参考系描述字符串
+     */
+    Module.Coordinate.addGeoCoord = function (name, displayCRS) {
+        return Module.RealBIMWeb.AddGeoCoord(name, displayCRS);
+    }
+
+    /**
+     * 增加一套自定义坐标系
+     * @param {String} name //坐标系的显示名称
+     * @param {Array} refPotList //表示引擎世界空间的4个标记点
+     * @param {Array} targetPotList //表示与引擎世界空间4个标记点一一对应的自定义坐标系中的4个点
+     */
+    Module.Coordinate.addCustomCoord = function (name, refPotList, targetPotList) {
+        if (isEmptyLog(name, "name")) return;
+        if (isEmptyLog(refPotList, "refPotList")) return;
+        if (isEmptyLog(targetPotList, "targetPotList")) return;
+        var ref01 = refPotList[0]; var ref02 = refPotList[1]; var ref03 = refPotList[2]; var ref04 = refPotList[3];
+        var target01 = targetPotList[0]; var target02 = targetPotList[1]; var target03 = targetPotList[2]; var target04 = targetPotList[3];
+        return Module.RealBIMWeb.AddCustomCoord(name, ref01, ref02, ref03, ref04, target01, target02, target03, target04);
+    }
+
+    /**
+     * 删除一套地理信息坐标
+     * @param {String} name //坐标系的显示名称
+     */
+    Module.Coordinate.delGeoCoord = function (name) {
+        return Module.RealBIMWeb.DelGeoCoordInfo(name);
+    }
+
+    /**
+     * 设置某个项目的整体坐标偏移
+     * @param {String} dataSetId //数据集标识
+     * @param {RELocInfo} locInfo //表示偏移信息（RELocInfo 类型）
+     */
+    Module.Coordinate.setDataSetTransform = function (dataSetId, locInfo) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(locInfo, "locInfo")) return;
+
+        var _scale = [1, 1, 1]; if (!isEmpty(locInfo.scale)) _scale = locInfo.scale;
+        var _rotate = [0, 0, 0, 1]; if (!isEmpty(locInfo.rotate)) _rotate = locInfo.rotate;
+        var _offset = [0, 0, 0,]; if (!isEmpty(locInfo.offset)) _offset = locInfo.offset;
+        var _transinfo = {
+            m_vScale: _scale, m_qRotate: _rotate, m_vOffset: _offset
+        }
+        return Module.RealBIMWeb.SetMainSceTransform(dataSetId, _transinfo);
+    }
+
+    /**
+     * 获取某个项目的整体坐标偏移信息
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Coordinate.getDataSetTransform = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        var _tranform = Module.RealBIMWeb.GetMainSceTransform(dataSetId);
+        var locInfo = new RELocInfo();
+        locInfo.scale = _tranform.m_vScale;
+        locInfo.rotate = _tranform.m_qRotate;
+        locInfo.offset = _tranform.m_vOffset;
+        return locInfo;
+    }
+
+    /**
+     * 设置引擎世界空间对应的坐标参考系信息
+     * @param {String} worldCRS //表示引擎世界空间对应的坐标参考系描述符(标准PROJ坐标系字符串)，为空串表示无特殊地理信息坐标系
+     */
+    Module.Coordinate.setEngineWorldCRS = function (worldCRS) {
+        return Module.RealBIMWeb.SetEngineWorldCRS(worldCRS);
+    }
+
+    /**
+     * 获取引擎世界空间坐标系描述符
+     */
+    Module.Coordinate.getEngineWorldCRS = function () {
+        var _info = Module.RealBIMWeb.GetEngineWorldCRS();
+        return { worldCRS: _info.m_strCRS, scaleCRS: _info.m_vCRSScale }
+    }
+
+    /**
+     * 在引擎世界空间坐标与目标地理信息坐标间进行转换
+     * @param {Boolean} forward //转换顺序：true->由引擎世界空间坐标转换到目标地理信息坐标；false->由目标地理信息坐标转换到引擎世界空间坐标
+     * @param {String} destCRS //表示目标坐标系描述符，当引擎坐标系描述符和目标坐标系描述符均为空时则坐标无需转换成功返回，否则任一描述符为空将导致转换失败
+     * @param {Array} coordList //输入待转换的坐标数组
+     */
+    Module.Coordinate.getTransEngineCoords = function (forward, destCRS, coordList) {
+        var _s = coordList.length; var _s01 = (_s * 24).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01); var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
+        for (i = 0; i < _s; ++i) {
+            temparr1[i * 3 + 0] = coordList[i][0]; temparr1[i * 3 + 1] = coordList[i][1]; temparr1[i * 3 + 2] = coordList[i][2];
+        }
+        var temparr2 = [];
+        if (Module.RealBIMWeb.TransEngineCoords(forward, destCRS, temparr1.byteLength, temparr1.byteOffset)) {
+            for (i = 0; i < _s; ++i) {
+                temparr2.push([temparr1[i * 3 + 0], temparr1[i * 3 + 1], temparr1[i * 3 + 2]]);
+            }
+        }
+        return temparr2;
+    }
+
+    /**
+     * 进行任意两个标准地理信息坐标转换
+     * @param {String} srcCRS //表示源坐标系描述符
+     * @param {String} destCRS //表示目标坐标系描述符
+     * @param {Array} coordList //输入待转换的坐标数组
+     */
+    Module.Coordinate.getTransGeoCoords = function (srcCRS, destCRS, coordList) {
+        var _s = coordList.length; var _s01 = (_s * 32).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01); var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
+        for (i = 0; i < _s; ++i) {
+            temparr1[i * 4 + 0] = coordList[i][0]; temparr1[i * 4 + 1] = coordList[i][1]; temparr1[i * 4 + 2] = coordList[i][2]; temparr1[i * 4 + 3] = coordList[i][3];
+        }
+        var temparr2 = [];
+        if (Module.RealBIMWeb.TransGeoCoords(srcCRS, destCRS, temparr1.byteLength, temparr1.byteOffset)) {
+            for (i = 0; i < _s; ++i) {
+                temparr2.push([temparr1[i * 4 + 0], temparr1[i * 4 + 1], temparr1[i * 4 + 2], temparr1[i * 4 + 3]]);
+            }
+        }
+        return temparr2;
+    }
+
+    /**
+     * 由世界空间坐标转换到屏幕空间坐标
+     * @param {Array} worldPos //表示世界空间坐标
+     * @param {Number} scaleDist //表示与worldPos关联的某对象在世界空间中的最小缩放距离
+     */
+    Module.Coordinate.getWorldPosToScreenPos = function (worldPos, scaleDist) {
+        var _dScaleDist = 1e20; if (!isEmpty(scaleDist)) _dScaleDist = scaleDist;
+        return Module.RealBIMWeb.WorldPosToScreenPos(worldPos, _dScaleDist);
+    }
+
+    /**
+     * 获取元素集合的总包围盒信息
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.Coordinate.getElemTotalBV = function (dataSetId, elemIdList, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _bvTemp;
+        if (dataSetId == "") {
+            //多数据集设置
+            _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("", "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+            }
+            else {
+                var _temparr = [];
+                for (var i = 0; i < _count; ++i) {
+                    _temparr.push(elemIdList[i]);
+                    _temparr.push(_projid);
+                }
+                var _selids = new Uint32Array(_temparr);
+                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());
+                var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
+                _tempids.set(_selids, 0);
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, _elemScope);
+            }
+        }
+        var aabbList = [];
+        aabbList.push(_bvTemp[0][0]);  //Xmin
+        aabbList.push(_bvTemp[1][0]);  //Xmax
+        aabbList.push(_bvTemp[0][1]);  //Ymin
+        aabbList.push(_bvTemp[1][1]);  //Ymax
+        aabbList.push(_bvTemp[0][2]);  //Zmin
+        aabbList.push(_bvTemp[1][2]);  //Zmax
+        return aabbList;
+    }
+
+    /**
+     * 获取模型的包围盒信息
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Coordinate.getTotalBV = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        var _tempbv = Module.RealBIMWeb.GetHugeObjBoundingBox(dataSetId, "");
+        var aabbList = [];
+        aabbList.push(_tempbv[0][0]); aabbList.push(_tempbv[1][0]);  //Xmin、Xmax
+        aabbList.push(_tempbv[0][1]); aabbList.push(_tempbv[1][1]);  //Ymin、Ymax
+        aabbList.push(_tempbv[0][2]); aabbList.push(_tempbv[1][2]);  //Zmin、Zmax
+        return aabbList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // MOD-- 鼠标探测（Probe）
     Module.Probe = typeof Module.Probe !== "undefined" ? Module.Probe : {};//增加 Probe 模块
 
@@ -951,9 +1380,381 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RE_SYSWnd_Mate} uiType //控件类型（RE_SYSWnd_Mate 类型）
      */
     Module.Graphics.getSysUIWgtVisible = function (uiType) {
-        if (!checkNull(uiType, 'uiType')) return;
+        if (isEmptyLog(uiType, 'uiType')) return;
         return Module.RealBIMWeb.UIWgtGetVisible(uiType);
     }
+
+
+
+
+    // MOD-- 标签（Tag）
+    Module.Tag = typeof Module.Tag !== "undefined" ? Module.Tag : {};//增加 Tag 模块
+
+    class RETagInfo {
+        constructor() {
+            this.tagName = null;//标签的名称(唯一标识)
+            this.pos = null;//标签的位置
+            this.infoList = null;//标签的内容（包含 Object 类型）{picPath:"",text:""}
+        }
+    }
+    ExtModule.RETagInfo = RETagInfo;
+
+    class RELineTagInfo {
+        constructor() {
+            this.tagName = null;//标签的名称(唯一标识)
+            this.pos = null;//标签的位置
+            this.contents = null;//标签的内容（包含 RELineTagCont 类型）
+            this.tagMinWidth = null;//表示要添加的标签最小宽度
+            this.tagMinHeight = null;//表示要添加的标签最小高度
+            this.fontName = null;//表示要添加的标签内容字体样式
+            this.backClr = null;//表示要添加的标签背景颜色（REColor 类型）
+            this.frameClr = null;//表示要添加的标签边框颜色（REColor 类型）
+        }
+    }
+    ExtModule.RELineTagInfo = RELineTagInfo;
+
+    class RELineTagCont {
+        constructor() {
+            this.type = null;//元素类型，"text":文字，"tex":图片
+            this.width = null;//元素宽度
+            this.height = null;//元素高度
+            this.border = null;//元素边框大小
+            this.elemClr = null;//元素颜色（REColor 类型）type="text"代表文字颜色，type="tex"代表图片纹理颜色
+            this.text = null;//文字内容，只有在 type="text"时才生效
+            this.picPath = null;//图片路径，只有在 type="tex"时才生效
+        }
+    }
+    ExtModule.RELineTagCont = RELineTagCont;
+
+
+    /**
+     * 添加标签
+     * @param {Array} tagInfoList //标签信息集合（RETagInfo 类型）
+     */
+    Module.Tag.addTags = function (tagInfoList) {
+        if (isEmptyLog(tagInfoList, 'tagInfoList')) return;
+        var _temptags = new Module.RE_Vector_TAG();
+        for (let j = 0; j < tagInfoList.length; ++j) {
+            let _tagInfo = tagInfoList[j];
+            let _texRegions = new Module.RE_Vector_SHP_TEX();
+            let _textRegions = new Module.RE_Vector_SHP_TEXT();
+            let _lineCount = _tagInfo.infoList.length;
+            let _lineHeight = 26; let _lineSpace = 3;
+            for (let i = 0; i < _lineCount; ++i) {
+                _texRegions.push_back({
+                    m_strTexPath: _tagInfo.infoList[i].picPath,
+                    m_qTexRect: [-50, _lineHeight * (_lineCount - i - 1) + _lineSpace, -30, _lineHeight * (_lineCount - i) - _lineSpace],
+                    m_uTexClrMult: 0xffffffff,
+                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
+                    m_uFrameNumU: 1, m_uFrameNumV: 1,
+                    m_uFrameStrideU: 0, m_uFrameStrideV: 0,
+                    m_fFrameFreq: 0.0,
+                })  //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
+            }
+            for (let i = 0; i < _lineCount; ++i) {
+                _textRegions.push_back({
+                    m_strGolFontID: "RealBIMFont001",
+                    m_bTextWeight: false,
+                    m_strText: _tagInfo.infoList[i].text,
+                    m_uTextClr: 0xffffffff,
+                    m_uTextBorderClr: 0x80000000,
+                    m_qTextRect: [0, _lineHeight * (_lineCount - i - 1) + _lineSpace, 30, _lineHeight * (_lineCount - i) - _lineSpace],
+                    m_uTextFmtFlag: ((1 << 1)/*TEXT_FMT_VCENTER*/ | (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 6)/*TEXT_FMT_NOCLIP*/),
+                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
+                });
+            }
+            let _tempobj = {
+                m_strName: _tagInfo.tagName,
+                m_vPos: _tagInfo.pos,
+                m_vBgMinSize: [150, 10],
+                m_vBgPadding: [5, 5],
+                m_uBgAlignX: 1, m_uBgAlignY: 1,
+                m_vArrowOrigin: [0, 10],
+                m_uBgColor: 0x80000000,
+                m_arrTexContents: _texRegions,
+                m_arrTextContents: _textRegions,
+            };
+            _temptags.push_back(_tempobj);
+        }
+        return Module.RealBIMWeb.AddTags(_temptags);
+    }
+
+    /**
+     * 添加行标签
+     * @param {RELineTagInfo} lineTagInfo //行标签信息（RELineTagInfo 类型）
+     */
+    Module.Tag.addLineTags = function (lineTagInfo) {
+        if (isEmptyLog(lineTagInfo, 'lineTagInfo')) return;
+        if (isEmptyLog(lineTagInfo.contents, 'contents')) return;
+
+        var _tagList = new Module.RE_Vector_TAG();
+        var _texRegions = new Module.RE_Vector_SHP_TEX();
+        var _textRegions = new Module.RE_Vector_SHP_TEXT();
+
+        var _cur_x = 0;//当前计算x
+        var _cur_y = 0;//当前计算y
+        var _max_y = lineTagInfo.tagMinHeight / 2;//当前最大y
+        var _backClr = 0x00000000; if (!isEmpty(lineTagInfo.backClr)) _backClr = clrToU32(lineTagInfo.backClr);
+        var _frameClr = 0x00000000; if (!isEmpty(lineTagInfo.frameClr)) _frameClr = clrToU32(lineTagInfo.frameClr);
+        var _fontName = "RealBIMFont001"; if (!isEmpty(lineTagInfo.fontName) && lineTagInfo.fontName != "") _fontName = lineTagInfo.fontName;
+
+        for (let i = 0; i < lineTagInfo.contents.length; i++) {
+            let _lineTagCont = lineTagInfo.contents[i];
+            let _elemType = "tex"; if (!isEmpty(_lineTagCont.type)) _elemType = _lineTagCont.type;
+            let _elemText = ""; if (!isEmpty(_lineTagCont.text) && _elemType != "tex") _elemText = _lineTagCont.text;
+            let _elemPicPath = ""; if (!isEmpty(_lineTagCont.picPath) && _elemType != "text") _elemPicPath = _lineTagCont.picPath;
+            let _elemWidth = 1; if (!isEmpty(_lineTagCont.width)) _elemWidth = _lineTagCont.width;
+            let _elemHeight = 1; if (!isEmpty(_lineTagCont.height)) _elemHeight = _lineTagCont.height;
+            let _elemBorder = 1; if (!isEmpty(_lineTagCont.border)) _elemBorder = _lineTagCont.border;
+            let _elemClr = 0xffffffff;
+            if (!isEmpty(_lineTagCont.elemClr)) {
+                if (_elemType == "text") {
+                    _elemClr = clrToU32(_lineTagCont.elemClr);
+                } else {
+                    let _clrT = deepClone(_lineTagCont.elemClr); _clrT.alpha = 0;
+                    _elemClr = clrToU32(_clrT);
+                }
+
+            }
+            if (_elemType == "tex") {
+                _texRegions.push_back({
+                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
+                    m_uFrameNumU: 1, m_uFrameNumV: 1,
+                    m_uFrameStrideU: 0, m_uFrameStrideV: 0,
+                    m_fFrameFreq: 0.0,
+                    m_strTexPath: _elemPicPath,
+                    m_qTexRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 - 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 - 1],
+                    m_uTexClrMult: _elemClr,
+                });
+            } else {
+                _textRegions.push_back({
+                    m_strGolFontID: _fontName,
+                    m_bTextWeight: false,
+                    m_uTextClr: _elemClr,
+                    m_uTextBorderClr: 0x00000000,
+                    m_strText: _elemText,
+                    m_qTextRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 + 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 + 1],
+                    m_uTextFmtFlag: (0x2/*TEXT_FMT_VCENTER*/ | 0x10/*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100/*TEXT_FMT_WORDBREAK*/),
+                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
+                });
+            }
+            _cur_x += _elemWidth + _elemBorder * 2;
+            if (_max_y < _elemHeight / 2) { _max_y = _elemHeight / 2; }
+        }
+
+        var _frameRange_xMin = 0; var _frameRange_xMax = _cur_x;
+        if (_cur_x < lineTagInfo.tagMinWidth) {
+            _frameRange_xMin -= (lineTagInfo.tagMinWidth - _cur_x) / 2; _frameRange_xMax += (lineTagInfo.tagMinWidth - _cur_x) / 2;
+        }
+        var _frameLine = {
+            m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
+            m_uFrameNumU: 1, m_uFrameNumV: 1,
+            m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
+            m_strTexPath: "",
+            m_qTexRect: [0, 0, 0, 0],
+            m_uTexClrMult: _frameClr,
+        };
+        //边框
+        var _frameLineWidth = 2; var _frameGap = 6;
+        //边框-上
+        _frameLine["m_qTexRect"] = [
+            _frameRange_xMin - _frameGap, _max_y + _frameGap,
+            _frameRange_xMax + _frameGap, _max_y + _frameGap + _frameLineWidth
+        ]; _texRegions.push_back(_frameLine);
+        //边框-下
+        _frameLine["m_qTexRect"] = [
+            _frameRange_xMin - _frameGap, -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMax + _frameGap, -_max_y - _frameGap
+        ]; _texRegions.push_back(_frameLine);
+        //边框-左
+        _frameLine["m_qTexRect"] = [
+            _frameRange_xMin - _frameGap, -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMin - _frameGap + _frameLineWidth, _max_y + _frameGap + _frameLineWidth
+        ]; _texRegions.push_back(_frameLine);
+        //边框-右
+        _frameLine["m_qTexRect"] = [
+            _frameRange_xMax + _frameGap - _frameLineWidth, -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMax + _frameGap, _max_y + _frameGap + _frameLineWidth
+        ]; _texRegions.push_back(_frameLine);
+
+        var _tempObj = {
+            m_strName: lineTagInfo.tagName,
+            m_vPos: lineTagInfo.pos,
+            m_vBgMinSize: [lineTagInfo.tagMinWidth, lineTagInfo.tagMinHeight],
+            m_vBgPadding: [3, 3],
+            m_uBgAlignX: 1, m_uBgAlignY: 1,
+            m_vArrowOrigin: [-5, 20],
+            m_uBgColor: _backClr,
+            m_arrTexContents: _texRegions,
+            m_arrTextContents: _textRegions,
+        };
+        _tagList.push_back(_tempObj);
+        return Module.RealBIMWeb.AddTags(_tagList);
+    }
+
+    // 添加复杂标签样式3
+    Module.REaddLineTag = function (tagName, pos, tagMinWidth, tagMinHeight, contents, contentfont, backClr, frameClr) {
+        temptags = new Module.RE_Vector_TAG();
+        temptexregions = new Module.RE_Vector_SHP_TEX();
+        temptextregions = new Module.RE_Vector_SHP_TEXT();
+        var cur_x = 0; var cur_y = 0; var max_y = tagMinHeight / 2;
+        var _backClr = 0x00000000; var _frameClr = 0x00000000;
+        var _contentfont = ((contentfont == "") ? "RealBIMFont001" : contentfont);
+        for (i = 0; i < contents.length; ++i) {
+            var _elemtype = "tex"; var _elemwidth = 1; var _elemheight = 1; var _border = 1; var _elemclr = 0xffffffff; var _elemclrinfo = 'ffffff';
+            var _eleminfo = ""; var cur = contents[i];
+            if (typeof cur.type != 'undefined') { _elemtype = cur.type; }
+            if (typeof cur.width != 'undefined') { _elemwidth = cur.width; }
+            if (typeof cur.height != 'undefined') { _elemheight = cur.height; }
+            if (typeof cur.border != 'undefined') { _border = cur.border; }
+            if (typeof cur.color != 'undefined') { _elemclrinfo = cur.color; }
+            if (typeof cur.info != 'undefined') { _eleminfo = cur.info; }
+            if (_eleminfo == "") {
+                _elemclr = Module.REclrFix(_elemclrinfo, 0)
+            } else {
+                _elemclr = Module.REclrFix(_elemclrinfo, 255)
+            }
+            if (_elemtype == "tex") {
+                temptexregions.push_back({
+                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0], m_uFrameNumU: 1, m_uFrameNumV: 1, m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
+                    m_strTexPath: _eleminfo, m_qTexRect: [cur_x + _border, cur_y - _elemheight / 2 - 1, cur_x + _border + _elemwidth, cur_y + _elemheight / 2 - 1], m_uTexClrMult: _elemclr,
+                });
+            } else {
+                temptextregions.push_back({
+                    m_strGolFontID: _contentfont, m_bTextWeight: false, m_uTextClr: _elemclr, m_uTextBorderClr: 0x00000000,
+                    m_strText: _eleminfo,
+                    m_qTextRect: [cur_x + _border, cur_y - _elemheight / 2 + 1, cur_x + _border + _elemwidth, cur_y + _elemheight / 2 + 1],
+                    m_uTextFmtFlag: (0x2/*TEXT_FMT_VCENTER*/ | 0x10/*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100/*TEXT_FMT_WORDBREAK*/),
+                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
+                });
+            }
+            cur_x += _elemwidth + _border * 2;
+            if (max_y < _elemheight / 2) { max_y = _elemheight / 2; }
+        }
+
+        var framerange_xmin = 0; var framerange_xmax = cur_x;
+        if (cur_x < tagMinWidth) {
+            framerange_xmin -= (tagMinWidth - cur_x) / 2; framerange_xmax += (tagMinWidth - cur_x) / 2;
+        }
+        _frameClr = Module.REclrFix(frameClr[0], frameClr[1])
+        frameline = {
+            m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0], m_uFrameNumU: 1, m_uFrameNumV: 1, m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
+            m_strTexPath: "", m_qTexRect: [0, 0, 0, 0], m_uTexClrMult: _frameClr,
+        };
+        var framelinewidth = 2; var framegap = 6;
+        frameline["m_qTexRect"] = [framerange_xmin - framegap, max_y + framegap, framerange_xmax + framegap, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
+        frameline["m_qTexRect"] = [framerange_xmin - framegap, -max_y - framegap - framelinewidth, framerange_xmax + framegap, -max_y - framegap]; temptexregions.push_back(frameline);
+        frameline["m_qTexRect"] = [framerange_xmin - framegap, -max_y - framegap - framelinewidth, framerange_xmin - framegap + framelinewidth, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
+        frameline["m_qTexRect"] = [framerange_xmax + framegap - framelinewidth, -max_y - framegap - framelinewidth, framerange_xmax + framegap, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
+
+        _backClr = Module.REclrFix(backClr[0], backClr[1])
+        tempobj = {
+            m_strName: tagName, m_vPos: pos,
+            m_vBgMinSize: [tagMinWidth, tagMinHeight], m_vBgPadding: [3, 3], m_uBgAlignX: 1, m_uBgAlignY: 1,
+            m_vArrowOrigin: [-5, 20], m_uBgColor: _backClr,
+            m_arrTexContents: temptexregions, m_arrTextContents: temptextregions,
+        };
+        temptags.push_back(tempobj);
+        Module.RealBIMWeb.AddTags(temptags);
+    }
+
+
+    /**
+     * 获取某个标签的信息
+     * @param {String} tagName //标签的名称(唯一标识)
+     */
+    Module.Tag.getTag = function (tagName) {
+        if (isEmptyLog(tagName, 'tagName')) return;
+        var _tagData = Module.RealBIMWeb.GetTag(tagName);
+        // 多行标签和单行标签都是按照坐标添加的，在一个画布上，返回无法区分是单行还是多行，也无法确定添加的顺序，不返回图片和文字内容
+        return { tagName: _tagData.m_strName, pos: _tagData.m_vPos };
+    }
+
+    /**
+     * 获取系统中所有标签信息
+     */
+    Module.Tag.getAllTag = function () {
+        var _allTagData = Module.RealBIMWeb.GetAllTags();
+        var tagInfoList = [];
+        for (let i = 0; i < _allTagData.size(); i++) {
+            let _tagData = _allTagData.get(i);
+            tagInfoList.push({ tagName: _tagData.m_strName, pos: _tagData.m_vPos });
+        }
+        return tagInfoList;
+    }
+
+    /**
+     * 删除标签
+     * @param {Array} tagNameList //标签的名称集合
+     */
+    Module.Tag.delTags = function (tagNameList) {
+        if (!checkTypeLog(tagNameList, "tagNameList", RE_Enum.RE_Check_Array)) return false;
+        var temptags = new Module.RE_Vector_WStr();
+        for (i = 0; i < tagNameList.length; ++i) {
+            temptags.push_back(tagNameList[i]);
+        }
+        return Module.RealBIMWeb.DelTags(temptags);
+    }
+
+    /**
+     * 删除全部标签
+     */
+    Module.Tag.delAllTag = function () {
+        return Module.RealBIMWeb.DelAllTags();
+    }
+
+    /**
+     * 获取系统中所有标签总数
+     */
+    Module.Tag.getTagNum = function () {
+        return Module.RealBIMWeb.GetTagNum();
+    }
+
+    /**
+     * 设置系统中标签是否允许被场景遮挡
+     * @param {Boolean} enable  //是否允许
+     */
+    Module.Tag.setTagCanOverlap = function (enable) {
+        Module.RealBIMWeb.SetTagContactSce(enable);
+    }
+
+    /**
+     * 获取系统中标签是否允许被场景遮挡
+     */
+    Module.Tag.getTagCanOverlap = function () {
+        return Module.RealBIMWeb.GetTagContactSce();
+    }
+
+    /**
+     * 设置系统中标签的自动缩放距离
+     * @param {Number} dist  //自动缩放距离
+     */
+    Module.Tag.setTagAutoScaleDist = function (dist) {
+        Module.RealBIMWeb.SetTagAutoScaleDist(dist);
+    }
+
+    /**
+     * 获取系统中标签的自动缩放距离
+     */
+    Module.Tag.getTagAutoScaleDist = function () {
+        return Module.RealBIMWeb.GetTagAutoScaleDist();
+    }
+
+    /**
+     * 设置系统中标签的最远可视距离
+     * @param {Number} dist  //自动缩放距离
+     */
+    Module.Tag.setTagVisDist = function (dist) {
+        Module.RealBIMWeb.SetTagVisDist(dist);
+    }
+
+    /**
+     * 获取系统中标签的最远可视距离
+     */
+    Module.Tag.getTagVisDist = function () {
+        return Module.RealBIMWeb.GetTagVisDist();
+    }
+
 
 
 
@@ -979,7 +1780,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.textBias = null;//锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
             this.textFocus = null;//牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
             this.fontName = null;//锚点的字体样式
-            this.textColor = null;//锚点的字体颜
+            this.textClr = null;//锚点的字体颜
             this.textBorderColor = null;//锚点的字体边框颜色
             this.textBackClr = null;//锚点的字体背景颜色
             this.useLod = null;//是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
@@ -1027,7 +1828,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _textbias = [1, 0]; if (!isEmpty(ancInfo.textBias)) { _textbias = ancInfo.textBias; }
             var _texfocus = [0, 0]; if (!isEmpty(ancInfo.textFocus)) { _texfocus = ancInfo.textFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
-            var _textcolor = 0xffffffff; if (!isEmpty(ancInfo.textColor)) { _textcolor = clrToU32(ancInfo.textColor); }
+            var _textcolor = 0xffffffff; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
             var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
             var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
             var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
@@ -1138,7 +1939,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ancInfo.textInfo = ancData.m_cTextRegion.m_strText;
         ancInfo.linePos = ancData.m_vLineEnd;
         if (!isEmpty(ancData.m_uLineClr) && ancData.m_uLineClr != 0) ancInfo.lineClr = clrU32ToClr(ancData.m_uLineClr);
-        if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0) ancInfo.textColor = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
+        if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0) ancInfo.textClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
         ancInfo.textBorderColor = clrU32ToClr(ancData.m_cTextRegion.m_uTextBorderClr);
         if (!isEmpty(ancData.m_cTextRegion.m_uTextBackClr) && ancData.m_cTextRegion.m_uTextBackClr != 0) ancInfo.textBackClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBackClr);
         ancInfo.selfAutoScaleDist = ancData.m_fSelfASDist;
@@ -1209,7 +2010,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _textbias = [1, 0]; if (!isEmpty(ancInfo.textBias)) { _textbias = ancInfo.textBias; }
             var _texfocus = [0, 0]; if (!isEmpty(ancInfo.textFocus)) { _texfocus = ancInfo.textFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
-            var _textcolor = 0xff000000; if (!isEmpty(ancInfo.textColor)) { _textcolor = clrToU32(ancInfo.textColor); }
+            var _textcolor = 0xff000000; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
             var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
             var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
             var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
@@ -1315,13 +2116,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置聚合锚点
      * @param {REAncLODInfo} ancLODInfo //聚合锚点信息
      */
-    // this.groupName = null;//要聚合的锚点组的标识名，为空则表示所有的锚点对象
-    //         this.lodLevel = null;//聚合层级，范围1~10,默认为1，表示不聚合
-    //         this.useCustomBV = null;//是否用锚点的预估总包围盒，默认为false
-    //         this.customBV = null;//锚点的预估总包围盒,默认为当前场景的总包围盒，二维数组[[Xmin,Ymin,Zmin],[Xmax,Ymax,Zmax]]，当useCustomBV为false时，此参数无效，填空数组即可;
-    //         this.lodMergePxl = null;//锚点所在单元格进行LOD合并时的投影到屏幕的像素尺寸阈值
-    //         this.lodMergeCap = null;//锚点所在单元格进行LOD合并时的单元格容积阈值
-    //         this.mergeStyle = null;//点聚合后的样式 (REAncInfo 类型 参数选填)
     Module.Anchor.setAncLODInfo = function (ancLODInfo) {
         if (isEmptyLog(ancLODInfo, "ancLODInfo")) return;
         if (isEmptyLog(ancLODInfo.mergeStyle, "mergeStyle")) return;
@@ -1334,7 +2128,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _linepos = [0, 0]; var _texfocus = [0, 0];
         var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.textBias)) { _textbias = ancLODInfo.mergeStyle.textBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != "") { _GolFontID = ancLODInfo.mergeStyle.fontName; }
-        var _textcolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textColor)) { _textcolor = clrToU32(ancLODInfo.mergeStyle.textColor); }
+        var _textcolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textClr)) { _textcolor = clrToU32(ancLODInfo.mergeStyle.textClr); }
         var _textbordercolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textBorderColor)) { _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderColor); }
         //设置文字和图片的对齐方式
         var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
@@ -1908,7 +2702,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REAnimPolyWallInfo = REAnimPolyWallInfo;
 
-    
+
 
 
 
@@ -2518,6 +3312,56 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MARK 轮廓线
+
+    /**
+     * 设置模型轮廓线
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {REColor} lineClr //模型边界线颜色（REColor 类型）(Alpha==-1表示禁用边界线；Alpha==0表示边界线启用但隐藏；Alpha为(0,255]表示边界线颜色的权重系数)
+     */
+    Module.BIM.setContourLineClr = function (dataSetId, lineClr) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(lineClr, "lineClr")) return;
+        var tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.red < 0 ? -1 : lineClr.alpha / 255];
+        return Module.RealBIMWeb.SetHugeObjBorderLineClr(dataSetId, "", tempclr);
+    }
+
+    /**
+     * 获取模型边界线颜色混合信息
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getContourLineClr = function (dataSetId) {
+        var _tempclr = Module.RealBIMWeb.GetHugeObjBorderLineClr(dataSetId, "");
+        var lineClr = new REColor();
+        lineClr.red = _tempclr[0] * 255;
+        lineClr.green = _tempclr[1] * 255;
+        lineClr.blue = _tempclr[2] * 255;
+        lineClr.alpha = _tempclr[3] < 0 ? -1 : _tempclr[3] * 255;
+        return lineClr;
+    }
+
+    /**
+     * 设置世界空间下的全局裁剪面的裁剪边界处的颜色混合信息
+     * @param {REColor} blendClr //混合颜色（REColor 类型）
+     */
+    Module.BIM.setClipPlanesBlendContourLineClr = function (blendClr) {
+        if (isEmptyLog(blendClr, "blendClr")) return;
+        var _tempclr = [blendClr.red / 255, blendClr.green / 255, blendClr.blue / 255, blendClr.alpha / 255];
+        Module.RealBIMWeb.SetGolClipPlanesBorderClrBlendInfo(_tempclr);
+    }
+
+    /**
+     * 获取世界空间下的全局裁剪面的裁剪边界处的颜色混合信息
+     */
+    Module.BIM.getClipPlanesBlendContourLineClr = function () {
+        var _tempclr = Module.RealBIMWeb.GetGolClipPlanesBorderClrBlendInfo();
+        var lineClr = new REColor();
+        lineClr.red = _tempclr[0] * 255;
+        lineClr.green = _tempclr[1] * 255;
+        lineClr.blue = _tempclr[2] * 255;
+        lineClr.alpha = _tempclr[3] * 255;
+        return lineClr;
+    }
 
 
 
@@ -2533,6 +3377,267 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- CAD（CAD）
+    Module.CAD = typeof Module.CAD !== "undefined" ? Module.CAD : {};//增加 CAD 模块
+
+
+    // MARK 加载
+
+    /**
+     * 加载CAD文件
+     * @param {String} filePath //图纸的资源发布路径
+     * @param {RE_CADUnit} unit //图纸的单位 (RE_CADUnit 类型)
+     * @param {Number} scale //图纸的比例尺信息
+     */
+    Module.CAD.loadCAD = function (filePath, unit, scale) {
+        if (isEmptyLog(filePath, "filePath")) return;
+        var _unit = eval(RE_CADUnit.Meter); if (!isEmpty(unit)) _unit = eval(unit);
+        var _scale = 1.0; if (!isEmpty(scale)) _scale = scale;
+        Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // MOD-- 栅格（Grid）
+    Module.Grid = typeof Module.Grid !== "undefined" ? Module.Grid : {};//增加 Grid 模块
+
+
+    // MARK 加载
+
+    /**
+     * 设置某一块或全部的栅格模型的透明度
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} alpha //透明度
+     */
+    Module.Grid.setGroupAlpha = function (dataSetId, alpha) {
+        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(projName, sceName);
+        if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
+        } else {
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _info.m_uDestRGBBlendInfo });
+        }
+    }
+
+    /**
+     * 获取当前设置的某一块或全部的栅格模型的透明度
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Grid.getGroupAlpha = function (dataSetId) {
+        var alpha = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
+        return alpha.m_uDestAlpha;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // MOD-- 360全景（Panorama）
+    Module.Panorama = typeof Module.Panorama !== "undefined" ? Module.Panorama : {};//增加 Panorama 模块
+
+
+    // MARK 加载
+
+    /**
+     * 加载一个或多个360全景场景
+     * @param {Array} dataSetList //数据集集合  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} resourcesAddress //数据集资源包地址
+     */
+    Module.Panorama.loadPan = function (dataSetList) {
+        if (isRepeat(dataSetList, 'dataSetId')) {
+            console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
+            return;
+        }
+
+        var _count = dataSetList.length;
+        for (var i = 0; i < _count; ++i) {
+            var _dataSetInfo = dataSetList[i];
+            var _path = _dataSetInfo.resourcesAddress + "/360/total.xml";
+            Module.RealBIMWeb.LoadPanSce(_dataSetInfo.dataSetId, _path);
+        }
+    }
+
+    /**
+     * 判断全景场景是否全部加载完成
+     */
+    Module.Panorama.getReadyState = function () {
+        return Module.RealBIMWeb.IsPanSceReady();
+    }
+
+    /**
+     * 获取当前已加载的全部全景场景名称
+     */
+    Module.Panorama.getAllDataSetNames = function () {
+        var _tempArr = Module.RealBIMWeb.GetAllPanSceNames();
+        var nameArr = [];
+        for (var i = 0; i < _tempArr.size(); ++i) {
+            nameArr.push(_tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 卸载一个或多个全景场景，传空数组时，卸载所有的全景场景
+     * @param {Array} dataSetIdList //数据集id集合
+     */
+    Module.Panorama.unloadDataSet = function (dataSetIdList) {
+        var _panNames = new Module.RE_Vector_WStr();
+        for (i = 0; i < dataSetIdList.length; i++) {
+            _panNames.push_back(dataSetIdList[i]);
+        }
+        Module.RealBIMWeb.UnLoadPanSce(_panNames);
+    }
+
+    /**
+     * 当所有的全景资源加载完成时，获取某一全景图资源的点位信息
+     * @param {String} dataSetId //数据集的唯一标识名
+     */
+    Module.Panorama.getElemInfo = function (dataSetId) {
+        var _tempArr = Module.RealBIMWeb.GetPanSceElemInfos(dataSetId);
+        var elemList = [];
+        for (var i = 0; i < _tempArr.size(); ++i) {
+            let _panElemInfo = _tempArr.get(i);
+            elemList.push({
+                elemId: _panElemInfo.m_strId,
+                rotate: _panElemInfo.m_qRotate,
+                pos: _panElemInfo.m_vPos,
+            });
+        }
+        return elemList;
+    }
+
+    /**
+     * 设置360全景窗口显示的图片信息
+     * @param {String} elemId //某一帧全景图的唯一标识
+     * @param {Number} panWindow //全景窗口标识
+     */
+    Module.Panorama.loadPanPic = function (elemId, panWindow) {
+        Module.RealBIMWeb.LoadPan(elemId, panWindow);
+    }
+
+
+
+
+
+
+    // MARK 相机
+
+    /**
+     * 设置360相机的朝向
+     * @param {String} locType //表示相机朝向（ RE_ViewCudePerspective 枚举类型）
+     * @param {Number} panCamId //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.setCamLocateTo = function (locType, panCamId) {
+        if (isEmptyLog(locType, "locType")) return;
+        var _panCamId = 0; if (!isEmpty(panCamId)) { _panCamId = panCamId; }
+        var enumEval = eval(locType);
+        Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
+    }
+
+
+
+
+
+
+
+
+    // MOD-- 模型编辑（Edit）
+    Module.Edit = typeof Module.Edit !== "undefined" ? Module.Edit : {};//增加 Edit 模块
+
+    /**
+     * 设置当前的编辑级别
+     * @param {Boolean} level //等级（ 0:数据集| 1:pak级| 2:构件级）
+     */
+    Module.Edit.setEditNodeLevel = function (level) {
+        if (level == 0) {
+            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.PROJ);
+        } else if (level == 1) {
+            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.HMODEL);
+        } else if (level == 2) {
+            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.ELEM);
+        }
+    }
+
+    /**
+     * 获取当前设置的编辑级别
+     */
+    Module.Edit.getEditNodeLevel = function () {
+        var cureditlevel = Module.RealBIMWeb.GetCtrlLevel();
+        return cureditlevel.value;
+    }
+
+    /**
+     * 进入位置编辑状态
+     */
+    Module.Edit.startEdit = function () {
+        Module.RealBIMWeb.EnterSceneNodeEditMode();
+    }
+
+    /**
+     * 退出位置编辑状态
+     */
+    Module.Edit.endEdit = function () {
+        Module.RealBIMWeb.ExitSceneNodeEditMode();
+    }
+
+    /**
+     * 打开位置编辑放射变换窗口 
+     */
+    Module.Edit.openAffineTransEditWnd = function () {
+        return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_Mate.RE_SYSWnd_AffineTransMode, true);
+    }
+
+    /**
+     * 关闭位置编辑放射变换窗口
+     */
+    Module.Edit.closeAffineTransEditWnd = function () {
+        return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_Mate.RE_SYSWnd_AffineTransMode, false);
+    }
+
+    /**
+     * 数据集编辑状态下将数据集加入到选择集
+     * @param {String} dataSetId //数据集唯一标识
+     */
+    Module.Edit.addDataSetToSel = function (dataSetId) {
+        var _projvec = new Module.RE_Vector_WStr();
+        _projvec.push_back(dataSetId);
+        Module.RealBIMWeb.AddToCurSelProjIDs(_projvec);     //把1个数据集加入选择集
+    }
 
 
 
@@ -2670,115 +3775,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
-    /**
-     * 检查参数是否为空，是否需要打印错误提示
-     * @param {Object} param //参数
-     * @param {String} paramName //参数名
-     * @param {Boolean} needErrorLog //是否需要报错信息
-     */
-    function checkNullBy(param, paramName, needErrorLog) {
-        if (typeof param == 'undefined') {
-            if (needErrorLog) logErrorWithPar(paramName);
-            return false;
-        }
-        return true;
-    }
 
-    /**
-     * 检查参数是否为空，并打印错误提示
-     * @param {Object} param //参数
-     * @param {String} paramName //参数名
-     */
-    function checkNull(param, paramName) {
-        return checkNullBy(param, paramName, true);
-    }
 
-    /**
-     * 检查参数是否为空
-     * @param {Object} param //参数
-     */
-    function checkParamNull(param) {
-        return checkNullBy(param, '', false);
-    }
 
-    /**
-     * 检查参数是否为空，参数类型是否正确,是否需要报错信息
-     * @param {Object} param //参数
-     * @param {String} paramName //参数名
-     * @param {RE_Enum} re_type //枚举类型
-     * @param {Boolean} needErrorLog //是否需要报错信息
-     */
-    function checkParamTypeBy(param, paramName, re_type, needErrorLog) {
-        if (!checkNullBy(param, paramName, needErrorLog)) return false;
 
-        switch (re_type) {
-            case RE_Enum.RE_Check_String:
-                {
-                    if ((typeof param != "string")) {
-                        if (needErrorLog) logErrorWithPar(paramName);
-                        return false;
-                    }
-                }
-                break;
-            case RE_Enum.RE_Check_Array:
-                {
-                    if (!(param instanceof Array)) {
-                        if (needErrorLog) logErrorWithPar(paramName);
-                        return false;
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-        return true;
-    }
 
-    /**
-     * 检查参数是否为空，参数类型是否正确 并打印报错
-     * @param {Object} param //参数
-     * @param {String} paramName //参数名
-     * @param {RE_Enum} re_type //枚举类型
-     */
-    function checkParamType(param, paramName, re_type) {
-        return checkParamTypeBy(param, paramName, re_type, true);
-    }
 
-    /**
-     * 打印错误提示
-     * @param {String} paramName //参数名
-     */
-    function logErrorWithPar(paramName) {
-        console.error("【REError】: errMsg: 传入参数格式不正确！-> " + paramName);
-    }
-
-    /**
-     * 判断是否是数组，且数组个数
-     * @param {Object} param //参数名
-     * @param {String} paramName //参数名
-     * @param {Number} count //检查个数
-     * @param {Boolean} needErrorLog //是否需要报错信息
-     */
-    function checkArrCountBy(param, paramName, count, needErrorLog) {
-        var isArr = checkParamTypeBy(param, paramName, RE_Enum.RE_Check_Array, needErrorLog);
-        if (isArr) {
-            if (param.length == count) {
-                return true;
-            }
-        }
-        if (needErrorLog) logErrorWithPar(paramName);
-        return false;
-    }
-
-    /**
-     * 判断是否是数组，且数组个数，并打印报错
-     * @param {Object} param //参数名
-     * @param {String} paramName //参数名
-     * @param {Number} count //检查个数
-     */
-    function checkArrCount(param, paramName, count) {
-        return checkArrCountBy(param, paramName, count, true);
-    }
 
     /**
      * 32位颜色转十六进制颜色 ABGR -> RBG_HEX
@@ -2798,63 +3800,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _hex_A = _hexStr_Reverse.substring(6, 8); var int_A = Math.round(parseInt(_hex_A, 16));
 
         return new REColor(int_R, int_G, int_B, int_A);
-    }
-
-    /**
-     * 32位颜色转透明度 ABGR -> alpha (0~255)
-     * @param {Number} colorU32 //32位颜色值
-     */
-    function colorU32ToAlpha(colorU32) {
-        let _hexStr = (colorU32).toString(16);
-        let count = _hexStr.length;
-        for (let a = 0; a < (8 - count); a++) {
-            _hexStr = '0' + _hexStr;
-        }
-        var hexAlpha = _hexStr.substring(0, 2);
-        return (parseInt(hexAlpha, 16) / 255);
-    }
-
-    /**
-     * 十六进制颜色转换RGB
-     * @param {String} clrHEX //十六进制颜色
-     */
-    function clrHEXToRGB(clrHEX) {
-        if (!checkParamTypeBy(clrHEX, '', RE_Enum.RE_Check_String, false)) return [];
-        var _re_ColorHEX = deepClone(clrHEX);
-        if (_re_ColorHEX.includes('0x')) {
-            _re_ColorHEX = _re_ColorHEX.replace('0x', '');
-        }
-        if (_re_ColorHEX.length != 6) return [];
-        var _RTemp = _re_ColorHEX.substring(0, 2); var _R = (parseInt(_RTemp, 16) / 255);
-        var _GTemp = _re_ColorHEX.substring(2, 4); var _G = (parseInt(_GTemp, 16) / 255);
-        var _BTemp = _re_ColorHEX.substring(4, 6); var _B = (parseInt(_BTemp, 16) / 255);
-
-        return [_R, _G, _B];
-    }
-
-    /**
-     * 十六进制颜色+透明度->U32_ABGR
-     * @param {String} clrHEX 
-     * @param {Number} alpha 
-     * @returns 
-     */
-    function clrHEXAToU32ABGR(clrHEX, alpha) {
-        var _re_ColorHEX = deepClone(clrHEX);
-        if (_re_ColorHEX.includes('0x')) {
-            _re_ColorHEX = _re_ColorHEX.replace('0x', '');
-        }
-        if (_re_ColorHEX.length != 6) return 0xFFFFFFFF;
-        // RGB->BGR  c++要地址位从低到高存储 ABGR
-        var clrHEX_R = _re_ColorHEX.substring(0, 2);
-        var clrHEX_G = _re_ColorHEX.substring(2, 4);
-        var clrHEX_B = _re_ColorHEX.substring(4, 6);
-        var clrHEX_BGR = clrHEX_B + clrHEX_G + clrHEX_R;
-        var _alphaNum = 255; if (checkParamNull(alpha)) _alphaNum = alpha;
-        var intAlpha = Math.round(alpha);
-        var alphaHEX = (intAlpha > 15 ? (intAlpha.toString(16)) : ("0" + intAlpha.toString(16)));
-        var clrHEX_ABGR = "0x" + alphaHEX + clrHEX_BGR;
-        var intClr_ABGR = parseInt(clrHEX_ABGR);
-        return intClr_ABGR;
     }
 
     /**
@@ -2900,21 +3845,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return intClr_WA;
     }
 
-    /**
-     * RBG颜色转换十六进制
-     * @param {Array} clrRBG //RBG颜色
-     */
-    function clrRBGToHEX(clrRBG) {
-        if (!checkParamTypeBy(clrRBG, '', RE_Enum.RE_Check_Array, false)) return '';
-        var _re_ColorRGB = deepClone(clrRBG);
-        if (_re_ColorRGB.length < 3) return '';
-        _r = Math.floor(_re_ColorRGB[0] * 255);
-        _g = Math.floor(_re_ColorRGB[1] * 255);
-        _b = Math.floor(_re_ColorRGB[2] * 255);
-        var _clrHEX = _r.toString(16) + _g.toString(16) + _b.toString(16);
-
-        return _clrHEX;
-    }
 
     /**
      * 发光和PBR转换工具函数
@@ -3063,6 +3993,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule.RE_SYSWnd_Mate = RE_SYSWnd_Mate;
 
 
+
+    // MARK CAD
+    //CAD单位
+    const RE_CADUnit = {
+        Meter: "Module.RE_CAD_UNIT.Meter",//米
+        Millimeter: "Module.RE_CAD_UNIT.Millimeter",//毫米
+        Centimeter: "Module.RE_CAD_UNIT.Centimeter",//厘米
+        Decimeter: "Module.RE_CAD_UNIT.Decimeter",//分米
+        Decameter: "Module.RE_CAD_UNIT.Decameter", //
+        Hectometer: "Module.RE_CAD_UNIT.Hectometer",//百米
+        Kilometer: "Module.RE_CAD_UNIT.Kilometer",//千米
+        Inch: "Module.RE_CAD_UNIT.Inch",//英寸
+        Foot: "Module.RE_CAD_UNIT.Foot",//英尺
+        Mile: "Module.RE_CAD_UNIT.Mile",//英里
+        Microinch: "Module.RE_CAD_UNIT.Microinch",//微英寸
+        Mil: "Module.RE_CAD_UNIT.Mil",//毫英寸
+        Nanometer: "Module.RE_CAD_UNIT.Nanometer",//纳米
+        Micron: "Module.RE_CAD_UNIT.Micron",//微米
+        Gigameter: "Module.RE_CAD_UNIT.Gigameter",//百万公里
+        Lightyear: "Module.RE_CAD_UNIT.Lightyear",//光年
+    }
+    ExtModule.RE_CADUnit = RE_CADUnit;
 
 
 

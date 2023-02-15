@@ -45,6 +45,10 @@ window.onload = function (event) {
     // document.addEventListener("RealBIMSelShape", RealBIMSelShape);
 
 
+    document.addEventListener("RealBIMLoadPanSce", function (e) { PanSceDown(e.detail.succeed) });
+    document.addEventListener("RealBIMLoadPan", function (e) { setMode(e.detail.succeed) });
+
+
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
         RealBIMInitSys();
@@ -68,6 +72,37 @@ function RealBIMLocateCam(e) {
     // color.blue = 204;
     // BlackHole3D.SkyBox.setBackClr(color);
 }
+
+
+// //全景场景加载完成，此时可获取全部点位信息
+// function PanSceDown(isSuccess) {
+//     if (isSuccess) {
+//         console.log("360全景加载成功!！！！！！！！！！！！！！！！！！！！！！！！");
+//         // 获取全部帧信息
+//         var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
+//         console.log(pandata);
+//         // 设置360显示信息
+//         BlackHole3D.Panorama.loadPanPic(pandata[0].elemId, 0);
+//         console.log(pandata[0].elemId);
+
+//         // 设置窗口模式
+//         BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.Panorama, BlackHole3D.RE_ViewportType.None, 0);
+//     } else {
+//         console.log("360全景加载失败！！！！！！！！！！！！！！！！！！！！！！！");
+//     }
+// }
+// //全景场景图片设置成功
+// function setMode(isSuccess) {
+//     if (isSuccess) {
+//         console.log("图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！");
+//         //   setOverViewSize();
+//         //   //加载概略图CAD数据
+//         //   addCADData();
+//     } else {
+//         console.log("图片设置失败！！！！！！！！！！！！！！！！！！！！！！！");
+//     }
+// }
+
 
 
 //场景初始化，需正确传递相关参数
@@ -96,6 +131,13 @@ function RealBIMLoadMainSce(e) {
 
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
+
+        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.None, BlackHole3D.RE_ViewportType.CAD, 0);
+        // // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Millimeter, 1.0);
+        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
+        // return;
+
+
         //倾斜摄影proj1的测试场景
         var dataSetList = [
             {
@@ -114,6 +156,18 @@ function RealBIMLoadMainSce(e) {
             }
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
+
+
+        // //加载360全景
+        // var dataSetList = [
+        //     {
+        //         "dataSetId": "pan01",
+        //         "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
+        //     }
+        // ];
+        // BlackHole3D.Panorama.loadPan(dataSetList);
+
+
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
         BlackHole3D.Common.setExpectMaxInstMemMB(4500);
@@ -436,7 +490,7 @@ function addAnimPlane() {
 function addAnimSphere() {
     var animSphereInfo = new BlackHole3D.REAnimSphereInfo();
     animSphereInfo.groupName = "sphere";
-    animSphereInfo.nameList = ["sphere01","sphere02"];
+    animSphereInfo.nameList = ["sphere01", "sphere02"];
     animSphereInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
     [12.98287890648843, 34.08362504945755, 1]];
     animSphereInfo.radius = 10;
@@ -450,7 +504,7 @@ function addAnimSphere() {
 function addAnimPolygon() {
     var animPolygonInfo = new BlackHole3D.REAnimPolygonInfo();
     animPolygonInfo.groupName = "polygon";
-    animPolygonInfo.nameList = ["polygon01","polygon02"];
+    animPolygonInfo.nameList = ["polygon01", "polygon02"];
     animPolygonInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
     [12.98287890648843, 34.08362504945755, 1]];
     animPolygonInfo.radius = 10;
@@ -467,7 +521,7 @@ function addAnimPolygon() {
 function addAnimPolyWall() {
     var animPolyWallInfo = new BlackHole3D.REAnimPolyWallInfo();
     animPolyWallInfo.groupName = "polyWall";
-    animPolyWallInfo.nameList = ["polyWall01","polyWall02"];
+    animPolyWallInfo.nameList = ["polyWall01", "polyWall02"];
     animPolyWallInfo.potCenterList = [[14.717769348031592, 57.95791001082713, 2],
     [12.98287890648843, 34.08362504945755, 1]];
     animPolyWallInfo.radius = 10;
@@ -477,6 +531,133 @@ function addAnimPolyWall() {
     animPolyWallInfo.normalDir = true;
     animPolyWallInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
     BlackHole3D.BIM.addAnimationPolygonWalls(animPolyWallInfo);
-    BlackHole3D.BIM.setShapeAnimStyle("polyWall", [], new BlackHole3D.REColor(0,255,255,255), [0.0, 0.0, 0.5, 0.0]);
+    BlackHole3D.BIM.setShapeAnimStyle("polyWall", [], new BlackHole3D.REColor(0, 255, 255, 255), [0.0, 0.0, 0.5, 0.0]);
 }
 
+
+//添加一种全局字体
+function addGolFont() {
+    var fontInfo = new BlackHole3D.REFontInfo();
+    fontInfo.fontId = "font01";
+    fontInfo.width = 20;
+    fontInfo.height = 20;
+    fontInfo.weight = 20;
+    BlackHole3D.Common.addGolFont(fontInfo);
+}
+
+//坐标偏移
+function changeTransform() {
+    var locInfo = new BlackHole3D.RELocInfo();
+    locInfo.scale = [1, 1, 1];
+    locInfo.rotate = [0, 0, 0, 1];
+    locInfo.offset = [10, 0, 0];
+    BlackHole3D.Coordinate.setDataSetTransform("dataSet01", locInfo);
+}
+
+//转换坐标
+function convCoords() {
+    //先设置参考坐标系为EPSG:3857
+    var worldCRS = "EPSG:3857";
+    BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS);
+    //例如当前项目设置的参考坐标系为EPSG:3857 ，以下示例可以得到EPSG:3857和EPSG:4326的坐标换算值
+    var forward = true;
+    var destCRS = "EPSG:4326";
+    var coordList = [[18001530, -18091018, -4.03480005264282]];
+    var trans01 = BlackHole3D.Coordinate.getTransEngineCoords(forward, destCRS, coordList);
+    console.log(trans01);
+    var forward = false;
+    var destCRS = "EPSG:4326";
+    var coordList = [[161.71049536536088, -83.28852470887807, -0.4731102113037381]];
+    var trans02 = BlackHole3D.Coordinate.getTransEngineCoords(forward, destCRS, coordList);
+    console.log(trans02);
+}
+
+
+//转换坐标
+function convGeoCoords() {
+    var srcCRS = "EPSG:4326";
+    var destCRS = "EPSG:3857";
+    var coordList = [[12.0, 55.0, 0.0, 0.0], [13.0, 58.987, 0.0, 0.0]];
+    var trans01 = BlackHole3D.Coordinate.getTransGeoCoords(srcCRS, destCRS, coordList);
+    console.log(trans01);
+
+    var srcCRS = "EPSG:3857";
+    var destCRS = "EPSG:4326";
+    var coordList = [[1335833.8895192828, 7361866.113051185, 0, 0]];
+    var trans02 = BlackHole3D.Coordinate.getTransGeoCoords(srcCRS, destCRS, coordList);
+    console.log(trans02);
+}
+
+
+//添加多行标签
+function addTag() {
+    var tagInfoList = [
+        {
+            "tagName": "tag01",
+            "pos": [-151, -95, 67],
+            "infoList": [{
+                "picPath": "",
+                "text": "测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag002测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag003测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag004测试文字"
+            }
+            ]
+        }, {
+            "tagName": "tag012",
+            "pos": [-246, 18, 16],
+            "infoList": [{
+                "picPath": "",
+                "text": "测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag0012测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag0013测试文字"
+            }, {
+                "picPath": "",
+                "text": "tag0014测试文字"
+            }
+            ]
+        }
+    ];
+    BlackHole3D.Tag.addTags(tagInfoList);
+}
+
+
+// 添加元素全部自定义的行标签
+function addLineTag() {
+    var contents = [
+        { type: "text", width: 30, height: 16, border: 10, text: "01#" },
+        { type: "tex", width: 20, height: 20, border: 0, picPath: "https://demo.bjblackhole.com/demopage/examplesImgs/greenpot.png" },
+        { type: "text", width: 16, height: 16, border: 0, elemClr: new BlackHole3D.REColor(0, 0, 0, 0), text: "" },
+        { type: "tex", width: 20, height: 20, border: 2, picPath: "https://demo.bjblackhole.com/demopage/examplesImgs/shandian.png" },
+        { type: "text", width: 50, height: 16, border: 0, elemClr: new BlackHole3D.REColor(255, 255, 0, 255), text: "50000" },
+        { type: "text", width: 30, height: 16, border: 0, text: "kWh" },
+        { type: "tex", width: 16, height: 16, border: 0, elemClr: new BlackHole3D.REColor(0, 0, 0, 0), picPath: "" },
+        { type: "tex", width: 20, height: 20, border: 2, picPath: "https://demo.bjblackhole.com/demopage/examplesImgs/feng.png" },
+        { type: "text", width: 50, height: 16, border: 0, elemClr: new BlackHole3D.REColor(255, 255, 0, 255), text: "9.56" },
+        { type: "text", width: 30, height: 16, border: 0, text: "m/s" },
+        { type: "tex", width: 20, height: 16, border: 0, elemClr: new BlackHole3D.REColor(0, 0, 0, 0), picPath: "" },
+        { type: "tex", width: 20, height: 20, border: 2, picPath: "https://demo.bjblackhole.com/demopage/examplesImgs/dianbo.png" },
+        { type: "text", width: 50, height: 16, border: 0, elemClr: new BlackHole3D.REColor(255, 255, 0, 255), text: "1086" },
+        { type: "text", width: 30, height: 16, border: 0, text: "kw" },
+    ];
+    var lineInfo = new BlackHole3D.RELineTagInfo();
+    lineInfo.tagName = "lineTag01";//标签的名称(唯一标识)
+    lineInfo.pos = [4.028, 44.462, 4.561];//标签的位置
+    lineInfo.contents = contents;//标签的内容（包含 RELineTagCont 类型）
+    lineInfo.tagMinWidth = 16;//表示要添加的标签最小宽度
+    lineInfo.tagMinHeight = 16;//表示要添加的标签最小高度
+    lineInfo.fontName = "";//表示要添加的标签内容字体样式
+    lineInfo.backClr = new BlackHole3D.REColor(70, 130, 180, 180);//表示要添加的标签背景颜色（REColor 类型）
+    lineInfo.frameClr = new BlackHole3D.REColor(0, 255, 255, 0);//表示要添加的标签边框颜色（REColor 类型）
+    BlackHole3D.Tag.addLineTags(lineInfo);
+}
