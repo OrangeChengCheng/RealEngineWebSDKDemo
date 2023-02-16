@@ -327,28 +327,7 @@ Module.REsetSysRenderState = function(renderData){
 
 
 
-//设置构件的有效性
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//objArr：表示该项目对应的构件id数组，为空则表示该项目下的全部构件
-//bool：为true表示构件有效，为false表示构件无效，此时构件不可见
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REsetElemsValidState = function(projName,objArr,bool,elemScope){
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  var _s = objArr.length;
-  var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-  if(_s ==0){  //如果构件ID集合为空，则默认为设置所有构件
-    Module.RealBIMWeb.SetHugeObjSubElemValidStates(projName,"",0xffffffff,0,bool,_elemScope);
-  }else{
-    var _s01 = (_s*8).toString();
-    Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-    for(i =0; i<_s; ++i)
-    {
-      var eleid = objArr[i];
-      elemIds.set([eleid,projid], i*2);
-    }
-    Module.RealBIMWeb.SetHugeObjSubElemValidStates(projName,"",elemIds.byteLength,elemIds.byteOffset,bool,_elemScope);
-  }
-}
+
 
 //锚点设置相关
 
@@ -612,13 +591,7 @@ Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
 
 
 
-//设置项目局部可投射矢量区域信息
-//projName：表示要处理的项目名称，不能为空串
-//cRgnData：表示区域JSON数据
-Module.REsetLocalProjRgnsInfo = function(projName, cRgnData){
-  var jsonStr =JSON.stringify(cRgnData);
-  return Module.RealBIMWeb.SetLocalProjRgnsInfo(projName, jsonStr);
-}
+
 //清空项目局部可投射矢量区域信息
 //projName：表示要处理的项目名称，为空串表示清空所有项目的矢量区域信息
 Module.REclearLocalProjRgnsInfo = function(projName){
@@ -1012,10 +985,7 @@ Module.REsetMeasureTextStyle = function(strShapeType,fontStyle,clr,alpha,isBorde
 Module.REresetMeasureShapeAppearance = function(){
   Module.RealBIMWeb.ResetMeasureShapeAppearance();
 }
-//坡度显示开关
-Module.REsetSlopeVisible = function(bool){
-  Module.RealBIMWeb.SetSlopeVisible(bool);
-}
+
 
 
 
@@ -1252,54 +1222,7 @@ Module.REgetLevelDataByGuid = function(strGroupName,arrStrLevelID){
 Module.REgetGolElemBoneNum = function(){
   return Module.RealBIMWeb.GetGolElemBoneNum();
 }
-//设置场景内构件集合使用的全局骨骼索引
-//要绑定到某一个骨骼上的元素ID集合，array类型，为空表示设置场景内的全部构件
-//uBoneID：要设置的骨骼索引
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REbindElemToBoneID = function(uElemArr,uBoneID,elemScope){
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  var _s = uElemArr.length;
-  if(_s ==0){
-    Module.RealBIMWeb.SetHugeObjSubElemBoneIDs("","", 0xffffffff, 0, uBoneID, _elemScope); //绑定全部构件
-  }else{
-    var temparr=[];
-    for(var i=0;i<_s;++i){
-      temparr.push(uElemArr[i]);
-      temparr.push(0);
-    }
-    var selids = new Uint32Array(temparr);
-    var tempids;
-    Module.RealBIMWeb.ReAllocHeapViews(selids.byteLength.toString()); tempids =Module.RealBIMWeb.GetHeapView_U32(0); tempids.set(selids, 0);
-    Module.RealBIMWeb.SetHugeObjSubElemBoneIDs("","", tempids.byteLength, tempids.byteOffset, uBoneID, _elemScope);
-  }
-}
-//多项目设置场景内构件集合使用的全局骨骼索引
-//projName:项目名称，为空字符串则表示所有项目
-//uElemArr:要绑定到某一个骨骼上的元素ID集合，array类型，为空表示设置场景内的全部构件
-//uBoneID：要设置的骨骼索引
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REbindElemToBoneID_projs = function(projName,uElemArr,uBoneID,elemScope){
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  if(projName==""){
-    Module.RealBIMWeb.SetHugeObjSubElemBoneIDs("","", 0xffffffff, 0, uBoneID, _elemScope); //绑定全部构件
-  }else{
-    var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-    var _s = uElemArr.length;
-    if(_s ==0){
-      Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(projName,"", 0xffffffff, 0, uBoneID, _elemScope); //绑定全部构件
-    }else{
-      var temparr=[];
-      for(var i=0;i<_s;++i){
-        temparr.push(uElemArr[i]);
-        temparr.push(projid);
-      }
-      var selids = new Uint32Array(temparr);
-      Module.RealBIMWeb.ReAllocHeapViews(selids.byteLength.toString()); 
-      var tempids =Module.RealBIMWeb.GetHeapView_U32(0); tempids.set(selids, 0);
-      Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(projName,"", tempids.byteLength, tempids.byteOffset, uBoneID, _elemScope);
-    }
-  }
-}
+
 //设置全局元素骨骼的目标方位
 //uBoneID：表示骨骼全局ID
 //cDestLoc：表示骨骼的目标方位
@@ -1344,14 +1267,6 @@ Module.REresumeRenderLoop = function()
 
 
 
-//设置非版本管理模型的可剖切性
-Module.REsetUnVerInstsClippable = function(bClippable){
-  Module.RealBIMWeb.SetUnVerInstsClippable(bClippable);
-}
-//获取非版本管理模型的可剖切性
-Module.REgetUnVerInstsClippable = function(){
-  return Module.RealBIMWeb.GetUnVerInstsClippable();
-}
 
 
 
@@ -1521,11 +1436,7 @@ Module.REsetUnVerHugeGroupVisible = function(projName,sceName,bVisible){
 Module.REgetUnVerHugeGroupVisible = function(projName,sceName){
   return Module.RealBIMWeb.GetUnVerHugeGroupVisible(projName,sceName);
 }
-//设置地形场景节点的深度偏移
-//范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
-Module.REsetUnVerHugeGroupDepthBias = function(projName,sceName,fDepthBias){
-  Module.RealBIMWeb.SetUnVerHugeGroupDepthBias(projName,sceName,fDepthBias);
-}
+
 //设置地形的仿射变换信息
 Module.REsetUnVerHugeGroupTransform = function(projName,sceName,arrScale,arrRotate,arrOffset){
   Module.RealBIMWeb.SetUnVerHugeGroupTransform(projName,sceName,arrScale,arrRotate,arrOffset);

@@ -3184,6 +3184,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+
+
+    // MARK 渲染设置
+
+    /**
+     * 设置构件的有效性
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Boolean} enable //是否有效
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.setElemsValidState = function (dataSetId, elemIdList, enable, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _count = elemIdList.length;
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        if (_count == 0) {
+            //如果构件ID集合为空，则默认为设置所有构件
+            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, "", 0xffffffff, 0, enable, _elemScope);
+        } else {
+            var _moemory = (_count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < _count; ++i) {
+                var eleid = elemIdList[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, enable, _elemScope);
+        }
+    }
+
+
+
+
+
+
+
     // MARK 动画与特效
 
     /**
@@ -3310,6 +3349,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MARK 骨骼动画
+
+    /**
+     * 绑定一批构件到一个骨骼上
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} boneId //要设置的骨骼全局id
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.setElemToBone = function (dataSetId, elemIdList, boneId, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(boneId, "boneId")) return;
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+
+        if (dataSetId == "") {
+            Module.RealBIMWeb.SetHugeObjSubElemBoneIDs("", "", 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
+        } else {
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, "", 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
+            } else {
+                var _temparr = [];
+                for (var i = 0; i < _count; ++i) {
+                    _temparr.push(elemIdList[i]);
+                    _temparr.push(_projid);
+                }
+                var _selids = new Uint32Array(_temparr);
+                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());//分配空间
+                var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
+                _tempids.set(_selids, 0);
+                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, boneId, _elemScope);
+            }
+        }
+    }
+
+
 
 
     // MARK 轮廓线
@@ -3429,7 +3506,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Grid = typeof Module.Grid !== "undefined" ? Module.Grid : {};//增加 Grid 模块
 
 
-    // MARK 加载
+    // MARK 渲染设置
 
     /**
      * 设置某一块或全部的栅格模型的透明度
@@ -3454,8 +3531,53 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return alpha.m_uDestAlpha;
     }
 
+    /**
+     * 设置地形场景节点的深度偏移
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} depthBias //深度偏移范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
+     */
+    Module.Grid.setGroupDepthBias = function (dataSetId, depthBias) {
+        Module.RealBIMWeb.SetUnVerHugeGroupDepthBias(dataSetId, "", depthBias);
+    }
 
 
+    // MARK 剖切
+
+    /**
+     * 设置地形模型是否可剖切
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Grid.setClipEnable = function (enable) {
+        return Module.RealBIMWeb.SetUnVerInstsClippable(enable);
+    }
+
+    /**
+     * 获取非版本管理模型的可剖切性
+     */
+    Module.Grid.getClipEnable = function () {
+        return Module.RealBIMWeb.GetUnVerInstsClippable();
+    }
+
+
+
+
+
+    // MARK 倾斜摄影拍平
+
+
+    /**
+     * 设根据项目名称设置局部拍平区域，仅针对当前项目有效，且拍平位置为当前项目的原始位置，如果项目有发生偏移，则拍平区域应重设为偏移后的位置
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} rgnInfoList //拍平区域信息  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
+     * @param {Number} projectionHeight //拍平的高度
+     * @param {Array} regionVertex //不规则闭合区域的顶点信息
+    */
+    Module.REsetLocalProjRgnsInfo = function (dataSetId, rgnInfoList) {
+        if (!isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        var jsonStr = JSON.stringify(rgnInfoList);
+        return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, jsonStr);
+    }
 
 
 
@@ -3648,12 +3770,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 测量（Measure）
+    Module.Measure = typeof Module.Measure !== "undefined" ? Module.Measure : {};//增加 Measure 模块
 
 
-
-
-
-
+    /**
+     * 坡度显示开关
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Measure.setSlopeVisible = function (enable) {
+        Module.RealBIMWeb.SetSlopeVisible(enable);
+    }
 
 
 

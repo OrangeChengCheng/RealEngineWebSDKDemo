@@ -34,28 +34,28 @@ window.onload = function (event) {
     }
 
     console.log("======== 添加监听事件");
-    document.addEventListener("RealEngineReady", RealBIMInitSys);
-    document.addEventListener("RealBIMInitSys", RealBIMLoadMainSce);
-    document.addEventListener("RealBIMLoadMainSce", MainSceDown);
-    document.addEventListener("RealEngineRenderReady", showCanvas);
-    document.addEventListener("RealBIMLoadProgress", LoadingProgress);
+    document.addEventListener("RESystemReady", RESystemReady);
+    document.addEventListener("RESystemEngineCreated", RESystemEngineCreated);
+    document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);
+    document.addEventListener("RESystemRenderReady", RESystemRenderReady);
+    document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);
 
-    document.addEventListener("RealBIMLocateCam", RealBIMLocateCam);
-    document.addEventListener("RealBIMSelModel", RealBIMSelModel);
+    document.addEventListener("RELocateCam", RELocateCam);
+    document.addEventListener("RESystemSelElement", RESystemSelElement);
     // document.addEventListener("RealBIMSelShape", RealBIMSelShape);
 
 
-    document.addEventListener("RealBIMLoadPanSce", function (e) { PanSceDown(e.detail.succeed) });
-    document.addEventListener("RealBIMLoadPan", function (e) { setMode(e.detail.succeed) });
+    document.addEventListener("REDataSetLoadPanFinish", function (e) { REDataSetLoadPanFinish(e.detail.succeed) });
+    document.addEventListener("REPanLoadSingleFinish", function (e) { REPanLoadSingleFinish(e.detail.succeed) });
 
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
-        RealBIMInitSys();
+        RESystemReady();
     }
 }
 
-function RealBIMSelModel(e) {
+function RESystemSelElement(e) {
     console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 function RealBIMSelShape(e) {
@@ -63,7 +63,7 @@ function RealBIMSelShape(e) {
     console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
-function RealBIMLocateCam(e) {
+function RELocateCam(e) {
     console.log(e);
 
     // var color = new BlackHole3D.REColor();
@@ -75,7 +75,7 @@ function RealBIMLocateCam(e) {
 
 
 // //全景场景加载完成，此时可获取全部点位信息
-// function PanSceDown(isSuccess) {
+// function REDataSetLoadPanFinish(isSuccess) {
 //     if (isSuccess) {
 //         console.log("360全景加载成功!！！！！！！！！！！！！！！！！！！！！！！！");
 //         // 获取全部帧信息
@@ -92,7 +92,7 @@ function RealBIMLocateCam(e) {
 //     }
 // }
 // //全景场景图片设置成功
-// function setMode(isSuccess) {
+// function REPanLoadSingleFinish(isSuccess) {
 //     if (isSuccess) {
 //         console.log("图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！");
 //         //   setOverViewSize();
@@ -106,7 +106,7 @@ function RealBIMLocateCam(e) {
 
 
 //场景初始化，需正确传递相关参数
-function RealBIMInitSys() {
+function RESystemReady() {
     console.log("=========================== 引擎底层初始化完成");
     progressFn(0.5, "RealEngine/WorkerJS Begin Init");
 
@@ -122,7 +122,7 @@ function RealBIMInitSys() {
 }
 
 //初始化完成后，同时加载两个项目，第一个设置了偏移值
-function RealBIMLoadMainSce(e) {
+function RESystemEngineCreated(e) {
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
 
 
@@ -180,7 +180,7 @@ function RealBIMLoadMainSce(e) {
 }
 
 //场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
-function MainSceDown(e) {
+function REDataSetLoadFinish(e) {
     console.log("=========================== 引擎主场景模型加载完成 ");
     if (e.detail.succeed) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
@@ -192,14 +192,14 @@ function MainSceDown(e) {
 //为了浏览效果，初始canvas是display:none;
 //监听到该事件，表示引擎天空盒资源加载完成，此时才显示canvas比较合适
 //canvas图形窗口默认黑色背景，页面初始设置为不显示，图形窗口开始渲染模型再显示
-function showCanvas() {
+function RESystemRenderReady() {
     console.log("=========================== 引擎渲染器初始化完成 ");
     document.getElementById('canvas').style.display = "block";
     BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
 }
 
 // 加载进度条
-function LoadingProgress(e) {
+function REDataSetLoadProgress(e) {
     var percent = e.detail.progress; var info = e.detail.info;
     progressFn(percent, info);
 }
