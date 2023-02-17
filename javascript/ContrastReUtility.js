@@ -584,36 +584,8 @@ Module.REclearLocalProjRgnsInfo = function(projName){
   return Module.RealBIMWeb.SetLocalProjRgnsInfo(projName, "");
 }
 
-// 倾斜摄影单体化相关接口
-// 设置倾斜摄影压平数据，参数为固定格式json字符串
-Module.REsetUnverProjectData = function(unverProjectionData){
-  var jsonStr = JSON.stringify(unverProjectionData);
-  Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr);
-}
-// 取消拍平区域，参数为要取消的拍平区域id集合
-Module.REremoveUnverProjectData = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*8).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid,0], i*2);
-  }
-  Module.RealBIMWeb.RemoveUnverprojectToSelection(elemIds.byteLength,elemIds.byteOffset);
-}
-// 重新拍平部分区域
-Module.REresetUnverProjectData = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*8).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid,0], i*2);
-  }
-  Module.RealBIMWeb.AddUnverprojectToSelection(elemIds.byteLength,elemIds.byteOffset);
-}
+
+
 
 //设置倾斜摄影单体化数据，参数为固定格式json字符串
 Module.REsetUnverElemData = function(unverElemData){
@@ -744,18 +716,7 @@ Module.REgetUnVerHugeGroupProjToLocalShp = function(projName, sceName){
   return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(projName, sceName);
 }
 
-//设置非版本管理场景节点是否允许投射到全局可投射矢量
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-Module.REsetUnVerHugeGroupProjToGolShp = function(projName, sceName, bProjToGolShp){
-  return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(projName, sceName, bProjToGolShp);
-}
-//获取非版本管理场景节点是否允许投射到全局可投射矢量
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-Module.REgetUnVerHugeGroupProjToGolShp = function(projName, sceName){
-  return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(projName, sceName);
-}
+
 
 //设置非版本管理场景节点是否允许矢量数据投影到模型组自身
 //projName：表示要处理的项目名称，为空串则表示处理所有项目
@@ -1207,10 +1168,7 @@ Module.REgetLevelDataByGuid = function(strGroupName,arrStrLevelID){
 
 
 
-//重置所有全局元素骨骼为默认方位
-Module.REresetAllGolElemBones = function(){
-  Module.RealBIMWeb.ResetAllGolElemBones();
-}
+
 
 
 //暂停渲染主循环

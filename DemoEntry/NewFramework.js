@@ -12,18 +12,14 @@ window.onresize = function (event) {
 }
 // 刷新页面时需要卸载GPU内存
 window.onbeforeunload = function (event) {
-    if (typeof BlackHole3D.REreleaseEngine != 'undefined') {
-        BlackHole3D.REreleaseEngine();
-    }
-    if (typeof BlackHole3D.ctx != 'undefined') {
-        if (BlackHole3D.ctx.getExtension('WEBGL_lose_context') != null) {
-            BlackHole3D.ctx.getExtension('WEBGL_lose_context').loseContext();
-        }
+    if (typeof BlackHole3D.releaseEngine != 'undefined') {
+        BlackHole3D.releaseEngine();
     }
 };
 
 // 页面加载时添加相关监听事件
 window.onload = function (event) {
+    
     console.log("=========================== window.load()");
     if (typeof CreateBlackHoleWebSDK != 'undefined') {
         console.log("======== RE2SDKCreateModule 存在");
@@ -154,15 +150,36 @@ function RESystemEngineCreated(e) {
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             },
-            {
-                "dataSetId": "dataSet03",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
-                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-                "useAssginVer": true,
-                "assginVer": 0,
-                "useTransInfo": false,
-                "transInfo": ""
-            }
+            // {
+            //     "dataSetId": "3a0960059327a3a6b63933ed6fb956cc",
+            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
+            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            // {
+            //     "dataSetId": "3a09611a1526f880503fa7c8bfe10b27",
+            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611a1526f880503fa7c8bfe10b27",
+            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            // {
+            //     "dataSetId": "3a09611aa1c3c4a7d1624c205c42c7af",
+            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611aa1c3c4a7d1624c205c42c7af",
+            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            // {
+            //     "dataSetId": "dataSet03",
+            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
+            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+            //     "useAssginVer": true,
+            //     "assginVer": 0,
+            //     "useTransInfo": false,
+            //     "transInfo": ""
+            // }
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
 
@@ -675,23 +692,28 @@ function addLineTag() {
 //骨骼爆炸动画
 function animBone() {
     var dataSetId = "dataSet01";
-    var elemIdList = [1062, 1014];
+    var elemIdList = [];
     var boneId = 1;
     BlackHole3D.BIM.setElemToBone(dataSetId, elemIdList, boneId);
-    var elemarr = [1062, 1014];
-    var bondid = 1;
-    BlackHole3D.REbindElemToBoneID_projs("dataSet01", elemarr, bondid);
-    var aabbarr = BlackHole3D.REgetTotalBoxByElemIDs_projs("dataSet01", elemarr); //数组形式：[Xmin, Xmax, Ymin, Ymax,Zmin, Zmax]
-    console.log(aabbarr)
-    var centerx = (aabbarr[0] + aabbarr[1]) / 2; var centery = (aabbarr[2] + aabbarr[3]) / 2; var centerz = (aabbarr[4] + aabbarr[5]) / 2;
-    var destloc = {
-        m_vLocalScale: [1.0, 1.0, 1.0],      //表示元素在以自身中心点为原点的局部世界空间中的缩放分量
-        m_vLocalRotate: [0.0, 0.0, 0.0],     //表示旋转分量，z表示一共旋转多少度
-        m_vCenterVirOrig: [centerx, centery, centerz],   //引擎的世界坐标
-        m_vCenterVirScale: [3.0, 3.0, 3.0],            //表示元素中心点在虚拟坐标系下的缩放分量
-        m_vCenterVirRotate: [0.0, 0.0, 0.0],           //表示元素中心点在虚拟坐标系下的旋转分量
-        m_vCenterVirOffset: [0.0, 0.0, 0.0]            //构件移动方向x,y,z
-    };
-    console.log(destloc)
-    //BlackHole3D.REsetGolElemBoneDestLoc(bondid, destloc, 1, 0, true);
+    var aabbarr = BlackHole3D.Coordinate.getElemTotalBV(dataSetId, elemIdList); //数组形式：[Xmin, Xmax, Ymin, Ymax,Zmin, Zmax]
+    var centerx = (aabbarr[0] + aabbarr[1]) / 2;
+    var centery = (aabbarr[2] + aabbarr[3]) / 2;
+    var centerz = (aabbarr[4] + aabbarr[5]) / 2;
+    //骨骼的目标方位
+    var destLoc = new BlackHole3D.REBoneLoc();
+    destLoc.autoScale = [0, 0, 0];
+    destLoc.localScale = [1.0, 1.0, 1.0];
+    destLoc.localRotate = [0.0, 0.0, 0.0];
+    destLoc.centerVirOrig = [centerx, centery, centerz];
+    destLoc.centerVirScale = [3.0, 3.0, 3.0];
+    destLoc.centerVirRotate = [0.0, 0.0, 0.0];
+    destLoc.centerVirOffset = [0.0, 0.0, 0.0];
+    //骨骼方位信息
+    var boneLocInfo = new BlackHole3D.REGolBoneLocInfo();
+    boneLocInfo.boneId = boneId;
+    boneLocInfo.interval = 1
+    boneLocInfo.procBatch = 0
+    boneLocInfo.sendPostEvent = true;
+    boneLocInfo.destLoc = destLoc;
+    BlackHole3D.BIM.setGolElemBoneDestLoc(boneLocInfo);
 }

@@ -85,6 +85,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.releaseEngine = function (clearWebWorker) {
         var _bClearWebWorker = false; if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
         Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
+        //卸载GPU内存
+        if (typeof Module.GLctx != 'undefined') {
+            if (Module.GLctx.getExtension('WEBGL_lose_context') != null) {
+                Module.GLctx.getExtension('WEBGL_lose_context').loseContext();
+            }
+        }
     }
 
     /**
@@ -1383,6 +1389,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiType, 'uiType')) return;
         return Module.RealBIMWeb.UIWgtGetVisible(uiType);
     }
+
 
 
 
@@ -3544,6 +3551,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetGolElemBoneDestLocExt(boneLocInfo.boneId, _destLoc, boneLocInfo.interval, boneLocInfo.procBatch, boneLocInfo.sendPostEvent);
     }
 
+    /**
+     * 重置所有全局元素骨骼为默认方位
+     */
+    Module.BIM.resetAllGolElemBoneDestLoc = function () {
+        Module.RealBIMWeb.ResetAllGolElemBones();
+    }
+
+
+
 
 
     // MARK 轮廓线
@@ -3730,12 +3746,73 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} projectionHeight //拍平的高度
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
     */
-    Module.REsetLocalProjRgnsInfo = function (dataSetId, rgnInfoList) {
+    Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
         if (!isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         var jsonStr = JSON.stringify(rgnInfoList);
         return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, jsonStr);
     }
 
+    /**
+     * 设置当前场景下的全局拍平区域，拍平区域默认对当前场景内的所有倾斜摄影数据均有效。
+     * @param {Array} rgnInfoList //拍平区域信息  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
+     * @param {Number} projectionHeight //拍平的高度
+     * @param {Array} regionVertex //不规则闭合区域的顶点信息
+     */
+    Module.Grid.setFlatGolRegion = function (rgnInfoList) {
+        var jsonStr = JSON.stringify(rgnInfoList);
+        Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr);
+    }
+
+    /**
+     * 清除一组拍平区域
+     * @param {Array} regionIdList //拍平区域id集合
+     */
+    Module.Grid.removeFlatRegion = function (regionIdList) {
+        var _count = regionIdList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = regionIdList[i];
+            _elemIds.set([eleid, 0], i * 2);
+        }
+        Module.RealBIMWeb.RemoveUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 重置一组拍平区域
+     * @param {Array} regionIdList //拍平区域id集合
+     */
+    Module.Grid.resetFlatRegion = function (regionIdList) {
+        var _count = regionIdList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = regionIdList[i];
+            _elemIds.set([eleid, 0], i * 2);
+        }
+        Module.RealBIMWeb.AddUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    //设置非版本管理场景节点是否允许投射到全局可投射矢量
+    //projName：表示要处理的项目名称，为空串则表示处理所有项目
+    //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
+    /**
+     * 设置的拍平数据对当前数据集是否有效
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     * @param {Boolean} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     */
+    Module.REsetUnVerHugeGroupProjToGolShp = function (dataSetId, bProjToGolShp) {
+        return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(projName, sceName, bProjToGolShp);
+    }
+    //获取非版本管理场景节点是否允许投射到全局可投射矢量
+    //projName：表示要处理的项目名称，为空串则表示处理所有项目
+    //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
+    Module.REgetUnVerHugeGroupProjToGolShp = function (projName, sceName) {
+        return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(projName, sceName);
+    }
 
 
 
