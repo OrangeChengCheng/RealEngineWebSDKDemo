@@ -142,17 +142,26 @@ function RESystemEngineCreated(e) {
         var dataSetList = [
             {
                 "dataSetId": "dataSet01",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
                 "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             },
             {
                 "dataSetId": "dataSet02",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/total.xml",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
                 "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            },
+            {
+                "dataSetId": "dataSet03",
+                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
+                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+                "useAssginVer": true,
+                "assginVer": 0,
+                "useTransInfo": false,
+                "transInfo": ""
             }
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
@@ -660,4 +669,29 @@ function addLineTag() {
     lineInfo.backClr = new BlackHole3D.REColor(70, 130, 180, 180);//表示要添加的标签背景颜色（REColor 类型）
     lineInfo.frameClr = new BlackHole3D.REColor(0, 255, 255, 0);//表示要添加的标签边框颜色（REColor 类型）
     BlackHole3D.Tag.addLineTags(lineInfo);
+}
+
+
+//骨骼爆炸动画
+function animBone() {
+    var dataSetId = "dataSet01";
+    var elemIdList = [1062, 1014];
+    var boneId = 1;
+    BlackHole3D.BIM.setElemToBone(dataSetId, elemIdList, boneId);
+    var elemarr = [1062, 1014];
+    var bondid = 1;
+    BlackHole3D.REbindElemToBoneID_projs("dataSet01", elemarr, bondid);
+    var aabbarr = BlackHole3D.REgetTotalBoxByElemIDs_projs("dataSet01", elemarr); //数组形式：[Xmin, Xmax, Ymin, Ymax,Zmin, Zmax]
+    console.log(aabbarr)
+    var centerx = (aabbarr[0] + aabbarr[1]) / 2; var centery = (aabbarr[2] + aabbarr[3]) / 2; var centerz = (aabbarr[4] + aabbarr[5]) / 2;
+    var destloc = {
+        m_vLocalScale: [1.0, 1.0, 1.0],      //表示元素在以自身中心点为原点的局部世界空间中的缩放分量
+        m_vLocalRotate: [0.0, 0.0, 0.0],     //表示旋转分量，z表示一共旋转多少度
+        m_vCenterVirOrig: [centerx, centery, centerz],   //引擎的世界坐标
+        m_vCenterVirScale: [3.0, 3.0, 3.0],            //表示元素中心点在虚拟坐标系下的缩放分量
+        m_vCenterVirRotate: [0.0, 0.0, 0.0],           //表示元素中心点在虚拟坐标系下的旋转分量
+        m_vCenterVirOffset: [0.0, 0.0, 0.0]            //构件移动方向x,y,z
+    };
+    console.log(destloc)
+    //BlackHole3D.REsetGolElemBoneDestLoc(bondid, destloc, 1, 0, true);
 }

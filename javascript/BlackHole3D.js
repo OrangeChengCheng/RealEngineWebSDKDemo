@@ -1,4 +1,4 @@
-//版本：v2.1.0.1816
+//版本：v2.1.0.1836
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -506,7 +506,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 dataSetModel.dataSetId,
                 _isMainProj,
                 _projCRS, _projNorth,
-                dataSetModel.resourcesAddress,
+                dataSetModel.resourcesAddress + "/total.xml",
                 _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
                 _minLoadDist, _maxLoadDist,
                 _defMainProjResRoot,
@@ -3122,18 +3122,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.BIM.addToSelElems = function (dataSetId, elemIdList) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
-        var _moemory = (_count * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
-        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _count; ++i) {
-            var eleid = elemIdList[i];
-            _elemIds.set([eleid, _projid], i * 2);
+        if (_count == 0) {
+            var _elemIdListTemp = Module.BIM.getDataSetAllElemIDs(dataSetId, false);
+            var _moemory = (_elemIdListTemp.length * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < _elemIdListTemp.length; ++i) {
+                var eleid = _elemIdListTemp[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+        } else {
+            var _moemory = (_count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < _count; ++i) {
+                var eleid = elemIdList[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         }
-        Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+
     }
 
     /**
@@ -3172,7 +3185,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      * @param {Boolean} visibalOnly //是否去除当前设置透明度为0的构件id
      */
-    Module.BIM.delFromSelElems = function (dataSetId, visibalOnly) {
+    Module.BIM.getDataSetAllElemIDs = function (dataSetId, visibalOnly) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, "", visibalOnly));
         var elemIds = [];
@@ -3217,6 +3230,100 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 设置项目的自动加载/卸载距离阈值
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} minLoadDist //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+     * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+     */
+    Module.BIM.setAutoLoadDist = function (dataSetId, minLoadDist, maxLoadDist) {
+        var _distinfo = [minLoadDist, maxLoadDist];
+        Module.RealBIMWeb.SetMainSceAutoLoadDist(dataSetId, _distinfo);
+    }
+
+    /**
+     * 获取单项目的最大/最小加载距离阈值
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getAutoLoadDist = function (dataSetId) {
+        return Module.RealBIMWeb.GetMainSceAutoLoadDist(dataSetId);
+    }
+
+    /**
+     * 设置模型场景节点的可见性
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} enable //是否可见
+     */
+    Module.BIM.setElemVisible = function (dataSetId, enable) {
+        Module.RealBIMWeb.SetHugeObjVisible(dataSetId, "", enable);
+    }
+
+    /**
+     * 获取模型场景节点的可见性
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getElemVisible = function (dataSetId) {
+        return Module.RealBIMWeb.GetHugeObjVisible(dataSetId, "");
+    }
+
+    /**
+     * 设置复杂模型内子元素的深度偏移
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} depthBias //深度偏移值,范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.setElemDepthBias = function (dataSetId, elemIdList, depthBias, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+
+        if (dataSetId == "") {
+            Module.RealBIMWeb.SetHugeObjSubElemDepthBias("", "", 0xffffffff, 0, depthBias, _elemScope);
+        } else {
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, "", 0xffffffff, 0, depthBias, _elemScope);
+            } else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (var i = 0; i < _count; ++i) {
+                    _elemIds.set([elemIdList[i], _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, depthBias, _elemScope);
+            }
+        }
+    }
+
+    /**
+     * 设置模型场景节点的仿射变换信息
+     * @param {String} dataSetId //数据集标识
+     * @param {dvec3} scale //模型的缩放系数，默认为[1,1,1]，xyz轴的缩放系数需保持一致
+     * @param {dvec4} rotate //模型的旋转系数，四元数，默认为[0,0,0,1]
+     * @param {dvec3} offset //模型的平移系数，默认为[0,0,0]
+     */
+    Module.BIM.setElemTransform = function (dataSetId, scale, rotate, offset) {
+        return Module.RealBIMWeb.SetHugeObjTransform(dataSetId, "", scale, rotate, offset);
+    }
+
+    /**
+     * 刷新数据集模型
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
+     */
+    Module.BIM.refreshDataSet = function (dataSetId, loadNewData) {
+        Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, "", loadNewData);
+    }
+
+    /**
+     * 刷新所有数据集模型
+     * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
+     */
+    Module.BIM.refreshAllDataSet = function (loadNewData) {
+        Module.RealBIMWeb.RefreshMainData(loadNewData);
+    }
 
 
 
@@ -3351,6 +3458,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK 骨骼动画
 
+    class REGolBoneLocInfo {
+        constructor() {
+            this.boneId = null;//表示骨骼全局ID
+            this.interval = null;//表示骨骼从当前方位过渡到目标方位所需的时长
+            this.procBatch = null;//表示骨骼的方位过渡批次
+            this.sendPostEvent = null;//表示骨骼方位过渡完毕后是否发送事件消息
+            this.destLoc = null;//表示骨骼的目标方位 (REBoneLoc 类型)
+        }
+    }
+    ExtModule.REGolBoneLocInfo = REGolBoneLocInfo;
+
+    class REBoneLoc {
+        constructor() {
+            this.autoScale = null;//表示元素的自动缩放系数
+            this.localScale = null;//表示元素在以自身中心点为原点的局部世界空间中的缩放分量
+            this.localRotate = null;//表示元素在以自身中心点为原点的局部世界空间中的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
+            this.centerVirOrig = null;//表示元素中心点的缩放/旋转/平移变换所在的虚拟坐标系坐标原点的世界空间位置
+            this.centerVirScale = null;//表示元素中心点在虚拟坐标系下的缩放分量
+            this.centerVirRotate = null;//表示元素中心点在虚拟坐标系下的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
+            this.centerVirOffset = null;//表示元素中心点在虚拟坐标系下的平移分量
+        }
+    }
+    ExtModule.REBoneLoc = REBoneLoc;
+
+
     /**
      * 绑定一批构件到一个骨骼上
      * @param {String} dataSetId //数据集标识
@@ -3386,6 +3518,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 获取系统中的全局元素骨骼总数
+     */
+    Module.BIM.getGolElemBoneNum = function () {
+        return Module.RealBIMWeb.GetGolElemBoneNum();
+    }
+
+    /**
+     * 设置全局元素骨骼的目标方位
+     * @param {REGolBoneLocInfo} boneLocInfo //骨骼方位信息
+     */
+    Module.BIM.setGolElemBoneDestLoc = function (boneLocInfo) {
+        if (isEmptyLog(boneLocInfo, "boneLocInfo")) return;
+        if (isEmptyLog(boneLocInfo.destLoc, "destLoc")) return;
+        var _destLoc = {
+            m_vAutoScale: boneLocInfo.destLoc.autoScale,
+            m_vLocalScale: boneLocInfo.destLoc.localScale,
+            m_vLocalRotate: boneLocInfo.destLoc.localRotate,
+            m_vCenterVirOrig: boneLocInfo.destLoc.centerVirOrig,
+            m_vCenterVirScale: boneLocInfo.destLoc.centerVirScale,
+            m_vCenterVirRotate: boneLocInfo.destLoc.centerVirRotate,
+            m_vCenterVirOffset: boneLocInfo.destLoc.centerVirOffset,
+        }
+        return Module.RealBIMWeb.SetGolElemBoneDestLocExt(boneLocInfo.boneId, _destLoc, boneLocInfo.interval, boneLocInfo.procBatch, boneLocInfo.sendPostEvent);
+    }
 
 
 
@@ -3514,7 +3671,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} alpha //透明度
      */
     Module.Grid.setGroupAlpha = function (dataSetId, alpha) {
-        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(projName, sceName);
+        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
         } else {
@@ -3949,7 +4106,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} color 
      */
     function clrToU32_WBGR(color) {
-        if (isEmpty(color.red) || isEmpty(color.green) || isEmpty(color.blue)) return 0xFFFFFFFF;
+        if ((isEmpty(color.red) || color.red.toString() == "NaN")
+            || (isEmpty(color.green) || color.green.toString() == "NaN")
+            || (isEmpty(color.blue) || color.blue.toString() == "NaN")) return 0x00000000;
         var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
         var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
         var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));

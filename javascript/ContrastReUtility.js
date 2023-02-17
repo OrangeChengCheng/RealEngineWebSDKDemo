@@ -8,10 +8,7 @@ var RE2SDKCreateModule =function(ExtModule){
     ExtModule = instance;
   }); //创建引擎模块
 
-//刷新场景数据
-Module.RErefreshMainData = function(bLoadNewData){
-  Module.RealBIMWeb.RefreshMainData(bLoadNewData);
-}
+
   
 //设置当前的操作模式(0:鼠标操作操作 1:触控操作)
 Module.REsetInputType = function(uInputType){
@@ -61,17 +58,6 @@ Module.REsetMainSceTransform = function(projName,transInfo){
 Module.REgetMainSceTransform = function(projName){
   var _transinfo =Module.RealBIMWeb.GetMainSceTransform(projName);
   return [_transinfo.m_vScale, _transinfo.m_qRotate, _transinfo.m_vOffset];
-}
-//设置项目的自动加载/卸载距离阈值
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//vDist：<x,y>分别表示项目资源的最小/最大加载渲染距离阈值(>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，绝对值>1e20表示相机拉近/拉远后永不卸载)
-Module.REsetMainSceAutoLoadDist = function(projName,minLoadDist,maxLoadDist){
-  var distinfo=[minLoadDist,maxLoadDist];
-  Module.RealBIMWeb.SetMainSceAutoLoadDist(projName,distinfo);
-}
-// 获取单项目的最大/最小加载距离阈值
-Module.REgetMainSceAutoLoadDist = function(projName){
-  return Module.RealBIMWeb.GetMainSceAutoLoadDist(projName);
 }
 
 
@@ -1218,29 +1204,9 @@ Module.REgetLevelDataByGuid = function(strGroupName,arrStrLevelID){
 }
 
 
-//获取系统中的全局元素骨骼总数
-Module.REgetGolElemBoneNum = function(){
-  return Module.RealBIMWeb.GetGolElemBoneNum();
-}
 
-//设置全局元素骨骼的目标方位
-//uBoneID：表示骨骼全局ID
-//cDestLoc：表示骨骼的目标方位
-//dInterval：表示骨骼从当前方位过渡到目标方位所需的时长
-//uProcBatch：表示骨骼的方位过渡批次
-//bSendPostEvent：表示骨骼方位过渡完毕后是否发送事件消息
-Module.REsetGolElemBoneDestLoc = function(uBoneID,cDestLoc,dInterval,uProcBatch,bSendPostEvent){
-  return Module.RealBIMWeb.SetGolElemBoneDestLoc(uBoneID,cDestLoc,dInterval,uProcBatch,bSendPostEvent);
-}
-//设置全局元素骨骼的目标方位扩展版,增加缩放系数
-//uBoneID：表示骨骼全局ID
-//cDestLoc：表示骨骼的目标方位
-//dInterval：表示骨骼从当前方位过渡到目标方位所需的时长
-//uProcBatch：表示骨骼的方位过渡批次
-//bSendPostEvent：表示骨骼方位过渡完毕后是否发送事件消息
-Module.REsetGolElemBoneDestLocExt = function(uBoneID,cDestLoc,dInterval,uProcBatch,bSendPostEvent){
-  return Module.RealBIMWeb.SetGolElemBoneDestLocExt(uBoneID,cDestLoc,dInterval,uProcBatch,bSendPostEvent);
-}
+
+
 //重置所有全局元素骨骼为默认方位
 Module.REresetAllGolElemBones = function(){
   Module.RealBIMWeb.ResetAllGolElemBones();
@@ -1446,48 +1412,10 @@ Module.RErefreshUnVerHugeGroupMainData = function(projName,sceName,bLoadNewData)
   Module.RealBIMWeb.RefreshUnVerHugeGroupMainData(projName,sceName,bLoadNewData);
 }
 
-//设置复杂模型内子元素的深度偏移
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的场景节点的名称标识，若为空串则表示处理所有的场景节点
-//objArr：表示要处理的构件id数组，若为空串则表示处理所有的构件id
-//fDepthBias:范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REsetHugeObjSubElemDepthBias = function(projName,sceName,objArr,fDepthBias,elemScope){
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  if(projName == ""){
-    Module.RealBIMWeb.SetHugeObjSubElemDepthBias("", "", 0xffffffff, 0, fDepthBias, _elemScope);
-  }else{
-    var projid = Module.RealBIMWeb.ConvGolStrID2IntID(projName);
-    var _s = objArr.length;
-    if(_s == 0){
-      Module.RealBIMWeb.SetHugeObjSubElemDepthBias(projName, sceName, 0xffffffff, 0, fDepthBias, _elemScope);
-    }else{  
-      var _s01 = (_s*8).toString();
-      Module.RealBIMWeb.ReAllocHeapViews(_s01); var elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-      for(var i =0; i<_s; ++i){
-        elemIds.set([objArr[i], projid], i*2);
-      }
-      Module.RealBIMWeb.SetHugeObjSubElemDepthBias(projName, sceName, elemIds.byteLength, elemIds.byteOffset, fDepthBias, _elemScope);
-    }
-  }
-}
 
-//设置模型场景节点的可见性
-Module.REsetHugeObjVisible = function(projName,sceName,bVisible){
-  Module.RealBIMWeb.SetHugeObjVisible(projName,sceName,bVisible);
-}
-//获取模型场景节点的可见性
-Module.REgetHugeObjVisible = function(projName,sceName){
-  return Module.RealBIMWeb.GetHugeObjVisible(projName,sceName);
-}
-//设置模型场景节点的仿射变换信息
-Module.REsetHugeObjTransform = function(projName,sceName,arrScale,arrRotate,arrOffset){
-  return Module.RealBIMWeb.SetHugeObjTransform(projName,sceName,arrScale,arrRotate,arrOffset);
-}
-//刷新模型，bLoadNewData：表示刷新主体数据后是否允许重新加载数据
-Module.RErefreshHugeObjMainData = function(projName,sceName,bLoadNewData){
-  Module.RealBIMWeb.RefreshHugeObjMainData(projName,sceName,bLoadNewData);
-}
+
+
+
 
 
 // MOD-- 创建矢量对象（点线面）相关
