@@ -147,10 +147,10 @@ function parseIntTest() {
   console.log(intClr);
   console.log(intClr255);
   console.log(intClrDouble);
-  console.log((intClr).toString(16));
+  console.log((0x0080ffff).toString(16));
 }
 
-// parseIntTest();
+parseIntTest();
 
 
 
@@ -165,29 +165,29 @@ function parseIntTest() {
 // })()
 
 
-function isEmptyLog(value) {
-  // console.log(arguments.callee.caller.caller.toString());
-  console.log(arguments.callee.caller.toString().match(/isEmptyLog\((\S)\)/) + ' = ' + value)
-}
+// function isEmptyLog(value) {
+//   // console.log(arguments.callee.caller.caller.toString());
+//   console.log(arguments.callee.caller.toString().match(/isEmptyLog\((\S)\)/) + ' = ' + value)
+// }
 
-function test(aaa) {
-  var x = 1
-  isEmptyLog(x)
-  var y = 1
-  isEmptyLog(y)
-  var z = 1
-  isEmptyLog(z)
-}
+// function test(aaa) {
+//   var x = 1
+//   isEmptyLog(x)
+//   var y = 1
+//   isEmptyLog(y)
+//   var z = 1
+//   isEmptyLog(z)
+// }
 
 
-function aaaa() {
-  var x = 666
-  test(x)
-}
+// function aaaa() {
+//   var x = 666
+//   test(x)
+// }
 
-// var x = 666
-// test(x)
-aaaa()
+// // var x = 666
+// // test(x)
+// aaaa()
 
 
 

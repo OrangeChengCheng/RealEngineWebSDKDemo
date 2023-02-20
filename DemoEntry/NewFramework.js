@@ -19,7 +19,7 @@ window.onbeforeunload = function (event) {
 
 // 页面加载时添加相关监听事件
 window.onload = function (event) {
-    
+
     console.log("=========================== window.load()");
     if (typeof CreateBlackHoleWebSDK != 'undefined') {
         console.log("======== RE2SDKCreateModule 存在");
@@ -70,34 +70,37 @@ function RELocateCam(e) {
 }
 
 
-// //全景场景加载完成，此时可获取全部点位信息
-// function REDataSetLoadPanFinish(isSuccess) {
-//     if (isSuccess) {
-//         console.log("360全景加载成功!！！！！！！！！！！！！！！！！！！！！！！！");
-//         // 获取全部帧信息
-//         var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
-//         console.log(pandata);
-//         // 设置360显示信息
-//         BlackHole3D.Panorama.loadPanPic(pandata[0].elemId, 0);
-//         console.log(pandata[0].elemId);
+//全景场景加载完成，此时可获取全部点位信息
+function REDataSetLoadPanFinish(isSuccess) {
+    if (isSuccess) {
+        console.log("360全景加载成功!！！！！！！！！！！！！！！！！！！！！！！！");
+        // 获取全部帧信息
+        var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
+        console.log(pandata);
+        // 设置360显示信息
+        BlackHole3D.Panorama.loadPanPic(pandata[0].elemId, 0);
+        console.log(pandata[0].elemId);
 
-//         // 设置窗口模式
-//         BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.Panorama, BlackHole3D.RE_ViewportType.None, 0);
-//     } else {
-//         console.log("360全景加载失败！！！！！！！！！！！！！！！！！！！！！！！");
-//     }
-// }
-// //全景场景图片设置成功
-// function REPanLoadSingleFinish(isSuccess) {
-//     if (isSuccess) {
-//         console.log("图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！");
-//         //   setOverViewSize();
-//         //   //加载概略图CAD数据
-//         //   addCADData();
-//     } else {
-//         console.log("图片设置失败！！！！！！！！！！！！！！！！！！！！！！！");
-//     }
-// }
+        // 设置窗口模式
+        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.Panorama, BlackHole3D.RE_ViewportType.CAD, 0);
+        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.BIM, BlackHole3D.RE_ViewportType.Panorama, 1);
+        BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.CAD, BlackHole3D.RE_ViewportType.Panorama, 1);
+        BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
+    } else {
+        console.log("360全景加载失败！！！！！！！！！！！！！！！！！！！！！！！");
+    }
+}
+//全景场景图片设置成功
+function REPanLoadSingleFinish(isSuccess) {
+    if (isSuccess) {
+        console.log("图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！");
+        //   setOverViewSize();
+        //   //加载概略图CAD数据
+        //   addCADData();
+    } else {
+        console.log("图片设置失败！！！！！！！！！！！！！！！！！！！！！！！");
+    }
+}
 
 
 
@@ -128,28 +131,28 @@ function RESystemEngineCreated(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
-        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.None, BlackHole3D.RE_ViewportType.CAD, 0);
-        // // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Millimeter, 1.0);
+        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.BIM, BlackHole3D.RE_ViewportType.CAD, 1);
+        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Millimeter, 1.0);
         // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
         // return;
 
 
-        //倾斜摄影proj1的测试场景
+        // 倾斜摄影proj1的测试场景
         var dataSetList = [
-            {
-                "dataSetId": "dataSet01",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            },
-            {
-                "dataSetId": "dataSet02",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-                "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-                "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            },
+            // {
+            //     "dataSetId": "dataSet01",
+            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            // {
+            //     "dataSetId": "dataSet02",
+            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
             // {
             //     "dataSetId": "3a0960059327a3a6b63933ed6fb956cc",
             //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
@@ -179,7 +182,28 @@ function RESystemEngineCreated(e) {
             //     "assginVer": 0,
             //     "useTransInfo": false,
             //     "transInfo": ""
-            // }
+            // },
+            // {
+            //     "dataSetId": "3a095bf75602ca925fc87a7974565d9e",
+            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a095bf75602ca925fc87a7974565d9e",
+            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            // {
+            //     "dataSetId": "3a096c1a61a7e6545c97e8a1cc6ca1be",
+            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a096c1a61a7e6545c97e8a1cc6ca1be",
+            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
+            {
+                "dataSetId": "3a0960059327a3a6b63933ed6fb956cc",
+                "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
+                "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
+                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+                "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            },
         ];
         BlackHole3D.Model.loadDataSet(dataSetList);
 
@@ -210,6 +234,8 @@ function REDataSetLoadFinish(e) {
     console.log("=========================== 引擎主场景模型加载完成 ");
     if (e.detail.succeed) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
+        // BlackHole3D.setViewMode(BlackHole3D.RE_ViewportType.BIM, BlackHole3D.RE_ViewportType.CAD, 1);
+        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }

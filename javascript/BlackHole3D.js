@@ -2712,7 +2712,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    //颜色转换工具函数
+    Module.REclrFix = function (clr, clrPercent) {
+        var newclr01 = clr.substring(0, 2);
+        var newclr02 = clr.substring(2, 4);
+        var newclr03 = clr.substring(4, 6);
+        var newclr = newclr03 + newclr02 + newclr01;
+        var intclrper = Math.round(clrPercent);
+        var newclrper = (intclrper > 15 ? (intclrper.toString(16)) : ("0" + intclrper.toString(16)));
+        var clrinfo = "0x" + newclrper + newclr;
+        var clr = parseInt(clrinfo);
+        return clr;
+    }
 
+    //透明度转换工具函数
+    Module.REalphaFix = function (alpha, alphaPercent) {
+        var intalphainfo = Math.round(alpha);
+        var intalphaper = Math.round(alphaPercent);
+        var newalphainfo = (intalphainfo > 15 ? (intalphainfo.toString(16)) : ("0" + intalphainfo.toString(16)));
+        var newalphaper = (intalphaper > 15 ? (intalphaper.toString(16)) : ("0" + intalphaper.toString(16)));
+        var alphainfo = "0x" + newalphaper + newalphainfo + "ffff";
+        var alpha = parseInt(alphainfo);
+        return alpha;
+    }
 
     // MARK 构件属性
     /**
@@ -2801,7 +2823,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
             let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
             elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
+            elemAttrInfo.percent = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
             elemAttrList.push(elemAttrInfo);
+        }
+
+
+        var elemclrinfoarrTTTT = [];
+        for (var i = 0; i < clrinfoarr.length; i += 4) {
+            var curelemclrinfo = {};
+            curelemclrinfo["id"] = clrinfoarr[i];
+            curelemclrinfo["alpha"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
+            curelemclrinfo["alphaWeight"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
+            curelemclrinfo["color"] = (clrinfoarr[i + 3]).toString(16).substring(6, 8) + (clrinfoarr[i + 3]).toString(16).substring(4, 6) + (clrinfoarr[i + 3]).toString(16).substring(2, 4);
+            curelemclrinfo["colorWeight"] = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
+            elemclrinfoarrTTTT.push(curelemclrinfo);
         }
         return elemAttrList;
     }
@@ -2815,20 +2850,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, elemScope) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        // if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+
+        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
 
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _alpha = alphaToU32_WA(elemAlpha);
-        var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
+        var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, _elemIdListTemp);
 
-        var _count = elemIdList.length;
+        var _count = _elemIdListTemp.length;
         var _moemory = (_count * 16).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _count; ++i) {
-            var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
-            _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
+            // var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
+            var _clr = clrToU32_W_WBGR(_elemAttrInfo[i].elemClr, _elemAttrInfo.percent);
+            _clrs.set([_elemIdListTemp[i], _projid, _alpha, _clr], i * 4);
         }
         Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
 
@@ -4185,7 +4224,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     function clrToU32_WBGR(color) {
         if ((isEmpty(color.red) || color.red.toString() == "NaN")
             || (isEmpty(color.green) || color.green.toString() == "NaN")
-            || (isEmpty(color.blue) || color.blue.toString() == "NaN")) return 0x00000000;
+            || (isEmpty(color.blue) || color.blue.toString() == "NaN")) return 0x00FFFFFF;
+        var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
+        var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
+        var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
+        var clrHEX_W = (255).toString(16);
+        var clrHEX_WBGR = "0x" + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
+        var intClr_WBGR = parseInt(clrHEX_WBGR);
+        return intClr_WBGR;
+    }
+    function clrToU32_W_WBGR(color, percent) {
+        if ((isEmpty(color.red) || color.red.toString() == "NaN")
+            || (isEmpty(color.green) || color.green.toString() == "NaN")
+            || (isEmpty(color.blue) || color.blue.toString() == "NaN")
+        ) {
+            var intclrper = Math.round(percent);
+            var newclrper = (intclrper > 15 ? (intclrper.toString(16)) : ("0" + intclrper.toString(16)));
+            var clrinfo = "0x" + newclrper + "ffffff";
+            var clr = parseInt(clrinfo);
+            return clr;
+        }
         var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
         var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
         var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
