@@ -185,7 +185,10 @@ function PanSceDown(isSuccess) {
     console.log(pandata[0].m_strId);
     
     // 设置窗口模式
-    BlackHole3D.REsetViewMode("360","",0);
+    // BlackHole3D.REsetViewMode("360","",0);
+    BlackHole3D.REsetViewMode("360", "CAD", 1);
+    // BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/dwg/BF00-AR01-01(1).dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
+    BlackHole3D.REloadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CAD_UNIT.Millimeter, 1.0);
   } else {
     console.log("360全景加载失败！！！！！！！！！！！！！！！！！！！！！！！");
   }
@@ -194,9 +197,9 @@ function PanSceDown(isSuccess) {
 function setMode(isSuccess) {
   if (isSuccess) {
     console.log("图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！");
-    setOverViewSize();
-    //加载概略图CAD数据
-    addCADData();
+    // setOverViewSize();
+    // //加载概略图CAD数据
+    // addCADData();
   } else {
     console.log("图片设置失败！！！！！！！！！！！！！！！！！！！！！！！");
   }
