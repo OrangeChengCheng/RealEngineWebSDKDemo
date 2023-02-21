@@ -2857,7 +2857,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        var _alpha = alphaToU32_WA(elemAlpha);
+        var _alpha = alphaWToU32_WA(elemAlpha);
         var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, _elemIdListTemp);
 
         var _count = _elemIdListTemp.length;
@@ -2865,8 +2865,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _count; ++i) {
-            // var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
-            var _clr = clrToU32_W_WBGR(_elemAttrInfo[i].elemClr, _elemAttrInfo.percent);
+            var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
+            // var _clr = clrToU32_W_WBGR(_elemAttrInfo[i].elemClr, _elemAttrInfo.percent);
             _clrs.set([_elemIdListTemp[i], _projid, _alpha, _clr], i * 4);
         }
         Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -4262,6 +4262,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
         var clrHEX_W = (255).toString(16);
         var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + "ffff";
+        var intClr_WA = parseInt(clrHEX_WA);
+        return intClr_WA;
+    }
+
+    /**
+     * 透明度权重->U32_WA
+     * @param {Number} alpha_W 
+     */
+    function alphaWToU32_WA(alpha_W) {
+        if (isEmpty(alpha_W)) return 0xFFFFFFFF;
+        var int_AW_r = 255 - Math.round(alpha_W);//设置透明度使用权重进行设置，不然会造成混合的异常（透明材质的情况）；透明值始终为0，想设置透明，即权重的比例增大；不透明，即权重的比例减少
+        var clrHEX_AW = (int_AW_r > 15 ? (int_AW_r.toString(16)) : ("0" + int_AW_r.toString(16)));
+        var clrHEX_WA = "0x" + clrHEX_AW + "00" + "ffff";
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
