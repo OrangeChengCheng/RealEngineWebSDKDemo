@@ -827,21 +827,7 @@ Module.REgetAllHugeGroupIDs = function(projName){
 }
 
 
-//获取指定项目内的子元素双版本比对的差异ID列表
-//projName：表示要处理的项目名称，必须为有效的项目名称
-//diffType：1/2/3->新版本相对于老版本的新增/删除/修改的元素
-//返回值：新增/删除/修改的项目内元素ID数据数组
-Module.REgetHugeObjVerCmpDiffIDs = function(projName, diffType){
-  var _arr_id =Module.RealBIMWeb.GetHugeObjVerCmpDiffIDs(projName,diffType);
-  var elemIds =[];
-  if(_arr_id >= 0){
-    var _arr =new Uint32Array(Module.m_re_em_golarraybuf[_arr_id].buffer);
-    for(i =0; i<_arr.length; ++i){
-      elemIds.push(_arr[i]);
-    }
-  }
-  return elemIds;
-}
+
 
 //正交投影下开始添加剖切线顶点
 Module.REclipWithTwoPoint = function(clipDir){

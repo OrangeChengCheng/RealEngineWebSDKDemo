@@ -475,6 +475,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dataSetCRSNorth //当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）dataSetCRS 为空时此参数无定意义
      * @param {Boolean} useAssginVer  //表示是否加载指定版本，默认 false
      * @param {String} assginVer //指定版本号，加载指定版本的时候，会用此版本号
+     * @param {Boolean} useAssginVer2  //表示是否加载指定版本2，默认 false
+     * @param {String} assginVer2 //指定版本号2，加载指定版本的时候，会用此版本号
      */
     Module.Model.loadDataSet = function (dataSetList, clearLoaded) {
         if (isRepeat(dataSetList, 'dataSetId')) {
@@ -505,7 +507,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             if (dataSetModel.useAssginVer) {
                 _ver.m_sVer0 = dataSetModel.assginVer; _ver.m_uVer0GolIDBias_H32 = intprojid;
             }
-            if (dataSetModel.useNewVer2) {
+            if (dataSetModel.useAssginVer2) {
                 _ver.m_sVer1 = dataSetModel.assginVer2; _ver.m_uVer1GolIDBias_H32 = intprojid;
             }
             Module.RealBIMWeb.LoadMainSceExt(
@@ -3241,6 +3243,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return elemIds;
     }
 
+    /**
+     * 获取指定数据集内的子元素双版本比对的差异ID列表
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} diffType //1/2/3->新版本相对于老版本的新增/删除/修改的元素
+     */
+    Module.BIM.getDiffVerElemIDs = function (dataSetId, diffType) {
+        var _arr_id = Module.RealBIMWeb.GetHugeObjVerCmpDiffIDs(dataSetId, diffType);
+        var elemIds = [];
+        if (_arr_id >= 0) {
+            var _arr = new Uint32Array(Module.m_re_em_golarraybuf[_arr_id].buffer);
+            for (i = 0; i < _arr.length; ++i) {
+                elemIds.push(_arr[i]);
+            }
+        }
+        return elemIds;
+    }
 
 
 
