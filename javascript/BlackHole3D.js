@@ -1,4 +1,4 @@
-//版本：v2.1.0.1836
+//版本：v2.1.0.1844
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -102,9 +102,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置窗口的显示模式，此接口适用于需要双屏显示，以及需要单双屏切换的应用场景。
-     * @param {RE_ViewportType} viewport0 //第0个视图要显示的场景内容 RE_ViewportType 枚举类型
-     * @param {RE_ViewportType} viewport1 //第1个视图要显示的场景内容 RE_ViewportType 枚举类型
-     * @param {RE_ViewportRank} screenMode //视图0与视图1在屏幕上的排列方式 RE_ViewportRank 枚举类型
+     * @param {REVpTypeEm} viewport0 //第0个视图要显示的场景内容 REVpTypeEm 枚举类型
+     * @param {REVpTypeEm} viewport1 //第1个视图要显示的场景内容 REVpTypeEm 枚举类型
+     * @param {REVpRankEm} screenMode //视图0与视图1在屏幕上的排列方式 REVpRankEm 枚举类型
      */
     Module.setViewMode = function (viewport0, viewport1, screenMode) {
         Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
@@ -588,12 +588,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} locDelay //转动相机前的延时时间（秒）默认0
      * @param {Number} locTime //相机的运动速度（秒） 默认1.0
      */
-    Module.Camera.setCamLocateTo = function (camLoc) {
+    Module.Camera.setCamLocateTo = function (camLoc, locDelay, locTime) {
         if (isEmptyLog(camLoc, "camLoc")) return;
         if (isEmptyLog(camLoc.camPos, "camPos")) return;
         if (isEmpty(camLoc.camRotate) && isEmpty(camLoc.camDir)) { logParErr('camRotate | camDir'); return; }
-        var _delay = 0; if (!isEmpty(camLoc.locDelay)) _delay = camLoc.locDelay;
-        var _time = 1.0; if (!isEmpty(camLoc.locTime)) _delay = camLoc.locTime;
+        var _delay = 0; if (!isEmpty(locDelay)) _delay = locDelay;
+        var _time = 1.0; if (!isEmpty(locTime)) _delay = locTime;
         if (camLoc.camRotate) {
             Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
             return;
@@ -618,13 +618,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 调整相机到默认视角方位
-     * @param {RE_ViewCudePerspective} locType //表示26个方向 RE_ViewCudePerspectiveEnum 枚举值
+     * @param {RECamDirEm} locType //表示26个方向 RECamDirEm 枚举值
      * @param {Boolean} scanAllDataSet //是否定位到整个数据集，默认true，true表示定位到整个场景，false表示相机原地调整方向
      */
     Module.Camera.setCamLocateDefault = function (locType, scanAllDataSet) {
         if (isEmptyLog(locType, "locType")) return;
         var _bScanAllSce = true; if (!isEmpty(scanAllDataSet)) _bScanAllSce = scanAllDataSet;
-        var enumEval = eval(locType);
+        var enumEval = locType;
         Module.RealBIMWeb.ResetCamToTotalSce(enumEval, _bScanAllSce);
     }
 
@@ -1373,7 +1373,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置对应系统UI的可见性
-     * @param {RE_SYSWnd_Mate} uiType //控件类型（RE_SYSWnd_Mate 类型）
+     * @param {RESysWndMateEm} uiType //控件类型（RESysWndMateEm 类型）
      * @param {Boolean} enable //是否显示
      */
     Module.Graphics.setSysUIWgtVisible = function (uiType, enable) {
@@ -1383,7 +1383,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 获取对应系统UI的可见性
-     * @param {RE_SYSWnd_Mate} uiType //控件类型（RE_SYSWnd_Mate 类型）
+     * @param {RESysWndMateEm} uiType //控件类型（RESysWndMateEm 类型）
      */
     Module.Graphics.getSysUIWgtVisible = function (uiType) {
         if (isEmptyLog(uiType, 'uiType')) return;
@@ -3675,12 +3675,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 加载CAD文件
      * @param {String} filePath //图纸的资源发布路径
-     * @param {RE_CADUnit} unit //图纸的单位 (RE_CADUnit 类型)
+     * @param {RECadUnitEm} unit //图纸的单位 (RECadUnitEm 类型)
      * @param {Number} scale //图纸的比例尺信息
      */
     Module.CAD.loadCAD = function (filePath, unit, scale) {
         if (isEmptyLog(filePath, "filePath")) return;
-        var _unit = eval(RE_CADUnit.Meter); if (!isEmpty(unit)) _unit = eval(unit);
+        var _unit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty(unit)) _unit = unit;
         var _scale = 1.0; if (!isEmpty(scale)) _scale = scale;
         Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
     }
@@ -3835,23 +3835,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.AddUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
     }
 
-    //设置非版本管理场景节点是否允许投射到全局可投射矢量
-    //projName：表示要处理的项目名称，为空串则表示处理所有项目
-    //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-    /**
-     * 设置的拍平数据对当前数据集是否有效
-     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
-     * @param {Boolean} dataSetId //数据集标识，为空字符串则表示处理所有数据集
-     */
-    Module.REsetUnVerHugeGroupProjToGolShp = function (dataSetId, bProjToGolShp) {
-        return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(projName, sceName, bProjToGolShp);
-    }
-    //获取非版本管理场景节点是否允许投射到全局可投射矢量
-    //projName：表示要处理的项目名称，为空串则表示处理所有项目
-    //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-    Module.REgetUnVerHugeGroupProjToGolShp = function (projName, sceName) {
-        return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(projName, sceName);
-    }
+    // //设置非版本管理场景节点是否允许投射到全局可投射矢量
+    // //projName：表示要处理的项目名称，为空串则表示处理所有项目
+    // //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
+    // /**
+    //  * 设置的拍平数据对当前数据集是否有效
+    //  * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+    //  * @param {Boolean} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+    //  */
+    // Module.REsetUnVerHugeGroupProjToGolShp = function (dataSetId, bProjToGolShp) {
+    //     return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(projName, sceName, bProjToGolShp);
+    // }
+    // //获取非版本管理场景节点是否允许投射到全局可投射矢量
+    // //projName：表示要处理的项目名称，为空串则表示处理所有项目
+    // //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
+    // Module.REgetUnVerHugeGroupProjToGolShp = function (projName, sceName) {
+    //     return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(projName, sceName);
+    // }
 
 
 
@@ -3954,13 +3954,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置360相机的朝向
-     * @param {String} locType //表示相机朝向（ RE_ViewCudePerspective 枚举类型）
+     * @param {String} locType //表示相机朝向（ RECamDirEm 枚举类型）
      * @param {Number} panCamId //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.setCamLocateTo = function (locType, panCamId) {
         if (isEmptyLog(locType, "locType")) return;
         var _panCamId = 0; if (!isEmpty(panCamId)) { _panCamId = panCamId; }
-        var enumEval = eval(locType);
+        var enumEval = locType;
         Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
     }
 
@@ -4014,14 +4014,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 打开位置编辑放射变换窗口 
      */
     Module.Edit.openAffineTransEditWnd = function () {
-        return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_Mate.RE_SYSWnd_AffineTransMode, true);
+        return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, true);
     }
 
     /**
      * 关闭位置编辑放射变换窗口
      */
     Module.Edit.closeAffineTransEditWnd = function () {
-        return Module.RealBIMWeb.UIWgtSetVisible(RE_SYSWnd_Mate.RE_SYSWnd_AffineTransMode, false);
+        return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, false);
     }
 
     /**
@@ -4361,94 +4361,101 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK RE_Viewport
     //视图类型
-    const RE_ViewportType = {
+    const REVpTypeEm = {
         None: '',//该视图不显示任何内容
         BIM: 'BIM',//该视图显示BIM场景模型
         CAD: 'CAD',//该视图显示CAD图纸
         Panorama: '360',//该视图显示360全景图
     }
-    ExtModule.RE_ViewportType = RE_ViewportType;
+    ExtModule.REVpTypeEm = REVpTypeEm;
 
     //视图排列方式
-    const RE_ViewportRank = {
+    const REVpRankEm = {
         Single: 0,//视图0/视图1任一为空字符串：屏幕中只显示一个内容有效的视图
         LR: 1,//屏幕自左向右依次显示视图0、视图1
         TB: -1,//屏幕自下向上依次显示视图0、视图1
     }
-    ExtModule.RE_ViewportRank = RE_ViewportRank;
+    ExtModule.REVpRankEm = REVpRankEm;
 
     // MARK CamLoc
     //表示ViewCude视图的类型
-    const RE_ViewCudePerspective = {
-        RE_FACE_FR: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
-        RE_FACE_BK: "Module.RE_CAM_DIR.BACK",//面-后视图
-        RE_FACE_L: "Module.RE_CAM_DIR.LEFT",//面-左视图
-        RE_FACE_R: "Module.RE_CAM_DIR.RIGHT",//面-右视图
-        RE_FACE_T: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
-        RE_FACE_B: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
-        RE_DEGE_T_FR: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
-        RE_DEGE_T_R: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
-        RE_DEGE_T_BK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
-        RE_DEGE_T_L: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
-        RE_DEGE_L_FR: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
-        RE_DEGE_R_FR: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
-        RE_DEGE_R_BK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
-        RE_DEGE_L_BK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
-        RE_DEGE_B_FR: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
-        RE_DEGE_B_R: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
-        RE_DEGE_B_BK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
-        RE_DEGE_B_L: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
-        RE_VERTEX_T_R_BK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
-        RE_VERTEX_T_L_BK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
-        RE_VERTEX_T_L_FR: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
-        RE_VERTEX_T_R_FR: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
-        RE_VERTEX_B_R_BK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
-        RE_VERTEX_B_L_BK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
-        RE_VERTEX_B_L_FR: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
-        RE_VERTEX_B_R_FR: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
-        RE_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
+    const RECamDirEm = {
+        CAM_DIR_FRONT: 0,//面-主视图（前视图）	
+        CAM_DIR_BACK: 1,//面-后视图	
+        CAM_DIR_LEFT: 2,//面-左视图	
+        CAM_DIR_RIGHT: 3,//面-右视图	
+        CAM_DIR_TOP: 4,//面-俯视图（上视图）	
+        CAM_DIR_BOTTOM: 5,//面-仰视图（下视图）	
+        CAM_DIR_TOPFRONT: 6,//棱-上前	
+        CAM_DIR_TOPRIGHT: 7,//棱-上右	
+        CAM_DIR_TOPBACK: 8,//棱-上后	
+        CAM_DIR_TOPLEFT: 9,//棱-上左	
+        CAM_DIR_LEFTFRONT: 10,//棱-左前	
+        CAM_DIR_RIGHTFRONT: 11,//棱-前右	
+        CAM_DIR_RIGHTBACK: 12,//棱-右后	
+        CAM_DIR_LEFTBACK: 13,//棱-后左	
+        CAM_DIR_BOTTOMFRONT: 14,//棱-下前	
+        CAM_DIR_BOTTOMRIGHT: 15,//棱-下右	
+        CAM_DIR_BOTTOMBACK: 16,//棱-下后	
+        CAM_DIR_BOTTOMLEFT: 17,//棱-下左	
+        CAM_DIR_TOPRIGHTBACK: 18,//顶点-上右后	
+        CAM_DIR_TOPLEFTBACK: 19,//顶点-上左后	
+        CAM_DIR_TOPLEFTFRONT: 20,//顶点-上左前	
+        CAM_DIR_TOPRIGHTFRONT: 21,//顶点-上右前	
+        CAM_DIR_BOTTOMRIGHTBACK: 22,//顶点-下右后	
+        CAM_DIR_BOTTOMLEFTBACK: 23,//顶点-下左后	
+        CAM_DIR_BOTTOMLEFTFRONT: 24,//顶点-下左前	
+        CAM_DIR_BOTTOMRIGHTFRONT: 25,//顶点-下右前	
+        CAM_DIR_DEFAULT: 26,//默认视角
     }
-    ExtModule.RE_ViewCudePerspective = RE_ViewCudePerspective;
+    ExtModule.RECamDirEm = RECamDirEm;
+
+
 
 
     // MARK UI
     //系统界面对应C++名称
-    const RE_SYSWnd_Mate = {
-        RE_PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//底部主工具栏-地形透明度
-        RE_PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//底部主工具栏-重置操作
-        RE_PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//底部主工具栏-隔离构件
-        RE_PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//底部主工具栏-隐藏构件
-        RE_PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//底部主工具栏-恢复显示
-        RE_PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
-        RE_PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
-        RE_PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
-        RE_SYSWnd_AffineTransMode: 'AffineTransModeWnd',//位置编辑仿射变换窗口
+    const RESysWndMateEm = {
+        PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//底部主工具栏-地形透明度
+        PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//底部主工具栏-重置操作
+        PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//底部主工具栏-隔离构件
+        PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//底部主工具栏-隐藏构件
+        PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//底部主工具栏-恢复显示
+        PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
+        PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
+        PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
+        SysWnd_AffineTransMode: 'AffineTransModeWnd',//位置编辑仿射变换窗口
     }
-    ExtModule.RE_SYSWnd_Mate = RE_SYSWnd_Mate;
+    ExtModule.RESysWndMateEm = RESysWndMateEm;
 
 
 
     // MARK CAD
     //CAD单位
-    const RE_CADUnit = {
-        Meter: "Module.RE_CAD_UNIT.Meter",//米
-        Millimeter: "Module.RE_CAD_UNIT.Millimeter",//毫米
-        Centimeter: "Module.RE_CAD_UNIT.Centimeter",//厘米
-        Decimeter: "Module.RE_CAD_UNIT.Decimeter",//分米
-        Decameter: "Module.RE_CAD_UNIT.Decameter", //
-        Hectometer: "Module.RE_CAD_UNIT.Hectometer",//百米
-        Kilometer: "Module.RE_CAD_UNIT.Kilometer",//千米
-        Inch: "Module.RE_CAD_UNIT.Inch",//英寸
-        Foot: "Module.RE_CAD_UNIT.Foot",//英尺
-        Mile: "Module.RE_CAD_UNIT.Mile",//英里
-        Microinch: "Module.RE_CAD_UNIT.Microinch",//微英寸
-        Mil: "Module.RE_CAD_UNIT.Mil",//毫英寸
-        Nanometer: "Module.RE_CAD_UNIT.Nanometer",//纳米
-        Micron: "Module.RE_CAD_UNIT.Micron",//微米
-        Gigameter: "Module.RE_CAD_UNIT.Gigameter",//百万公里
-        Lightyear: "Module.RE_CAD_UNIT.Lightyear",//光年
+    const RECadUnitEm = {
+        CAD_UNIT_Inch: 1,//英寸
+        CAD_UNIT_Foot: 2,//英尺
+        CAD_UNIT_Mile: 3,//英里
+        CAD_UNIT_Millimeter: 4,//毫米
+        CAD_UNIT_Centimeter: 5,//厘米
+        CAD_UNIT_Meter: 6,//米
+        CAD_UNIT_Kilometer: 7,//千米
+        CAD_UNIT_Microinch: 8,//微英寸
+        CAD_UNIT_Mil: 9,//毫英寸
+        CAD_UNIT_Yard: 10,//码
+        CAD_UNIT_Angstrom: 11,//埃
+        CAD_UNIT_Nanometer: 12,//纳米
+        CAD_UNIT_Micron: 13,//微米
+        CAD_UNIT_Decimeter: 14,//分米
+        CAD_UNIT_Decameter: 15, //十米
+        CAD_UNIT_Hectometer: 16,//百米
+        CAD_UNIT_Gigameter: 17,//百万公里
+        CAD_UNIT_Astro: 18,//天文
+        CAD_UNIT_Lightyear: 19,//光年
+        CAD_UNIT_Parsec: 20,//天体
     }
-    ExtModule.RE_CADUnit = RE_CADUnit;
+    ExtModule.RECadUnitEm = RECadUnitEm;
+
 
 
 
