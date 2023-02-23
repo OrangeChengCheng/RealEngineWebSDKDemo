@@ -466,7 +466,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} dataSetList //数据集集合  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
      * @param {String} dataSetId //数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
      * @param {String} resourcesAddress //数据集资源包地址
-     * @param {String} resRootPath //数据集资源包root地址
      * @param {Boolean} useTransInfo //表示该项目是否需要调整位置，默认false
      * @param {Array} transInfo //项目的偏移信息，依次为缩放、旋转（四元数）、平移
      * @param {Number} minLoadDist //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
@@ -492,7 +491,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _maxLoadDist = 1e30; if (!isEmpty(dataSetModel.maxLoadDist)) _maxLoadDist = dataSetModel.maxLoadDist;
             var _projCRS = ""; if (!isEmpty(dataSetModel.dataSetCRS)) _projCRS = dataSetModel.dataSetCRS;
             var _projNorth = 0.0; if (!isEmpty(dataSetModel.dataSetCRSNorth)) _projNorth = dataSetModel.dataSetCRSNorth;
-            let _defMainProjResRoot = ((i == 0) ? dataSetModel.resRootPath : "");
             var _defMainProjCamFile = "";
             var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
@@ -517,7 +515,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 dataSetModel.resourcesAddress + "/total.xml",
                 _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
                 _minLoadDist, _maxLoadDist,
-                _defMainProjResRoot,
+                "",
                 _defMainProjCamFile, _useCamPost
             );
             Module.RealBIMWeb.SetSceVersionInfoExt(dataSetModel.dataSetId, _ver);
@@ -723,15 +721,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getCamForcedNearFar = function () {
         return Module.RealBIMWeb.GetCamForcedZNearFar();
-    }
-
-    //设置相机朝向是否允许头朝下
-    Module.REsetCamUpsideDown = function (bEnable) {
-        Module.RealBIMWeb.SetCamUpsideDown(bEnable);
-    }
-    //获取相机朝向是否允许头朝下
-    Module.REgetCamUpsideDown = function () {
-        return Module.RealBIMWeb.GetCamUpsideDown();
     }
 
     /**
