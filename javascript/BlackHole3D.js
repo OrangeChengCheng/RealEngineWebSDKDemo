@@ -2481,14 +2481,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 删除某个自定义矢量对象
      * @param {String} shpName //矢量标识名
      */
-    Module.Geometry.delCustomShp = function (shpName) {
+    Module.Geometry.delShp = function (shpName) {
         return Module.RealBIMWeb.DelCustomShp(shpName);
     }
 
     /**
      * 清空所有的自定义矢量对象
      */
-    Module.Geometry.delAllCustomShps = function () {
+    Module.Geometry.delAllShps = function () {
         Module.RealBIMWeb.DelAllCustomShps();
     }
 
