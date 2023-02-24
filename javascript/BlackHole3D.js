@@ -1775,8 +1775,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.ancSize = null;//锚点的覆盖范围参考值，大于等于0，可设为锚点图片的最大尺寸，该值越大，则相机定位到锚点时后退距离越大
             this.selfAutoScaleDist = null;//锚点自身自动缩放距离(<0.0f表示使用全局自动缩放距离)
             this.selfVisDist = null;//锚点自身可视距离(<0.0f表示使用全局可视距离)
-            this.textBias = null;//锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
-            this.textFocus = null;//牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
+            this.texBias = null;//锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
+            this.texFocus = null;//牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
             this.fontName = null;//锚点的字体样式
             this.textClr = null;//锚点的字体颜
             this.textBorderColor = null;//锚点的字体边框颜色
@@ -1823,8 +1823,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _size = 0; if (!isEmpty(ancInfo.ancSize)) { _size = ancInfo.ancSize; }
             var _selfASDist = -1; if (!isEmpty(ancInfo.selfAutoScaleDist)) { _selfASDist = ancInfo.selfAutoScaleDist; }
             var _selfVisDist = -1; if (!isEmpty(ancInfo.selfVisDist)) { _selfVisDist = ancInfo.selfVisDist; }
-            var _textbias = [1, 0]; if (!isEmpty(ancInfo.textBias)) { _textbias = ancInfo.textBias; }
-            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.textFocus)) { _texfocus = ancInfo.textFocus; }
+            var _textbias = [1, 0]; if (!isEmpty(ancInfo.texBias)) { _textbias = ancInfo.texBias; }
+            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
             var _textcolor = 0xffffffff; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
             var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
@@ -2005,8 +2005,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _size = 0; if (!isEmpty(ancInfo.ancSize)) { _size = ancInfo.ancSize; }
             var _selfASDist = -1; if (!isEmpty(ancInfo.selfAutoScaleDist)) { _selfASDist = ancInfo.selfAutoScaleDist; }
             var _selfVisDist = -1; if (!isEmpty(ancInfo.selfVisDist)) { _selfVisDist = ancInfo.selfVisDist; }
-            var _textbias = [1, 0]; if (!isEmpty(ancInfo.textBias)) { _textbias = ancInfo.textBias; }
-            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.textFocus)) { _texfocus = ancInfo.textFocus; }
+            var _textbias = [1, 0]; if (!isEmpty(ancInfo.texBias)) { _textbias = ancInfo.texBias; }
+            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
             var _textcolor = 0xff000000; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
             var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
@@ -2124,7 +2124,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _lodMergeCap = 1; if (!isEmpty(ancLODInfo.lodMergeCap)) { _lodMergeCap = ancLODInfo.lodMergeCap; }
         var _customBV = [[0, 0, 0], [0, 0, 0]]; if (ancLODInfo.useCustomBV) { _customBV = ancLODInfo.customBV; }
         var _linepos = [0, 0]; var _texfocus = [0, 0];
-        var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.textBias)) { _textbias = ancLODInfo.mergeStyle.textBias; }
+        var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.texBias)) { _textbias = ancLODInfo.mergeStyle.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != "") { _GolFontID = ancLODInfo.mergeStyle.fontName; }
         var _textcolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textClr)) { _textcolor = clrToU32(ancLODInfo.mergeStyle.textClr); }
         var _textbordercolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textBorderColor)) { _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderColor); }
@@ -2286,7 +2286,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REShpTextInfo {
         constructor() {
             this.text = null;//表示文字的内容
-            this.textBias = null;//表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
+            this.texBias = null;//表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
             this.fontName = null;//表示锚点的字体样式
             this.textClr = null;//文字颜色（REColor 类型）
             this.textBorderClr = null;//文字边框颜色（REColor 类型）
@@ -2353,7 +2353,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _textInfo = potShpInfo.textInfo;
 
-        var _textBias = [0, 0]; if (!isEmpty(_textInfo.textBias)) { _textBias = _textInfo.textBias; }
+        var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
         var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
         var _textbordercolor = 0xff000000; if (!isEmpty(_textInfo.textBorderClr)) { _textbordercolor = clrToU32(_textInfo.textBorderClr); }
@@ -2363,16 +2363,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
         var uPotSize = 0; if (!isEmpty(potShpInfo.potSize)) uPotSize = potShpInfo.potSize;
-        if (_textBias[0] < 0) {
+        if (_texBias[0] < 0) {
             TempTextRect[0] = -uPotSize - 2; TempTextRect[2] = -uPotSize - 1; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
-        } else if (_textBias[0] == 0) {
+        } else if (_texBias[0] == 0) {
             TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
         } else {
             TempTextRect[0] = uPotSize + 1; TempTextRect[2] = uPotSize + 2; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
         }
-        if (_textBias[1] < 0) {
+        if (_texBias[1] < 0) {
             TempTextRect[1] = -uPotSize - 2; TempTextRect[3] = -uPotSize - 1; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
-        } else if (_textBias[1] == 0) {
+        } else if (_texBias[1] == 0) {
             TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
         } else {
             TempTextRect[1] = uPotSize + 1; TempTextRect[3] = uPotSize + 2; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
@@ -2407,7 +2407,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _textInfo = lineShpInfo.textInfo;
 
-        var _textBias = [0, 0]; if (!isEmpty(_textInfo.textBias)) { _textBias = _textInfo.textBias; }
+        var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
         var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
         var _textbordercolor = 0xff000000; if (!isEmpty(_textInfo.textBorderClr)) { _textbordercolor = clrToU32(_textInfo.textBorderClr); }
@@ -2421,16 +2421,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
 
         var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
-        if (_textBias[0] < 0) {
+        if (_texBias[0] < 0) {
             TempTextRect[0] = -1; TempTextRect[2] = 0; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
-        } else if (_textBias[0] == 0) {
+        } else if (_texBias[0] == 0) {
             TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
         } else {
             TempTextRect[0] = 0; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
         }
-        if (_textBias[1] < 0) {
+        if (_texBias[1] < 0) {
             TempTextRect[1] = -1; TempTextRect[3] = 0; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
-        } else if (_textBias[1] == 0) {
+        } else if (_texBias[1] == 0) {
             TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
         } else {
             TempTextRect[1] = 0; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
