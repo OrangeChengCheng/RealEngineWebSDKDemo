@@ -3618,7 +3618,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.setContourLineClr = function (dataSetId, lineClr) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(lineClr, "lineClr")) return;
-        var tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.red < 0 ? -1 : lineClr.alpha / 255];
+        var tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.alpha < 0 ? -1 : lineClr.alpha / 255];
         return Module.RealBIMWeb.SetHugeObjBorderLineClr(dataSetId, "", tempclr);
     }
 
