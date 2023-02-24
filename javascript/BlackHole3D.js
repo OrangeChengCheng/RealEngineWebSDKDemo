@@ -1779,7 +1779,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.texFocus = null;//牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
             this.fontName = null;//锚点的字体样式
             this.textClr = null;//锚点的字体颜
-            this.textBorderColor = null;//锚点的字体边框颜色
+            this.textBorderClr = null;//锚点的字体边框颜色
             this.textBackClr = null;//锚点的字体背景颜色
             this.useLod = null;//是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
             this.animObjName = null;//锚点关联的动画对象名称(仅当 useLod==false时有效)
@@ -1827,7 +1827,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
             var _textcolor = 0xffffffff; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
-            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
+            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderClr)) { _textbordercolor = clrToU32(ancInfo.textBorderClr); }
             var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
             var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
             var _textBackClr = 0x00000000; if (!isEmpty(ancInfo.textBackClr)) { _textBackClr = clrToU32(ancInfo.textBackClr); }
@@ -1938,7 +1938,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ancInfo.linePos = ancData.m_vLineEnd;
         if (!isEmpty(ancData.m_uLineClr) && ancData.m_uLineClr != 0) ancInfo.lineClr = clrU32ToClr(ancData.m_uLineClr);
         if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0) ancInfo.textClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
-        ancInfo.textBorderColor = clrU32ToClr(ancData.m_cTextRegion.m_uTextBorderClr);
+        ancInfo.textBorderClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBorderClr);
         if (!isEmpty(ancData.m_cTextRegion.m_uTextBackClr) && ancData.m_cTextRegion.m_uTextBackClr != 0) ancInfo.textBackClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBackClr);
         ancInfo.selfAutoScaleDist = ancData.m_fSelfASDist;
         ancInfo.selfVisDist = ancData.m_fSelfVisDist;
@@ -2009,7 +2009,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
             var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
             var _textcolor = 0xff000000; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
-            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderColor)) { _textbordercolor = clrToU32(ancInfo.textBorderColor); }
+            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderClr)) { _textbordercolor = clrToU32(ancInfo.textBorderClr); }
             var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
             var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
             var _textBackClr = 0x00000000; if (!isEmpty(ancInfo.textBackClr)) { _textBackClr = clrToU32(ancInfo.textBackClr); }
@@ -2127,7 +2127,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.texBias)) { _textbias = ancLODInfo.mergeStyle.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != "") { _GolFontID = ancLODInfo.mergeStyle.fontName; }
         var _textcolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textClr)) { _textcolor = clrToU32(ancLODInfo.mergeStyle.textClr); }
-        var _textbordercolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textBorderColor)) { _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderColor); }
+        var _textbordercolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textBorderClr)) { _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderClr); }
         //设置文字和图片的对齐方式
         var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
         if (_textbias[0] < 0) {
