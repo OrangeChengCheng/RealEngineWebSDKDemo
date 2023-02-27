@@ -39,6 +39,7 @@ window.onload = function (event) {
     document.addEventListener("RELocateCam", RELocateCam);
     document.addEventListener("RESystemSelElement", RESystemSelElement);
     document.addEventListener("RealBIMSelShape", RealBIMSelShape);
+    document.addEventListener("RESystemFrameSel", RESystemFrameSel);
 
 
     document.addEventListener("REDataSetLoadPanFinish", function (e) { REDataSetLoadPanFinish(e.detail.succeed) });
@@ -49,6 +50,14 @@ window.onload = function (event) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
         RESystemReady();
     }
+}
+
+function RESystemFrameSel(e) {
+    console.log(e);
+    setTimeout(() => {
+        console.log(BlackHole3D.BIM.getSelElemIDs());
+    }, 0);
+    
 }
 
 function RESystemSelElement(e) {

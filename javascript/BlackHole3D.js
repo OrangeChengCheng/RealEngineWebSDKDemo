@@ -3793,7 +3793,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
     */
     Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
-        if (!isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         var jsonStr = JSON.stringify(rgnInfoList);
         return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, jsonStr);
     }
