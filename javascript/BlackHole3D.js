@@ -1092,64 +1092,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.WorldPosToScreenPos(worldPos, _dScaleDist);
     }
 
-    /**
-     * 获取元素集合的总包围盒信息
-     * @param {String} dataSetId //数据集标识
-     * @param {Array} elemIdList //构件id集合
-     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-     */
-    Module.Coordinate.getElemTotalBV = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
-        var _bvTemp;
-        if (dataSetId == "") {
-            //多数据集设置
-            _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("", "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
-        }
-        else {
-            //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-            var _count = elemIdList.length;
-            if (_count == 0) {
-                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
-            }
-            else {
-                var _temparr = [];
-                for (var i = 0; i < _count; ++i) {
-                    _temparr.push(elemIdList[i]);
-                    _temparr.push(_projid);
-                }
-                var _selids = new Uint32Array(_temparr);
-                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());
-                var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
-                _tempids.set(_selids, 0);
-                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, _elemScope);
-            }
-        }
-        var aabbList = [];
-        aabbList.push(_bvTemp[0][0]);  //Xmin
-        aabbList.push(_bvTemp[1][0]);  //Xmax
-        aabbList.push(_bvTemp[0][1]);  //Ymin
-        aabbList.push(_bvTemp[1][1]);  //Ymax
-        aabbList.push(_bvTemp[0][2]);  //Zmin
-        aabbList.push(_bvTemp[1][2]);  //Zmax
-        return aabbList;
-    }
 
-    /**
-     * 获取模型的包围盒信息
-     * @param {String} dataSetId //数据集标识
-     */
-    Module.Coordinate.getTotalBV = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        var _tempbv = Module.RealBIMWeb.GetHugeObjBoundingBox(dataSetId, "");
-        var aabbList = [];
-        aabbList.push(_tempbv[0][0]); aabbList.push(_tempbv[1][0]);  //Xmin、Xmax
-        aabbList.push(_tempbv[0][1]); aabbList.push(_tempbv[1][1]);  //Ymin、Ymax
-        aabbList.push(_tempbv[0][2]); aabbList.push(_tempbv[1][2]);  //Zmin、Zmax
-        return aabbList;
-    }
 
 
 
@@ -3029,6 +2972,65 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 获取元素集合的总包围盒信息
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.BIM.getElemTotalBV = function (dataSetId, elemIdList, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _bvTemp;
+        if (dataSetId == "") {
+            //多数据集设置
+            _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("", "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+            }
+            else {
+                var _temparr = [];
+                for (var i = 0; i < _count; ++i) {
+                    _temparr.push(elemIdList[i]);
+                    _temparr.push(_projid);
+                }
+                var _selids = new Uint32Array(_temparr);
+                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());
+                var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
+                _tempids.set(_selids, 0);
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, _elemScope);
+            }
+        }
+        var aabbList = [];
+        aabbList.push(_bvTemp[0][0]);  //Xmin
+        aabbList.push(_bvTemp[1][0]);  //Xmax
+        aabbList.push(_bvTemp[0][1]);  //Ymin
+        aabbList.push(_bvTemp[1][1]);  //Ymax
+        aabbList.push(_bvTemp[0][2]);  //Zmin
+        aabbList.push(_bvTemp[1][2]);  //Zmax
+        return aabbList;
+    }
+
+    /**
+     * 获取模型的包围盒信息
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getTotalBV = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        var _tempbv = Module.RealBIMWeb.GetHugeObjBoundingBox(dataSetId, "");
+        var aabbList = [];
+        aabbList.push(_tempbv[0][0]); aabbList.push(_tempbv[1][0]);  //Xmin、Xmax
+        aabbList.push(_tempbv[0][1]); aabbList.push(_tempbv[1][1]);  //Ymin、Ymax
+        aabbList.push(_tempbv[0][2]); aabbList.push(_tempbv[1][2]);  //Zmin、Zmax
+        return aabbList;
     }
 
 
