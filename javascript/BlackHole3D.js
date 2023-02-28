@@ -3615,7 +3615,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 设置模型轮廓线
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
-     * @param {REColor} lineClr //模型边界线颜色（REColor 类型）(Alpha==-1表示禁用边界线；Alpha==0表示边界线启用但隐藏；Alpha为(0,255]表示边界线颜色的权重系数)
+     * @param {REColor} lineClr //模型边界线颜色（REColor 类型）(Alpha==-1表示禁用边界线；Alpha为[0,255]表示边界线颜色的权重系数)
      */
     Module.BIM.setContourLineClr = function (dataSetId, lineClr) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
@@ -3639,19 +3639,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置世界空间下的全局裁剪面的裁剪边界处的颜色混合信息
-     * @param {REColor} blendClr //混合颜色（REColor 类型）
+     * 设置世界空间下的全局裁剪面的裁剪边界处的颜色信息
+     * @param {REColor} lineClr //轮廓线颜色（REColor 类型）
      */
-    Module.BIM.setClipPlanesBlendContourLineClr = function (blendClr) {
-        if (isEmptyLog(blendClr, "blendClr")) return;
-        var _tempclr = [blendClr.red / 255, blendClr.green / 255, blendClr.blue / 255, blendClr.alpha / 255];
+    Module.BIM.setClipPlanesContourLineClr = function (lineClr) {
+        if (isEmptyLog(lineClr, "lineClr")) return;
+        var _tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.alpha / 255];
         Module.RealBIMWeb.SetGolClipPlanesBorderClrBlendInfo(_tempclr);
     }
 
     /**
-     * 获取世界空间下的全局裁剪面的裁剪边界处的颜色混合信息
+     * 获取世界空间下的全局裁剪面的裁剪边界处的颜色信息
      */
-    Module.BIM.getClipPlanesBlendContourLineClr = function () {
+    Module.BIM.getClipPlanesContourLineClr = function () {
         var _tempclr = Module.RealBIMWeb.GetGolClipPlanesBorderClrBlendInfo();
         var lineClr = new REColor();
         lineClr.red = _tempclr[0] * 255;
