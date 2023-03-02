@@ -162,7 +162,7 @@ function RESystemEngineCreated(e) {
             //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
             // },
             {
-                "dataSetId": "3a0960059327a3a6b63933ed6fb956cc",
+                "dataSetId": "小房子",
                 "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
                 "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
@@ -183,7 +183,7 @@ function RESystemEngineCreated(e) {
             //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
             // },
             // {
-            //     "dataSetId": "dataSet03",
+            //     "dataSetId": "地形",
             //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
             //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
             //     "useAssginVer": true,

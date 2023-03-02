@@ -1533,73 +1533,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.AddTags(_tagList);
     }
 
-    // 添加复杂标签样式3
-    Module.REaddLineTag = function (tagName, pos, tagMinWidth, tagMinHeight, contents, contentfont, backClr, frameClr) {
-        temptags = new Module.RE_Vector_TAG();
-        temptexregions = new Module.RE_Vector_SHP_TEX();
-        temptextregions = new Module.RE_Vector_SHP_TEXT();
-        var cur_x = 0; var cur_y = 0; var max_y = tagMinHeight / 2;
-        var _backClr = 0x00000000; var _frameClr = 0x00000000;
-        var _contentfont = ((contentfont == "") ? "RealBIMFont001" : contentfont);
-        for (i = 0; i < contents.length; ++i) {
-            var _elemtype = "tex"; var _elemwidth = 1; var _elemheight = 1; var _border = 1; var _elemclr = 0xffffffff; var _elemclrinfo = 'ffffff';
-            var _eleminfo = ""; var cur = contents[i];
-            if (typeof cur.type != 'undefined') { _elemtype = cur.type; }
-            if (typeof cur.width != 'undefined') { _elemwidth = cur.width; }
-            if (typeof cur.height != 'undefined') { _elemheight = cur.height; }
-            if (typeof cur.border != 'undefined') { _border = cur.border; }
-            if (typeof cur.color != 'undefined') { _elemclrinfo = cur.color; }
-            if (typeof cur.info != 'undefined') { _eleminfo = cur.info; }
-            if (_eleminfo == "") {
-                _elemclr = Module.REclrFix(_elemclrinfo, 0)
-            } else {
-                _elemclr = Module.REclrFix(_elemclrinfo, 255)
-            }
-            if (_elemtype == "tex") {
-                temptexregions.push_back({
-                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0], m_uFrameNumU: 1, m_uFrameNumV: 1, m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
-                    m_strTexPath: _eleminfo, m_qTexRect: [cur_x + _border, cur_y - _elemheight / 2 - 1, cur_x + _border + _elemwidth, cur_y + _elemheight / 2 - 1], m_uTexClrMult: _elemclr,
-                });
-            } else {
-                temptextregions.push_back({
-                    m_strGolFontID: _contentfont, m_bTextWeight: false, m_uTextClr: _elemclr, m_uTextBorderClr: 0x00000000,
-                    m_strText: _eleminfo,
-                    m_qTextRect: [cur_x + _border, cur_y - _elemheight / 2 + 1, cur_x + _border + _elemwidth, cur_y + _elemheight / 2 + 1],
-                    m_uTextFmtFlag: (0x2/*TEXT_FMT_VCENTER*/ | 0x10/*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100/*TEXT_FMT_WORDBREAK*/),
-                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-                });
-            }
-            cur_x += _elemwidth + _border * 2;
-            if (max_y < _elemheight / 2) { max_y = _elemheight / 2; }
-        }
-
-        var framerange_xmin = 0; var framerange_xmax = cur_x;
-        if (cur_x < tagMinWidth) {
-            framerange_xmin -= (tagMinWidth - cur_x) / 2; framerange_xmax += (tagMinWidth - cur_x) / 2;
-        }
-        _frameClr = Module.REclrFix(frameClr[0], frameClr[1])
-        frameline = {
-            m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0], m_uFrameNumU: 1, m_uFrameNumV: 1, m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
-            m_strTexPath: "", m_qTexRect: [0, 0, 0, 0], m_uTexClrMult: _frameClr,
-        };
-        var framelinewidth = 2; var framegap = 6;
-        frameline["m_qTexRect"] = [framerange_xmin - framegap, max_y + framegap, framerange_xmax + framegap, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
-        frameline["m_qTexRect"] = [framerange_xmin - framegap, -max_y - framegap - framelinewidth, framerange_xmax + framegap, -max_y - framegap]; temptexregions.push_back(frameline);
-        frameline["m_qTexRect"] = [framerange_xmin - framegap, -max_y - framegap - framelinewidth, framerange_xmin - framegap + framelinewidth, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
-        frameline["m_qTexRect"] = [framerange_xmax + framegap - framelinewidth, -max_y - framegap - framelinewidth, framerange_xmax + framegap, max_y + framegap + framelinewidth]; temptexregions.push_back(frameline);
-
-        _backClr = Module.REclrFix(backClr[0], backClr[1])
-        tempobj = {
-            m_strName: tagName, m_vPos: pos,
-            m_vBgMinSize: [tagMinWidth, tagMinHeight], m_vBgPadding: [3, 3], m_uBgAlignX: 1, m_uBgAlignY: 1,
-            m_vArrowOrigin: [-5, 20], m_uBgColor: _backClr,
-            m_arrTexContents: temptexregions, m_arrTextContents: temptextregions,
-        };
-        temptags.push_back(tempobj);
-        Module.RealBIMWeb.AddTags(temptags);
-    }
-
-
     /**
      * 获取某个标签的信息
      * @param {String} tagName //标签的名称(唯一标识)
@@ -2571,6 +2504,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.dataSetId = null;//数据集标识
             this.elemIdList = null;//构件id集合
             this.elemClr = null;//构件颜色（REColor 类型）
+            this.clrWeight = null;//颜色权重
+            this.alphaWeight = null;//透明度权重
             this.elemEmis = null;//	表示构件的自发光强度，0~255
             this.elemEmisPercent = null;//	表示构件自发光强度所占的权重，0~255
             this.elemSmooth = null;//	表示构件的光泽度，0~255
@@ -2579,6 +2514,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
     ExtModule.REElemBlendAttr = REElemBlendAttr;
+
+    class REElemAttr {
+        constructor() {
+            this.dataSetId = null;//数据集标识
+            this.elemIdList = null;//构件id集合 
+            this.elemClr = new REColor(-1, -1, -1, -1);//构件颜色（REColor 类型）alpha==-1代表只改变颜色不改变透明度
+            this.clrWeight = 255;//颜色权重, 此权重要使用必须配合颜色值存在
+            this.alphaWeight = 255;//透明度权重, 此权重要使用必须配合透明度值存在
+            this.elemEmis = 0;//	表示构件的自发光强度，0~255
+            this.elemEmisPercent = 0;//	表示构件自发光强度所占的权重，0~255
+            this.elemSmooth = 0;//	表示构件的光泽度，0~255
+            this.elemMetal = 0;//	表示构件的金属质感，0~255
+            this.elemSmmePercent = 0;//	表示光泽度和金属质感的权重，0~255
+        }
+    }
+    ExtModule.REElemAttr = REElemAttr;
 
     class REAnimWallInfo {
         constructor() {
@@ -2646,33 +2597,109 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    //颜色转换工具函数
-    Module.REclrFix = function (clr, clrPercent) {
-        var newclr01 = clr.substring(0, 2);
-        var newclr02 = clr.substring(2, 4);
-        var newclr03 = clr.substring(4, 6);
-        var newclr = newclr03 + newclr02 + newclr01;
-        var intclrper = Math.round(clrPercent);
-        var newclrper = (intclrper > 15 ? (intclrper.toString(16)) : ("0" + intclrper.toString(16)));
-        var clrinfo = "0x" + newclrper + newclr;
-        var clr = parseInt(clrinfo);
-        return clr;
-    }
-
-    //透明度转换工具函数
-    Module.REalphaFix = function (alpha, alphaPercent) {
-        var intalphainfo = Math.round(alpha);
-        var intalphaper = Math.round(alphaPercent);
-        var newalphainfo = (intalphainfo > 15 ? (intalphainfo.toString(16)) : ("0" + intalphainfo.toString(16)));
-        var newalphaper = (intalphaper > 15 ? (intalphaper.toString(16)) : ("0" + intalphaper.toString(16)));
-        var alphainfo = "0x" + newalphaper + newalphainfo + "ffff";
-        var alpha = parseInt(alphainfo);
-        return alpha;
-    }
-
     // MARK 构件属性
     /**
-     * 设置构件颜色
+     * 设置构件混合属性
+     * @param {REElemAttr} elemAttr //构件的属性
+     */
+    Module.BIM.setElemAttr = function (elemAttr) {
+        if (isEmptyLog(elemAttr, "elemAttr")) return;
+        if (isEmptyLog(elemAttr.dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemAttr.elemIdList, "elemIdList")) return;
+
+        var _elemScope = 0; if (!isEmpty(elemAttr.elemScope)) { _elemScope = elemAttr.elemScope; }
+
+        if (!isEmpty(elemAttr.elemClr)) {
+            var _clr = 0x000000ff; 
+            if (elemAttr.elemClr.red == -1 || elemAttr.elemClr.green == -1 || elemAttr.elemClr.blue == -1) {
+                //不调整颜色
+                _clr = 0x000000ff;
+            } else {
+                _clr = clrToU32_W_WBGR(elemAttr.elemClr, elemAttr.clrWeight);
+            }
+
+            var _alpha = 0x0080ffff;
+            if (elemAttr.elemClr.alpha == -1) {
+                //不改变透明度
+                _alpha = 0x0080ff00;
+            } else {
+                _alpha = alphaToU32_WA_UseCA(elemAttr.elemClr.alpha, elemAttr.alphaWeight, true, true);
+            }
+        }
+        var _pbr = convPBR(elemAttr);
+
+        if (elemAttr.dataSetId == "") {
+            //多数据集设置
+            var _moemory = (24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemAttr.dataSetId);
+            var _count = elemAttr.elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                var _moemory = (24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            }
+            else {
+                var _moemory = (_count * 24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _clrs.set([elemAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+            }
+        }
+    }
+
+    /**
+     * 获取当前构件设置的混合属性
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     */
+    Module.BIM.getElemAttr = function (dataSetId, elemIdList) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmptyLog(elemIdList)) return;
+
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
+        var _count = _elemIdListTemp.length;
+        var _moemory = (_count * 16).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = _elemIdListTemp[i];
+            _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
+        }
+        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var elemAttrList = [];
+        for (var i = 0; i < clrinfoarr.length; i += 4) {
+            let elemAttrInfo = {};
+            elemAttrInfo.elemId = clrinfoarr[i];
+            let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
+            let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
+            let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
+            let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
+            elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
+            elemAttrInfo.alphaWeight = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
+            elemAttrInfo.clrWeight = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
+            elemAttrList.push(elemClrInfo);
+        }
+        return elemAttrList;
+    }
+
+
+
+    /**
+     * 设置构件颜色 ------------(新接口代替废弃)
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
      * @param {REColor} elemClr //构件颜色（REColor 类型）
@@ -2730,7 +2757,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 获取当前构件设置的颜色
+     * 获取当前构件设置的颜色 ------------(新接口代替废弃)
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
      */
@@ -2748,31 +2775,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
         }
         var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
-        var elemAttrList = [];
+        var elemClrList = [];
         for (var i = 0; i < clrinfoarr.length; i += 4) {
-            let elemAttrInfo = {};
-            elemAttrInfo.elemId = clrinfoarr[i];
+            let elemClrInfo = {};
+            elemClrInfo.elemId = clrinfoarr[i];
             let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
             let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
             let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
             let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
-            elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
-            elemAttrInfo.percent = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
-            elemAttrList.push(elemAttrInfo);
+            elemClrInfo.elemClr = new REColor(red, green, blue, alpha);
+            elemClrList.push(elemClrInfo);
         }
-
-
-        var elemclrinfoarrTTTT = [];
-        for (var i = 0; i < clrinfoarr.length; i += 4) {
-            var curelemclrinfo = {};
-            curelemclrinfo["id"] = clrinfoarr[i];
-            curelemclrinfo["alpha"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
-            curelemclrinfo["alphaWeight"] = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
-            curelemclrinfo["color"] = (clrinfoarr[i + 3]).toString(16).substring(6, 8) + (clrinfoarr[i + 3]).toString(16).substring(4, 6) + (clrinfoarr[i + 3]).toString(16).substring(2, 4);
-            curelemclrinfo["colorWeight"] = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
-            elemclrinfoarrTTTT.push(curelemclrinfo);
-        }
-        return elemAttrList;
+        return elemClrList;
     }
 
     /**
@@ -2780,31 +2794,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
      * @param {Number} elemAlpha //构件透明度，取值范围0~255
+     * @param {Number} alphaWeight //透明度权重，取值范围0~255
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
-    Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, elemScope) {
+    Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, alphaWeight, elemScope) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         if (isEmptyLog(elemIdList, "elemIdList")) return;
-        // if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
 
+        var _alphaWeight = 255; if (!isEmpty(alphaWeight)) _alphaWeight = alphaWeight;
         var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
 
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        var _alpha = alphaWToU32_WA(elemAlpha);
-        var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, _elemIdListTemp);
+        var _alpha = alphaToU32_WA_UseCA(elemAlpha, _alphaWeight, false, true);
+        var _clr = 0x000000ff;
+        var _pbr = 0x00000000;
 
         var _count = _elemIdListTemp.length;
-        var _moemory = (_count * 16).toString();
+        var _moemory = (_count * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _count; ++i) {
-            var _clr = clrToU32_WBGR(_elemAttrInfo[i].elemClr);
-            // var _clr = clrToU32_W_WBGR(_elemAttrInfo[i].elemClr, _elemAttrInfo.percent);
-            _clrs.set([_elemIdListTemp[i], _projid, _alpha, _clr], i * 4);
+            _clrs.set([_elemIdListTemp[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
         }
-        Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
-
+        Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
     }
 
     /**
@@ -2820,14 +2833,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
         var _clr = 0x000000ff;
         var _alpha = 0x0080ffff;
+        var _pbr = 0x00000000;
 
         if (dataSetId == "") {
             //多数据集设置
-            var _moemory = (16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+            var _moemory = (24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);  //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            _clrs.set([0, 0, _alpha, _clr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
+            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
         }
         else {
             //指定数据集设置
@@ -2835,37 +2849,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _count = elemIdList.length;
             if (_count == 0) {
                 //如果构件ID集合为空，则默认为改变所有构件的信息
-                var _moemory = (16).toString();
+                var _moemory = (24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                _clrs.set([0, _projid, _alpha, _clr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
+                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
             }
             else {
-                var _moemory = (_count * 16).toString();
+                var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
-                    _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
+                    _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
     }
 
     /**
-     * 设置构件混合属性
+     * 设置构件混合属性 ------------(新接口代替废弃)
      * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
      */
     Module.BIM.setElemBlendAttr = function (elemBlendAttr) {
         if (isEmptyLog(elemBlendAttr, "elemBlendAttr")) return;
         if (isEmptyLog(elemBlendAttr.dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemBlendAttr.elemClr, "elemClr")) return;
+        // if (isEmptyLog(elemBlendAttr.elemClr, "elemClr")) return;
 
         var _elemScope = 0; if (!isEmpty(elemBlendAttr.elemScope)) { _elemScope = elemBlendAttr.elemScope; }
 
-        var _clr = clrToU32_WBGR(elemBlendAttr.elemClr);
-        var _alpha = alphaToU32_WA(elemBlendAttr.elemClr.alpha);
+        var _clr = clrToU32_W_WBGR(elemBlendAttr.elemClr, elemBlendAttr.clrWeight);
+        var _alpha = alphaToU32_WA(elemBlendAttr.elemClr.alpha, elemBlendAttr.alphaWeight);
         var _pbr = convPBR(elemBlendAttr);
 
         if (elemBlendAttr.dataSetId == "") {
@@ -2901,7 +2915,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 恢复构件的默认属性
+     * 恢复构件的默认属性 ------------(新接口代替废弃)
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
@@ -4242,21 +4256,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var intClr_WBGR = parseInt(clrHEX_WBGR);
         return intClr_WBGR;
     }
-    function clrToU32_W_WBGR(color, percent) {
+
+    function clrToU32_W_WBGR(color, weight) {
         if ((isEmpty(color.red) || color.red.toString() == "NaN")
             || (isEmpty(color.green) || color.green.toString() == "NaN")
             || (isEmpty(color.blue) || color.blue.toString() == "NaN")
         ) {
-            var intclrper = Math.round(percent);
+            var intclrper = Math.round(weight);
             var newclrper = (intclrper > 15 ? (intclrper.toString(16)) : ("0" + intclrper.toString(16)));
-            var clrinfo = "0x" + newclrper + "ffffff";
+            var clrinfo = "0x" + newclrper + "0000ff";
             var clr = parseInt(clrinfo);
             return clr;
         }
         var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
         var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
         var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
-        var clrHEX_W = (255).toString(16);
+        var int_W = Math.round(weight); var clrHEX_W = (int_W > 15 ? (int_W.toString(16)) : ("0" + int_W.toString(16)));
         var clrHEX_WBGR = "0x" + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
         var intClr_WBGR = parseInt(clrHEX_WBGR);
         return intClr_WBGR;
@@ -4271,6 +4286,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
         var clrHEX_W = (255).toString(16);
         var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + "ffff";
+        var intClr_WA = parseInt(clrHEX_WA);
+        return intClr_WA;
+    }
+
+    function alphaToU32_WA_UseCA(alpha, weight, useNewClr, useNewAlpha) {
+        var _useNewClrHex = useNewClr ? "ff" : "00";//使用新的颜色
+        var _useNewAlphaHex = useNewAlpha ? "ff" : "00";//使用新的透明度
+        if (isEmpty(alpha)) {
+            var clrHEX_W = (weight).toString(16);
+            var clrHEX_WA = "0x" + clrHEX_W + "ff" + _useNewClrHex + _useNewAlphaHex;
+            var intClr_WA = parseInt(clrHEX_WA);
+            return intClr_WA;
+        }
+        var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
+        var int_W = Math.round(weight); var clrHEX_W = (int_W > 15 ? (int_W.toString(16)) : ("0" + int_W.toString(16)));
+        var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + _useNewClrHex + _useNewAlphaHex;
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
