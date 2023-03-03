@@ -555,6 +555,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 刷新所有数据集模型
+     * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
+     */
+    Module.Model.refreshAllDataSet = function (loadNewData) {
+        Module.RealBIMWeb.RefreshMainData(loadNewData);
+    }
+
 
 
     // MOD-- 相机（Camera）
@@ -3386,13 +3394,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, "", loadNewData);
     }
 
-    /**
-     * 刷新所有数据集模型
-     * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
-     */
-    Module.BIM.refreshAllDataSet = function (loadNewData) {
-        Module.RealBIMWeb.RefreshMainData(loadNewData);
-    }
+    
 
 
 
@@ -4326,13 +4328,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function convPBR(elemBlendAttr) {
         var intemis = (isEmpty(elemBlendAttr.elemEmis)) ? 0 : Math.round(elemBlendAttr.elemEmis);
-        var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 255 : Math.round(elemBlendAttr.elemEmisPercent);
+        var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 0 : Math.round(elemBlendAttr.elemEmisPercent);
         var intsmoothtemp = (isEmpty(elemBlendAttr.elemSmooth)) ? 0 : Math.round(elemBlendAttr.elemSmooth);
         var intmetaltemp = (isEmpty(elemBlendAttr.elemMetal)) ? 0 : Math.round(elemBlendAttr.elemMetal);
         var intsmmeratio = (isEmpty(elemBlendAttr.elemSmmePercent)) ? 0 : Math.round(elemBlendAttr.elemSmmePercent);
         var intsmooth = Math.round(intsmoothtemp / 255 * 63);
         var intmetal = Math.round(intmetaltemp / 255 * 3);
-        var pbrtemp = intemis + intemisratio * 256 + intsmooth * 65536 + intmetal * 4194304 + intsmmeratio * 268435456;
+        var pbrtemp = intemis + intemisratio * 256 + intsmooth * 65536 + intmetal * 4194304 + intsmmeratio * 16777216;
         var pbr = Math.round(pbrtemp);
         return pbr;
     }
