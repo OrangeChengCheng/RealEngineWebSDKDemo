@@ -3068,11 +3068,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid) {
         if (isEmptyLog(elemClr, "elemClr")) return;
         var _attrvalid = true; if (!isEmpty(attrValid)) { _attrvalid = attrValid; }
+        var _probeMask = 1; if (!isEmpty(probeMask)) { _probeMask = probeMask; }
         var obj_attr = {
             m_bAttrValid: _attrvalid,
             m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
             m_vAlphaBlend: [(elemClr.alpha / 255), 1.0],
-            m_uProbeMask: probeMask
+            m_uProbeMask: _probeMask
         }
         Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
     }
