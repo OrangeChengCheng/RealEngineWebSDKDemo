@@ -2699,7 +2699,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
             elemAttrInfo.alphaWeight = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
             elemAttrInfo.clrWeight = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
-            elemAttrList.push(elemClrInfo);
+            elemAttrList.push(elemAttrInfo);
         }
         return elemAttrList;
     }
