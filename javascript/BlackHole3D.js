@@ -2617,8 +2617,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _elemScope = 0; if (!isEmpty(elemAttr.elemScope)) { _elemScope = elemAttr.elemScope; }
 
+        var _clr = 0x000000ff; 
+        var _alpha = 0x0080ffff;
         if (!isEmpty(elemAttr.elemClr)) {
-            var _clr = 0x000000ff; 
             if (elemAttr.elemClr.red == -1 || elemAttr.elemClr.green == -1 || elemAttr.elemClr.blue == -1) {
                 //不调整颜色
                 _clr = 0x000000ff;
@@ -2626,7 +2627,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _clr = clrToU32_W_WBGR(elemAttr.elemClr, elemAttr.clrWeight);
             }
 
-            var _alpha = 0x0080ffff;
             if (elemAttr.elemClr.alpha == -1) {
                 //不改变透明度
                 _alpha = 0x0080ff00;
