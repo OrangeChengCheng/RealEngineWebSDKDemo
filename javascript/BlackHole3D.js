@@ -613,15 +613,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置是否固定主相机的方位（BIM相机）
-     * @param {dvec3} camPos //相机位置
-     * @param {dvec4} camRotate //相机的朝向
-     * @param {Boolean} toLoc //是否调整到设置方位，默认false
      */
-    Module.Camera.setFixDataSetCam = function (camPos, camRotate, toLoc) {
-        if (isEmptyLog(camPos, "camPos")) return;
-        if (isEmptyLog(camRotate, "camRotate")) return;
-        var _bFixMainCam = false; if (!isEmpty(toLoc)) _bFixMainCam = toLoc;
-        Module.RealBIMWeb.IsFixMainCam(_bFixMainCam, camPos, camRotate);
+    Module.Camera.setFixDataSetCam = function () {
+        Module.RealBIMWeb.IsFixMainCam(true, [0, 0, 0], [0, 0, 0, 1]);
     }
 
     /**
@@ -1045,7 +1039,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.getEngineWorldCRS = function () {
         var _info = Module.RealBIMWeb.GetEngineWorldCRS();
-        return { worldCRS: _info.m_strCRS, scaleCRS: _info.m_vCRSScale }
+        return _info.m_strCRS;
     }
 
     /**
@@ -2617,7 +2611,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _elemScope = 0; if (!isEmpty(elemAttr.elemScope)) { _elemScope = elemAttr.elemScope; }
 
-        var _clr = 0x000000ff; 
+        var _clr = 0x000000ff;
         var _alpha = 0x0080ffff;
         if (!isEmpty(elemAttr.elemClr)) {
             if (elemAttr.elemClr.red == -1 || elemAttr.elemClr.green == -1 || elemAttr.elemClr.blue == -1) {
@@ -3395,7 +3389,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, "", loadNewData);
     }
 
-    
+
 
 
 
