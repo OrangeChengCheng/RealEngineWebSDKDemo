@@ -355,15 +355,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REFontInfo {
         constructor() {
             this.fontId = null;//自定义的全局字体的id，不可重复
-            this.fontType = null;//字体的逻辑类型名,系统目前支持的类型名为："宋体","微软雅黑"
-            this.texAtlasName = null;//文字使用的纹理拼接器标识名
+            this.fontType = null;//字体的逻辑类型名,系统目前支持的类型名为："宋体"
             this.width = null;//字体的宽
             this.height = null;//字体的高
             this.weight = null;//字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
-            this.weightAmp = null;//文字采用粗体显示时的粗细权重，单位为1/64逻辑像素，==0：原始宽度，<0：文字变细，>0：文字变粗
-            this.italicRatio = null;//表示文字采用斜体显示时的倾斜角的正切，==0：无倾斜，>0：值越大倾斜度越强
-            this.silhouetteAmp = null;//文字的轮廓强度，单位为1/64逻辑像素，==0：没有轮廓，<0：生成尖锐边界的轮廓，>0：生成圆滑边界的轮廓
-            this.antialiased = null;//文字是否启用抗锯齿显示
         }
     }
     ExtModule.REFontInfo = REFontInfo;
@@ -400,14 +395,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var fontInfo = new REFontInfo();
         fontInfo.fontId = _golfontInfo.m_strGolFontID;
         fontInfo.fontType = _golfontInfo.m_strFontType;
-        fontInfo.texAtlasName = _golfontInfo.m_strTexAtlasName;
         fontInfo.width = _golfontInfo.m_uWidth;
         fontInfo.height = _golfontInfo.m_uHeight;
         fontInfo.weight = _golfontInfo.m_sWeightAmp / 64;
-        fontInfo.weightAmp = _golfontInfo.m_sWeightAmp;
-        fontInfo.italicRatio = _golfontInfo.m_fItalicRatio;
-        fontInfo.silhouetteAmp = _golfontInfo.m_sSilhouetteAmp;
-        fontInfo.antialiased = _golfontInfo.m_bAntialiased;
         return fontInfo;
     }
 
