@@ -45,6 +45,8 @@ window.onload = function (event) {
     document.addEventListener("REDataSetLoadPanFinish", function (e) { REDataSetLoadPanFinish(e.detail.succeed) });
     document.addEventListener("REPanLoadSingleFinish", function (e) { REPanLoadSingleFinish(e.detail.succeed) });
 
+    document.addEventListener("RECADLoadFinish", function (e) { RECADLoadFinish(e.detail.succeed) });
+
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
@@ -57,6 +59,10 @@ function RESystemFrameSel(e) {
     setTimeout(() => {
         console.log(BlackHole3D.BIM.getSelElemIDs());
     }, 0);
+    
+}
+
+function RECADLoadFinish(e) {
     
 }
 
@@ -125,6 +131,7 @@ function RESystemReady() {
     sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
     sysInfo.userName = "admin";
     sysInfo.passWord = "xiyangyang";
+    sysInfo.mainWndName = "tests";
     BlackHole3D.initEngineSys(sysInfo);
     BlackHole3D.Common.setUseWebCache(false);//是否允许使用浏览器缓存
 }
@@ -140,9 +147,9 @@ function RESystemEngineCreated(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
-        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.CAD, 1);
-        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Millimeter, 1.0);
-        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
+        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
+        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
+        // // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
         // return;
 
 

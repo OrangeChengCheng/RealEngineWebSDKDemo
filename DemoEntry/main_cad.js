@@ -14,26 +14,62 @@ window.addEventListener('load', function() {
   }
 
   // 页面实时反馈窗口宽高给引擎
-  document.addEventListener("RealEngineReady", RealBIMInitSys);
-  document.addEventListener("RealBIMInitSys", function(e){RealBIMLoadMainSce(e.detail.succeed)});
-  document.addEventListener("RealBIMLoadMainSce", function(e){MainSceDown(e.detail.succeed)});
-  document.addEventListener("RealBIMSelModel",function(e){console.log(e.detail);});
+  document.addEventListener("RESystemReady", RESystemReady);
+  document.addEventListener("RESystemEngineCreated", function(e){RESystemEngineCreated(e.detail.succeed)});
+  document.addEventListener("REDataSetLoadFinish", function(e){REDataSetLoadFinish(e.detail.succeed)});
+  document.addEventListener("RESystemSelElement",function(e){console.log(e.detail);});
 
-  document.addEventListener("RealBIMLoadCAD", function(e){console.log(e.detail.succeed);});
+  document.addEventListener("RECADLoadFinish", RECADLoadFinish);
   document.addEventListener("RealBIMSelCAD", function(e){console.log(e.detail);});
   document.addEventListener("RealBIMSelCADAnchor", function(e){console.log(e.detail);});
 
-  document.addEventListener("RealEngineRenderReady", showCanvas);
+  document.addEventListener("RESystemRenderReady", RESystemRenderReady);
 
-  document.addEventListener("RealBIMLoadProgress", LoadingProgress);
+  document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);
+
+ 
+
+
+
   if((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')){
     console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
-    RealBIMInitSys();
+    RESystemReady();
   }
 });
 
+
+function RECADLoadFinish(e) {
+  
+
+  BlackHole3D.REaddCADAnchors([
+    {
+         id: "anc001", 
+         pos: [-120.0, 240.0], 
+         innerClr: "00ff00", 
+         innerAlpha: 255,
+         extClr: "ffffff",  
+         extAlpha: 255,
+         style: 2
+    }
+  ]);
+  BlackHole3D.REaddCADShpAnchors([
+    {
+         id: "anchor", 
+         pos: [-100, 240], 
+         picPath: "https://demo.bjblackhole.com/BlackHole3.0/imgs/1.svg", 
+         groupName: "group1",
+         strText: "test",  
+         textClr: "ff0000",
+         textAlpha: 255,
+         textSize: 16,
+         textBias: [0,0]
+    }
+  ]);
+}
+
+
 //场景初始化，需正确传递相关参数
-function RealBIMInitSys(isSuccess){
+function RESystemReady(isSuccess){
   console.log("Listen RealEngineReady!！！！！！！！！！！！！！！！！！！！！！！！！");
   progressFn(0.5, "RealEngine/WorkerJS Begin Init");
   var workerjspath = "javascript/RealBIMWeb_Worker.js";
@@ -44,14 +80,14 @@ function RealBIMInitSys(isSuccess){
   BlackHole3D.REinitSys(workerjspath,width,height,commonurl,username,password);
 }
 //canvas图形窗口默认黑色背景，页面初始设置为不显示，图形窗口开始渲染模型再显示
-function showCanvas(){
+function RESystemRenderReady(){
   console.log("addEventListener RealEngineRenderReady!！！！！！！！！！！！！！！！！！！！！！！！");
   document.getElementById('canvas').style.display="block";
   // BlackHole3D.canvas.focus();
 }
 
 //初始化完成后，开始加载场景，需正确传递相关参数
-function RealBIMLoadMainSce(isSuccess){
+function RESystemEngineCreated(isSuccess){
   if(isSuccess){
     // BlackHole3D.REsetEngineWorldCRS("EPSG:3857");
     console.log("Listen RealBIMInitSys!！！！！！！！！！！！！！！！！！！！！！！！");
@@ -85,7 +121,7 @@ function RealBIMLoadMainSce(isSuccess){
   }
 }
 //场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
-function MainSceDown(isSuccess){
+function REDataSetLoadFinish(isSuccess){
   if(isSuccess){
     console.log("模型加载成功!！！！！！！！！！！！！！！！！！！！！！！！");
   }else{
@@ -94,7 +130,7 @@ function MainSceDown(isSuccess){
 }
 
 // 加载进度条
-function LoadingProgress(e) {
+function REDataSetLoadProgress(e) {
   var percent = e.detail.progress; var info = e.detail.info;
   progressFn(percent, info);
 }
