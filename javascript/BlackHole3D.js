@@ -3889,6 +3889,112 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MARK 倾斜摄影单体化
+    /**
+     * 设置倾斜摄影单体化数据
+     * @param {String} elemData //表示所有倾斜摄影单体化的数据（json字符串）
+     */
+    Module.Grid.setMonomerElemData = function (elemData) {
+        var jsonStr = JSON.stringify(elemData);
+        Module.RealBIMWeb.ParseUnverelemInfo(jsonStr);
+    }
+
+    /**
+     * 高亮显示部分或全部单体化区域，颜色为 setMonomerElemData 接口设置的颜色
+     * @param {String} elemIdList //构件id集合
+     */
+    Module.Grid.setShowMonomerElemData = function (elemIdList) {
+        var _s = elemIdList.length;
+        var _s01 = (_s * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid, 0], i * 2);
+        }
+        Module.RealBIMWeb.HighlightUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 隐藏部分或全部单体化区域
+     * @param {String} elemIdList //构件id集合
+     */
+    Module.Grid.setHideMonomerElemData = function (elemIdList) {
+        var _s = elemIdList.length;
+        var _s01 = (_s * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid, 0], i * 2);
+        }
+        Module.RealBIMWeb.CancelHighlightUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 高亮显示部分或全部单体化区域，颜色为单体化选择集设置的统一颜色（临时有效）
+     * @param {String} elemIdList //构件id集合
+     */
+    Module.Grid.addToSelMonomerElemIDs = function (elemIdList) {
+        var _s = elemIdList.length;
+        var _s01 = (_s * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid], i);
+        }
+        Module.RealBIMWeb.AddUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 将单体化区域从选择集中移除
+     * @param {String} elemIdList //构件id集合
+     */
+    Module.Grid.removeFromSelMonomerElemIDs = function (elemIdList) {
+        var _s = elemIdList.length;
+        var _s01 = (_s * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid], i);
+        }
+        Module.RealBIMWeb.RemoveUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
+    }
+
+    /**
+     * 获取当前单体化选择集的ID集合
+     */
+    Module.Grid.getSelMonomerElemIDs = function () {
+        var selids = new Uint32Array(Module.RealBIMWeb.GetSelectedUnverelemId());
+        var arrunverelemid = [];
+        for (var i = 0; i < selids.length; ++i) {
+            arrunverelemid.push(selids[i]);
+        }
+        return arrunverelemid;
+    }
+
+    /**
+     * 设置单体化选择集的颜色和透明度
+     * @param {REColor} elemClr //颜色 (REColor 类型)
+     */
+    Module.Grid.setSelMonomerElemClr = function (elemClr) {
+        var _clr = clrToU32_WBGR(elemClr);
+        Module.RealBIMWeb.SetUnverelemSelectionColor(_clr, elemClr.alpha, 0xff);
+    }
+
+    /**
+     * 设置单体化区域隐藏状态下的颜色
+     * @param {REColor} elemClr //颜色 (REColor 类型)
+     */
+    Module.Grid.setMonomerElemHideClr = function (elemClr) {
+        if (elemClr.alpha < 2) {
+            elemClr.alpha = 2;
+        }
+        var _clr = clrToU32(elemClr);
+        Module.RealBIMWeb.SetUnverelemHideColor(_clr);
+    }
 
 
 

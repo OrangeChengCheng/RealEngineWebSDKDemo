@@ -578,106 +578,17 @@ Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
 
 
 
-//清空项目局部可投射矢量区域信息
-//projName：表示要处理的项目名称，为空串表示清空所有项目的矢量区域信息
-Module.REclearLocalProjRgnsInfo = function(projName){
-  return Module.RealBIMWeb.SetLocalProjRgnsInfo(projName, "");
-}
 
 
 
 
-//设置倾斜摄影单体化数据，参数为固定格式json字符串
-Module.REsetUnverElemData = function(unverElemData){
-  var jsonStr = JSON.stringify(unverElemData);
-  Module.RealBIMWeb.ParseUnverelemInfo(jsonStr);
-}
-//高亮显示倾斜摄影单体化区域，参数为要查看的单体化id集合
-Module.REshowUnverElemData = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*8).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid,0], i*2);
-  }
-  Module.RealBIMWeb.HighlightUnverelem(elemIds.byteLength,elemIds.byteOffset);
-}
-//隐藏倾斜摄影单体化区域，参数为要隐藏的单体化id集合
-Module.REhideUnverElemData = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*8).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid,0], i*2);
-  }
-  Module.RealBIMWeb.CancelHighlightUnverelem(elemIds.byteLength,elemIds.byteOffset);
-}
-//向选择集添加单体化区域，参数为要添加的单体化id集合
-Module.REaddToSelUElemIDs = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*4).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid], i);
-  }
-  Module.RealBIMWeb.AddUnverelemsToSelection(elemIds.byteLength,elemIds.byteOffset);
-}
-//从选择集移除单体化区域，参数为要移除的单体化id集合
-Module.REremoveFromSelUElemIDs = function(elemArr){
-  var _s = elemArr.length;
-  var _s01 = (_s*4).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(_s01); elemIds =Module.RealBIMWeb.GetHeapView_U32(0);
-  for(i =0; i<_s; ++i)
-  {
-    var eleid = elemArr[i];
-    elemIds.set([eleid], i);
-  }
-  Module.RealBIMWeb.RemoveUnverelemsToSelection(elemIds.byteLength,elemIds.byteOffset);
-}
-//获取单体化选择集ID
-Module.REgetUnverElemIDs = function(){
-  var selids =new Uint32Array(Module.RealBIMWeb.GetSelectedUnverelemId());
-  var arrunverelemid=[];
-  for(var i=0; i<selids.length; ++i){
-    arrunverelemid.push(selids[i]);
-  }
-  return arrunverelemid;
-}
-//设置单体化区域选中颜色
-//cn::u32 m_UnverelmSelectionColor = 0xff00ffff;
-// clr ="FF0000"; //颜色
-// alpha =25;  //透明度，255表示不透明，80表示半透明，0表示全透明
-Module.REsetSelUnverElemClr = function(clr,alpha){
-  var newclr01 = clr.substring(0,2); 
-  var newclr02 = clr.substring(2,4); 
-  var newclr03 = clr.substring(4,6); 
-  var newclr = newclr03+newclr02+newclr01; 
-  var clrinfo ="0xff"+newclr; 
-  var clr = parseInt(clrinfo);
-  Module.RealBIMWeb.SetUnverelemSelectionColor(clr, alpha, 0xff);
-}
-//设置单体化区域隐藏状态下的颜色
-//cn::u32 m_UnverelmSelectionColor = 0xff00ffff;
-// clr ="FF0000"; //颜色
-// alpha =25;  //透明度，255表示不透明，80表示半透明，0表示全透明
-Module.REsetUnverElemHideClr = function(clr,alpha){
-  var newclr01 = clr.substring(0,2); 
-  var newclr02 = clr.substring(2,4); 
-  var newclr03 = clr.substring(4,6); 
-  var newclr = newclr03+newclr02+newclr01; 
-  if(alpha<2){alpha =2;}
-  var intalphainfo =Math.round(alpha);
-  var newalphainfo =(intalphainfo>15 ? (intalphainfo.toString(16)) : ("0"+intalphainfo.toString(16)));
-  var clrinfo ="0x"+newalphainfo+newclr; 
-  var clr = parseInt(clrinfo);
-  Module.RealBIMWeb.SetUnverelemHideColor(clr);
-}
+
+
+
+
+
+
+
 //将非版本管理场景节点投射到指定高度
 //projName：表示要处理的项目名称，为空串则表示处理所有项目
 //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
@@ -703,18 +614,6 @@ Module.REsetUnVerHugeGroupRegionFilter = function(projName,sceName,arrBounds,bFi
   return Module.RealBIMWeb.SetUnVerHugeGroupRegionFilter(projName,sceName,temparray,bFilterInner);
 }
 
-//设置非版本管理场景节点是否允许投射到项目局部可投射矢量
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-Module.REsetUnVerHugeGroupProjToLocalShp = function(projName, sceName, bProjToLocalShp){
-  return Module.RealBIMWeb.SetUnVerHugeGroupProjToLocalShp(projName, sceName, bProjToLocalShp);
-}
-//获取非版本管理场景节点是否允许投射到项目局部可投射矢量
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-Module.REgetUnVerHugeGroupProjToLocalShp = function(projName, sceName){
-  return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(projName, sceName);
-}
 
 
 
