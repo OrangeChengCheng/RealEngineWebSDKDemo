@@ -602,10 +602,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置是否固定主相机的方位（BIM相机）
+     * 设置固定当前的相机方位（BIM相机）
      */
-    Module.Camera.setFixDataSetCam = function () {
-        Module.RealBIMWeb.IsFixMainCam(true, [0, 0, 0], [0, 0, 0, 1]);
+    Module.Camera.setFixCurCam = function () {
+        Module.RealBIMWeb.IsFixMainCam(true);
     }
 
     /**
