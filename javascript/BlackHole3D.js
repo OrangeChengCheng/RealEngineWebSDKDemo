@@ -3845,23 +3845,47 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.AddUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
     }
 
-    // //设置非版本管理场景节点是否允许投射到全局可投射矢量
-    // //projName：表示要处理的项目名称，为空串则表示处理所有项目
-    // //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-    // /**
-    //  * 设置的拍平数据对当前数据集是否有效
-    //  * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
-    //  * @param {Boolean} dataSetId //数据集标识，为空字符串则表示处理所有数据集
-    //  */
-    // Module.REsetUnVerHugeGroupProjToGolShp = function (dataSetId, bProjToGolShp) {
-    //     return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(projName, sceName, bProjToGolShp);
-    // }
-    // //获取非版本管理场景节点是否允许投射到全局可投射矢量
-    // //projName：表示要处理的项目名称，为空串则表示处理所有项目
-    // //sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-    // Module.REgetUnVerHugeGroupProjToGolShp = function (projName, sceName) {
-    //     return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(projName, sceName);
-    // }
+    /**
+     * 设置通过 setFlatGolRegion 接口设置的拍平数据是否有效
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     * @param {Number} effective //表示通过 setFlatGolRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
+     */
+    Module.Grid.setFlatRegionEffective = function (dataSetId, effective) {
+        return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, "", effective);
+    }
+
+    /**
+     * 获取通过 setFlatGolRegion 接口设置的拍平数据是否有效
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     */
+    Module.Grid.getFlatRegionEffective = function (dataSetId) {
+        return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, "");
+    }
+
+    /**
+     * 清空 setDataSetFlatRegion 接口设置的局部拍平区域
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     */
+    Module.Grid.clearLocalFlatRegion = function (dataSetId) {
+        return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, "");
+    }
+
+    /**
+     * 设置通过 setDataSetFlatRegion 接口设置的拍平数据是否有效
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     * @param {Number} effective //表示通过 setDataSetFlatRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
+     */
+    Module.Grid.setLocalFlatRegionEffective = function (dataSetId, effective) {
+        return Module.RealBIMWeb.SetUnVerHugeGroupProjToLocalShp(dataSetId, "", effective);
+    }
+
+    /**
+     * 获取通过 setDataSetFlatRegion 接口设置的拍平数据是否有效
+     * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
+     */
+    Module.Grid.getLocalFlatRegionEffective = function (dataSetId) {
+        return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(dataSetId, "");
+    }
 
 
 
