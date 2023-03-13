@@ -3803,20 +3803,302 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MARK 相机
+    /**
+     * 调整相机定位到一个二维图元
+     * @param {String} elemId //二维图元的id
+     * @param {Number} scale //表示相机聚焦后的视口缩放比例，默认为1.0，该值越大，相机距离图元越远
+     */
+    Module.CAD.setCamLocateToElem = function (elemId, scale) {
+        Module.RealBIMWeb.FocusToCADElem(elemId, scale);
+    }
+
+    /**
+     * 设置CAD矢量锚点的相机缩放边界值
+     * @param {String} groupId //锚点组ID
+     * @param {Number} minScale //缩放最小边界（像素）
+     * @param {Number} maxScale //缩放最大边界（像素）
+     */
+    Module.CAD.setGroupShpAncScale = function (groupId, minScale, maxScale) {
+        Module.RealBIMWeb.SetCADShpAnchorScale(groupId, minScale, maxScale);
+    }
 
 
 
+    // MARK 选择集
+    /**
+     * 选中一个二维图元
+     * @param {String} elemId //二维图元的id
+     */
+    Module.CAD.selElem = function (elemId) {
+        Module.RealBIMWeb.SelCADElem(elemId);
+    }
 
 
 
+    // MARK 锚点
+    class RECADAnc {
+        constructor() {
+            this.anchorId = null;//	锚点的名称(字符串，唯一标识)
+            this.pos = [0.0, 0.0];//	锚点的位置，默认值[0, 0]
+            this.style = 0;//	锚点的样式，目前CAD锚点仅支持4种默认样式，分别以数字0~3表示
+            this.innerClr = new REColor(255, 255, 255, 255);//	内部元素颜色
+            this.extClr = new REColor(255, 255, 255, 255);//	外部部元素颜色
+        }
+    }
+    ExtModule.RECADAnc = RECADAnc;
+
+    class RECADShpAnc {
+        constructor() {
+            this.anchorId = null;//	锚点的名称(字符串，唯一标识)
+            this.pos = null;//	锚点的位置，默认值 [0,0,0]
+            this.shpPath = null;//	表示使用的矢量文件路径
+            this.groupId = null;//	表示锚点所属的组名称ID
+            this.text = null;//	表示锚点的文字内容
+            this.textClr = null;//	表示锚点文字的颜色
+            this.textSize = null;//	文字的高度
+            this.textAlign = null;//	表示锚点文字相对矢量图标的对齐方式（九宫格：以图片为中心[0,0]）
+        }
+    }
+    ExtModule.RECADShpAnc = RECADShpAnc;
 
 
+    /**
+     * 添加锚点
+     * @param {RECADAnc} ancList //锚点信息集合（RECADAnc类型）
+     */
+    Module.CAD.addAnc = function (ancList) {
+        if (isEmptyLog(ancList, "ancList")) return;
+        var tempAnchors = new Module.RE_Vector_CAD_ANCHOR();
+        for (i = 0; i < ancList.length; ++i) {
+            var _ancInfo = ancList[i];
+            let _id = ""; if (!isEmpty(_ancInfo.anchorId)) _id = _ancInfo.anchorId;
+            let _pos = [0.0, 0.0]; if (!isEmpty(_ancInfo.pos)) _pos = _ancInfo.pos;
+            let _innerClr = 0xffffffff; if (!isEmpty(_ancInfo.innerClr)) _innerClr = clrToU32(_ancInfo.innerClr);
+            let _extClr = 0xff00ff00; if (!isEmpty(_ancInfo.extClr)) _extClr = clrToU32(_ancInfo.extClr);
+            let _style = 0; if (!isEmpty(_ancInfo.style)) _style = _ancInfo.style;
 
+            var tempobj = {
+                m_strID: _id,
+                m_vPos: _pos,
+                m_uClr1: _extClr,
+                m_uClr2: _innerClr,
+                m_uStyleID: _style
+            };
+            tempAnchors.push_back(tempobj);
+        }
+        return Module.RealBIMWeb.AddCADAnchors(tempAnchors);
+    }
 
+    /**
+     * 根据锚点id获取当前锚点的信息
+     * @param {String} anchorId //锚点id
+     */
+    Module.CAD.getAnc = function (anchorId) {
+        var _ancData = Module.RealBIMWeb.GetCADAnchor(anchorId);
+        var cadAnc = new RECADAnc();
+        cadAnc.innerClr = clrU32ToClr(_ancData.m_uClr2);
+        cadAnc.extClr = clrU32ToClr(_ancData.m_uClr1);
+        cadAnc.anchorId = _ancData.m_strID;
+        cadAnc.pos = _ancData.m_vPos;
+        cadAnc.style = _ancData.m_uStyleID;
+        return cadAnc;
+    }
 
+    /**
+     * 获取当前添加的锚点总数
+     */
+    Module.CAD.getAncNum = function () {
+        return Module.RealBIMWeb.GetCADAnchorNum();
+    }
 
+    /**
+     * 获取当前添加的全部锚点信息
+     */
+    Module.CAD.getAllAnc = function () {
+        var _allAncData = Module.RealBIMWeb.GetAllCADAnchors();
 
+        var arrAncData = [];
+        for (var i = 0; i < _allAncData.size(); ++i) {
+            var tempobj = _allAncData.get(i);
 
+            var cadAnc = new RECADAnc();
+            cadAnc.innerClr = clrU32ToClr(tempobj.m_uClr2);
+            cadAnc.extClr = clrU32ToClr(tempobj.m_uClr1);
+            cadAnc.anchorId = tempobj.m_strID;
+            cadAnc.pos = tempobj.m_vPos;
+            cadAnc.style = tempobj.m_uStyleID;
+            arrAncData.push(cadAnc);
+        }
+        return arrAncData;
+    }
+
+    /**
+     * 删除锚点
+     * @param {Array} anchorIdList //锚点id集合
+     */
+    Module.CAD.delAnc = function (anchorIdList) {
+        var tempAnchors = new Module.RE_Vector_WStr();
+        for (i = 0; i < anchorIdList.length; ++i) {
+            tempAnchors.push_back(anchorIdList[i]);
+        }
+        return Module.RealBIMWeb.DelCADAnchors(tempAnchors);
+    }
+
+    /**
+     * 删除所有锚点
+     */
+    Module.CAD.delAllAnc = function () {
+        Module.RealBIMWeb.DelAllCADAnchors();
+    }
+
+    /**
+     * 添加一系列CAD矢量锚点
+     * @param {RECADShpAnc} shpAncList //矢量锚点信息集合（RECADShpAnc类型）
+     */
+    Module.CAD.addShpAnc = function (shpAncList) {
+        if (isEmptyLog(shpAncList, "shpAncList")) return;
+
+        var tempAnchors = new Module.RE_Vector_CAD_SHP_ANCHOR();
+        for (i = 0; i < shpAncList.length; ++i) {
+            let shpAnc = shpAncList[i];
+
+            var _id = ""; if (!isEmpty(shpAnc.anchorId)) _id = shpAnc.anchorId;
+            var _pos = [0.0, 0.0]; if (!isEmpty(shpAnc.pos)) _pos = shpAnc.pos;
+            var _picPath = ""; if (!isEmpty(shpAnc.shpPath)) _picPath = shpAnc.shpPath;
+            var _groupName = ""; if (!isEmpty(shpAnc.groupId)) _groupName = shpAnc.groupId;
+            var _strText = ""; if (!isEmpty(shpAnc.text)) _strText = shpAnc.text;
+            var _textClr = 0xffffffff; if (!isEmpty(shpAnc.textClr)) _textClr = clrToU32(shpAnc.textClr);
+            var _textSize = 16; if (!isEmpty(shpAnc.textSize)) _textSize = shpAnc.textSize;
+            var _textBias = [0, 0]; if (!isEmpty(shpAnc.textAlign)) _textBias = shpAnc.textAlign;
+
+            var tempobj = {
+                m_strID: _id,
+                m_vPos: _pos,
+                m_strShpPath: _picPath,
+                m_strGroupID: _groupName,
+                m_strText: _strText,
+                m_uTextClr: _textClr,
+                m_dTextSize: _textSize,
+                m_vTextAlign: _textBias
+            };
+            tempAnchors.push_back(tempobj);
+        }
+        return Module.RealBIMWeb.AddCADShpAnchors(tempAnchors);
+    }
+
+    /**
+     * 获取矢量锚点信息
+     * @param {String} anchorId //锚点id
+     */
+    Module.CAD.getShpAnc = function (anchorId) {
+        var _ancData = Module.RealBIMWeb.GetCADShpAnchor(anchorId);
+        var shpAnc = new BlackHole3D.RECADShpAnc();
+        shpAnc.pos = _ancData.m_vPos;
+        shpAnc.text = _ancData.m_strText;
+        shpAnc.textClr = clrU32ToClr(_ancData.m_uTextClr);
+        shpAnc.textSize = _ancData.m_dTextSize;
+        shpAnc.shpPath = _ancData.m_strShpPath;
+        shpAnc.groupId = _ancData.m_strGroupID;
+        shpAnc.anchorId = _ancData.m_strID;
+        shpAnc.textAlign = _ancData.m_vTextAlign;
+        return shpAnc;
+    }
+
+    /**
+     * 获取当前添加的矢量锚点总数
+     */
+    Module.CAD.getShpAncNum = function () {
+        return Module.RealBIMWeb.GetCADShpAnchorNum();
+    }
+
+    /**
+     * 获取当前添加的全部矢量锚点信息
+     */
+    Module.CAD.getAllShpAnc = function () {
+        var _allAncData = Module.RealBIMWeb.GetAllCADShpAnchors();
+
+        var arrAncData = [];
+        for (let i = 0; i < _allAncData.size(); ++i) {
+            let tempobj = _allAncData.get(i);
+
+            let shpAnc = new BlackHole3D.RECADShpAnc();
+            shpAnc.pos = tempobj.m_vPos;
+            shpAnc.text = tempobj.m_strText;
+            shpAnc.textClr = clrU32ToClr(tempobj.m_uTextClr);
+            shpAnc.textSize = tempobj.m_dTextSize;
+            shpAnc.shpPath = tempobj.m_strShpPath;
+            shpAnc.groupId = tempobj.m_strGroupID;
+            shpAnc.anchorId = tempobj.m_strID;
+            shpAnc.textAlign = tempobj.m_vTextAlign;
+            arrAncData.push(shpAnc);
+        }
+        return arrAncData;
+    }
+
+    /**
+     * 删除矢量锚点
+     * @param {Array} anchorIdList //锚点id集合
+     */
+    Module.CAD.delShpAnc = function (anchorIdList) {
+        var tempAnchors = new Module.RE_Vector_WStr();
+        for (i = 0; i < anchorIdList.length; ++i) {
+            tempAnchors.push_back(anchorIdList[i]);
+        }
+        return Module.RealBIMWeb.DelCADShpAnchors(tempAnchors);
+    }
+
+    /**
+     * 删除系统所有的CAD矢量锚点
+     */
+    Module.CAD.delAllShpAnc = function () {
+        Module.RealBIMWeb.DelAllCADShpAnchors();
+    }
+
+    /**
+     * 获取所有矢量锚点组名
+     */
+    Module.CAD.getAllShpAncGroupIDs = function () {
+        var _temparr = Module.RealBIMWeb.GetAllCADShpAnchorGroupIDs();
+        var arrgroupname = [];
+        for (var i = 0; i < _temparr.size(); ++i) {
+            var tempobj = _temparr.get(i);
+            arrgroupname.push(tempobj);
+        }
+        return arrgroupname;
+    }
+
+    /**
+     * 根据组名获取一系列矢量锚点
+     * @param {String} groupId //锚点组ID
+     */
+    Module.CAD.getGroupShpAnc = function (groupId) {
+        var _groupAncData = Module.RealBIMWeb.GetGroupCADShpAnchors(groupId);
+        var arrAncData = [];
+        for (let i = 0; i < _groupAncData.size(); ++i) {
+            let tempobj = _groupAncData.get(i);
+
+            let shpAnc = new BlackHole3D.RECADShpAnc();
+            shpAnc.pos = tempobj.m_vPos;
+            shpAnc.text = tempobj.m_strText;
+            shpAnc.textClr = clrU32ToClr(tempobj.m_uTextClr);
+            shpAnc.textSize = tempobj.m_dTextSize;
+            shpAnc.shpPath = tempobj.m_strShpPath;
+            shpAnc.groupId = tempobj.m_strGroupID;
+            shpAnc.anchorId = tempobj.m_strID;
+            shpAnc.textAlign = tempobj.m_vTextAlign;
+            arrAncData.push(shpAnc);
+        }
+        return arrAncData;
+    }
+
+    /**
+     * 根据组名删除一系列矢量锚点
+     * @param {String} groupId //锚点组ID
+     */
+    Module.CAD.delGroupShpAnc = function (groupId) {
+        Module.RealBIMWeb.DelGroupCADShpAnchors(groupId);
+    }
 
 
 

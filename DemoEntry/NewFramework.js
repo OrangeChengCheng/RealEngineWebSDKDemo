@@ -147,10 +147,10 @@ function RESystemEngineCreated(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
-        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
-        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
-        // // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
-        // return;
+        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
+        BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
+        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
+        return;
 
 
         // 倾斜摄影proj1的测试场景
@@ -842,8 +842,61 @@ function addWater() {
 
 
 
+//添加锚点
+function addCADAnc() {
+    var ancList = [];
+    var anc = new BlackHole3D.RECADAnc();
+    anc.anchorId = "anchor";
+    anc.pos = [15, 15];
+    anc.style = 2;
+    anc.innerClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    anc.extClr = new BlackHole3D.REColor(0, 255, 0, 255);
+    ancList.push(anc);
+    BlackHole3D.CAD.addAnc(ancList);
+}
 
 
+//添加360对应的矢量锚点
+function addPanToCADShpAnc() {
+    //添加360的矢量锚点
+    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
+    if (panInfoList.count > 0) {
+        var arrCadAnc = [];
+        for (let i = 0; i < panInfoList.count; i++) {
+            let panElem = panInfoList[i];
+            let model = new BlackHole3D.RECADShpAnc();
+            model.pos = panElem.pos;
+            model.text = "test";
+            model.textClr = new BlackHole3D.REColor(255, 0, 255, 255);
+            model.textSize = 16;
+            model.shpPath = "https://demo.bjblackhole.com/BlackHole3.0/imgs/1.svg";
+            model.groupId = "group01";
+            model.anchorId = panElem.elemId;
+            model.textAlign = [0, 0];
+
+            arrCadAnc.push(model);
+        }
+        BlackHole3D.CAD.addShpAnc(arrCadAnc);
+    }
+}
+
+//添加矢量锚点
+function addCADShpAnc() {
+    //添加矢量锚点
+    var arrCadAnc = [];
+    var model = new BlackHole3D.RECADShpAnc();
+    model.pos = [1, 0];
+    model.text = "test";
+    model.textClr = new BlackHole3D.REColor(255, 0, 255, 255);
+    model.textSize = 16;
+    model.shpPath = "https://demo.bjblackhole.com/BlackHole3.0/imgs/1.svg";
+    model.groupId = "group01";
+    model.anchorId = "anchor001";
+    model.textAlign = [0, 0];
+
+    arrCadAnc.push(model);
+    BlackHole3D.CAD.addShpAnc(arrCadAnc);
+}
 
 
 
