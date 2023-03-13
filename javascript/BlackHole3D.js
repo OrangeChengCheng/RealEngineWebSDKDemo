@@ -3841,7 +3841,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      * @param {Number} alpha //透明度
      */
-    Module.Grid.setGroupAlpha = function (dataSetId, alpha) {
+    Module.Grid.setDataSetAlpha = function (dataSetId, alpha) {
         var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
@@ -3854,7 +3854,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前设置的某一块或全部的栅格模型的透明度
      * @param {String} dataSetId //数据集标识
      */
-    Module.Grid.getGroupAlpha = function (dataSetId) {
+    Module.Grid.getDataSetAlpha = function (dataSetId) {
         var alpha = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
         return alpha.m_uDestAlpha;
     }
@@ -3864,9 +3864,88 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      * @param {Number} depthBias //深度偏移范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
      */
-    Module.Grid.setGroupDepthBias = function (dataSetId, depthBias) {
+    Module.Grid.setDataSetDepthBias = function (dataSetId, depthBias) {
         Module.RealBIMWeb.SetUnVerHugeGroupDepthBias(dataSetId, "", depthBias);
     }
+
+    /**
+     * 刷新数据集栅格模型
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} loadNewData //表示刷新后是否重新加载数据
+     */
+    Module.Grid.refreshDataSet = function (dataSetId, loadNewData) {
+        Module.RealBIMWeb.RefreshUnVerHugeGroupMainData(dataSetId, "", loadNewData);
+    }
+
+    /**
+     * 设置某一块或全部的栅格模型的颜色
+     * @param {String} dataSetId //数据集标识
+     * @param {REColor} clr //新的颜色信息
+     */
+    Module.Grid.setDataSetClr = function (dataSetId, clr) {
+        var _clr = clrToU32_WBGR(clr);
+        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
+        if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: 255, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
+        } else {
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: _info.m_uDestAlpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
+        }
+    }
+
+    /**
+     * 设置栅格模型的可见性
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} visible //是否可见
+     */
+    Module.Grid.setDataSetVisible = function (dataSetId, visible) {
+        Module.RealBIMWeb.SetUnVerHugeGroupVisible(dataSetId, "", visible);
+    }
+
+    /**
+     * 获取栅格模型的可见性
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Grid.getDataSetVisible = function (dataSetId) {
+        return Module.RealBIMWeb.GetUnVerHugeGroupVisible(dataSetId, "");
+    }
+
+    /**
+     * 设置栅格模型的仿射变换信息
+     * @param {String} dataSetId //数据集标识
+     * @param {dvec3} scale //缩放
+     * @param {dvec4} rotate //旋转
+     * @param {dvec3} offset //平移
+     */
+    Module.Grid.setDataSetTrans = function (dataSetId, scale, rotate, offset) {
+        Module.RealBIMWeb.SetUnVerHugeGroupTransform(dataSetId, "", scale, rotate, offset);
+    }
+
+    /**
+     * 根据数据集id获取总包围盒信息
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Grid.getDataSetBV = function (dataSetId) {
+        var tempbv = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox(dataSetId, "");
+        var aabbarr = [];
+        aabbarr.push(tempbv[0][0]); aabbarr.push(tempbv[1][0]);  //Xmin、Xmax
+        aabbarr.push(tempbv[0][1]); aabbarr.push(tempbv[1][1]);  //Ymin、Ymax
+        aabbarr.push(tempbv[0][2]); aabbarr.push(tempbv[1][2]);  //Zmin、Zmax
+        return aabbarr;
+    }
+
+    /**
+     * 将栅格投影到指定高度
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} type //表示投影类型
+     * @param {Number} height //type==0：表示地形组禁止投射到固定高度;  type==1：height表示世界空间绝对高度; type==2：height表示当前地形节点自身包围盒的相对高度范围(0~1); type==3：height表示整个场景的地形节点总包围盒的相对高度范围(0~1)
+     * @param {Number} amp //表示将地形投射到指定高度的投射强度(0~1) 
+     */
+    Module.Grid.setDataSetToHeight = function (dataSetId, type, height, amp) {
+        Module.RealBIMWeb.ProjUnVerHugeGroupToHeight(dataSetId, "", type, height, amp);
+    }
+
+
+
 
 
     // MARK 剖切

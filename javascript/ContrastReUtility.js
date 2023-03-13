@@ -585,17 +585,7 @@ Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
 
 
 
-//将非版本管理场景节点投射到指定高度
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的地形场景节点的名称，若为空串则表示处理所有的场景节点
-//uHeightType,dHeight：  uHeightType==0：表示场景节点禁止投射到固定高度
-//            uHeightType==1：dHeight表示世界空间绝对高度
-//            uHeightType==2：dHeight表示非版本管理场景节点自身包围盒的相对高度范围(0~1)
-//            uHeightType==3：dHeight表示整个场景的非版本复杂模型总包围盒的相对高度范围(0~1)
-//dHeightAmp：表示场景节点投射到指定高度的投射强度(0~1)(uHeightType>0有效)
-Module.REprojUnVerHugeGroupToHeight = function(projName,sceName,uHeightType,dHeight,dHeightAmp){
-  Module.RealBIMWeb.ProjUnVerHugeGroupToHeight(projName,sceName,uHeightType,dHeight,dHeightAmp);
-}
+
 
 //设置非版本管理复杂模型组的区域过滤信息
 //strProjName：表示要处理的项目名称，为空串则表示处理所有项目
@@ -691,16 +681,8 @@ Module.REgetAllUnVerHugeGroupIDs = function(projName) {
   return namearr;
 }
 
-//设置非BIM模型的颜色
-Module.REsetUnVerHugeGroupClr = function(projName,sceName,clr){
-  var _clr = Module.REclrFix(clr,255); 
-  var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(projName,sceName);
-  if(_info.m_uDestAlpha==0 && _info.m_uDestAlphaAmp==0 && _info.m_uDestRGBBlendInfo==0){
-    Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(projName,sceName, {m_uDestAlpha:255,m_uDestAlphaAmp:255,m_uDestRGBBlendInfo:_clr});
-  }else{
-    Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(projName,sceName, {m_uDestAlpha:_info.m_uDestAlpha,m_uDestAlphaAmp:255,m_uDestRGBBlendInfo:_clr});
-  }
-}
+
+
 
 
 
@@ -1224,32 +1206,11 @@ Module.REaddCustomTag02 = function(tagName, pos, tag_w, tag_h1, tag_h2, caption,
   Module.RealBIMWeb.AddTags(temptags);
 }
 
-//获取地形的包围盒信息
-Module.REgetUnVerHugeGroupBoundingBox = function(projName,sceName){
-  var tempbv =Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox(projName,sceName);
-  var aabbarr = [];
-  aabbarr.push(tempbv[0][0]); aabbarr.push(tempbv[1][0]);  //Xmin、Xmax
-  aabbarr.push(tempbv[0][1]); aabbarr.push(tempbv[1][1]);  //Ymin、Ymax
-  aabbarr.push(tempbv[0][2]); aabbarr.push(tempbv[1][2]);  //Zmin、Zmax
-  return aabbarr;
-}
-//设置地形场景节点的可见性
-Module.REsetUnVerHugeGroupVisible = function(projName,sceName,bVisible){
-  Module.RealBIMWeb.SetUnVerHugeGroupVisible(projName,sceName,bVisible);
-}
-//获取地形场景节点的可见性
-Module.REgetUnVerHugeGroupVisible = function(projName,sceName){
-  return Module.RealBIMWeb.GetUnVerHugeGroupVisible(projName,sceName);
-}
 
-//设置地形的仿射变换信息
-Module.REsetUnVerHugeGroupTransform = function(projName,sceName,arrScale,arrRotate,arrOffset){
-  Module.RealBIMWeb.SetUnVerHugeGroupTransform(projName,sceName,arrScale,arrRotate,arrOffset);
-}
-//刷新地形模型，bLoadNewData：表示刷新主体数据后是否允许重新加载数据
-Module.RErefreshUnVerHugeGroupMainData = function(projName,sceName,bLoadNewData){
-  Module.RealBIMWeb.RefreshUnVerHugeGroupMainData(projName,sceName,bLoadNewData);
-}
+
+
+
+
 
 
 
