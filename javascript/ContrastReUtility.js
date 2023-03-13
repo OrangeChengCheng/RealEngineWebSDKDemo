@@ -486,11 +486,7 @@ Module.REdelAllFences = function(){
 
 
 
-//获取当前拾取到的360矢量相关信息
-Module.REgetCurPanShpProbeRet = function(){
-  var panshpproberet_norm =Module.RealBIMWeb.GetCurPanShpProbeRet(Module.RE_PROBE_TYPE.NORM);
-  return panshpproberet_norm;
-}
+
 //获取当前拾取到的UI相关信息(不常用)
 Module.REgetCurUIShpProbeRet = function(){
   var shpproberet_ortho =Module.RealBIMWeb.GetCurShpProbeRet(Module.RE_SHP_PROBE_TYPE.ORTHO);
@@ -1452,19 +1448,7 @@ Module.REaddCustomPolyFenceShp = function(shpName, arrPots, bClose, uClr, fASDis
 
 
 
-//根据相机点位置和目标点位置，设置全景场景相机方位
-//curPos:当前相机的位置（当前帧图片扫描点位）
-//destPos:目标点位，例[1,1,1]
-// pancamid：360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
-Module.RElocatePanCamToDestPos = function(curPos,destPos,pancamid){
-  var _pancamid =0; if(typeof pancamid != 'undefined'){_pancamid = pancamid;}
-  Module.RealBIMWeb.LocatePanCamToDestPos(curPos,destPos,_pancamid);
-}
-//获取360相机的朝向
-// pancamid：360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
-Module.REgetPanCamLocation = function(pancamid){
-  return Module.RealBIMWeb.GetPanCamLocation(pancamid);
-}
+
 //添加全景场景的锚点
 // panAncInfo = [
 //             {
@@ -1491,52 +1475,10 @@ Module.REgetPanCamLocation = function(pancamid){
 //               "textBias":[1,1]  
 //             }
 //            ]
-Module.REaddPanAnchor = function(panAncInfo){
-  var tempPanAnchors = new Module.RE_Vector_PAN_ANC();
-  for(var i=0; i<panAncInfo.length; ++i){
-    var _arrPos = [0,0,0]; var _arrPicPos = [0,0]; var _bUsePicPos = false;
-    if(typeof panAncInfo[i].arrPos != 'undefined'){_arrPos = panAncInfo[i].arrPos;}
-    if(typeof panAncInfo[i].arrPicPos != 'undefined'){_arrPicPos = panAncInfo[i].arrPicPos;}
-    if(typeof panAncInfo[i].bUsePicPos != 'undefined'){_bUsePicPos = panAncInfo[i].bUsePicPos;}
-    var tempobj = {
-      m_strPanId:panAncInfo[i].strPanId,
-      m_strPanAncName:panAncInfo[i].strPanAncName,
-      m_vPos:_arrPos,
-      m_vTexPos:_arrPicPos,
-      m_bUseTexPos:_bUsePicPos,
-      m_strTexPath:panAncInfo[i].strPicPath,
-      m_vTexSize:panAncInfo[i].picSize,
-      m_vTexFocus:panAncInfo[i].textFocus,
-      m_strTextInfo:panAncInfo[i].strTextInfo,
-      m_vTextClr:panAncInfo[i].strTextClr,
-      m_vTextBia:panAncInfo[i].textBias
-    }
-    tempPanAnchors.push_back(tempobj);
-  }
-  Module.RealBIMWeb.AddPanAnc(tempPanAnchors);
-}
-//获取某一全景场景的所有锚点名称
-//strPanId 全景图的唯一标识（必填）
-Module.REgetPanAnchor = function(strPanId){
-  var tempArr = Module.RealBIMWeb.GetPanAnc(strPanId);
-  var nameArr = [];
-  for(var i =0; i<tempArr.size(); ++i){
-    nameArr.push(tempArr.get(i));
-  }
-  return nameArr;
-}
-//删除某一全景场景中的锚点
-//strPanName 全景场景名称,为空字符串""标识删除全部
-//strPanAnchorName 锚点唯一标识，字符串，为空表示删除当前窗口全部锚点
-Module.REdelPanAnchor = function(strPanName,strPanAnchorName){
-  Module.RealBIMWeb.DelPanAnc(strPanAnchorName,strPanName);
-}
-//根据鼠标点击的360全景三维坐标点，计算对应的当前帧全景图片的二维像素值
-//pos 当前鼠标点击的三维坐标，通过RealBIMSelShape事件+REgetCurPanShpProbeRet接口获取
-//strPanId 全景图的唯一标识
-Module.REgetPicPosBySelPos = function(pos,strPanId){
-  return Module.RealBIMWeb.GetTexPos(pos,strPanId);
-}
+
+
+
+
 
 
 

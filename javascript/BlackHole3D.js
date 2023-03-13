@@ -4095,16 +4095,141 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 设置360相机的朝向
      * @param {String} locType //表示相机朝向（ RECamDirEm 枚举类型）
-     * @param {Number} panCamId //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     * @param {Number} panWindow //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
-    Module.Panorama.setCamLocateTo = function (locType, panCamId) {
+    Module.Panorama.setCamLocateTo = function (locType, panWindow) {
         if (isEmptyLog(locType, "locType")) return;
-        var _panCamId = 0; if (!isEmpty(panCamId)) { _panCamId = panCamId; }
+        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
         var enumEval = locType;
         Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
     }
 
+    /**
+     * 设置全景场景相机方位
+     * @param {dvec3} curPos //当前相机的位置（当前帧图片扫描点位）
+     * @param {dvec3} destPos //目标点位
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.setCamLocateToDestPos = function (curPos, destPos, panWindow) {
+        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
+        Module.RealBIMWeb.LocatePanCamToDestPos(curPos, destPos, _panCamId);
+    }
 
+    /**
+     * 获取全景相机的方位信息
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.getCamLocate = function (panWindow) {
+        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
+        var camLoc = new RECamLoc();
+        var _camLoc01 = Module.RealBIMWeb.GetPanCamLocation(_panCamId);
+        var _camLoc02 = Module.RealBIMWeb.GetPanCamLocation_Dir(_panCamId);
+        camLoc.camPos = _camLoc01.m_vCamPos;
+        camLoc.camRotate = _camLoc01.m_qCamRotate;
+        camLoc.camDir = _camLoc02.m_qCamDir;
+        return camLoc;
+    }
+
+
+
+
+    // MARK 相机
+
+    /**
+     * 获取当前探测全景信息
+     */
+    Module.Panorama.getCurShpProbeRet = function () {
+        var _shp_probe_ret = Module.RealBIMWeb.GetCurPanShpProbeRet(Module.RE_PROBE_TYPE.NORM);
+        var shp_probe = new REProbeShpInfo();
+        shp_probe.elemId = _shp_probe_ret.m_strSelShpObjName;
+        shp_probe.elemPos = _shp_probe_ret.m_vSelPos;
+        shp_probe.elemScrPos = _shp_probe_ret.m_vSelScrPos;
+        return shp_probe;
+    }
+
+    /**
+     * 获取锚点在全景图上的像素坐标
+     * @param {dvec3} pos //三维坐标点
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.getTexPos = function (pos, panWindow) {
+        return Module.RealBIMWeb.GetTexPos(pos, panWindow);
+    }
+
+
+
+
+    // MARK 相机
+    class REPanAnc {
+        constructor() {
+            this.panWindow = 0;//	全景相机标识(默认值0)，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+            this.ancName = null;//	锚点的名称(唯一标识)，必填
+            this.pos = [0, 0, 0];//	锚点的位置，默认值 [0,0,0]
+            this.texPos = [0, 0];//	表示锚点在全景图上的像素位置
+            this.useTexPos = false;//	表示是否使用像素位置添加锚点
+            this.picPath = null;//	表示锚点的图片路径
+            this.picSize = [0, 0];//	表示锚点的图片大小
+            this.text = null;//	表示顶点的文字标注信息
+            this.textClr = REColor(0, 0, 0, 255);//	表示锚点的文字标注颜色
+            this.texBias = [0, 0];//	表示锚点文字与图片的相对位置，二维坐标：以点为中心点，横轴为x，右侧为正方向，竖轴为y，向上为正方向, 例如（-1，-1）为文字在点的左下方，（1,1）为右上方
+            this.texFocus = [0, 0];//	表示指定纹理图片中的像素坐标，对应对锚点的位置坐标               
+        }
+    }
+    ExtModule.REPanAnc = REPanAnc;
+
+    /**
+     * 锚点信息集合（ REPanAnc 类型）
+     * @param {REPanAnc} ancList //三维坐标点
+     */
+    Module.Panorama.addAnc = function (ancList) {
+        var tempPanAnchors = new Module.RE_Vector_PAN_ANC();
+        for (var i = 0; i < ancList.length; ++i) {
+            var _panAncInfo = ancList[i];
+            var _panCamId = 0; if (!isEmpty(_panAncInfo.panWindow)) _panCamId = _panAncInfo.panWindow;
+            var _pos = [0, 0, 0]; if (!isEmpty(_panAncInfo.pos)) _pos = _panAncInfo.pos;
+            var _texPos = [0, 0]; if (!isEmpty(_panAncInfo.texPos)) _texPos = _panAncInfo.texPos;
+            var _useCamPost = false; if (!isEmpty(_panAncInfo._useCamPost)) _useCamPost = _panAncInfo._useCamPost;
+            var tempobj = {
+                m_uSlot: _panCamId,
+                m_strPanAncName: _panAncInfo.ancName,
+                m_vPos: _pos,
+                m_vTexPos: _texPos,
+                m_bUseTexPos: _useCamPost,
+                m_strTexPath: _panAncInfo.picPath,
+                m_vTexSize: _panAncInfo.picSize,
+                m_vTexFocus: _panAncInfo.texFocus,
+                m_strTextInfo: _panAncInfo.text,
+                m_vTextClr: [_panAncInfo.textClr.red, _panAncInfo.textClr.green, _panAncInfo.textClr.blue],
+                m_vTextBia: _panAncInfo.texBias,
+            }
+            tempPanAnchors.push_back(tempobj);
+        }
+        Module.RealBIMWeb.AddPanAnc(tempPanAnchors);
+    }
+
+    /**
+     * 获取当前已加载的全景图锚点的唯一标识集合
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.getAllAncName = function (panWindow) {
+        var _panCamId = 0; if (!isEmpty(panWindow)) _panCamId = panWindow;
+        var tempArr = Module.RealBIMWeb.GetPanAnc(_panCamId);
+        var nameArr = [];
+        for (var i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 删除锚点
+     * @param {String} ancName //点的名称,如果为""删除所有全景图中的所有锚点
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.delAnc = function (ancName, panWindow) {
+        var _panCamId = 0; if (!isEmpty(panWindow)) _panCamId = panWindow;
+        Module.RealBIMWeb.DelPanAnc(_panCamId, ancName);
+    }
 
 
 

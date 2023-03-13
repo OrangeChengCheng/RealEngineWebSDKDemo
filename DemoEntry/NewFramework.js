@@ -59,11 +59,11 @@ function RESystemFrameSel(e) {
     setTimeout(() => {
         console.log(BlackHole3D.BIM.getSelElemIDs());
     }, 0);
-    
+
 }
 
 function RECADLoadFinish(e) {
-    
+
 }
 
 function RESystemSelElement(e) {
@@ -773,4 +773,39 @@ function animBone() {
     boneLocInfo.sendPostEvent = true;
     boneLocInfo.destLoc = destLoc;
     BlackHole3D.BIM.setGolElemBoneDestLoc(boneLocInfo);
+}
+
+//设置全景相机
+function setPanCam() {
+    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
+    var panElem1 = panInfoList[1];
+    var panElem2 = panInfoList[2];
+    BlackHole3D.Panorama.setCamLocateToDestPos(panElem1.pos, panElem2.pos, 0);
+
+}
+
+
+// 添加360锚点
+function addPanAnc() {
+    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
+    var panAncList = [];
+    for (let j = 0; j < panInfoList.length; j++) {
+        var panElem = panInfoList[j];
+
+        var model = new BlackHole3D.REPanAnc();
+        //model.panWindow = 0;//选填
+        model.ancName = "锚点:" + j;
+        model.pos = panElem.pos;
+        model.picPath = "https://demo.bjblackhole.com/imgs/bubbley.png";
+        model.picSize = [60, 60];
+        model.texFocus = [-1, -1];
+        model.text = "前进";
+        model.textClr = BlackHole3D.REColor(0, 255, 255);
+        model.useTexPos = false;
+        model.texBias = [-1, -1];
+        model.texPos = [30, 30];
+
+        panAncList.push(model);
+    }
+    BlackHole3D.Panorama.addAnc(panAncList);
 }
