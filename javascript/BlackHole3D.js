@@ -125,6 +125,49 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetViewSyn();
     }
 
+    /**
+     * 获取鼠标是否翻转了左右相机拖动键操作
+     */
+    Module.getCamRevLR = function () {
+        return Module.RealBIMWeb.CamRevLR();
+    }
+
+    /**
+     * 设置是否翻转鼠标左右相机拖动键操作行为
+     * @param {Boolean} reverseLR //是否翻转
+     */
+    Module.setCamRevLR = function (reverseLR) {
+        Module.RealBIMWeb.SetCamRevLR(reverseLR);
+    }
+
+    /**
+     * 获取是否允许ESC键退出测量/剖切操作
+     */
+    Module.getEscKeyExitOpEnable = function () {
+        return Module.RealBIMWeb.EscKeyExitOpEnable();
+    }
+
+    /**
+     * 设置是否允许ESC键退出测量/剖切操作
+     * @param {Boolean} enable //是否允许
+     */
+    Module.setEscKeyExitOpEnable = function (enable) {
+        Module.RealBIMWeb.SetEscKeyExitOpEnable(enable);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // MOD-- 公共模块（Common）
     Module.Common = typeof Module.Common !== "undefined" ? Module.Common : {};//增加 Common 模块
@@ -580,6 +623,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return camLoc;
     }
 
+    // MARK 设置
     /**
      * 调整相机到目标方位
      * @param {RECamLoc} camLoc //相机方位信息
@@ -759,6 +803,68 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.getCamPreferFPS = function () {
         return Module.RealBIMWeb.GetCamProjType();
     }
+
+
+
+    // MARK 碰撞检测
+    /**
+     * 获取碰撞检测的开启状态
+     */
+    Module.Camera.getCamCollideState = function () {
+        return Module.RealBIMWeb.GetCamCollideState();
+    }
+
+    /**
+     * 设置碰撞检测的开启状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Camera.setCamCollideState = function (enable) {
+        Module.RealBIMWeb.SetCamCollideState(enable);
+    }
+
+
+
+    // MARK 重力模拟
+    /**
+     * 获取重力模拟的开启状态
+     */
+    Module.Camera.getCamGravityState = function () {
+        return Module.RealBIMWeb.GetCamGravityState();
+    }
+
+    /**
+     * 设置重力模拟的开启状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Camera.setCamGravityState = function (enable) {
+        Module.RealBIMWeb.SetCamGravityState(enable);
+    }
+
+    /**
+     * 获取重力模拟时的相机高度
+     */
+    Module.Camera.getCamGravityHeight = function () {
+        return Module.RealBIMWeb.GetCamHeightOnGravOpen();
+    }
+
+    /**
+     * 设置重力模拟时的相机高度
+     * @param {Number} height //高度
+     */
+    Module.Camera.setCamGravityHeight = function (height) {
+        Module.RealBIMWeb.SetCamHeightOnGravOpen(height);
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
     // MOD-- 天空盒（SkyBox）
