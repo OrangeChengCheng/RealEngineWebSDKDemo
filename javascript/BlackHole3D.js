@@ -4133,7 +4133,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    // MARK 相机
+    // MARK 探测
 
     /**
      * 获取当前探测全景信息
@@ -4159,7 +4159,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    // MARK 相机
+    // MARK 锚点
     class REPanAnc {
         constructor() {
             this.panWindow = 0;//	全景相机标识(默认值0)，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
@@ -4170,7 +4170,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.picPath = null;//	表示锚点的图片路径
             this.picSize = [0, 0];//	表示锚点的图片大小
             this.text = null;//	表示顶点的文字标注信息
-            this.textClr = REColor(0, 0, 0, 255);//	表示锚点的文字标注颜色
+            this.textClr = new REColor(0, 0, 0, 255);//	表示锚点的文字标注颜色
             this.texBias = [0, 0];//	表示锚点文字与图片的相对位置，二维坐标：以点为中心点，横轴为x，右侧为正方向，竖轴为y，向上为正方向, 例如（-1，-1）为文字在点的左下方，（1,1）为右上方
             this.texFocus = [0, 0];//	表示指定纹理图片中的像素坐标，对应对锚点的位置坐标               
         }
@@ -4319,6 +4319,128 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Measure.setSlopeVisible = function (enable) {
         Module.RealBIMWeb.SetSlopeVisible(enable);
     }
+
+
+
+
+
+
+    // MOD-- 水面（Water）
+    Module.Water = typeof Module.Water !== "undefined" ? Module.Water : {};//增加 Water 模块
+
+    class REWaterInfo {
+        constructor() {
+            this.waterName = null;//水面名称
+            this.waterClr = new REColor(255, 255, 255, 255);//水面颜色
+            this.blendDist = 1;//混合系数
+            this.visible = true;//是否可见
+            this.cornerPoint = null;//角点
+        }
+    }
+    ExtModule.REWaterInfo = REWaterInfo;
+
+    /**
+     * 创建水域对象
+     * @param {REWaterInfo} waterInfoList //水面数据集合
+     */
+    Module.Water.loadData = function (waterInfoList) {
+        if (!checkTypeLog(waterInfoList, "waterInfoList", RE_Enum.RE_Check_Array)) return;
+
+        var _waterList = [];
+        for (let i = 0; i < waterInfoList.length; i++) {
+            let obj = waterInfoList[i];
+            if (isEmptyLog(obj.waterName, "waterName")) return false;
+            if (isEmptyLog(obj.cornerPoint, "cornerPoint")) return false;
+            let waterT = {
+                WaterName: obj.waterName,
+                Color: clrToRGBA_List(obj.waterClr),
+                BlendDist: isEmpty(obj.blendDist) ? 1 : obj.blendDist,
+                Visible: isEmpty(obj.visible) ? true : obj.visible,
+                Corners: obj.cornerPoint,
+            };
+            _waterList.push(waterT);
+        }
+        var _waterJson = "";
+        _waterObj = {};
+        if (_waterList.length) {
+            _waterObj.Waters = _waterList;
+            _waterJson = JSON.stringify(_waterObj);
+        }
+        return Module.RealBIMWeb.LoadWaterFromJson(_waterJson);
+    }
+
+    /**
+     * 获取当前场景中所有水域对象
+     */
+    Module.Water.getData = function () {
+        var _waterJson = Module.RealBIMWeb.SerializeWaterToString();
+
+        var jsonObj = JSON.parse(_waterJson);
+        if (!checkTypeLog(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
+
+        var waterInfoList = [];
+        var count = jsonObj["Waters"].length;
+        for (let i = 0; i < count; i++) {
+            let _waterObj = jsonObj["Waters"][i];
+            let waterInfo = new REWaterInfo();
+            waterInfo.waterName = _waterObj["WaterName"];
+            waterInfo.waterClr = rgbaListToClr(_waterObj["Color"]);
+            waterInfo.blendDist = _waterObj["BlendDist"];
+            waterInfo.visible = _waterObj["Visible"];
+            waterInfo.cornerPoint = _waterObj["Corners"];
+
+            waterInfoList.push(waterInfo);
+        }
+        return waterInfoList;
+    }
+
+    /**
+     * 删除指定水面
+     * @param {String} waterName //水面名称
+     */
+    Module.Water.delData = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.DelWaterByName(waterName);
+    }
+
+    /**
+     * 清空全部水面对象
+     */
+    Module.Water.delAllData = function () {
+        return Module.RealBIMWeb.DelAllWaters();
+    }
+
+    /**
+     * 根据水面名称定位到水面
+     * @param {String} waterName //水面名称
+     */
+    Module.Water.setCamToData = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.LocateToWater(waterName);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4559,6 +4681,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var clrHEX_WA = "0x" + clrHEX_AW + "00" + "ffff";
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
+    }
+    /**
+     * 颜色对象->RGBA数组
+     * @param {REColor} color 
+     */
+    function clrToRGBA_List(color) {
+        var _R = Math.round(color.red) / 255.0;
+        var _G = Math.round(color.green) / 255.0;
+        var _B = Math.round(color.blue) / 255.0;
+        var _A = Math.round(color.alpha) / 255.0;
+        var _rgba_list = [_R, _G, _B, _A];
+        return _rgba_list;
+    }
+    /**
+     * RGBA数组->颜色对象
+     * @param {Array} rbga_list 
+     */
+    function rgbaListToClr(rbga_list) {
+        var _r = Math.floor(rbga_list[0] * 255);
+        var _g = Math.floor(rbga_list[1] * 255);
+        var _b = Math.floor(rbga_list[2] * 255);
+        var _a = Math.floor(rbga_list[3] * 255);
+        return new REColor(_r, _g, _b, _a);
     }
 
 

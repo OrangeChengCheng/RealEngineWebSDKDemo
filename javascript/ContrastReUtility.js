@@ -1977,21 +1977,8 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.CreateWaterRgn(re_WaterID, _arrCorners, _clrarr, _fAlpha, _fBlendDist, _bVisible);
   }
 
-  /**
-   * 删除指定 ID 水面
-   * @param {String} re_WaterID //水面id
-   */
-  Module.REdelWaterByID = function (re_WaterID) {
-    if (!checkNull(re_WaterID, 're_WaterID')) return;
-    return Module.RealBIMWeb.DelWaterByName(re_WaterID);
-  }
 
-  /**
-   * 清空全部水面对象
-   */
-  Module.REdelAllWaters = function () {
-    return Module.RealBIMWeb.DelAllWaters();
-  }
+
 
   /**
    * 获取所有水面对象的名称
@@ -2194,71 +2181,11 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.SetWaterCorners(re_WaterID, _arrCorners);
   }
 
-// MARK JSON数据转换
-  /**
-   * 通过Json 创建水域对象
-   * @param {String} re_Json //水面数据  json格式
-   */
-  Module.REloadWaterFromJSON = function (re_Json) {
-    if (!checkParamType(re_Json, 're_Json', RE_Enum.RE_Check_String)) return;
 
-    var jsonObj = JSON.parse(re_Json);
-    if (!checkParamType(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array)) return;
 
-    var jsonObjTemp = deepClone(jsonObj);
-    var count = jsonObjTemp["Waters"].length;
-    for (let i = 0; i < count; i++) {
-      let obj = (jsonObjTemp["Waters"])[i];
-      let _clrarr = obj["Color"];
-      if (!_clrarr.length) continue;
 
-      let clrArrTemp = clrHEXToRGB(_clrarr[0]);
-      var _a = (parseInt(_clrarr[1]) / 255);
-      clrArrTemp.push(_a);
 
-      obj["Color"] = clrArrTemp;//替换数据
-    }
 
-    return Module.RealBIMWeb.LoadWaterFromJson(JSON.stringify(jsonObjTemp));
-  }
-
-  /**
-   * 把当前场景中所有水域对象导出为一个Json字符串
-   */
-  Module.REserializeWaterToJSON = function () {
-    var re_Json = Module.RealBIMWeb.SerializeWaterToString();
-
-    var jsonObj = JSON.parse(re_Json);
-    if (!checkParamTypeBy(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
-
-    var jsonObjTemp = deepClone(jsonObj);
-    var count = jsonObjTemp["Waters"].length;
-    for (let i = 0; i < count; i++) {
-      let obj = (jsonObjTemp["Waters"])[i];
-      let _clrarr = obj["Color"];
-      if (!_clrarr.length) continue;
-
-      _a = Math.floor(_clrarr[3] * 255);
-      let _clrHEX = clrRBGToHEX(_clrarr);
-
-      let _ColorArr = [];
-      _ColorArr.push(_clrHEX);
-      _ColorArr.push(_a.toString());
-
-      obj["Color"] = _ColorArr;//替换数据
-    }
-
-    return JSON.stringify(jsonObjTemp);
-  }
-
-  /**
-   * 根据 ID 定位到水面
-   * @param {String} re_WaterID //水面id
-   */
-  Module.RElocateToWaterByID = function (re_WaterID) {
-    if (!checkNull(re_WaterID, 're_WaterID')) return;
-    return Module.RealBIMWeb.LocateToWater(re_WaterID);
-  }
 
 
 

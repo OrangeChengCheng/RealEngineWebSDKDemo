@@ -809,3 +809,42 @@ function addPanAnc() {
     }
     BlackHole3D.Panorama.addAnc(panAncList);
 }
+
+
+
+
+//添加水面
+function addWater() {
+    var water1 = new BlackHole3D.REWaterInfo();
+    water1.waterName = "water001";//水面名称
+    water1.waterClr = new BlackHole3D.REColor(255, 0, 0, 255);//水面颜色
+    water1.blendDist = 1;//混合系数
+    water1.visible = true;//是否可见
+    water1.cornerPoint = [[17, 47.136409, -11.528129], [17, 50.136409, -11.528129], [14, 50.136409, -11.528129]];//角点
+
+    var water2 = new BlackHole3D.REWaterInfo();
+    water2.waterName = "water002";//水面名称
+    water2.waterClr = new BlackHole3D.REColor(0, 255, 0, 204);//水面颜色
+    water2.blendDist = 1;//混合系数
+    water2.visible = true;//是否可见
+    water2.cornerPoint = [[28.07652, 47.543973, 3.214592], [28.07652, 50.543973, 3.214592], [25.07652, 50.543973, 3.214592]];//角点
+
+    var water3 = new BlackHole3D.REWaterInfo();
+    water3.waterName = "water003";//水面名称
+    water3.waterClr = new BlackHole3D.REColor(0, 0, 255, 204);//水面颜色
+    water3.blendDist = 1;//混合系数
+    water3.visible = true;//是否可见
+    water3.cornerPoint = [[28.361801, 54.391705, -0.61], [30.229191, 52.810488, -0.61], [28.219878, 52.207864, -0.61]];//角点
+
+    var waterList = [water1, water2, water3];
+    BlackHole3D.Water.loadData(waterList);
+}
+
+
+
+
+
+
+
+
+
