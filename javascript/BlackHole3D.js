@@ -1731,6 +1731,54 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 标注（Mark）
+    Module.Mark = typeof Module.Mark !== "undefined" ? Module.Mark : {};//增加 Mark 模块
+
+
+    /**
+     * 开始添加标注
+     */
+    Module.Mark.startAdd = function () {
+        return Module.RealBIMWeb.BeginAddMark();
+    }
+
+    /**
+     * 添加标注文字
+     * @param {String} markText //表示要添加的标注文字信息
+     */
+    Module.Mark.setText = function (markText) {
+        Module.RealBIMWeb.SetMarkText(markText);
+    }
+
+    /**
+     * 获取当前标注信息，包括添加标注时的相机方位、标注框、标注文字等
+     */
+    Module.Mark.getCurData = function () {
+        return new Uint8Array(Module.RealBIMWeb.GetMarkInfo());
+    }
+
+    /**
+     * 退出添加标注状态
+     */
+    Module.Mark.endAdd = function () {
+        return Module.RealBIMWeb.EndAddMark();
+    }
+
+    /**
+     * 查看之前保存的标注信息数据
+     * @param {Uint8Array} markData //标注信息（Uint8Array 类型）
+     */
+    Module.Mark.showData = function (markData) {
+        var strmarkdata = markData.byteLength.toString();
+        Module.RealBIMWeb.ReAllocHeapViews(strmarkdata);
+        var _data = Module.RealBIMWeb.GetHeapView_U8(0);
+        _data.set(markData, 0);
+        Module.RealBIMWeb.ShowMarkInfo(_data.byteLength, _data.byteOffset);
+    }
+
+
+
+
 
     // MOD-- 锚点（Anchor）
     Module.Anchor = typeof Module.Anchor !== "undefined" ? Module.Anchor : {};//增加 Anchor 模块

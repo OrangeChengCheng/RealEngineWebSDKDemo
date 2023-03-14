@@ -350,33 +350,7 @@ Module.REsetSysRenderState = function(renderData){
 
 
 
-// 标注相关
-//开始添加标注
-Module.REaddMarkBegin = function(){
-  var bool =Module.RealBIMWeb.BeginAddMark();  //进入创建标注的状态
-  return bool;
-}
-//添加标注文字
-Module.REaddMarkText = function(textData){
-  Module.RealBIMWeb.SetMarkText(textData);
-}
-//获取当前标注信息
-Module.REgetMarkData = function(){
-  var markdata = new Uint8Array(Module.RealBIMWeb.GetMarkInfo());
-  return markdata;
-}
-//结束添加标注
-Module.REaddMarkEnd = function(){
-  var bool =Module.RealBIMWeb.EndAddMark();
-  return bool;  
-}
-//查看之前保存的标注信息，参数为之前保存的字符串
-Module.REshowMark = function(markData){
-  var strmarkdata = markData.byteLength.toString();
-  Module.RealBIMWeb.ReAllocHeapViews(strmarkdata); data =Module.RealBIMWeb.GetHeapView_U8(0);
-  data.set(markData,0);
-  Module.RealBIMWeb.ShowMarkInfo(data.byteLength,data.byteOffset);
-}
+
 
 // 电子围栏相关
 //进入电子围栏编辑状态
