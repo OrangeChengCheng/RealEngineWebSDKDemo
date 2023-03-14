@@ -40,6 +40,7 @@ window.onload = function (event) {
     document.addEventListener("RESystemSelElement", RESystemSelElement);
     document.addEventListener("RealBIMSelShape", RealBIMSelShape);
     document.addEventListener("RESystemFrameSel", RESystemFrameSel);
+    document.addEventListener("RESystemSelShpElement", RESystemSelShpElement);
 
 
     document.addEventListener("REDataSetLoadPanFinish", function (e) { REDataSetLoadPanFinish(e.detail.succeed) });
@@ -60,7 +61,10 @@ function RESystemFrameSel(e) {
     setTimeout(() => {
         console.log(BlackHole3D.BIM.getSelElemIDs());
     }, 0);
+}
 
+function RESystemSelShpElement(e) {
+    console.log('++++++++++++ getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 function RECADSelElement(e) {
@@ -72,11 +76,11 @@ function RECADLoadFinish(e) {
 }
 
 function RESystemSelElement(e) {
-    console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
+    console.log('*************** getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 function RealBIMSelShape(e) {
     console.log(e);
-    console.log('getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
+    console.log('-------- getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 function RELocateCam(e) {
@@ -902,6 +906,48 @@ function addCADShpAnc() {
     arrCadAnc.push(model);
     BlackHole3D.CAD.addShpAnc(arrCadAnc);
 }
+
+
+
+// 添加轴网
+function addAxisGrid() {
+    var infoList = [];
+
+    var info1 = new BlackHole3D.REAxisGridInfo();
+    info1.guid = "001";
+    info1.name = "A";
+    info1.lineClr = new BlackHole3D.REColor(0, 0, 0, 255);
+    info1.pos = [[4.288069845977211, 33.87103682291651, 1], [4.285024254261444, 15.658603008473774, 1]];
+    infoList.push(info1);
+
+    var info2 = new BlackHole3D.REAxisGridInfo();
+    info2.guid = "002";
+    info2.name = "B";
+    info2.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info2.pos = [[4.57677965923796, 14.677213563853854, 1], [15.71787952403888, 15.487131187284342, 1]];
+    infoList.push(info2);
+
+    BlackHole3D.AxisGrid.setData("AxisGrid01", infoList);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -5039,6 +5039,133 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 轴网（AxisGrid）
+    Module.AxisGrid = typeof Module.AxisGrid !== "undefined" ? Module.AxisGrid : {};//增加 AxisGrid 模块
+
+    class REAxisGridInfo {
+        constructor() {
+            this.guid = null;  //轴线的唯一标识
+            this.name = null;   //轴线的名称
+            this.lineclr = null;  //轴线的颜色
+            this.pos = null;  //轴线两个顶点坐标
+        }
+    }
+    ExtModule.REAxisGridInfo = REAxisGridInfo;
+
+    /**
+     * 添加一组轴网数据
+     * @param {String} groupName //组名称，该组轴网的唯一标识
+     * @param {REAxisGridInfo} infoList //轴网数据集合（REAxisGridInfo 类型）
+     */
+    Module.AxisGrid.setData = function (groupName, infoList) {
+        var _tempGrids = new BlackHole3D.RE_Vector_GRID();
+        for (let i = 0; i < infoList.length; i++) {
+            let _info = infoList[i];
+            let _tempArrPos = new BlackHole3D.RE_Vector_vec3();
+            _tempArrPos.push_back(_info.pos[0]);
+            _tempArrPos.push_back(_info.pos[1]);
+            let _clr = clrToU32(_info.lineClr);
+            let _tempObj = {
+                m_strGuid: _info.guid,
+                m_strName: _info.name,
+                m_uColor: _clr,
+                m_arrPos: _tempArrPos,
+            };
+            _tempGrids.push_back(_tempObj);
+        }
+        return Module.RealBIMWeb.SetGridData(groupName, _tempGrids);
+    }
+
+    //获取当前添加的所有轴网组名称
+    Module.AxisGrid.getAllGroupNames = function () {
+        var allgirdname = Module.RealBIMWeb.GetAllGridGroupName();
+        var nameArr = [];
+        for (var i = 0; i < allgirdname.size(); ++i) {
+            nameArr.push(allgirdname.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 根据轴网组名称获取对应的轴线guid集合
+     * @param {String} groupName //组名称，该组轴网的唯一标识
+     */
+    Module.AxisGrid.getGuid = function (groupName) {
+        var allguidname = Module.RealBIMWeb.GetGridGuid(groupName);
+        var nameArr = [];
+        for (var i = 0; i < allguidname.size(); ++i) {
+            nameArr.push(allguidname.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 根据轴网组名称删除数据
+     * @param {Array} groupNameList //组名称集合
+     */
+    Module.AxisGrid.delData = function (groupNameList) {
+        var tempGridsName = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempGridsName.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.DelGridData(tempGridsName);
+    }
+
+    /**
+     * 设置轴线的显示颜色
+     * @param {String} groupName //组名称，该组轴网的唯一标识
+     * @param {Array} guidList //guid集合
+     * @param {REColor} lineClr //轴线颜色（REColor类型）
+     */
+    Module.AxisGrid.setClr = function (groupName, guidList, lineClr) {
+        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < guidList.length; ++i) {
+            tempGrids.push_back(guidList[i]);
+        }
+        var tempclr = clrToU32(lineClr);
+        Module.RealBIMWeb.SetGridColor(groupName, tempGrids, tempclr);
+    }
+
+    /**
+     * 设置轴网是否可以被探测
+     * @param {Array} groupNameList //组名称集合，空数组代表素有组集合
+     * @param {Boolean} enable //是否允许探测
+     */
+    Module.AxisGrid.setProbeEnable = function (groupNameList, enable) {
+        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempGrids.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.SetGridProbeEnable(enable, tempGrids);
+    }
+
+    /**
+     * 设置轴网是否可以被探测
+     * @param {Array} groupNameList //组名称集合，空数组代表素有组集合
+     * @param {Boolean} enable //是否可见
+     */
+    Module.AxisGrid.setVisible = function (groupNameList, enable) {
+        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempGrids.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.SetGridVisible(enable, tempGrids);
+    }
+
+    /**
+     * 设置轴网是否允许被模型遮挡
+     * @param {Boolean} enable //是否允许遮挡
+     */
+    Module.AxisGrid.setOverlap = function (enable) {
+        Module.RealBIMWeb.SetGridContactSce(enable);
+    }
+
+    /**
+     * 获取当前设置的轴网是否允许被模型遮挡状态
+     */
+    Module.AxisGrid.getOverlap = function () {
+        return Module.RealBIMWeb.GetGridContactSce();
+    }
 
 
 
@@ -5047,6 +5174,70 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // MOD-- 标高（Elevation）
+    Module.Elevation = typeof Module.Elevation !== "undefined" ? Module.Elevation : {};//增加 Elevation 模块
+
+
+
+
+    // MOD-- 测量（Measure）
+    Module.FEM = typeof Module.FEM !== "undefined" ? Module.FEM : {};//增加 FEM 模块
 
 
 

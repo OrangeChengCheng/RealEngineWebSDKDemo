@@ -787,111 +787,13 @@ Module.REresetMeasureShapeAppearance = function(){
 
 
 
-// MOD-- 轴网相关
-//设置一组的轴网数据
-//strGroupName:组名称
-//arrGridData:轴网数据集合
-// [{
-//     "guid": "4ce36d02-761a-444e-8d94-5aebd1a2545e-001684a6",
-//     "name": "A",
-//     "color": "000000",
-//     "alpha": 255,
-//     "pos": [[-182.65852,140.81303,0.0],[-243.75598,103.65058,0.0]]
-//   },
-//   {
-//     "guid": "4ce36d02-761a-444e-8d94-5aebd1a2545e-001684b2",
-//     "name": "E",
-//     "color": "FF0000",
-//     "alpha": 1,
-//     "pos": [[-263.46043,141.84199,0.0],[-239.0002,101.6278,0.0]]
-//   }]
-Module.REsetGridData = function(strGroupName,arrGridData){
-  var tempGrids =new BlackHole3D.RE_Vector_GRID();
-  for(var i=0; i<arrGridData.length; ++i){
-    var tempArrPos =new BlackHole3D.RE_Vector_vec3();
-    tempArrPos.push_back(arrGridData[i].pos[0]);
-    tempArrPos.push_back(arrGridData[i].pos[1]);
-    var tempclr = Module.REclrFix(arrGridData[i].color,arrGridData[i].alpha);
-    var tempobj ={
-      m_strGuid: arrGridData[i].guid,
-      m_strName: arrGridData[i].name,
-      m_uColor: tempclr,
-      m_arrPos: tempArrPos
-    };
-    tempGrids.push_back(tempobj);
-  }
-  Module.RealBIMWeb.SetGridData(strGroupName,tempGrids);
-}
-//获取当前添加的所有轴网组名称
-Module.REgetAllGridGroupName = function(){
-  var allgirdname = Module.RealBIMWeb.GetAllGridGroupName();
-  var nameArr = [];
-  for(var i =0; i<allgirdname.size(); ++i){
-    nameArr.push(allgirdname.get(i));
-  }
-  return nameArr;
-}
-//根据组名称获取该组轴网的guid集合
-//strGroupName:组名称
-Module.REgetGridGuid = function(strGroupName){
-  var allguidname = Module.RealBIMWeb.GetGridGuid(strGroupName);
-  var nameArr = [];
-  for(var i =0; i<allguidname.size(); ++i){
-    nameArr.push(allguidname.get(i));
-  }
-  return nameArr;
-}
-//根据组名称删除该组轴网数据
-//arrGroupName:组名称数组集合，为空数组表示删除全部
-Module.REdelGridData = function(arrGroupName){
-  var tempGridsName =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempGridsName.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.DelGridData(tempGridsName);
-}
-//设置轴网的显示颜色
-//strGroupName:组名称
-//arrStrGridID:轴网guid集合，如果size为0则设置组内所有轴网
-//color:目标颜色
-//alpha:目标透明度
-Module.REsetGridColor = function(strGroupName,arrStrGridID,color,alpha){
-  var tempGrids =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrStrGridID.length;++i){
-    tempGrids.push_back(arrStrGridID[i]);
-  }
-  var tempclr = Module.REclrFix(color,alpha);
-  Module.RealBIMWeb.SetGridColor(strGroupName,tempGrids,tempclr);
-}
-//设置轴网是否可探测
-//bEnable:true表示可以被鼠标点击拾取；false表示禁止
-//arrStrGridID:轴网名称数组，如果size为0则设置所有轴网
-Module.REsetGridProbeEnable = function(bEnable,arrGroupName){
-  var tempGrids =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempGrids.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.SetGridProbeEnable(bEnable,tempGrids);
-}
-//设置轴网的可见性
-//bEnable:true表示可见；false表示不可见
-//arrStrGridID:轴网名称数组，如果size为0则设置所有轴网
-Module.REsetGridVisible = function(bEnable,arrGroupName){
-  var tempGrids =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempGrids.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.SetGridVisible(bEnable,tempGrids);
-}
-//设置轴网是否允许被模型遮挡
-//bEnable:true表示允许；false表示不允许
-Module.REsetGridContactSce = function(bEnable){
-  Module.RealBIMWeb.SetGridContactSce(bEnable);
-}
-//获取当前设置的轴网是否被允许遮挡状态
-Module.REgetGridContactSce = function(){
-  Module.RealBIMWeb.GetGridContactSce();
-}
+
+
+
+
+
+
+
 
 
 // MOD-- 标高相关
