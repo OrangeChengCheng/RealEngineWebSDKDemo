@@ -46,6 +46,7 @@ window.onload = function (event) {
     document.addEventListener("REPanLoadSingleFinish", function (e) { REPanLoadSingleFinish(e.detail.succeed) });
 
     document.addEventListener("RECADLoadFinish", function (e) { RECADLoadFinish(e.detail.succeed) });
+    document.addEventListener("RECADSelElement", function (e) { RECADSelElement(e.detail) });
 
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
@@ -60,6 +61,10 @@ function RESystemFrameSel(e) {
         console.log(BlackHole3D.BIM.getSelElemIDs());
     }, 0);
 
+}
+
+function RECADSelElement(e) {
+    console.log(e);
 }
 
 function RECADLoadFinish(e) {

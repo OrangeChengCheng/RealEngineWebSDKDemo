@@ -4357,13 +4357,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MARK 倾斜摄影单体化
+    class REMonomerInfo {
+        constructor() {
+            this.boxID = null;//倾斜摄影编辑对象的ID
+            this.heightMin = null;//最小高度
+            this.heightMax = null;//最大高度
+            this.boxClr = null;//颜色（REColor类型）
+            this.pos = null;//角点的位置
+        }
+    }
+    ExtModule.REMonomerInfo = REMonomerInfo;
+
     /**
      * 设置倾斜摄影单体化数据
-     * @param {String} elemData //表示所有倾斜摄影单体化的数据（json字符串）
+     * @param {REMonomerInfo} elemDataList //表示所有倾斜摄影单体化的数据集合 (REMonomerInfo 类型)
+     * @param {Boolean} append //表示是否拼接到原来的数据上，（默认false 替换原始的数据）
      */
-    Module.Grid.setMonomerElemData = function (elemData) {
-        var jsonStr = JSON.stringify(elemData);
-        Module.RealBIMWeb.ParseUnverelemInfo(jsonStr);
+    Module.Grid.setMonomerElemData = function (elemDataList, append) {
+        if (isEmptyLog(elemDataList, "elemDataList")) return;
+        var _append = false; if (!isEmpty(append)) _append = append;
+
+        var _elemDataListTemp = [];
+        for (let i = 0; i < elemDataList.length; i++) {
+            let elemData = elemDataList[i];
+            let int_R = Math.round(elemData.boxClr.red); let clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
+            let int_G = Math.round(elemData.boxClr.green); let clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
+            let int_B = Math.round(elemData.boxClr.blue); let clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
+            let _clrHEX = clrHEX_R + clrHEX_G + clrHEX_B;
+            let elemDataTemp = {
+                boxID: elemData.boxID,
+                heightMin: elemData.heightMin,
+                heightMax: elemData.heightMax,
+                pos: elemData.pos,
+                boxColor: _clrHEX,
+                boxAlpha: elemData.boxClr.alpha,
+            };
+            _elemDataListTemp.push(elemDataTemp);
+        }
+        var jsonStr = JSON.stringify(_elemDataListTemp);
+        Module.RealBIMWeb.ParseUnverelemInfo(jsonStr, _append);
     }
 
     /**
