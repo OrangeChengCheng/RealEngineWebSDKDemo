@@ -4971,11 +4971,65 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 有限元（FEM）
+    Module.FEM = typeof Module.FEM !== "undefined" ? Module.FEM : {};//增加 FEM 模块
 
+    /**
+     * 加载FEM文件 (回调监听 RealBIMLoadFEM 用于接收加载文件是否成功)
+     * @param {String} feId //有限元数据唯一标识
+     * @param {String} filePath //FEM文件路径
+     */
+    Module.FEM.loadData = function (feId, filePath) {
+        if (isEmptyLog(feId, 'feId')) return;
+        if (isEmptyLog(filePath, 'filePath')) return;
+        Module.RealBIMWeb.AddFEMData(feId, filePath);
+    }
 
+    /**
+     * 移除指定标识的FEM数据
+     * @param {String} feId //有限元数据唯一标识
+     */
+    Module.FEM.removeData = function (feId) {
+        if (isEmptyLog(feId, 'feId')) return;
+        return Module.RealBIMWeb.RemoveFEMData(feId);
+    }
 
+    /**
+     * 获取所有的标量属性字段名称集合
+     * @param {String} feId //有限元数据唯一标识
+     */
+    Module.FEM.getAllScalarParamName = function (feId) {
+        if (isEmptyLog(feId, 'feId')) return;
+        var _vector = Module.RealBIMWeb.GetAllScalarsName(feId);
+        var scalarParamList = [];
+        for (let i = 0; i < _vector.size(); i++) {
+            scalarParamList.push(_vector.get(i));
+        }
+        return scalarParamList;
+    }
 
+    /**
+     * 设置用于展示标量信息的属性字段
+     * @param {String} feId //有限元数据唯一标识
+     * @param {String} scarlarParamName //标量属性字段名称
+     */
+    Module.FEM.setActiveScalar = function (feId, scarlarParamName) {
+        if (isEmptyLog(feId, 'feId')) return;
+        if (isEmptyLog(scarlarParamName, 'scarlarParamName')) return;
+        return Module.RealBIMWeb.SetActiveScalars(feId, scarlarParamName);
+    }
 
+    /**
+     * 设置颜色查找表信息（按照HSV格式参数）
+     * @param {String} feId //有限元数据唯一标识
+     * @param {Vec2} hueRange //色调取值范围 [min,max]  0-1的取值范围
+     * @param {Vec2} saturationRange //饱和度取值范围 [min,max]  0-1的取值范围
+     * @param {Vec2} valueRange //明度取值范围 [min,max]  0-1的取值范围
+     */
+    Module.FEM.setCLUT = function (feId, hueRange, saturationRange, valueRange) {
+        if (isEmptyLog(feId, 'feId')) return;
+        return Module.RealBIMWeb.SetLookUpTableHSV(feId, hueRange, saturationRange, valueRange);
+    }
 
 
 

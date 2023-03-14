@@ -3374,66 +3374,7 @@ Module.REendOSGBEdit = function(){
 
 
 
-// MOD-- 有限元 
-  /**
-   * 加载FEM文件 (回调监听 RealBIMLoadFEM 用于接收加载文件是否成功)
-   * @param {String} re_FEID //有限元数据唯一标识
-   * @param {String} re_FilePath //FEM文件路径
-   */
-   Module.REloadFEMDataByPath = function (re_FEID, re_FilePath) {
-    if (!checkNull(re_FEID, 're_FEID')) return;
-    if (!checkNull(re_FilePath, 're_FilePath')) return;
-    Module.RealBIMWeb.AddFEMData(re_FEID, re_FilePath);
-  }
 
-  /**
-   * 移除指定标识的FEM数据
-   * @param {String} re_FEID //有限元数据唯一标识
-   */
-  Module.REremoveFEMDataByID = function (re_FEID) {
-    if (!checkNull(re_FEID, 're_FEID')) return;
-    return Module.RealBIMWeb.RemoveFEMData(re_FEID);
-  }
-
-  /**
-   * 获取所有的标量属性字段名称集合
-   * @param {String} re_FEID //有限元数据唯一标识
-   */
-  Module.REgetAllScalarParamNameByID = function (re_FEID) {
-    if (!checkNull(re_FEID, 're_FEID')) return;
-    var _vector = Module.RealBIMWeb.GetAllScalarsName(re_FEID);
-    var scalarParamList = [];
-    for (let i = 0; i < _vector.size(); i++) {
-      scalarParamList.push(_vector.get(i));
-    }
-    return scalarParamList;
-  }
-
-  /**
-   * 设置用于展示标量信息的属性字段
-   * @param {String} re_FEID //有限元数据唯一标识
-   * @param {String} re_ScarlarParamName //标量属性字段名称
-   */
-  Module.REsetActiveScalarByName = function (re_FEID, re_ScarlarParamName) {
-    if (!checkNull(re_FEID, 're_FEID')) return;
-    if (!checkNull(re_ScarlarParamName, 're_ScarlarParamName')) return;
-    return Module.RealBIMWeb.SetActiveScalars(re_FEID,re_ScarlarParamName);
-  }
-
-  /**
-   * 设置颜色查找表信息（按照HSV格式参数）
-   * @param {String} re_FEID //有限元数据唯一标识
-   * @param {Vec2} re_HueRange //色调取值范围   0-1的取值范围
-   * @param {Vec2} re_SaturationRange //饱和度取值范围   0-1的取值范围
-   * @param {Vec2} re_ValueRange //明度取值范围   0-1的取值范围
-   */
-  Module.REsetCLUTByHSVFormat = function (re_FEID, re_HueRange, re_SaturationRange, re_ValueRange) {
-    if (!checkNull(re_FEID, 're_FEID')) return;
-    if (!checkParamType(re_HueRange, 're_HueRange', RE_Enum.RE_Check_Array)) return;
-    if (!checkParamType(re_SaturationRange, 're_SaturationRange', RE_Enum.RE_Check_Array)) return;
-    if (!checkParamType(re_ValueRange, 're_ValueRange', RE_Enum.RE_Check_Array)) return;
-    return Module.RealBIMWeb.SetLookUpTableHSV(re_FEID, re_HueRange, re_SaturationRange, re_ValueRange);
-  }
 
 
 
