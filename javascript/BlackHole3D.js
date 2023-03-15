@@ -4931,6 +4931,91 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetSlopeVisible(enable);
     }
 
+    /**
+     * 显示鼠标选中点到场景中电子围栏的最短距离
+     */
+    Module.Measure.startShowFenceMinDis = function () {
+        return Module.RealBIMWeb.EnterPotAndFenceDistMeasureState();
+    }
+
+    /**
+     * 关闭显示鼠标选中点到场景中电子围栏的最短距离
+     */
+    Module.Measure.endShowFenceMinDis = function () {
+        Module.RealBIMWeb.ExitPotAndFenceDistMeasureState();
+    }
+
+    /**
+     * 在屏幕上显示两个点之间的水平距离
+     * @param {dvec3} point1 //表示第一个点的坐标,三元数组
+     * @param {dvec3} point2 //表示第二个点的坐标,三元数组
+     * @param {String} text //显示相应的文字
+     */
+    Module.Measure.drawHoriDisLine = function (point1, point2, text) {
+        Module.RealBIMWeb.DrawHoriMeasureData(point1, point2, text);
+    }
+
+    /**
+     * 清除屏幕上的两点之间水平距离的信息
+     */
+    Module.Measure.clearHoriDisLine = function () {
+        Module.RealBIMWeb.ClearHoriMeasureData();
+    }
+
+    /**
+     * 在图形窗口显示两点之间的直线距离、水平距离、垂直距离
+     * @param {dvec3} point1 //表示第一个点的坐标,三元数组
+     * @param {dvec3} point2 //表示第二个点的坐标,三元数组
+     * @param {Number} mode //显示模式
+     */
+    Module.Measure.drawDisLine = function (point1, point2, mode) {
+        Module.RealBIMWeb.DrawMeasureDataOfLineSegment(point1, point2, mode);
+    }
+
+    /**
+     * 清除屏幕上的两点之间距离的信息
+     */
+    Module.Measure.clearDisLine = function () {
+        Module.RealBIMWeb.ClearMeasureDataOfLineSegment();
+    }
+
+    /**
+     * 设置测量线的颜色
+     * @param {String} clrType //颜色类型
+     * @param {REColor} lineClr //测量线颜色（REColor 类型）
+     */
+    Module.Measure.setLineClr = function (clrType, lineClr) {
+        var uclr = clrToU32(lineClr);
+        Module.RealBIMWeb.SetMeasureShapeColor(clrType, uclr);
+    }
+
+    /**
+     * 设置测量显示文字的样式
+     * @param {String} clrType //颜色类型
+     * @param {String} fontName //字体样式名称，由REaddAGolFont接口创建的字体名称；填空字符串表示使用默认字体样式
+     * @param {REColor} lineClr //测量线颜色（REColor 类型）
+     * @param {Boolean} isBorder //表示本次设置该字体本身还是边框：true：表示设置边框颜色，false：表示设置字体本身
+     */
+    Module.Measure.setTextStyle = function (clrType, fontName, lineClr, isBorder) {
+        var uclr = clrToU32(lineClr);
+        var tempshapetype = isBorder ? (clrType + "_Border") : clrType;
+        var _fontStyle = "RealBIMFont001"; if (fontName != "") { _fontStyle = fontName; }
+        Module.RealBIMWeb.SetMeasureTextColor(tempshapetype, uclr);
+        Module.RealBIMWeb.SetMeasureTextFontName(tempshapetype, _fontStyle);
+    }
+
+    /**
+     * 重置测量样式为系统默认样式
+     */
+    Module.Measure.resetDefaultStyle = function () {
+        Module.RealBIMWeb.ResetMeasureShapeAppearance();
+    }
+
+
+
+
+
+
 
 
 

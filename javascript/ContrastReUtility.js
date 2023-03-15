@@ -594,53 +594,6 @@ Module.REgetUnVerHugeGroupProjToSelf = function(projName, sceName){
 
 
 
-//天空盒相关
-
-
-//设置天空盒的相关信息
-Module.REsetSkyInfo = function(info){
-  var temppaths = new Module.RE_Vector_Str();
-  for(i=0;i<info.m_arrSkyTexPaths.length;++i){
-    temppaths.push_back(info.m_arrSkyTexPaths[i]);
-  }
-  var _sunmode =1; var _sundir =[0.59215283, 0.63194525, -0.50000012]; var _isnight =false; var _exposescale =1.0;
-  if(typeof info.m_uSunMode != 'undefined'){_sunmode =info.m_uSunMode;}
-  if(typeof info.m_vSunDir != 'undefined'){_sundir =info.m_vSunDir;}
-  if(typeof info.m_bIsNight != 'undefined'){_isnight =info.m_bIsNight;}
-  if(typeof info.m_fExposeScale != 'undefined'){_exposescale =info.m_fExposeScale;}
-  realengine_realbim_inner_skyinfo ={
-    m_arrSkyTexPaths : info.m_arrSkyTexPaths,
-    m_uSunMode : _sunmode,
-    m_vSunDir : _sundir,
-    m_bIsNight : _isnight,
-    m_fExposeScale : _exposescale
-  };
-  var finalinfo ={
-    m_arrSkyTexPaths : temppaths,
-    m_bRightHand : true,
-    m_bAutoSun : (_sunmode > 1) ? true : false,
-    m_vDirectLDir : _sundir,
-    m_vAmbLightClr : [2.0, 2.0, 2.0],
-    m_vDirLightClr : ((_sunmode > 0) ? (_isnight ? [1.0, 1.0, 1.0] : [8.0, 8.0, 8.0]) : [0.0, 0.0, 0.0]),
-    m_fDynExposeAmp : _isnight ? _exposescale*0.1 : _exposescale*1.0,
-    m_fDynExposeRange : 10.0
-  };
-  Module.RealBIMWeb.SetSkyInfo(finalinfo);
-}
-//获取天空盒的相关信息
-Module.REgetSkyInfo = function(){
-  if(typeof realengine_realbim_inner_skyinfo == 'undefined'){
-    realengine_realbim_inner_skyinfo ={
-      m_arrSkyTexPaths : [],
-      m_uSunMode : 1,
-      m_vSunDir : [0.59215283, 0.63194525, -0.50000012],
-      m_bIsNight : false,
-      m_fExposeScale : 1.0
-    };
-  }
-  return realengine_realbim_inner_skyinfo;
-}
-
 
 
 
@@ -701,74 +654,13 @@ Module.REisAutoFocusWithClip = function(bool){
   Module.RealBIMWeb.setTargetToClipPlane(bool);
 }
 
-//进入计算任意点到围栏最短距离的操作状态
-Module.REbeginShowDis = function(){
-  return Module.RealBIMWeb.EnterPotAndFenceDistMeasureState();
-}
-//退出计算任意点到围栏最短距离的操作状态
-Module.REendShowDis = function(){
-  Module.RealBIMWeb.ExitPotAndFenceDistMeasureState();
-}
-//在屏幕上显示两个点之间的距离
-Module.REshowDistWithTwoPoint = function(point1,point2,text){
-  Module.RealBIMWeb.DrawHoriMeasureData(point1,point2,text);
-}
-//清除屏幕上的两点之间信息的信息
-Module.REclearDistWithTwoPoint = function(){
-  Module.RealBIMWeb.ClearHoriMeasureData();
-}
-//在屏幕上显示两个点之间的距离（扩展接口）
-//point1,point2,mode:线段的两个端点坐标
-//mode:显示模式，可显示线段、水平线、铅锤线，其组合有以下几种有效值:
-// 1:显示线段本身并显示线段长度
-// 2:显示水平线并显示水平距离
-// 3:同时显示1和2模式下的内容
-// 4:显示铅锤线并显示垂直距离
-// 5:同时显示1和4模式下的内容
-// 6:同时显示2和4模式下的内容
-// 7:同时显示1和2和4模式下的内容
-Module.REshowDistWithTwoPointExt = function(point1,point2,mode){
-  Module.RealBIMWeb.DrawMeasureDataOfLineSegment(point1,point2,mode);
-}
-//清除屏幕上的两点之间信息的信息（扩展接口）
-Module.REclearDistWithTwoPointExt = function(){
-  Module.RealBIMWeb.ClearMeasureDataOfLineSegment();
-}
 
 
-//设置测量线的颜色
-//strShapeType为系统约定的字符串描述，合法值和意义如下:
-//"BaseLine":设置基本测量线的颜色
-//"Length_H":设置长度测量时水平线的颜色
-//"Length_V":设置长度测量时垂直线的颜色
-//"AreaEdge":设置面积测量区轮廓线的颜色
-//"AreaFace":设置面积测量区面填充的颜色
-//clr:十六进制例“ffffff”
-//alpha:表示透明度，0~255，255表示不透,0表示全透
-Module.REsetMeasureShapeColor = function(strShapeType,clr,alpha){
-  var uclr = Module.REclrFix(clr,alpha);
-  Module.RealBIMWeb.SetMeasureShapeColor(strShapeType,uclr);
-}
-//设置测量显示文字的样式
-//strShapeType为系统约定的字符串描述，合法值和意义如下:
-//"Length":设置每段长度文字的样式，包括字体样式和颜色透明度
-//"Length_H":设置长度测量时水平距离文字的样式
-//"Length_V":设置长度测量时垂直高度文字的样式
-//"Total_Length":设置总长度文字的样式
-//"Angle":设置角度测量时文字的样式
-//"Area":设置面积测量时文字的样式
-//"Slope":设置坡度显示的文字的样式
-Module.REsetMeasureTextStyle = function(strShapeType,fontStyle,clr,alpha,isBorder){
-  var uclr = Module.REclrFix(clr,alpha);
-  var tempshapetype = isBorder?(strShapeType+"_Border"):strShapeType;
-  var _fontStyle = "RealBIMFont001"; if(fontStyle != ""){_fontStyle = fontStyle;}
-  Module.RealBIMWeb.SetMeasureTextColor(tempshapetype,uclr);
-  Module.RealBIMWeb.SetMeasureTextFontName(tempshapetype,_fontStyle);
-}
-//重置测量样式为系统默认样式
-Module.REresetMeasureShapeAppearance = function(){
-  Module.RealBIMWeb.ResetMeasureShapeAppearance();
-}
+
+
+
+
+
 
 
 
