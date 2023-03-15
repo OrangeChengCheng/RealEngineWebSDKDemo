@@ -603,9 +603,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class RECamLoc {
         // 相机方位信息
         constructor() {
-            this.camPos = [0, 0, 0];//相机位置
-            this.camRotate = [0, 0, 0, 0];//相机的朝向
-            this.camDir = [0, 0, 0];//相机的朝向（欧拉角）
+            this.camPos = null;//相机位置
+            this.camRotate = [1e30, 1e30, 1e30, 1e30];//相机的朝向
+            this.camDir = [1e30, 1e30, 1e30];//相机的朝向（欧拉角）
         }
     }
     ExtModule.RECamLoc = RECamLoc;
@@ -633,14 +633,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.setCamLocateTo = function (camLoc, locDelay, locTime) {
         if (isEmptyLog(camLoc, "camLoc")) return;
         if (isEmptyLog(camLoc.camPos, "camPos")) return;
-        if (isEmpty(camLoc.camRotate) && isEmpty(camLoc.camDir)) { logParErr('camRotate | camDir'); return; }
+
         var _delay = 0; if (!isEmpty(locDelay)) _delay = locDelay;
         var _time = 1.0; if (!isEmpty(locTime)) _delay = locTime;
-        if (camLoc.camRotate) {
+        if (camLoc.camRotate[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
             return;
         }
-        if (camLoc.camDir) {
+        if (camLoc.camDir[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo_Dir(camLoc.camPos, camLoc.camDir, _delay, _time);
         }
     }
@@ -3196,6 +3196,59 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MARK 选择集
+    class RESelElemsBlendAttr {
+        constructor() {
+            this.elemClr = new REColor(255, 0, 0, 255);//元素颜色（REColor 类型）
+            this.clrWeight = 255;//颜色权重, 此权重要使用必须配合颜色值存在
+            this.alphaWeight = 255;//透明度权重, 此权重要使用必须配合透明度值存在
+            this.probeMask = 1;//探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
+            this.attrValid = true;//表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
+        }
+    }
+    ExtModule.RESelElemsBlendAttr = RESelElemsBlendAttr;
+
+    /**
+     * 设置选择集的混合信息
+     * @param {RESelElemsBlendAttr} elemAttr //混合信息
+     */
+    Module.BIM.setSelElemsBlendAttr = function (elemAttr) {
+        if (isEmptyLog(elemAttr, "elemAttr")) return;
+        if (isEmptyLog(elemAttr.elemClr, "elemClr")) return;
+
+        var _attrvalid = true; if (!isEmpty(elemAttr.attrValid)) { _attrvalid = elemAttr.attrValid; }
+        var _probeMask = 1; if (!isEmpty(elemAttr.probeMask)) { _probeMask = elemAttr.probeMask; }
+        var obj_attr = {
+            m_bAttrValid: _attrvalid,
+            m_qClrBlend: [(elemAttr.elemClr.red / 255), (elemAttr.elemClr.green / 255), (elemAttr.elemClr.blue / 255), ((isEmpty(elemAttr.clrWeight) ? 255 : elemAttr.clrWeight) / 255)],
+            m_vAlphaBlend: [(elemAttr.elemClr.alpha / 255), ((isEmpty(elemAttr.alphaWeight) ? 255 : elemAttr.alphaWeight) / 255)],
+            m_uProbeMask: _probeMask
+        }
+        Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
+    }
+
+    /**
+     *  获取当前选择集的混合信息
+     */
+    Module.BIM.getSelElemsBlendAttr = function () {
+        var curattr = Module.RealBIMWeb.GetSelElemsAttr();
+        var tempselclr = curattr.m_qClrBlend;
+        var tempselAlpha = curattr.m_vAlphaBlend;
+        var _clr_R = parseInt(tempselclr[0] * 255, 10);
+        var _clr_G = parseInt(tempselclr[1] * 255, 10);
+        var _clr_B = parseInt(tempselclr[2] * 255, 10);
+        var _clr_W = parseInt(tempselclr[3] * 255, 10);
+
+        var _clr_A = parseInt(tempselAlpha[0] * 255, 10);
+        var _alpha_W = parseInt(tempselAlpha[1] * 255, 10);
+
+        var blendAttr = new RESelElemsBlendAttr();
+        blendAttr.elemClr = new REColor(_clr_R, _clr_G, _clr_B, _clr_A);
+        blendAttr.clrWeight = _clr_W;
+        blendAttr.alphaWeight = _alpha_W;
+        blendAttr.probeMask = curattr.m_uProbeMask / 255;
+        blendAttr.attrValid = curattr.m_bAttrValid;
+        return blendAttr;
+    }
 
     /**
      * 设置选择集的颜色、透明度、探测掩码（即是否可以被选中）
@@ -3259,10 +3312,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.getSelElemsAttr = function () {
         var curattr = Module.RealBIMWeb.GetSelElemsAttr();
         var tempselclr = curattr.m_qClrBlend;
+        var tempselAlpha = curattr.m_vAlphaBlend;
         var _clr_R = parseInt(tempselclr[0] * 255, 10);
         var _clr_G = parseInt(tempselclr[1] * 255, 10);
         var _clr_B = parseInt(tempselclr[2] * 255, 10);
-        var _clr_A = parseInt(tempselclr[3] * 255, 10);
+        var _clr_A = parseInt(tempselAlpha[0] * 255, 10);
 
         var objAttr = {
             elemClr: new REColor(_clr_R, _clr_G, _clr_B, _clr_A),
@@ -3637,24 +3691,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
     }
 
+
+    class REShpAnimStyle {
+        constructor() {
+            this.groupName = null; //矢量动画组名称，此参数不能为空
+            this.nameList = []; //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
+            this.animClr = null; //期望的矢量动画颜色（REColor 类型）
+            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
+            this.scaleAndOffset = null; //动画速度及方向，正负控制方向，数值控制速度,[]
+        }
+    }
+    ExtModule.REShpAnimStyle = REShpAnimStyle;
+
+
     /**
      * 按组名称设置矢量动画的参数
-     * @param {String} groupName //矢量动画组名称，此参数不能为空
-     * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
-     * @param {REColor} animClr //期望的矢量动画颜色（REColor 类型）
-     * @param {dvec4} scaleAndOffset //动画速度及方向，正负控制方向，数值控制速度,[]
+     * @param {REShpAnimStyle} animStyleInfo //矢量动画参数
      */
-    Module.BIM.setShapeAnimStyle = function (groupName, nameList, animClr, scaleAndOffset) {
-        if (isEmptyLog(groupName, "groupName")) return;
+    Module.BIM.setShapeAnimStyle = function (animStyleInfo) {
+        if (isEmptyLog(animStyleInfo.groupName, "groupName")) return;
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
-        var tempClr = clrToU32(animClr);
-        return Module.RealBIMWeb.SetShapeAnimStyle(groupName, temparr0, tempClr, scaleAndOffset);
+        for (var i = 0; i < animStyleInfo.nameList.length; ++i) { temparr0.push_back(animStyleInfo.nameList[i]); }
+        var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, (isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight));
+        return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset);
     }
 
     /**
      * 删除矢量动画
-     * @param {String} groupName //矢量动画组名称，此参数不能为空
+     * @param {String} groupName //矢量动画组名称，为空字符串删除所有
      * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则删除该组下所有的矢量动画信息；
      */
     Module.BIM.delShpAnimation = function (groupName, nameList) {
@@ -5172,66 +5236,149 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // MOD-- 标高（Elevation）
     Module.Elevation = typeof Module.Elevation !== "undefined" ? Module.Elevation : {};//增加 Elevation 模块
+
+    class REElevationInfo {
+        constructor() {
+            this.guid = null;  //标高的唯一标识
+            this.name = null;   //标高的名称
+            this.lineclr = null;  //标高线颜色
+            this.height = null;//高度
+            this.topHeight = null;//顶高
+            this.bottomHeight = null;//底高
+        }
+    }
+    ExtModule.REElevationInfo = REElevationInfo;
+
+    /**
+     * 添加一组标高数据
+     * @param {String} groupName //组名称，该组轴网的唯一标识
+     * @param {String} dataSetId //数据集唯一标识
+     * @param {REElevationInfo} infoList //标高数据集合（REElevationInfo 类型）
+     */
+    Module.Elevation.setData = function (groupName, dataSetId, infoList) {
+        var _tempLevels = new BlackHole3D.RE_Vector_LEVEL();
+        for (let i = 0; i < infoList.length; i++) {
+            let _info = infoList[i];
+            let _clr = clrToU32(_info.lineClr);
+            let _tempObj = {
+                m_strGuid: _info.guid,
+                m_strName: _info.name,
+                m_uColor: _clr,
+                m_dHeight: _info.height,
+                m_dTopHeight: _info.topHeight,
+                m_dBottomHeight: _info.bottomHeight,
+            };
+            _tempLevels.push_back(_tempObj);
+        }
+        Module.RealBIMWeb.SetLevelData(groupName, _tempLevels, dataSetId);
+    }
+
+    /**
+     * 获取当前添加的标高组名称集合
+     */
+    Module.Elevation.getAllGroupNames = function () {
+        var alllevelname = Module.RealBIMWeb.GetAllLevelGroupName();
+        var nameArr = [];
+        for (var i = 0; i < alllevelname.size(); ++i) {
+            nameArr.push(alllevelname.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 根据组名称获取对应的标高guid集合
+     * @param {String} groupName //组名称，该组标高的唯一标识
+     */
+    Module.Elevation.getGuid = function (groupName) {
+        var allguidname = Module.RealBIMWeb.GetLevelGuid(groupName);
+        var nameArr = [];
+        for (var i = 0; i < allguidname.size(); ++i) {
+            nameArr.push(allguidname.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 根据标高组名称删除数据
+     * @param {Array} groupNameList //组名称数组集合，为空数组表示删除全部
+     */
+    Module.Elevation.delData = function (groupNameList) {
+        var tempLevelName = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempLevelName.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.DelLevelData(tempLevelName);
+    }
+
+    /**
+     * 设置标高的显示颜色
+     * @param {String} groupName //组名称，该组标高的唯一标识
+     * @param {Array} guidList //guid集合
+     * @param {REColor} lineClr //标高颜色（REColor类型）
+     */
+    Module.Elevation.setClr = function (groupName, guidList, lineClr) {
+        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < guidList.length; ++i) {
+            tempLevels.push_back(guidList[i]);
+        }
+        var tempclr = clrToU32(lineClr);
+        Module.RealBIMWeb.SetLevelColor(groupName, tempLevels, tempclr);
+    }
+
+    /**
+     * 设置标高是否可以被探测
+     * @param {Array} groupNameList //组名称集合，空数组代表所有组集合
+     * @param {Boolean} enable //是否允许探测
+     */
+    Module.Elevation.setProbeEnable = function (groupNameList, enable) {
+        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempLevels.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.SetLevelProbeEnable(enable, tempLevels);
+    }
+
+    /**
+     * 设置标高是否显示
+     * @param {Array} groupNameList //组名称集合，空数组代表所有组集合
+     * @param {Boolean} enable //是否可见
+     */
+    Module.Elevation.setVisible = function (groupNameList, enable) {
+        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        for (var i = 0; i < groupNameList.length; ++i) {
+            tempLevels.push_back(groupNameList[i]);
+        }
+        Module.RealBIMWeb.SetLevelVisible(enable, tempLevels);
+    }
+
+    /**
+     * 根据标高的guid获取三个高度值
+     * @param {String} groupName //组名称，该组轴网的唯一标识
+     * @param {String} guid //标高的唯一标识
+     */
+    Module.Elevation.getData = function (groupName, guid) {
+        return Module.RealBIMWeb.GetLevelHeightInfo(groupName, guid);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

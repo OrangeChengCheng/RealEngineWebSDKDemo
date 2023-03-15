@@ -932,7 +932,30 @@ function addAxisGrid() {
 
 
 
+// 添加标高
+function addElevation() {
+    var infoList = [];
 
+    var info1 = new BlackHole3D.REElevationInfo();
+    info1.guid = "001";
+    info1.name = "D";
+    info1.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info1.height = 2.0;
+    info1.topHeight = 0.0;
+    info1.bottomHeight = 0.0;
+    infoList.push(info1);
+
+    var info2 = new BlackHole3D.REElevationInfo();
+    info2.guid = "002";
+    info2.name = "G";
+    info2.lineClr = new BlackHole3D.REColor(0, 255, 0, 255);
+    info2.height = 1.0;
+    info2.topHeight = 1.0;
+    info2.bottomHeight = 0.0;
+    infoList.push(info2);
+
+    BlackHole3D.Elevation.setData("Elevation01", "", infoList);
+}
 
 
 

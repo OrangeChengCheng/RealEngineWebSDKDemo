@@ -796,112 +796,14 @@ Module.REresetMeasureShapeAppearance = function(){
 
 
 
-// MOD-- 标高相关
-//设置一组的标高数据
-//strGroupName:组名称
-//arrLevelData:标高数据集合
-//projName：表示要处理的项目名称
-// [{
-//     "guid": "4ce36d02-761a-444e-8d94-5aebd1a2545e-001684ec",
-//     "name": "屋顶机房自动喷淋平面图",
-//     "color": "000000",
-//     "alpha": 255,
-//     "height": 19.0,
-//     "height_top": 23.0,
-//     "height_bottom": 19.0
-//   },
-//   {
-//     "guid": "3db99485-2f80-4659-b554-f76497fd758f-002319b7",
-//     "name": "四层弱电平面图",
-//     "color": "000000",
-//     "alpha": 255,
-//     "height": 14.5,
-//     "height_top": 16.8,
-//     "height_bottom": 14.5
-//   }]
-Module.REsetLevelData = function(strGroupName,arrLevelData,projName){
-  var tempLevels =new BlackHole3D.RE_Vector_LEVEL();
-  for(var i=0; i<arrLevelData.length; ++i){
-    var tempclr = Module.REclrFix(arrLevelData[i].color,arrLevelData[i].alpha);
-    var tempobj ={
-        m_strGuid: arrLevelData[i].guid,
-        m_strName: arrLevelData[i].name,
-        m_uColor:tempclr,
-        m_dHeight:arrLevelData[i].height,
-        m_dTopHeight:arrLevelData[i].height_top,
-        m_dBottomHeight:arrLevelData[i].height_bottom
-    };
-    tempLevels.push_back(tempobj);
-  }
-  Module.RealBIMWeb.SetLevelData(strGroupName,tempLevels,projName);
-}
-//获取当前添加的所有标高组名称
-Module.REgetAllLevelGroupName = function(){
-  var alllevelname = Module.RealBIMWeb.GetAllLevelGroupName();
-  var nameArr = [];
-  for(var i =0; i<alllevelname.size(); ++i){
-    nameArr.push(alllevelname.get(i));
-  }
-  return nameArr;
-}
-//根据组名称获取该组标高的guid集合
-//strGroupName:组名称
-Module.REgetLevelGuid = function(strGroupName){
-  var allguidname = Module.RealBIMWeb.GetLevelGuid(strGroupName);
-  var nameArr = [];
-  for(var i =0; i<allguidname.size(); ++i){
-    nameArr.push(allguidname.get(i));
-  }
-  return nameArr;
-}
-//根据组名称删除该组标高数据
-//arrGroupName:组名称数组集合，为空数组表示删除全部
-Module.REdelLevelData = function(arrGroupName){
-  var tempLevelName =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempLevelName.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.DelLevelData(tempLevelName);
-}
-//设置标高的显示颜色
-//strGroupName:组名称
-//arrStrLevelID:标高guid集合，如果size为0则设置组内所有标高
-//color:目标颜色
-//alpha:目标透明度
-Module.REsetLevelColor = function(strGroupName,arrStrLevelID,color,alpha){
-  var tempLevels =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrStrLevelID.length;++i){
-    tempLevels.push_back(arrStrLevelID[i]);
-  }
-  var tempclr = Module.REclrFix(color,alpha);
-  Module.RealBIMWeb.SetLevelColor(strGroupName,tempLevels,tempclr);
-}
-//设置标高是否可探测
-//bEnable:true表示可以被鼠标点击拾取；false表示禁止
-//arrStrLevelID:标高名称数组，如果size为0则设置所有标高
-Module.REsetLevelProbeEnable = function(bEnable,arrGroupName){
-  var tempLevels =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempLevels.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.SetLevelProbeEnable(bEnable,tempLevels);
-}
-//设置标高的可见性
-//bEnable:true表示可见；false表示不可见
-//arrStrLevelID:标高名称数组，如果size为0则设置所有标高
-Module.REsetLevelVisible = function(bEnable,arrGroupName){
-  var tempLevels =new BlackHole3D.RE_Vector_WStr();
-  for(var i=0;i<arrGroupName.length;++i){
-    tempLevels.push_back(arrGroupName[i]);
-  }
-  Module.RealBIMWeb.SetLevelVisible(bEnable,tempLevels);
-}
-//根据标高的guid获取三个高度值
-//strGroupName:组名称
-//arrStrLevelID:标高guid
-Module.REgetLevelDataByGuid = function(strGroupName,arrStrLevelID){
-  return Module.RealBIMWeb.GetLevelHeightInfo(strGroupName,arrStrLevelID);
-}
+
+
+
+
+
+
+
+
 
 
 
