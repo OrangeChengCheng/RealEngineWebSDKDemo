@@ -155,7 +155,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetEscKeyExitOpEnable(enable);
     }
 
-
+    /**
+     * 生成屏幕快照
+     */
+    Module.getScreenSnapshot = function () {
+        return Module.canvas.toDataURL();
+    }
 
 
 
@@ -1326,8 +1331,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var probeInfo = new REProbeInfo();
         var probeShpInfo = new REProbeShpInfo();
         var _probeRet = Module.RealBIMWeb.GetCurProbeRet(Module.RE_PROBE_TYPE.POT);
-        console.log(_probeRet);
         var _probeShpRet = Module.RealBIMWeb.GetCurShpProbeRet(Module.RE_SHP_PROBE_TYPE.NORM);
+        // console.log("_probeRet",_probeRet);
+        // console.log("_probeShpRet",_probeShpRet);
         if (_probeShpRet.m_strSelShpObjName != "") {
             //矢量元素
             probeShpInfo.elemType = "ShapeElem";
@@ -5015,6 +5021,152 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 电子围栏（Fence）
+    Module.Fence = typeof Module.Fence !== "undefined" ? Module.Fence : {};//增加 Fence 模块
+
+
+    /**
+     * 进入编辑电子围栏状态
+     */
+    Module.Fence.startFenceEdit = function () {
+        Module.RealBIMWeb.EnterFenceEditMode();
+    }
+
+    /**
+     * 退出编辑电子围栏状态
+     */
+    Module.Fence.endFenceEdit = function () {
+        Module.RealBIMWeb.ExitFenceEditMode();
+    }
+
+    /**
+     * 开始添加电子围栏
+     */
+    Module.Fence.addFence = function () {
+        return Module.RealBIMWeb.BeginAddFence();
+    }
+
+    /**
+     * 结束添加电子围栏
+     */
+    Module.Fence.endAddFence = function () {
+        return Module.RealBIMWeb.EndAddFence();
+    }
+
+    /**
+     * 设置添加电子围栏时的小提示图标
+     * @param {String} picPath //图片路径（32*32像素、png格式）
+     */
+    Module.Fence.setPicStyle = function (picPath) {
+        var temptexregions = {
+            m_strTexPath: picPath,
+            m_qTexRect: [-32, 0, 0, 32],
+            m_uTexClrMult: 0xffffffff,
+            m_vMinTexUV: [0.0, 0.0],
+            m_vMaxTexUV: [1.0, 1.0],
+            m_uFrameNumU: 1,
+            m_uFrameNumV: 1,
+            m_uFrameStrideU: 32,
+            m_uFrameStrideV: 32,
+            m_fFrameFreq: 0.0
+        };
+        Module.RealBIMWeb.SetFencePotUniformIcon(temptexregions);
+    }
+
+    class REFencePot {
+        constructor() {
+            this.pos = null;//顶点位置
+            this.height = null;//顶点高度
+            this.potClr = null;//顶点颜色
+            this.endPotType = 0;//是否是当前围栏的最后一个顶点，0：不是最后一个顶点；1：最后一个顶点且围栏封闭；2：最后一个顶点且围栏不封闭
+        }
+    }
+    ExtModule.REFencePot = REFencePot;
+
+    /**
+     * 获取当前所有电子围栏的顶点信息
+     */
+    Module.Fence.getAllPotInfo = function () {
+        var _fenceInfoList = Module.RealBIMWeb.GetSceFenceInfos();
+        var fencePotList = [];
+        for (let i = 0; i < _fenceInfoList.size(); i++) {
+            let _fenceInfo = _fenceInfoList.get(i);
+            let fencePot = new REFencePot();
+            fencePot.pos = _fenceInfo.m_vPos;
+            fencePot.height = _fenceInfo.m_fHeight;
+            fencePot.potClr = clrU32ToClr(_fenceInfo.m_uClr);
+            fencePot.endPotType = _fenceInfo.m_uIsFenceEndPot;
+            fencePotList.push(fencePot);
+        }
+        return fencePotList;
+    }
+
+    /**
+     * 根据电子围栏的顶点的名称返回围栏的名称
+     * @param {String} potName //顶点名称
+     */
+    Module.Fence.getFenceName = function (potName) {
+        var fencedata = Module.RealBIMWeb.GetShpObjExtInfo(potName);
+        if ((fencedata.m_eType.value == 3) || (fencedata.m_eType.value == 4)) {
+            var fencename = fencedata.m_strParent;
+            return fencename;
+        }
+    }
+
+    /**
+     * 删除一个围栏顶点
+     * @param {String} potName //顶点名称
+     */
+    Module.Fence.delFencePot = function (potName) {
+        Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
+        var bool = Module.RealBIMWeb.DelFencePot(potName);
+        Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
+        return bool;
+    }
+
+    /**
+     * 删除一个围栏
+     * @param {String} fenceName //围栏名称
+     */
+    Module.Fence.delFence = function (fenceName) {
+        Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
+        var bool = Module.RealBIMWeb.DelFence(fenceName);
+        Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
+        return bool;
+    }
+
+    //删除全部围栏
+    Module.Fence.delAllFence = function () {
+        Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
+        var bool = Module.RealBIMWeb.DelAllFences();
+        Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
+        return bool;
+    }
+
+    /**
+     * 添加电子围栏的顶点信息集合
+     * @param {REFencePot} fencePotInfoList //围栏的顶点信息集合 （REFencePot类型）
+     */
+    Module.Fence.addFenceByPot = function (fencePotInfoList) {
+        Module.RealBIMWeb.ExitFenceEditMode(); //必须退出编辑电子围栏的状态，才可设置所有围栏的信息
+        var _tempfencepots = new Module.RE_Vector_FENCE_POT();
+        for (let i = 0; i < fencePotInfoList.length; i++) {
+            let potInfo = fencePotInfoList[i];
+            let _obj = {
+                m_vPos: potInfo.pos,
+                m_fHeight: potInfo.height,
+                m_uClr: clrToU32(potInfo.potClr),
+                m_uIsFenceEndPot: potInfo.endPotType,
+            };
+            _tempfencepots.push_back(_obj);
+        }
+        return Module.RealBIMWeb.SetSceFenceInfos(_tempfencepots);
+    }
+
+
+
+
+
 
 
 
@@ -5453,23 +5605,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // MOD-- 测量（Measure）
-    Module.FEM = typeof Module.FEM !== "undefined" ? Module.FEM : {};//增加 FEM 模块
+    // MOD-- 剖切（Clip）
+    Module.Clip = typeof Module.Clip !== "undefined" ? Module.Clip : {};//增加 Clip 模块
 
 
 

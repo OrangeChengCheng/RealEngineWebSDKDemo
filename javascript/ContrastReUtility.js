@@ -80,10 +80,7 @@ Module.REgetMainSceTransform = function(projName){
 
 
 
-//生成屏幕快照
-Module.REgetScreenPrintImage = function(){
-  return Module.canvas.toDataURL();
-}
+
 
 //颜色转换工具函数
 Module.REclrFix = function(clr,clrPercent){
@@ -352,86 +349,14 @@ Module.REsetSysRenderState = function(renderData){
 
 
 
-// 电子围栏相关
-//进入电子围栏编辑状态
-Module.REeditFenceBegin = function(){
-  Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
-}
-Module.REaddFenceBegin = function(){
-  var bool =Module.RealBIMWeb.BeginAddFence(); //开始添加电子围栏，进入电子围栏编辑状态后可添加多个电子围栏
-  return bool;
-}
-Module.REaddFenceEnd = function(){
-  var bool =Module.RealBIMWeb.EndAddFence();  //结束当前电子围栏的添加，如果没有退出电子围栏编辑状态，可继续添加下一个
-  return bool;
-}
-Module.REeditFenceEnd = function(){
-  Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
-}
-// 设置添加电子围栏时的小提示图标
-Module.REsetFenceEditPic = function(picPath){
-  var temptexregions={
-    m_strTexPath: picPath,
-    m_qTexRect: [-32, 0, 0, 32],
-    m_uTexClrMult: 0xffffffff,
-    m_vMinTexUV: [0.0, 0.0],
-    m_vMaxTexUV: [1.0, 1.0],
-    m_uFrameNumU: 1,
-    m_uFrameNumV: 1,
-    m_uFrameStrideU: 32,
-    m_uFrameStrideV: 32,
-    m_fFrameFreq: 0.0
-  };
-  Module.RealBIMWeb.SetFencePotUniformIcon(temptexregions);
-}
-//获取当前所有电子围栏的顶点信息
-Module.REgetFencePot = function(){
-  var fenceInfo = Module.RealBIMWeb.GetSceFenceInfos();
-  return fenceInfo;
-}
-//根据电子围栏的顶点和线的名称返回围栏的名称
-Module.REgetFenceName = function(childname){
-  var fencedata = Module.RealBIMWeb.GetShpObjExtInfo(shpproberet_norm.m_strSelShpObjName);
-  if((fencedata.m_eType.value==3)||(fencedata.m_eType.value==4)){
-    var fencename = fencedata.m_strParent;
-    return fencename;
-  }
-}
-//设置电子围栏的顶点信息
-Module.REaddFenceByPot = function(fenceInfo){
-  Module.RealBIMWeb.ExitFenceEditMode(); //必须退出编辑电子围栏的状态，才可设置所有围栏的信息
-  for(i=0;i<fenceInfo.length;++i){
-    fenceInfo[i].m_uClr = Module.REclrFix(fenceInfo[i].m_uClr,fenceInfo[i].m_uAlpha);
-    delete fenceInfo[i].m_uAlpha;
-  }
-  var tempfencepots = new Module.RE_Vector_FENCE_POT();
-  for(i=0;i<fenceInfo.length;++i){
-    tempfencepots.push_back(fenceInfo[i]);
-  }
-  var bool =Module.RealBIMWeb.SetSceFenceInfos(tempfencepots);
-  return bool;
-}
-//删除一个围栏顶点
-Module.REdelFencePot = function(fencePotName){
-  Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
-  var bool =Module.RealBIMWeb.DelFencePot(fencePotName);
-  Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
-  return bool;
-}
-//删除一个围栏
-Module.REdelFence = function(fenceName){
-  Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
-  var bool =Module.RealBIMWeb.DelFence(fenceName);
-  Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
-  return bool;
-}
-//删除全部围栏
-Module.REdelAllFences = function(){
-  Module.RealBIMWeb.EnterFenceEditMode(); //进入编辑电子围栏的状态
-  var bool =Module.RealBIMWeb.DelAllFences();
-  Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
-  return bool;
-}
+
+
+
+
+
+
+
+
 
 
 

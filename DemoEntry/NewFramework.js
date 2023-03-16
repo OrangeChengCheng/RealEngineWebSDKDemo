@@ -64,6 +64,7 @@ function RESystemFrameSel(e) {
 }
 
 function RESystemSelShpElement(e) {
+    // BlackHole3D.Probe.getCurCombProbeRet()
     console.log('++++++++++++ getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
@@ -80,7 +81,7 @@ function RESystemSelElement(e) {
 }
 function RealBIMSelShape(e) {
     console.log(e);
-    console.log('-------- getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
+    // console.log('-------- getCurCombProbeRet', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 function RELocateCam(e) {
@@ -958,7 +959,32 @@ function addElevation() {
 }
 
 
+//添加电子围栏信息
+function addFence() {
+    var fencePotList = [];
+    var pot1 = new BlackHole3D.REFencePot();
+    pot1.pos = [6.271010875701904, 15.429169654846191, 0.00003434607060626149];
+    pot1.height = 10;
+    pot1.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    pot1.endPotType = 0;
+    fencePotList.push(pot1);
 
+    var pot2 = new BlackHole3D.REFencePot();
+    pot2.pos = [18.30353212782401, 28.97581500616011, -0.00002419808805242951];
+    pot2.height = 10;
+    pot2.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    pot2.endPotType = 0;
+    fencePotList.push(pot2);
+
+    var pot3 = new BlackHole3D.REFencePot();
+    pot3.pos = [4.643471112809078, 29.62842330772714, -0.000019446589980987028];
+    pot3.height = 10;
+    pot3.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    pot3.endPotType = 1;//最后一个点且闭合
+    fencePotList.push(pot3);
+
+    BlackHole3D.Fence.addFenceByPot(fencePotList);
+}
 
 
 
