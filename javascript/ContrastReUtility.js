@@ -395,11 +395,7 @@ Module.REgetCurUIShpProbeRet = function(){
 
 
 // MOD-- 剖切相关
-//获取剖切后的构件ID
-Module.REgetClipID = function(deleteCrossPart){
-  var data = Module.RealBIMWeb.GetClippedElementIds(deleteCrossPart);
-  return data;
-}
+
 //获取剖面信息
 Module.REgetClipData = function(){
   var data = Module.RealBIMWeb.GetSceneClippingInfo();

@@ -5609,7 +5609,47 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Clip = typeof Module.Clip !== "undefined" ? Module.Clip : {};//增加 Clip 模块
 
 
-
+    /**
+     * 获取剖切完成后的可见元素ID集合
+     * @param {Boolean} deleteCrossPart //是否去除与包围体相交叉部分的构件，只保留包含在包围体内的；false：表示包含交叉；true：表示去除交叉
+     */
+    Module.Clip.getSurplusID = function (deleteCrossPart) {
+        var _deleteCrossPart = false; if (!isEmpty()) _deleteCrossPart = deleteCrossPart;
+        var tempselids = new Uint32Array(Module.RealBIMWeb.GetClippedElementIds(_deleteCrossPart));
+        var projidarr = [];
+        if (tempselids.length < 2) {
+            return [];
+        }
+        var curprojid = tempselids[1];
+        var curprojelemarr = [];
+        for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i + 1] == curprojid) {
+                if (tempselids[i] == 4294967280) {
+                    //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                    continue;
+                }
+                curprojelemarr.push(tempselids[i]);
+            } else {
+                if (curprojelemarr.length > 0) {
+                    var curprojinfo = {};
+                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo["elemIdList"] = curprojelemarr;
+                    projidarr.push(curprojinfo);
+                    curprojelemarr = [];
+                }
+                curprojid = tempselids[i + 1];
+                curprojelemarr.push(tempselids[i]);
+            }
+        }
+        if (curprojelemarr.length > 0) {
+            var curprojinfo = {};
+            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo["elemIdList"] = curprojelemarr;
+            projidarr.push(curprojinfo);
+            curprojelemarr = [];
+        }
+        return projidarr;
+    }
 
 
 
