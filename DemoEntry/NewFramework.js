@@ -171,12 +171,12 @@ function RESystemEngineCreated(e) {
                 "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                 "dataSetCRS": "", "dataSetCRSNorth": 0.0
             },
-            {
-                "dataSetId": "dataSet02",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-                "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            },
+            // {
+            //     "dataSetId": "dataSet02",
+            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            // },
             // {
             //     "dataSetId": "小房子",
             //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
@@ -986,14 +986,76 @@ function addFence() {
 }
 
 
+//添加剖切面并进入剖切状态
+function addDataInfoClip() {
+    var clipInfo = new BlackHole3D.REClipInfo();
+    clipInfo.rotate = [0.7084946217059984, 8.390326549300259e-16, -0, 0.7057162113864709];
+    clipInfo.offset = [15.504221856771613, 15.504221856771613, 15.504221856771613];
+    clipInfo.scale = [4.922421215950646, 38.9365141233854, -0.13028221393203876];
+    clipInfo.isSingleSurfaceClip = true;
+    clipInfo.pot1 = [3.922421215950676, 13.61446768408492, 0.7702278847577326];
+    clipInfo.pot2 = [5.922421215950676, 13.618396942057574, -0.2297643956783637];
+    clipInfo.pot3 = [4.922421215950676, 13.622326200030225, -1.22975667611446];
+
+    BlackHole3D.Clip.setDataIntoClip(clipInfo);
+}
 
 
+//根据轴网进行剖切
+function setAxisGridClip() {
+    //添加轴网
+    var infoList = [];
+    var info1 = new BlackHole3D.REAxisGridInfo();
+    info1.guid = "001";
+    info1.name = "B-10";
+    info1.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info1.pos = [[10.0, 50.0, 0.0], [53.0, 7.0, 0.0]];
+    infoList.push(info1);
 
+    var info2 = new BlackHole3D.REAxisGridInfo();
+    info2.guid = "002";
+    info2.name = "B-1";
+    info2.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info2.pos = [[-20.0, 20.0, 0.0], [23.0, -23.0, 0.0]];
+    infoList.push(info2);
 
+    var info3 = new BlackHole3D.REAxisGridInfo();
+    info3.guid = "003";
+    info3.name = "A-1";
+    info3.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info3.pos = [[53.0, 7.0, 0.0], [23.0, -23.0, 0.0]];
+    infoList.push(info3);
 
+    var info4 = new BlackHole3D.REAxisGridInfo();
+    info4.guid = "004";
+    info4.name = "A-10";
+    info4.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    info4.pos = [[10.0, 50.0, 0.0], [-20.0, 20.0, 0.0]];
+    infoList.push(info4);
 
+    BlackHole3D.AxisGrid.setData("AxisGrid01", infoList);
 
+    //添加剖切信息
+    var clipInfo = new BlackHole3D.REAxisGridClipInfo();
+    clipInfo.dataSetId = "dataSet01";
+    clipInfo.gridGroupName = "AxisGrid01";
+    clipInfo.gridNameList = ["B-10", "B-1", "A-1", "A-10",];
+    clipInfo.offset = [0, 0, 0, 0];
+    clipInfo.minHeight = 0.0;
+    clipInfo.maxHeight = 50.0;
+    clipInfo.onlyVisible = true;
+    clipInfo.includeInter = true;
 
+    BlackHole3D.Clip.setClipAxisGrid(clipInfo);
+
+    //添加剖切监听回调
+    document.addEventListener("REClipFinish", REClipFinish);
+    function REClipFinish(e) {
+        console.log("剖切完成回调");
+        BlackHole3D.BIM.setElemsValidState("dataSet01", [], false);//全部置为无效
+        BlackHole3D.BIM.setElemsValidState("dataSet01", e.detail.elemids, true);//选出的对象置为有效        
+    }
+}
 
 
 

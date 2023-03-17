@@ -5651,6 +5651,205 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return projidarr;
     }
 
+    class REClipInfo {
+        constructor() {
+            this.scale = null;//缩放
+            this.rotate = null;//旋转
+            this.offset = null;//平移
+            this.isSingleSurfaceClip = false;//是否是单面剖切
+            this.pot1 = null;//三角面剖切顶点1
+            this.pot2 = null;//三角面剖切顶点2
+            this.pot3 = null;//三角面剖切顶点3
+        }
+    }
+    ExtModule.REClipInfo = REClipInfo;
+
+
+    /**
+     * 获取当前的剖面信息
+     */
+    Module.Clip.getData = function () {
+        var _clipInfoTemp = Module.RealBIMWeb.GetSceneClippingInfo();
+
+        var clipInfo = new REClipInfo();
+        clipInfo.rotate = _clipInfoTemp.m_qRotation;
+        clipInfo.offset = _clipInfoTemp.m_vTranslation;
+        clipInfo.scale = _clipInfoTemp.m_vScale;
+        clipInfo.isSingleSurfaceClip = _clipInfoTemp.m_bSingleSurfaceClipping;
+        clipInfo.pot1 = _clipInfoTemp.m_vVer0;
+        clipInfo.pot2 = _clipInfoTemp.m_vVer1;
+        clipInfo.pot3 = _clipInfoTemp.m_vVer2;
+        return clipInfo;
+    }
+
+    /**
+     * 设置剖面信息，设置后进入剖切编辑状态
+     * @param {REClipInfo} clipInfo //剖面信息
+     */
+    Module.Clip.setDataIntoClip = function (clipInfo) {
+        if (isEmptyLog(clipInfo, "clipInfo")) return;
+        var _clipInfo = {
+            m_qRotation: clipInfo.rotate,
+            m_vTranslation: clipInfo.offset,
+            m_vScale: clipInfo.scale,
+            m_bSingleSurfaceClipping: clipInfo.isSingleSurfaceClip,
+            m_vVer0: clipInfo.pot1,
+            m_vVer1: clipInfo.pot2,
+            m_vVer2: clipInfo.pot3,
+        };
+        return Module.RealBIMWeb.SetSceneClippingInfoEdit(_clipInfo);
+    }
+
+    /**
+     * 设置剖面信息，设置后进入剖切完成状态
+     * @param {REClipInfo} clipInfo //剖面信息
+     */
+    Module.Clip.setData = function (clipInfo) {
+        if (isEmptyLog(clipInfo, "clipInfo")) return;
+        var _clipInfo = {
+            m_qRotation: clipInfo.rotate,
+            m_vTranslation: clipInfo.offset,
+            m_vScale: clipInfo.scale,
+            m_bSingleSurfaceClipping: clipInfo.isSingleSurfaceClip,
+            m_vVer0: clipInfo.pot1,
+            m_vVer1: clipInfo.pot2,
+            m_vVer2: clipInfo.pot3,
+        };
+        return Module.RealBIMWeb.SetSceneClippingInfo(_clipInfo);
+    }
+
+    /**
+     * 退出剖切状态
+     */
+    Module.Clip.endClip = function () {
+        Module.RealBIMWeb.EndSceneClipping();
+    }
+
+    /**
+     * 判断是否处于剖切浏览模式
+     */
+    Module.Clip.getClipState = function () {
+        return Module.RealBIMWeb.IsSceneClippingBrowsing();
+    }
+
+    /**
+     * 进入单面剖切状态
+     */
+    Module.Clip.setSingleClip = function () {
+        Module.RealBIMWeb.OnSingleSurfaceClipClicked();
+    }
+
+    /**
+     * 根据指定高度进行单双面剖切
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} topHeight //顶高
+     * @param {Number} bottomHeight //底高
+     * @param {Boolean} single //是否单侧剖切
+     */
+    Module.Clip.setClipSpecifyHeight = function (dataSetId, topHeight, bottomHeight, single) {
+        return Module.RealBIMWeb.ClipByProj(topHeight, bottomHeight, single, dataSetId);
+    }
+
+    /**
+     * 根据指定方向定位到剖切面并进行缩放
+     * @param {RECamDirEm} locType //定位方向信息（RECamDirEm 枚举类型）
+     * @param {Number} scale //表示包围盒高度缩放系数
+     */
+    Module.Clip.setLocateToClipElem = function (locType, scale) {
+        if (isEmptyLog(locType, "locType")) return;
+        var _dScale = 1; if (!isEmpty(scale)) { _dScale = scale; }
+
+        var strCamDir = "top";
+        switch (locType) {
+            case RECamDirEm.CAM_DIR_FRONT:
+                strCamDir = "front";
+                break;
+            case RECamDirEm.CAM_DIR_BACK:
+                strCamDir = "back";
+                break;
+            case RECamDirEm.CAM_DIR_LEFT:
+                strCamDir = "left";
+                break;
+            case RECamDirEm.CAM_DIR_RIGHT:
+                strCamDir = "right";
+                break;
+            case RECamDirEm.CAM_DIR_TOP:
+                strCamDir = "top";
+                break;
+            case RECamDirEm.CAM_DIR_BOTTOM:
+                strCamDir = "bottom";
+                break;
+            default:
+                strCamDir = "top";
+                break;
+        }
+        return Module.RealBIMWeb.TargetToCilpElem(strCamDir, _dScale)
+    }
+
+
+    class REAxisGridClipInfo {
+        constructor() {
+            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
+            this.gridGroupName = null;//表示轴网所属组的唯一标识
+            this.gridNameList = null;//表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+            this.offset = null;//表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
+            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
+            this.onlyVisible = null;//表示是否仅包含可见元素
+            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
+        }
+    }
+    ExtModule.REAxisGridClipInfo = REAxisGridClipInfo;
+
+
+    /**
+     * 根据轴网对场景裁剪
+     * @param {REAxisGridClipInfo} clipInfo //轴网裁剪信息（REAxisGridClipInfo 类型）
+     */
+    Module.Clip.setClipAxisGrid = function (clipInfo) {
+        if (isEmpty(clipInfo.dataSetId, 'dataSetId')) return;
+        if (isEmpty(clipInfo.gridGroupName, 'gridGroupName')) return;
+        if (!checkTypeLog(clipInfo.gridNameList, 'gridNameList', RE_Enum.RE_Check_Array)) return;
+
+        var _tempArrGridName = new BlackHole3D.RE_Vector_WStr();
+        for (let i = 0; i < clipInfo.gridNameList.length; i++) {
+            _tempArrGridName.push_back(clipInfo.gridNameList[i]);
+        }
+        Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(clipInfo.dataSetId, clipInfo.gridGroupName, _tempArrGridName,
+            clipInfo.offset, clipInfo.minHeight, clipInfo.maxHeight,
+            clipInfo.onlyVisible, clipInfo.includeInter);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

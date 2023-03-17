@@ -394,76 +394,13 @@ Module.REgetCurUIShpProbeRet = function(){
 
 
 
-// MOD-- 剖切相关
 
-//获取剖面信息
-Module.REgetClipData = function(){
-  var data = Module.RealBIMWeb.GetSceneClippingInfo();
-  return data;
-}
-//设置剖面信息(进入剖切编辑状态)
-Module.REsetClipDataEdit = function(clipdata){
-  var bool = Module.RealBIMWeb.SetSceneClippingInfoEdit(clipdata);
-  return bool;
-}
-//设置剖面信息(进入剖切完成状态)
-Module.REsetClipData = function(clipdata){
-  var bool = Module.RealBIMWeb.SetSceneClippingInfo(clipdata);
-  return bool;
-}
-//退出剖切
-Module.REexitClip = function(){
-  Module.RealBIMWeb.EndSceneClipping();
-}
-//判断是否处于剖切浏览模式
-Module.REisSceCliping = function(){
-  var bool = Module.RealBIMWeb.IsSceneClippingBrowsing();
-  return bool;
-}
-//根据指定高度进行剖切
-//dTopHeight,dBottomHeight:顶高和底高
-//bSingle是否仅用顶高剖切，false则同时使用顶高和底高剖切
-//strProjName使用指定工程的剖切范围，默认使用整个场景的剖切范围
-Module.REclipByHeight = function(dTopHeight, dBottomHeight, bSingle, strProjName){
-  var bool = Module.RealBIMWeb.ClipByProj(dTopHeight, dBottomHeight, bSingle, strProjName);
-  return bool;
-}
-//根据指定方向定位到剖切面并进行缩放
-//strDirInfo：定位到剖切面的方向，字符串，分别包括"top"、"bottom"、"left"、"right"、"front"、"back"
-//dScale：定位到剖切面以后，相机的缩放值，默认为1,该值越大，相机定位后距离模型越远
-Module.REtargetToCilpElem = function(strDirInfo, dScale){
-  var _strDirInfo = "top"; if(typeof strDirInfo != 'undefined'){_strDirInfo = strDirInfo;}
-  var _dScale = 1; if(typeof dScale != 'undefined'){_dScale = dScale;}
-  var bool = Module.RealBIMWeb.TargetToCilpElem(_strDirInfo, _dScale);
-  return bool;
-}
 
-/**
-   * 根据轴网对场景裁剪
-   * @param {String} projName //表示要处理的项目名称，为空串则表示处理所有项目
-   * @param {String} gridGroupName //表示轴网所属组的唯一标识
-   * @param {String} re_Info  //轴网裁剪相关信息  ↓ ↓ ↓ ↓ 以下参数均包含在 re_Info 中
-   * @param {Array} arrGridName //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
-   * @param {DVec4} vOffset //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
-   * @param {Number} dMinHeight //表示Z轴上多边形裁剪区域的最小高度
-   * @param {Number} dMaxHeight //表示Z轴上多边形裁剪区域的最大高度
-   * @param {Boolean} bOnlyVisible //表示是否仅包含可见元素
-   * @param {Boolean} bIncludeInter //表示是否包含与多边形区域边界相交的元素
-   */
-Module.REclipByGrid = function (projName, gridGroupName, re_Info) {
-  if (!checkNull(projName, 'projName')) return;
-  if (!checkNull(gridGroupName, 'gridGroupName')) return;
-  if (!checkNull(re_Info, 're_Info')) return;
-  if (!checkParamType(re_Info.arrGridName, 'arrGridName', RE_Enum.RE_Check_Array)) return;
 
-  var tempArrGridName = new BlackHole3D.RE_Vector_WStr();
-  for (let i = 0; i < re_Info.arrGridName.length; i++) {
-    tempArrGridName.push_back(re_Info.arrGridName[i]);
-  }
-  Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(projName,gridGroupName,tempArrGridName,
-                                              re_Info.vOffset,re_Info.dMinHeight,re_Info.dMaxHeight,
-                                              re_Info.bOnlyVisible,re_Info.bIncludeInter);
-}
+
+
+
+
 
 
 
@@ -566,10 +503,7 @@ Module.REclipWithTwoPoint = function(clipDir){
 Module.REexitClipWithTwoPoint = function(){
   Module.RealBIMWeb.OrthographicEndSceneClipping();
 }
-//进入单面剖切状态
-Module.REbeginSingleClip = function(){
-  Module.RealBIMWeb.OnSingleSurfaceClipClicked();
-}
+
 //设置剖切完成后是否自动聚焦到剖切面
 Module.REisAutoFocusWithClip = function(bool){
   Module.RealBIMWeb.setTargetToClipPlane(bool);
