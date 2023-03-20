@@ -149,114 +149,15 @@ function RESystemReady() {
 //初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
-
-
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
 
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
-        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
-        // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
-        // // BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RE_CADUnit.Mile, 100);
-        // return;
-
-
-        // 倾斜摄影proj1的测试场景
-        var dataSetList = [
-            {
-                "dataSetId": "dataSet01",
-                "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-                "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            },
-            // {
-            //     "dataSetId": "dataSet02",
-            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "小房子",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "3a09611a1526f880503fa7c8bfe10b27",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611a1526f880503fa7c8bfe10b27",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "3a09611aa1c3c4a7d1624c205c42c7af",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611aa1c3c4a7d1624c205c42c7af",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "地形",
-            //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
-            //     "resRootPath": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=",
-            //     "useAssginVer": true,
-            //     "assginVer": 0,
-            //     "useTransInfo": false,
-            //     "transInfo": ""
-            // },
-            // {
-            //     "dataSetId": "3a095bf75602ca925fc87a7974565d9e",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a095bf75602ca925fc87a7974565d9e",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "3a096c1a61a7e6545c97e8a1cc6ca1be",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a096c1a61a7e6545c97e8a1cc6ca1be",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     "dataSetId": "3a0960059327a3a6b63933ed6fb956cc",
-            //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
-            //     "resRootPath": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=",
-            //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-            // },
-            // {
-            //     dataSetId: "pro03",
-            //     resourcesAddress:
-            //         "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_version01",
-            //     resRootPath: `http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=`,
-            //     useAssginVer: true,
-            //     assginVer: 1,
-            //     useAssginVer2: true,
-            //     assginVer2: 0x7fffffff,
-            //     useTransInfo: true,
-            //     transInfo: [
-            //         [1, 1, 1],
-            //         [0, 0, 0, 1],
-            //         [0.0, 0.0, 0.0],
-            //     ],
-            // }
-        ];
-        BlackHole3D.Model.loadDataSet(dataSetList);
-
-
-        //加载360全景
-        // var dataSetList = [
-        //     {
-        //         "dataSetId": "pan01",
-        //         "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
-        //     }
-        // ];
-        // BlackHole3D.Panorama.loadPan(dataSetList);
-
+        loadModel()//加载模型
+        // loadPan();//加载360全景
+        // loadCAD();//加载CAD
 
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
@@ -268,6 +169,94 @@ function RESystemEngineCreated(e) {
     }
 
 }
+
+
+
+// 加载模型
+function loadModel() {
+    var dataSetList = [
+        {
+            "dataSetId": "机房01",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
+        // {
+        //     "dataSetId": "机房02",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "小房子",
+        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "桥",
+        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611aa1c3c4a7d1624c205c42c7af",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "长地形",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
+        //     "useAssginVer": true,
+        //     "assginVer": 0,
+        //     "useTransInfo": false,
+        //     "transInfo": ""
+        // },
+        // {
+        //     "dataSetId": "花园",
+        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a095bf75602ca925fc87a7974565d9e",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "地图",
+        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a096c1a61a7e6545c97e8a1cc6ca1be",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "WMTS",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a104eddec7ef18b3032cdd64bd6f1",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "版本比对",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_version01",
+        //     "useAssginVer": true, "assginVer": 1,
+        //     "useAssginVer2": true, "assginVer2": 0x7fffffff,
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        // },
+    ];
+    BlackHole3D.Model.loadDataSet(dataSetList);
+}
+
+
+//加载360
+function loadPan() {
+    var dataSetList = [
+        {
+            "dataSetId": "pan01",
+            "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
+        }
+    ];
+    BlackHole3D.Panorama.loadPan(dataSetList);
+}
+
+//加载CAD
+function loadCAD() {
+    BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
+    BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
+}
+
+
+
+
 
 //场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
 function REDataSetLoadFinish(e) {
