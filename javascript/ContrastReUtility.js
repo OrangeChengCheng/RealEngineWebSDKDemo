@@ -28,22 +28,6 @@ Module.REgetScreenScale = function(){
   return Module.RealBIMWeb.GetScreenScale();
 }
 
-//场景加载
-Module.REloadMainSce = function(urlRes,projResName,verInfo,projName){
-  var _projname = "DefaultProj"; if(typeof projName != 'undefined'){_projname = projName;}
-  // var bool =Module.RealBIMWeb.LoadMainSce(urlRes, 
-  //                                 "!(DefaultResRootDir)"+projResName+"/total.xml", 
-  //                                 "!(RealBIMTempFileCache)/cam001.camera", false);
-  Module.RealBIMWeb.LoadMainSceExt(_projname, true, "", 0.0, urlRes+projResName+"/total.xml",[1,1,1], [0,0,0,1], [0,0,0], 1e30, 1e30,
-                                     urlRes, "", false);
-  var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(_projname);
-  if(verInfo==""){
-    _ver ={m_sVer0:0x7fffffff, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:intprojid, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
-  }else{
-    _ver ={m_sVer0:verInfo, m_sVer1:-1, m_uVer0GolIDBias_L32:0, m_uVer0GolIDBias_H32:intprojid, m_uVer1GolIDBias_L32:0, m_uVer1GolIDBias_H32:0};
-  }
-  Module.RealBIMWeb.SetSceVersionInfoExt(_projname,_ver);
-}
 
 // 项目集设置单项目的位置偏移
 // 表示要处理的项目名称，为空串则表示处理所有项目
@@ -59,57 +43,6 @@ Module.REgetMainSceTransform = function(projName){
   var _transinfo =Module.RealBIMWeb.GetMainSceTransform(projName);
   return [_transinfo.m_vScale, _transinfo.m_qRotate, _transinfo.m_vOffset];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//颜色转换工具函数
-Module.REclrFix = function(clr,clrPercent){
-  var newclr01 = clr.substring(0,2); 
-  var newclr02 = clr.substring(2,4); 
-  var newclr03 = clr.substring(4,6); 
-  var newclr = newclr03+newclr02+newclr01; 
-  var intclrper = Math.round(clrPercent);
-  var newclrper =(intclrper>15 ? (intclrper.toString(16)) : ("0"+intclrper.toString(16))); 
-  var clrinfo ="0x"+newclrper+newclr; 
-  var clr = parseInt(clrinfo);
-  return clr;
-}
-
-//透明度转换工具函数
-Module.REalphaFix = function(alpha,alphaPercent){
-  var intalphainfo =Math.round(alpha);
-  var intalphaper =Math.round(alphaPercent);
-  var newalphainfo =(intalphainfo>15 ? (intalphainfo.toString(16)) : ("0"+intalphainfo.toString(16)));
-  var newalphaper =(intalphaper>15 ? (intalphaper.toString(16)) : ("0"+intalphaper.toString(16)));
-  var alphainfo ="0x"+newalphaper+newalphainfo+"ffff"; 
-  var alpha = parseInt(alphainfo); 
-  return alpha;
-}
-
-
-
-
-
 
 
 
@@ -312,78 +245,6 @@ Module.REsetSysRenderState = function(renderData){
 
 
 
-//锚点设置相关
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//标签相关
-//生成一个标签内部对象
-// TEXT_FMT_BOTTOM     =(1<<0)_0x1,  //表示文字底部对齐
-// TEXT_FMT_VCENTER    =(1<<1)_0x2,  //表示文字竖向居中(优先级高于TEXT_FMT_BOTTOM)
-// TEXT_FMT_TOP      =(1<<2)_0x4,  //表示文字顶部对齐(优先级高于TEXT_FMT_VCENTER)
-// TEXT_FMT_LEFT     =(1<<3)_0x8,  //表示文字左对齐
-// TEXT_FMT_HCENTER    =(1<<4)_0x10,  //表示文字横向居中(优先级高于TEXT_FMT_LEFT)
-// TEXT_FMT_RIGHT      =(1<<5)_0x20,  //表示文字右对齐(优先级高于TEXT_FMT_HCENTER)
-// TEXT_FMT_NOCLIP     =(1<<6)_0x40,  //表示不裁剪掉文字超出给定矩形区域外的部分
-// TEXT_FMT_SINGLELINE   =(1<<7)_0x80,  //表示所有文字全部显示在一横行上，忽略所有的换行符以及TEXT_FMT_WORDBREAK属性
-// TEXT_FMT_WORDBREAK    =(1<<8)_0x100,  //若当前字符有一部分在给定矩形区域外的话，则强制换行显示该字符，避免字符横向超出矩形区域外
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//根据场景组id获取总包围盒信息
-// Module.REgetTotalBoxBySceID = function(sceId){
-//   var _s = sceId.length;
-//   var tempbv;
-//   if(_s ==0){
-//     tempbv = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("DefaultProj","",0xffffffff,0); //获取所有构件的包围盒信息
-//   }else{
-//     tempbv =Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("DefaultProj",sceId,0xffffffff,0);
-//   }
-//   var aabbarr = [];
-//   aabbarr.push(tempbv[0][0]); aabbarr.push(tempbv[1][0]);  //Xmin、Xmax
-//   aabbarr.push(tempbv[0][1]); aabbarr.push(tempbv[1][1]);  //Ymin、Ymax
-//   aabbarr.push(tempbv[0][2]); aabbarr.push(tempbv[1][2]);  //Zmin、Zmax
-//   return aabbarr;
-// }
-
-
-
-
 
 
 //获取当前拾取到的UI相关信息(不常用)
@@ -508,49 +369,6 @@ Module.REexitClipWithTwoPoint = function(){
 Module.REisAutoFocusWithClip = function(bool){
   Module.RealBIMWeb.setTargetToClipPlane(bool);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//地理坐标信息相关
-
-//地理坐标信息相关
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -876,115 +694,6 @@ Module.REaddCustomPolyFenceShp = function(shpName, arrPots, bClose, uClr, fASDis
   }
   Module.RealBIMWeb.AddCustomPolyFenceShp(shpName, temparrpos, bClose, uClr, fASDist, fVisDist, _bContactSce);
 }
-
-
-
-
-
-
-
-
- 
-
-  
-
-
-
-
-  
-
-
-
-  
-
-
-// MOD-- 动画与特效相关
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//加载一个或多个全景场景
-// projInfo = [
-//             {
-//               "projName":"proj01",
-//               "urlRes":"https://www.bjblackhole.cn:8009/default.aspx?dir=url_res03&path=",
-//               "projResName":"res_test1",
-//             },{
-//               "projName":"proj02",
-//               "urlRes":"https://www.bjblackhole.cn:8009/default.aspx?dir=url_res03&path=",
-//               "projResName":"res_test2",
-//             }
-//            ]
-
-
-
-
-
-
-
-//添加全景场景的锚点
-// panAncInfo = [
-//             {
-//               "strPanId":"886464uhht_1641521507",   //全景图的唯一标识（必填）
-//               "strPanAncName":"pananc01",  //表示全景锚点的名称
-//               "arrPos":[-200.355475159838, 100.69760032663632, 12.211],  //表示锚点的位置
-//               "arrPicPos":[0, 0],  //表示锚点的二维像素位置（[0,0]为无效值）
-//               "strPicPath":"http://localhost:10086/demo/demonew/css/img/tag.png",  //表示锚点的图片路径
-//               "picSize":[32,32],  //表示锚点的图片大小,宽+高
-//               "textFocus":[16,0]  //表示顶点的文字标注与图片的位置
-//               "strTextInfo":"全景锚点",  //表示顶点的文字标注信息
-//               "strTextClr":"000000",  //表示锚点的文字标注颜色
-//               "textBias":[1,1]  //表示顶点的文字标注与图片的位置
-//             },{
-//               "strPanId":"886464uhht_1641521507",   
-//               "strPanAncName":"pananc01",  
-//               "arrPos":[0,0,0],  //表示锚点的三维位置（[0,0,0]为无效值）
-//               "arrPicPos":[6960, 3616],  //表示锚点的二维像素位置（[0,0]为无效值）
-//               "strPicPath":"http://localhost:10086/demo/demonew/css/img/tag.png",  
-//               "picSize":[32,32], 
-//               "textFocus":[0,0],   
-//               "strTextInfo":"全景锚点",  
-//               "strTextClr":"000000",  
-//               "textBias":[1,1]  
-//             }
-//            ]
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
