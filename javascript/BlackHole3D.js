@@ -3593,15 +3593,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, "", loadNewData);
     }
 
-
-
-
-
-
-
-
-    // MARK 动画与特效
-
     /**
      * 设置模型边缘高光属性
      * @param {String} dataSetId //数据集标识
@@ -3623,115 +3614,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetHugeObjBorderEmis(dataSetId, "");
     }
 
-    /**
-     * 创建一个动态墙
-     * @param {REAnimWallInfo} animWallInfo //动态墙信息
-     */
-    Module.BIM.addAnimationWall = function (animWallInfo) {
-        if (isEmptyLog(animWallInfo, "animWallInfo")) return;
-        var temparr = new Module.RE_Vector_dvec4();
-        for (var i = 0; i < animWallInfo.potList.length; ++i) {
-            temparr.push_back(animWallInfo.potList[i]);
-        }
-        var _bClose = true; if (!isEmpty(animWallInfo.isClose)) { _bClose = animWallInfo.isClose; }
-        return Module.RealBIMWeb.AddAnimationWall(animWallInfo.groupName, animWallInfo.name, temparr, animWallInfo.texPath, animWallInfo.normalDir, _bClose);
-    }
 
-    /**
-     * 创建一个扫描面
-     * @param {REAnimPlaneInfo} animPlaneInfo //扫描面信息
-     */
-    Module.BIM.addAnimationPlane = function (animPlaneInfo) {
-        if (isEmptyLog(animPlaneInfo, "animPlaneInfo")) return;
-        var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animPlaneInfo.potList.length; ++i) {
-            temparr.push_back(animPlaneInfo.potList[i]);
-        }
-        return Module.RealBIMWeb.AddAnimationPlane(animPlaneInfo.groupName, animPlaneInfo.name, temparr, animPlaneInfo.texPath);
-    }
-
-    /**
-     * /创建一组半球体动画
-     * @param {REAnimSphereInfo} animSphereInfo //球体信息
-     */
-    Module.BIM.addAnimationSpheres = function (animSphereInfo) {
-        if (isEmptyLog(animSphereInfo, "animSphereInfo")) return;
-        var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animSphereInfo.nameList.length; ++i) { temparr0.push_back(animSphereInfo.nameList[i]); }
-        var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animSphereInfo.potCenterList.length; ++i) { temparr.push_back(animSphereInfo.potCenterList[i]); }
-        var _isSphere = true; if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
-        return Module.RealBIMWeb.AddAnimationSpheres(animSphereInfo.groupName, temparr0, temparr, animSphereInfo.radius, _isSphere, animSphereInfo.texPath);
-    }
-
-    /**
-     * 创建一组规则平面多边形动画
-     * @param {REAnimPolygonInfo} animPolygonInfo //多边形信息
-     */
-    Module.BIM.addAnimationPolygons = function (animPolygonInfo) {
-        if (isEmptyLog(animPolygonInfo, "animPolygonInfo")) return;
-        var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animPolygonInfo.nameList.length; ++i) { temparr0.push_back(animPolygonInfo.nameList[i]); }
-        var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animPolygonInfo.potCenterList.length; ++i) { temparr.push_back(animPolygonInfo.potCenterList[i]); }
-        var _isRing = false; if (!isEmpty(animPolygonInfo.isRing)) _isRing = animPolygonInfo.isRing;
-        var _radarScan = false; if (!isEmpty(animPolygonInfo.radarScan)) _radarScan = animPolygonInfo.radarScan;
-        var _edgeNum = 3; if (!isEmpty(animPolygonInfo.edgeNum)) _edgeNum = animPolygonInfo.edgeNum;
-        return Module.RealBIMWeb.AddAnimationPolygons(animPolygonInfo.groupName, temparr0, temparr, animPolygonInfo.radius, animPolygonInfo.texPath, _radarScan, _isRing, _edgeNum);
-    }
-
-    /**
-     * 创建一组规则多边形动态墙
-     * @param {REAnimPolyWallInfo} animPolyWallInfo //多边形动态墙信息
-     */
-    Module.BIM.addAnimationPolygonWalls = function (animPolyWallInfo) {
-        if (isEmptyLog(animPolyWallInfo, "animPolyWallInfo")) return;
-        var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animPolyWallInfo.nameList.length; ++i) { temparr0.push_back(animPolyWallInfo.nameList[i]); }
-        var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animPolyWallInfo.potCenterList.length; ++i) { temparr.push_back(animPolyWallInfo.potCenterList[i]); }
-        var _isRing = false; if (!isEmpty(animPolyWallInfo.isRing)) _isRing = animPolyWallInfo.isRing;
-        var _radarScan = false; if (!isEmpty(animPolyWallInfo.radarScan)) _radarScan = animPolyWallInfo.radarScan;
-        var _edgeNum = 4; if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
-        var _height = 0; if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
-        return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
-    }
-
-
-    class REShpAnimStyle {
-        constructor() {
-            this.groupName = null; //矢量动画组名称，此参数不能为空
-            this.nameList = []; //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
-            this.animClr = null; //期望的矢量动画颜色（REColor 类型）
-            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
-            this.scaleAndOffset = null; //动画速度及方向，正负控制方向，数值控制速度,[]
-        }
-    }
-    ExtModule.REShpAnimStyle = REShpAnimStyle;
-
-
-    /**
-     * 按组名称设置矢量动画的参数
-     * @param {REShpAnimStyle} animStyleInfo //矢量动画参数
-     */
-    Module.BIM.setShapeAnimStyle = function (animStyleInfo) {
-        if (isEmptyLog(animStyleInfo.groupName, "groupName")) return;
-        var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animStyleInfo.nameList.length; ++i) { temparr0.push_back(animStyleInfo.nameList[i]); }
-        var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, (isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight));
-        return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset);
-    }
-
-    /**
-     * 删除矢量动画
-     * @param {String} groupName //矢量动画组名称，为空字符串删除所有
-     * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则删除该组下所有的矢量动画信息；
-     */
-    Module.BIM.delShpAnimation = function (groupName, nameList) {
-        var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
-        return Module.RealBIMWeb.DelShpAnimation(groupName, temparr0);
-    }
 
 
 
@@ -4111,7 +3994,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.getShpAnc = function (anchorId) {
         var _ancData = Module.RealBIMWeb.GetCADShpAnchor(anchorId);
-        var shpAnc = new BlackHole3D.RECADShpAnc();
+        var shpAnc = new RECADShpAnc();
         shpAnc.pos = _ancData.m_vPos;
         shpAnc.text = _ancData.m_strText;
         shpAnc.textClr = clrU32ToClr(_ancData.m_uTextClr);
@@ -4140,7 +4023,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < _allAncData.size(); ++i) {
             let tempobj = _allAncData.get(i);
 
-            let shpAnc = new BlackHole3D.RECADShpAnc();
+            let shpAnc = new RECADShpAnc();
             shpAnc.pos = tempobj.m_vPos;
             shpAnc.text = tempobj.m_strText;
             shpAnc.textClr = clrU32ToClr(tempobj.m_uTextClr);
@@ -4196,7 +4079,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < _groupAncData.size(); ++i) {
             let tempobj = _groupAncData.get(i);
 
-            let shpAnc = new BlackHole3D.RECADShpAnc();
+            let shpAnc = new RECADShpAnc();
             shpAnc.pos = tempobj.m_vPos;
             shpAnc.text = tempobj.m_strText;
             shpAnc.textClr = clrU32ToClr(tempobj.m_uTextClr);
@@ -5359,10 +5242,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAxisGridInfo} infoList //轴网数据集合（REAxisGridInfo 类型）
      */
     Module.AxisGrid.setData = function (groupName, infoList) {
-        var _tempGrids = new BlackHole3D.RE_Vector_GRID();
+        var _tempGrids = new Module.RE_Vector_GRID();
         for (let i = 0; i < infoList.length; i++) {
             let _info = infoList[i];
-            let _tempArrPos = new BlackHole3D.RE_Vector_vec3();
+            let _tempArrPos = new Module.RE_Vector_vec3();
             _tempArrPos.push_back(_info.pos[0]);
             _tempArrPos.push_back(_info.pos[1]);
             let _clr = clrToU32(_info.lineClr);
@@ -5405,7 +5288,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} groupNameList //组名称集合
      */
     Module.AxisGrid.delData = function (groupNameList) {
-        var tempGridsName = new BlackHole3D.RE_Vector_WStr();
+        var tempGridsName = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempGridsName.push_back(groupNameList[i]);
         }
@@ -5419,7 +5302,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} lineClr //轴线颜色（REColor类型）
      */
     Module.AxisGrid.setClr = function (groupName, guidList, lineClr) {
-        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        var tempGrids = new Module.RE_Vector_WStr();
         for (var i = 0; i < guidList.length; ++i) {
             tempGrids.push_back(guidList[i]);
         }
@@ -5433,7 +5316,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许探测
      */
     Module.AxisGrid.setProbeEnable = function (groupNameList, enable) {
-        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        var tempGrids = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempGrids.push_back(groupNameList[i]);
         }
@@ -5446,7 +5329,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否可见
      */
     Module.AxisGrid.setVisible = function (groupNameList, enable) {
-        var tempGrids = new BlackHole3D.RE_Vector_WStr();
+        var tempGrids = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempGrids.push_back(groupNameList[i]);
         }
@@ -5495,7 +5378,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REElevationInfo} infoList //标高数据集合（REElevationInfo 类型）
      */
     Module.Elevation.setData = function (groupName, dataSetId, infoList) {
-        var _tempLevels = new BlackHole3D.RE_Vector_LEVEL();
+        var _tempLevels = new Module.RE_Vector_LEVEL();
         for (let i = 0; i < infoList.length; i++) {
             let _info = infoList[i];
             let _clr = clrToU32(_info.lineClr);
@@ -5542,7 +5425,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} groupNameList //组名称数组集合，为空数组表示删除全部
      */
     Module.Elevation.delData = function (groupNameList) {
-        var tempLevelName = new BlackHole3D.RE_Vector_WStr();
+        var tempLevelName = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempLevelName.push_back(groupNameList[i]);
         }
@@ -5556,7 +5439,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} lineClr //标高颜色（REColor类型）
      */
     Module.Elevation.setClr = function (groupName, guidList, lineClr) {
-        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        var tempLevels = new Module.RE_Vector_WStr();
         for (var i = 0; i < guidList.length; ++i) {
             tempLevels.push_back(guidList[i]);
         }
@@ -5570,7 +5453,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许探测
      */
     Module.Elevation.setProbeEnable = function (groupNameList, enable) {
-        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        var tempLevels = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempLevels.push_back(groupNameList[i]);
         }
@@ -5583,7 +5466,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否可见
      */
     Module.Elevation.setVisible = function (groupNameList, enable) {
-        var tempLevels = new BlackHole3D.RE_Vector_WStr();
+        var tempLevels = new Module.RE_Vector_WStr();
         for (var i = 0; i < groupNameList.length; ++i) {
             tempLevels.push_back(groupNameList[i]);
         }
@@ -5598,6 +5481,128 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Elevation.getData = function (groupName, guid) {
         return Module.RealBIMWeb.GetLevelHeightInfo(groupName, guid);
     }
+
+
+
+
+
+    // MOD-- 动画（Animation）
+    Module.Animation = typeof Module.Animation !== "undefined" ? Module.Animation : {};//增加 Animation 模块
+
+
+    /**
+     * 创建一个动态墙
+     * @param {REAnimWallInfo} animWallInfo //动态墙信息
+     */
+    Module.Animation.addAnimWall = function (animWallInfo) {
+        if (isEmptyLog(animWallInfo, "animWallInfo")) return;
+        var temparr = new Module.RE_Vector_dvec4();
+        for (var i = 0; i < animWallInfo.potList.length; ++i) {
+            temparr.push_back(animWallInfo.potList[i]);
+        }
+        var _bClose = true; if (!isEmpty(animWallInfo.isClose)) { _bClose = animWallInfo.isClose; }
+        return Module.RealBIMWeb.AddAnimationWall(animWallInfo.groupName, animWallInfo.name, temparr, animWallInfo.texPath, animWallInfo.normalDir, _bClose);
+    }
+
+    /**
+     * 创建一个扫描面
+     * @param {REAnimPlaneInfo} animPlaneInfo //扫描面信息
+     */
+    Module.Animation.addAnimPlane = function (animPlaneInfo) {
+        if (isEmptyLog(animPlaneInfo, "animPlaneInfo")) return;
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPlaneInfo.potList.length; ++i) {
+            temparr.push_back(animPlaneInfo.potList[i]);
+        }
+        return Module.RealBIMWeb.AddAnimationPlane(animPlaneInfo.groupName, animPlaneInfo.name, temparr, animPlaneInfo.texPath);
+    }
+
+    /**
+     * /创建一组半球体动画
+     * @param {REAnimSphereInfo} animSphereInfo //球体信息
+     */
+    Module.Animation.addAnimSpheres = function (animSphereInfo) {
+        if (isEmptyLog(animSphereInfo, "animSphereInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animSphereInfo.nameList.length; ++i) { temparr0.push_back(animSphereInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animSphereInfo.potCenterList.length; ++i) { temparr.push_back(animSphereInfo.potCenterList[i]); }
+        var _isSphere = true; if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
+        return Module.RealBIMWeb.AddAnimationSpheres(animSphereInfo.groupName, temparr0, temparr, animSphereInfo.radius, _isSphere, animSphereInfo.texPath);
+    }
+
+    /**
+     * 创建一组规则平面多边形动画
+     * @param {REAnimPolygonInfo} animPolygonInfo //多边形信息
+     */
+    Module.Animation.addAnimPolygons = function (animPolygonInfo) {
+        if (isEmptyLog(animPolygonInfo, "animPolygonInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animPolygonInfo.nameList.length; ++i) { temparr0.push_back(animPolygonInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPolygonInfo.potCenterList.length; ++i) { temparr.push_back(animPolygonInfo.potCenterList[i]); }
+        var _isRing = false; if (!isEmpty(animPolygonInfo.isRing)) _isRing = animPolygonInfo.isRing;
+        var _radarScan = false; if (!isEmpty(animPolygonInfo.radarScan)) _radarScan = animPolygonInfo.radarScan;
+        var _edgeNum = 3; if (!isEmpty(animPolygonInfo.edgeNum)) _edgeNum = animPolygonInfo.edgeNum;
+        return Module.RealBIMWeb.AddAnimationPolygons(animPolygonInfo.groupName, temparr0, temparr, animPolygonInfo.radius, animPolygonInfo.texPath, _radarScan, _isRing, _edgeNum);
+    }
+
+    /**
+     * 创建一组规则多边形动态墙
+     * @param {REAnimPolyWallInfo} animPolyWallInfo //多边形动态墙信息
+     */
+    Module.Animation.addAnimPolygonWalls = function (animPolyWallInfo) {
+        if (isEmptyLog(animPolyWallInfo, "animPolyWallInfo")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animPolyWallInfo.nameList.length; ++i) { temparr0.push_back(animPolyWallInfo.nameList[i]); }
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animPolyWallInfo.potCenterList.length; ++i) { temparr.push_back(animPolyWallInfo.potCenterList[i]); }
+        var _isRing = false; if (!isEmpty(animPolyWallInfo.isRing)) _isRing = animPolyWallInfo.isRing;
+        var _radarScan = false; if (!isEmpty(animPolyWallInfo.radarScan)) _radarScan = animPolyWallInfo.radarScan;
+        var _edgeNum = 4; if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
+        var _height = 0; if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
+        return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
+    }
+
+
+    class REShpAnimStyle {
+        constructor() {
+            this.groupName = null; //矢量动画组名称，此参数不能为空
+            this.nameList = []; //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
+            this.animClr = null; //期望的矢量动画颜色（REColor 类型）
+            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
+            this.scaleAndOffset = null; //动画速度及方向，正负控制方向，数值控制速度,[]
+        }
+    }
+    ExtModule.REShpAnimStyle = REShpAnimStyle;
+
+
+    /**
+     * 按组名称设置矢量动画的参数
+     * @param {REShpAnimStyle} animStyleInfo //矢量动画参数
+     */
+    Module.Animation.setShapeAnimStyle = function (animStyleInfo) {
+        if (isEmptyLog(animStyleInfo.groupName, "groupName")) return;
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < animStyleInfo.nameList.length; ++i) { temparr0.push_back(animStyleInfo.nameList[i]); }
+        var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, (isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight));
+        return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset);
+    }
+
+    /**
+     * 删除矢量动画
+     * @param {String} groupName //矢量动画组名称，为空字符串删除所有
+     * @param {Array} nameList //矢量动画名称集合，如果nameList为空,则删除该组下所有的矢量动画信息；
+     */
+    Module.Animation.delShpAnimation = function (groupName, nameList) {
+        var temparr0 = new Module.RE_Vector_WStr();
+        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
+        return Module.RealBIMWeb.DelShpAnimation(groupName, temparr0);
+    }
+
+
+
+
 
 
 
@@ -5811,7 +5816,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmpty(clipInfo.gridGroupName, 'gridGroupName')) return;
         if (!checkTypeLog(clipInfo.gridNameList, 'gridNameList', RE_Enum.RE_Check_Array)) return;
 
-        var _tempArrGridName = new BlackHole3D.RE_Vector_WStr();
+        var _tempArrGridName = new Module.RE_Vector_WStr();
         for (let i = 0; i < clipInfo.gridNameList.length; i++) {
             _tempArrGridName.push_back(clipInfo.gridNameList[i]);
         }
@@ -5828,26 +5833,433 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 小地图（MiniMap）
+    Module.MiniMap = typeof Module.MiniMap !== "undefined" ? Module.MiniMap : {};//增加 MiniMap 模块
+
+
+
+    // MARK 加载
+    /**
+     * 加载小地图中的CAD数据（ REMiniMapLoadCAD 事件监听回调 CAD数据添加成功）
+     * @param {String} filePath //图纸的资源发布路径
+     * @param {RECadUnitEm} unit //CAD单位 RECadUnitEm 枚举值
+     * @param {Number} scale //图纸的比例尺信息（默认为1:1）
+     */
+    Module.MiniMap.loadCAD = function (filePath, unit, scale) {
+        if (isEmptyLog(filePath, "filePath")) return;
+
+        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+        var _CADScale = 1.0; if (!isEmpty(scale)) { _CADScale = scale; }
+        Module.RealBIMWeb.LoadOverViewCAD(filePath, _CADUnit, _CADScale);
+    }
+
+    /**
+     * 加载小地图中的图片文件
+     * @param {String} texPath //图片路径
+     * @param {DVec2} picSize //图片尺寸
+     * @param {DVec2} texSize //材质像素尺寸
+     * @param {ivec2} insertPos //材质相对插入点
+     * @param {Number} alpha //材质透明度 默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
+     */
+    Module.MiniMap.loadImage = function (texPath, picSize, texSize, insertPos, alpha) {
+        if (!checkParamType(texPath, 'texPath', RE_Enum.RE_Check_String)) return;
+
+        var _a = 1.0; if (!isEmpty(alpha)) _a = (parseInt(alpha) / 255);
+        return Module.RealBIMWeb.LoadOverViewImage(texPath, texSize[0], texSize[1], insertPos, picSize[0], picSize[1], _a);
+    }
+
+    /**
+     * 调整CAD小地图显示，缩放到当前小地图展示范围
+     */
+    Module.MiniMap.setShowRangeRefresh = function () {
+        return Module.RealBIMWeb.CADOverViewFocusToAll();
+    }
 
 
 
 
 
 
+    // MARK 渲染设置
+    /**
+     * 获取小地图的显示状态
+     */
+    Module.MiniMap.getVisible = function () {
+        return Module.RealBIMWeb.GetOverViewShow();
+    }
+
+    /**
+     * 设置小地图的显示状态
+     * @param {Boolean} visible //是否显示
+     */
+    Module.MiniMap.setVisible = function (visible) {
+        if (isEmptyLog(visible, 'visible')) return;
+        return Module.RealBIMWeb.SetOverViewShow(visible);
+    }
+
+    /**
+     * 设置小地图的背景颜色
+     * @param {REColor} bgClr //背景颜（REColor 类型）
+     */
+    Module.MiniMap.setBackClr = function (bgClr) {
+        if (isEmptyLog(bgClr, 'bgClr')) return false;
+        var _clr = clrToRGBA_List(bgClr);
+        Module.RealBIMWeb.SetOverViewBackColor(_clr);
+        return true;
+    }
+
+    /**
+     * 获取小地图的显示区域范围 (小地图显示的实际范围（像素）)
+     */
+    Module.MiniMap.getRegion = function () {
+        return Module.RealBIMWeb.GetOverViewRegion();
+    }
+
+    /**
+     * 设置小地图的显示区域比例（原点和对焦点相对主界面宽高的百分比）！！！显示范围限制在小地图最大的宽高设置
+     * @param {Vec2} scaleOrigin //原点相对于主界面宽高的比例 [0,0]  取值范围0-1
+     * @param {Vec2} scaleDiagonal //对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
+     */
+    Module.MiniMap.setRegion = function (scaleOrigin, scaleDiagonal) {
+        var _Region = scaleOrigin.concat(scaleDiagonal);
+        return Module.RealBIMWeb.SetOverViewRegion(_Region);
+    }
+
+    /**
+     * 获取小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+     */
+    Module.MiniMap.getMaxRegion = function () {
+        return Module.RealBIMWeb.GetOverViewMaxRegion();
+    }
+
+    /**
+     * 设置小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
+     * @param {Vec2} region //xy分别表示最大宽度和高度（像素值）
+     */
+    Module.MiniMap.setMaxRegion = function (region) {
+        return Module.RealBIMWeb.SetOverViewMaxRegion(region);
+    }
+
+    /**
+     * 获取小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+     */
+    Module.MiniMap.getMinRegion = function () {
+        return Module.RealBIMWeb.GetOverViewMinRegion();
+    }
+
+    /**
+     * 设置小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
+     * @param {Vec2} region //xy分别表示最小宽度和高度（像素值）
+     */
+    Module.MiniMap.setMinRegion = function (region) {
+        return Module.RealBIMWeb.SetOverViewMinRegion(region);
+    }
+
+    /**
+     * 设置小地图相机显示样式
+     * @param {REColor} iconClr //图标颜色（REColor 类型）
+     * @param {Number} iconSize //图标大小（按屏幕分辨率） 默认值20px
+     */
+    Module.MiniMap.setIconStyle = function (iconClr, iconSize) {
+        if (isEmptyLog(iconClr, 'iconClr')) return;
+
+        var _clr = clrToU32_W_WBGR(iconClr, iconClr.alpha);
+        var _iconSize = 20; if (!isEmpty(iconSize)) _iconSize = iconSize;
+        return Module.RealBIMWeb.SetOverViewCamStyle(_clr, _iconSize);
+    }
+
+
+
+    // MARK 相机
+    /**
+     * 设置小地图相机位置
+     * @param {Vec2} camPos //位置坐标 必传
+     * @param {Vec2} camDir //相机朝向 可不传
+     */
+    Module.MiniMap.setCamLocateTo = function (camPos, camDir) {
+        if (isEmptyLog(camPos, "camPos")) return;
+        var _dPosX = camPos[0]; var _dPosY = camPos[1];
+        var _dDirX = 0; var _dDirY = 0;
+        if (camPos.length = 2) {
+            _dDirX = camDir[0];
+            _dDirY = camDir[1];
+        }
+        return Module.RealBIMWeb.SetOverViewCamLocation(_dPosX, _dPosY, _dDirX, _dDirY);
+    }
+
+    class RECADTransInfo {
+        constructor() {
+            this.basePos = null;//	变换基点
+            this.offset = null;//	偏移量
+            this.scaleFactor = null;//	缩放比例
+            this.angle = null;//	旋转角度
+            this.normal = null;//	法向量
+            this.axis = null;//	镜像轴向以基点为基准
+        }
+    }
+    ExtModule.RECADTransInfo = RECADTransInfo;
+
+    class RECADConvertInfo {
+        constructor() {
+            this.bimPoint = null;//	BIM顶点
+            this.cadPoint = null;//	CAD顶点
+        }
+    }
+    ExtModule.RECADConvertInfo = RECADConvertInfo;
+
+    /**
+     * 获取顶点映射信息转换为小地图相机相对模型相机的变换数据
+     * @param {Array} pointList //对应的BIM和CAD点集合，最少大于等于3个数据 (RECADConvertInfo 类型)
+     * @param {RECadUnitEm} unit //CAD单位 RECadUnitEm 枚举值
+     */
+    Module.MiniMap.getConvertCamTransInfo = function (pointList, unit) {
+        if (!checkTypeLog(pointList, 'pointList', RE_Enum.RE_Check_Array)) return {};
+
+        if (pointList.length < 3) {
+            logErr("对应的BIM和CAD点集合, 最少大于等于3个数据");
+            return;
+        }
+        var _vector_BIMPoints = new Module.RE_Vector_dvec3();
+        var _vector_CADPoints = new Module.RE_Vector_dvec2();
+        for (let i = 0; i < pointList.length; i++) {
+            let convInfo = pointList[i];
+            if (!checkArrCountLog(convInfo.bimPoint, 'bimPoint', 3)) return {};
+            if (!checkArrCountLog(convInfo.cadPoint, 'cadPoint', 2)) return {};
+            _vector_BIMPoints.push_back(convInfo.bimPoint);
+            _vector_CADPoints.push_back(convInfo.cadPoint);
+        }
+        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+
+        var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
+
+        var transInfo = new RECADTransInfo();
+        transInfo.basePos = _vector_TransformInfo.m_vBasePos;//变换基点
+        transInfo.offset = _vector_TransformInfo.m_vOffset;//偏移量
+        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor;//缩放比例
+        transInfo.angle = _vector_TransformInfo.m_dAngle;//旋转角度
+        transInfo.normal = _vector_TransformInfo.m_vNormal;//法向量
+        transInfo.axis = _vector_TransformInfo.m_vAxis;//镜像轴向以基点为基准
+        return transInfo;
+    }
+
+    /**
+     * 设置小地图相机变换数据 (通过顶点映射)
+     * @param {Array} pointList //对应的BIM和CAD点集合，最少大于等于3个数据 (RECADConvertInfo 类型)
+     * @param {RECadUnitEm} unit //CAD单位 RECadUnitEm 枚举值
+     */
+    Module.MiniMap.setConvertCamTransInfo = function (pointList, unit) {
+        if (!checkTypeLog(pointList, 'pointList', RE_Enum.RE_Check_Array)) return false;
+
+        if (pointList.length < 3) {
+            logErr("对应的BIM和CAD点集合, 最少大于等于3个数据");
+            return;
+        }
+        var _vector_BIMPoints = new Module.RE_Vector_dvec3();
+        var _vector_CADPoints = new Module.RE_Vector_dvec2();
+        for (let i = 0; i < pointList.length; i++) {
+            let convInfo = pointList[i];
+            if (!checkArrCountLog(convInfo.bimPoint, 'bimPoint', 3)) return {};
+            if (!checkArrCountLog(convInfo.cadPoint, 'cadPoint', 2)) return {};
+            _vector_BIMPoints.push_back(convInfo.bimPoint);
+            _vector_CADPoints.push_back(convInfo.cadPoint);
+        }
+        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+        var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
+        return Module.RealBIMWeb.SetOverViewCamTransformInfo(_vector_TransformInfo);
+    }
+
+    /**
+     * 设置小地图相机变换数据 (通过 RECADTransInfo 对象)
+     * @param {RECADTransInfo} cadTransInfo //变换信息 (RECADTransInfo 类型)
+     */
+    Module.MiniMap.setCamTransInfo = function (cadTransInfo) {
+        if (isEmptyLog(cadTransInfo, 'cadTransInfo')) return;
+        _TransformInfo = {
+            m_vBasePos: cadTransInfo.basePos,
+            m_vOffset: cadTransInfo.offset,
+            m_dScaleFactor: cadTransInfo.scaleFactor,
+            m_dAngle: cadTransInfo.angle,
+            m_vNormal: cadTransInfo.normal,
+            m_vAxis: cadTransInfo.axis,
+        };
+        return Module.RealBIMWeb.SetOverViewCamTransformInfo(_TransformInfo);
+    }
+
+    /**
+     * 获取小地图相机变换数据
+     */
+    Module.MiniMap.getCamTransInfo = function () {
+        var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfo();
+        var transInfo = new RECADTransInfo();
+        transInfo.basePos = _vector_TransformInfo.m_vBasePos;//变换基点
+        transInfo.offset = _vector_TransformInfo.m_vOffset;//偏移量
+        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor;//缩放比例
+        transInfo.angle = _vector_TransformInfo.m_dAngle;//旋转角度
+        transInfo.normal = _vector_TransformInfo.m_vNormal;//法向量
+        transInfo.axis = _vector_TransformInfo.m_vAxis;//镜像轴向以基点为基准
+        return transInfo;
+    }
+
+    /**
+     * 设置指定组 CAD类型小地图矢量锚点的相机缩放边界值
+     * @param {String} groupId //标识锚点组的标识ID
+     * @param {Number} minScale //缩放最小边界
+     * @param {Number} maxScale //缩放最大边界
+     */
+    Module.MiniMap.setCADGroupShpAncScale = function (groupId, minScale, maxScale) {
+        if (isEmptyLog(groupId, 'groupId')) return;
+        return Module.RealBIMWeb.SetCADOverViewShpAnchorScale(groupId, minScale, maxScale);
+    }
 
 
 
 
 
+    // MARK 锚点
+
+    /**
+     * 添加一系列CAD类型小地图矢量锚点 (要在CAD加载完成之后添加)
+     * @param {RECADShpAnc} ancList //表示要添加的锚点信息集合（ RECADShpAnc 类型）
+     */
+    Module.MiniMap.addCADShpAnc = function (ancList) {
+        if (!isEmptyLog(ancList, 'ancList')) return false;
+
+        var _vector_ShpAnchor = new Module.RE_Vector_CAD_SHP_ANCHOR();
+        for (let i = 0; i < ancList.length; i++) {
+            let cadShpAnc = ancList[i];
+
+            var _obj = {
+                m_strID: isEmpty(cadShpAnc.anchorId) ? "" : cadShpAnc.anchorId,
+                m_vPos: isEmpty(cadShpAnc.pos) ? [0.0, 0.0] : cadShpAnc.pos,
+                m_strShpPath: isEmpty(cadShpAnc.shpPath) ? "" : cadShpAnc.shpPath,
+                m_strGroupID: isEmpty(cadShpAnc.groupId) ? "" : cadShpAnc.groupId,
+                m_strText: isEmpty(cadShpAnc.text) ? "" : cadShpAnc.text,
+                m_uTextClr: isEmpty(cadShpAnc.textClr) ? 0xffffffff : clrToU32(cadShpAnc.textClr),
+                m_dTextSize: isEmpty(cadShpAnc.textSize) ? 16 : cadShpAnc.textSize,
+                m_vTextAlign: isEmpty(cadShpAnc.textAlign) ? REGridPosEm.MM : cadShpAnc.textAlign,
+            };
+            _vector_ShpAnchor.push_back(_obj);
+        }
+        return Module.RealBIMWeb.AddCADOverViewShpAnchors(_vector_ShpAnchor);
+    }
 
 
+    /**
+     * 获取系统中的CAD类型小地图矢量锚点总数
+     */
+    Module.MiniMap.getCADShpAncNum = function () {
+        return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();
+    }
 
+    /**
+     * 获取系统中所有的CAD类型小地图矢量锚点信息
+     */
+    Module.MiniMap.getAllCADShpAnc = function () {
+        var _vector_ShpAnchorList = Module.RealBIMWeb.GetAllCADOverViewShpAnchors();
+        var _shpAnchors = [];
+        for (let i = 0; i < _vector_ShpAnchorList.size(); i++) {
+            let _shpAnchor = _vector_ShpAnchorList.get(i);
 
+            let shpAnc = new RECADShpAnc();
+            shpAnc.pos = _shpAnchor.m_vPos;
+            shpAnc.text = _shpAnchor.m_strText;
+            shpAnc.textClr = clrU32ToClr(_shpAnchor.m_uTextClr);
+            shpAnc.textSize = _shpAnchor.m_dTextSize;
+            shpAnc.shpPath = _shpAnchor.m_strShpPath;
+            shpAnc.groupId = _shpAnchor.m_strGroupID;
+            shpAnc.anchorId = _shpAnchor.m_strID;
+            shpAnc.textAlign = _shpAnchor.m_vTextAlign;
+            _shpAnchors.push(shpAnc);
+        }
+        return _shpAnchors;
+    }
 
+    /**
+     * 获取一个CAD类型小地图矢量锚点的信息
+     * @param {String} anchorId //CAD锚点ID  唯一id
+     */
+    Module.MiniMap.getCADShpAnc = function (anchorId) {
+        if (isEmptyLog(anchorId, 'anchorId')) return;
+        var _vector_ShpAnchor = Module.RealBIMWeb.GetCADOverViewShpAnchor(anchorId);
 
+        var shpAnc = new RECADShpAnc();
+        shpAnc.pos = _vector_ShpAnchor.m_vPos;
+        shpAnc.text = _vector_ShpAnchor.m_strText;
+        shpAnc.textClr = clrU32ToClr(_vector_ShpAnchor.m_uTextClr);
+        shpAnc.textSize = _vector_ShpAnchor.m_dTextSize;
+        shpAnc.shpPath = _vector_ShpAnchor.m_strShpPath;
+        shpAnc.groupId = _vector_ShpAnchor.m_strGroupID;
+        shpAnc.anchorId = _vector_ShpAnchor.m_strID;
+        shpAnc.textAlign = _vector_ShpAnchor.m_vTextAlign;
+        return shpAnc;
+    }
 
+    /**
+     * 获取系统中所有CAD类型小地图矢量锚点组的名称
+     */
+    Module.MiniMap.getAllCADShpAncGroupIDs = function () {
+        var _vector_GroupIDs = Module.RealBIMWeb.GetAllCADOverViewShpAnchorGroupIDs();
+        var _groupIDs = [];
+        for (let i = 0; i < _vector_GroupIDs.size(); i++) {
+            _groupIDs.push(_vector_GroupIDs.get(i));
+        }
+        return _groupIDs;
+    }
 
+    /**
+     * 获取系统中某个CAD类型小地图矢量锚点组包含的所有CAD矢量锚点信息
+     * @param {String} groupId //锚点所属的组名称ID
+     */
+    Module.MiniMap.getCADGroupShpAnc = function (groupId) {
+        if (isEmptyLog(groupId, 'groupId')) return;
+        var _vector_ShpAnchorList = Module.RealBIMWeb.GetGroupCADOverViewShpAnchors(groupId);
+        var _shpAnchors = [];
+        for (let i = 0; i < _vector_ShpAnchorList.size(); i++) {
+            let _shpAnchor = _vector_ShpAnchorList.get(i);
 
+            let shpAnc = new RECADShpAnc();
+            shpAnc.pos = _shpAnchor.m_vPos;
+            shpAnc.text = _shpAnchor.m_strText;
+            shpAnc.textClr = clrU32ToClr(_shpAnchor.m_uTextClr);
+            shpAnc.textSize = _shpAnchor.m_dTextSize;
+            shpAnc.shpPath = _shpAnchor.m_strShpPath;
+            shpAnc.groupId = _shpAnchor.m_strGroupID;
+            shpAnc.anchorId = _shpAnchor.m_strID;
+            shpAnc.textAlign = _shpAnchor.m_vTextAlign;
+            _shpAnchors.push(shpAnc);
+        }
+        return _shpAnchors;
+    }
+
+    /**
+     * 删除系统所有的CAD类型小地图矢量锚点
+     */
+    Module.MiniMap.delAllCADShpAnc = function () {
+        return Module.RealBIMWeb.DelAllCADOverViewShpAnchors();
+    }
+
+    /**
+     * 删除对应ID列表的 CAD类型小地图矢量锚点
+     * @param {Array} anchorIdList //锚点id数组
+     */
+    Module.MiniMap.delCADShpAnc = function (anchorIdList) {
+        if (isEmptyLog(anchorIdList, 'anchorIdList')) return false;
+        var _vector_AnchorIDs = new Module.RE_Vector_WStr();
+        for (let i = 0; i < anchorIdList.length; i++) {
+            let anc = anchorIdList[i];
+            _vector_AnchorIDs.push_back(anc);
+        }
+        return Module.RealBIMWeb.DelCADOverViewShpAnchors(_vector_AnchorIDs);
+    }
+
+    /**
+     * 删除对应组 包含的所有CAD矢量锚点
+     * @param {String} groupId //锚点所属的组名称ID
+     */
+    Module.MiniMap.delCADGroupShpAnc = function (groupId) {
+        if (isEmptyLog(groupId, 'groupId')) return;
+        return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(groupId);
+    }
 
 
 
@@ -6282,6 +6694,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         CAD_UNIT_Parsec: 20,//天体
     }
     ExtModule.RECadUnitEm = RECadUnitEm;
+
+
+
+    // MARK REGridPosEm
+    //表示九宫格位置枚举
+    const REGridPosEm = {
+        LT: [-1, 1],   //左上区域
+        MT: [0, 1],   //中上区域
+        RT: [1, 1],   //右上区域
+        LM: [-1, 0],   //左中区域
+        MM: [0, 0],   //中中区域
+        RM: [1, 0],   //右中区域
+        LB: [-1, -1],   //左下区域
+        MB: [0, -1],   //中下区域
+        RB: [1, -1],   //右下区域
+    }
+    ExtModule.REGridPosEm = REGridPosEm;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1058,6 +1058,142 @@ function setAxisGridClip() {
 }
 
 
+//添加小地图（CAD）
+function addMiniMapCAD() {
+    //先设置小地图的尺寸
+    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
+    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
+    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
+    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
+
+    //加载小地图CAD数据
+    BlackHole3D.MiniMap.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
+
+    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
+    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
+}
+
+//添加小地图（图片）
+function addMiniMapImage() {
+    //先设置小地图的尺寸
+    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
+    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
+    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
+    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
+
+    var texPath = "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png";
+    var picSize = [60, 40];
+    var texSize = [860, 500];
+    var insertPos = [0, 0];
+    var alpha = 255;
+    BlackHole3D.MiniMap.loadImage(texPath, picSize, texSize, insertPos, alpha)
+
+    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
+    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
+}
+
+
+//获取顶点映射信息转换为小地图相机相对模型相机的变换数据
+function getCamTransInfo() {
+    var pointList = [];
+    var conv1 = new BlackHole3D.RECADConvertInfo();
+    conv1.bimPoint = [-260.9, 136.1, 0];
+    conv1.cadPoint = [-152231.4198, 252077.9952];
+    pointList.push(conv1);
+
+    var conv2 = new BlackHole3D.RECADConvertInfo();
+    conv2.bimPoint = [-241.5, 104.1, 0];
+    conv2.cadPoint = [-152231.4198, 214377.9952];
+    pointList.push(conv2);
+
+    var conv3 = new BlackHole3D.RECADConvertInfo();
+    conv3.bimPoint = [-186.5, 138.1, 0];
+    conv3.cadPoint = [-87531.4198, 214377.9952];
+    pointList.push(conv3);
+
+    var unit = BlackHole3D.RE_CAD_UNIT.Millimeter;//CAD单位  
+    var camTransInfo = BlackHole3D.MiniMap.getConvertCamTransInfo(pointList, unit);//获取小地图相机变换数据
+    console.log(camTransInfo);
+}
+
+//通过顶点映射信息设置小地图相机变换
+function setConverCamTransInfo() {
+    var pointList = [];
+    var conv1 = new BlackHole3D.RECADConvertInfo();
+    conv1.bimPoint = [-260.9, 136.1, 0];
+    conv1.cadPoint = [-152231.4198, 252077.9952];
+    pointList.push(conv1);
+
+    var conv2 = new BlackHole3D.RECADConvertInfo();
+    conv2.bimPoint = [-241.5, 104.1, 0];
+    conv2.cadPoint = [-152231.4198, 214377.9952];
+    pointList.push(conv2);
+
+    var conv3 = new BlackHole3D.RECADConvertInfo();
+    conv3.bimPoint = [-186.5, 138.1, 0];
+    conv3.cadPoint = [-87531.4198, 214377.9952];
+    pointList.push(conv3);
+
+    var unit = BlackHole3D.RE_CAD_UNIT.Millimeter;//CAD单位  
+    BlackHole3D.MiniMap.setConvertCamTransInfo(pointList, unit);//设置转换
+}
+
+//通过转换对象设置小地图相机变换
+function setCamTransInfo() {
+    var transInfo = new BlackHole3D.RECADTransInfo();
+    transInfo.basePos = [0, 0, 0];//变换基点
+    transInfo.offset = [0, 0, 0];//偏移量
+    transInfo.scaleFactor = 1;//缩放比例
+    transInfo.angle = 0;//旋转角度
+    transInfo.normal = [0, 0, 1];//法向量
+    transInfo.axis = [0, 0, 0];//镜像轴向以基点为基准
+    BlackHole3D.MiniMap.setCamTransInfo(transInfo);
+}
+
+
+//添加小地图锚点
+function addMiniMapAnc() {
+    var shpAncList = [];
+    var shpAnc1 = new BlackHole3D.RECADShpAnc();
+    shpAnc1.anchorId = "anc001";
+    shpAnc1.pos = [-7, 0];
+    shpAnc1.shpPath = "http://realbim.bjblackhole.cn:8008/img/test01.svg";
+    shpAnc1.groupId = "group001";
+    shpAnc1.text = "锚点1";
+    shpAnc1.textClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    shpAnc1.textSize = 16.0;
+    shpAnc1.textAlign = BlackHole3D.REGridPosEm.MM;
+    shpAncList.push(shpAnc1);
+
+    var shpAnc2 = new BlackHole3D.RECADShpAnc();
+    shpAnc2.anchorId = "anc002";
+    shpAnc2.pos = [5, -3];
+    shpAnc2.shpPath = "http://realbim.bjblackhole.cn:8008/img/test02.svg";
+    shpAnc2.groupId = "group001";
+    shpAnc2.text = "锚点2";
+    shpAnc2.textClr = new BlackHole3D.REColor(0, 255, 0, 255);
+    shpAnc2.textSize = 16.0;
+    shpAnc2.textAlign = BlackHole3D.REGridPosEm.MM;
+    shpAncList.push(shpAnc2);
+
+    BlackHole3D.MiniMap.addCADShpAnc(shpAncList);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
