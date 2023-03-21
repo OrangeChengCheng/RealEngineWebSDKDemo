@@ -682,8 +682,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.setCamLocateDefault = function (locType, scanAllDataSet) {
         if (isEmptyLog(locType, "locType")) return;
         var _bScanAllSce = true; if (!isEmpty(scanAllDataSet)) _bScanAllSce = scanAllDataSet;
-        var enumEval = locType;
-        Module.RealBIMWeb.ResetCamToTotalSce(enumEval, _bScanAllSce);
+        if (locType === RECamDirEm.CAM_DIR_DEFAULT) {
+            Module.RealBIMWeb.RestoreCamLocation();
+        } else {
+            var enumEval = eval(locType);
+            Module.RealBIMWeb.ResetCamToTotalSce(enumEval, _bScanAllSce);
+        }
     }
 
     /**
@@ -6661,35 +6665,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MARK CamLoc
     //表示ViewCude视图的类型
     const RECamDirEm = {
-        CAM_DIR_FRONT: 0,//面-主视图（前视图）	
-        CAM_DIR_BACK: 1,//面-后视图	
-        CAM_DIR_LEFT: 2,//面-左视图	
-        CAM_DIR_RIGHT: 3,//面-右视图	
-        CAM_DIR_TOP: 4,//面-俯视图（上视图）	
-        CAM_DIR_BOTTOM: 5,//面-仰视图（下视图）	
-        CAM_DIR_TOPFRONT: 6,//棱-上前	
-        CAM_DIR_TOPRIGHT: 7,//棱-上右	
-        CAM_DIR_TOPBACK: 8,//棱-上后	
-        CAM_DIR_TOPLEFT: 9,//棱-上左	
-        CAM_DIR_LEFTFRONT: 10,//棱-左前	
-        CAM_DIR_RIGHTFRONT: 11,//棱-前右	
-        CAM_DIR_RIGHTBACK: 12,//棱-右后	
-        CAM_DIR_LEFTBACK: 13,//棱-后左	
-        CAM_DIR_BOTTOMFRONT: 14,//棱-下前	
-        CAM_DIR_BOTTOMRIGHT: 15,//棱-下右	
-        CAM_DIR_BOTTOMBACK: 16,//棱-下后	
-        CAM_DIR_BOTTOMLEFT: 17,//棱-下左	
-        CAM_DIR_TOPRIGHTBACK: 18,//顶点-上右后	
-        CAM_DIR_TOPLEFTBACK: 19,//顶点-上左后	
-        CAM_DIR_TOPLEFTFRONT: 20,//顶点-上左前	
-        CAM_DIR_TOPRIGHTFRONT: 21,//顶点-上右前	
-        CAM_DIR_BOTTOMRIGHTBACK: 22,//顶点-下右后	
-        CAM_DIR_BOTTOMLEFTBACK: 23,//顶点-下左后	
-        CAM_DIR_BOTTOMLEFTFRONT: 24,//顶点-下左前	
-        CAM_DIR_BOTTOMRIGHTFRONT: 25,//顶点-下右前	
-        CAM_DIR_DEFAULT: 26,//默认视角
+        CAM_DIR_FRONT: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）	
+        CAM_DIR_BACK: "Module.RE_CAM_DIR.BACK",//面-后视图	
+        CAM_DIR_LEFT: "Module.RE_CAM_DIR.LEFT",//面-左视图	
+        CAM_DIR_RIGHT: "Module.RE_CAM_DIR.RIGHT",//面-右视图	
+        CAM_DIR_TOP: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）	
+        CAM_DIR_BOTTOM: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）	
+        CAM_DIR_TOPFRONT: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前	
+        CAM_DIR_TOPRIGHT: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右	
+        CAM_DIR_TOPBACK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后	
+        CAM_DIR_TOPLEFT: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左	
+        CAM_DIR_LEFTFRONT: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前	
+        CAM_DIR_RIGHTFRONT: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右	
+        CAM_DIR_RIGHTBACK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后	
+        CAM_DIR_LEFTBACK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左	
+        CAM_DIR_BOTTOMFRONT: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前	
+        CAM_DIR_BOTTOMRIGHT: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右	
+        CAM_DIR_BOTTOMBACK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后	
+        CAM_DIR_BOTTOMLEFT: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左	
+        CAM_DIR_TOPRIGHTBACK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后	
+        CAM_DIR_TOPLEFTBACK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后	
+        CAM_DIR_TOPLEFTFRONT: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前	
+        CAM_DIR_TOPRIGHTFRONT: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前	
+        CAM_DIR_BOTTOMRIGHTBACK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后	
+        CAM_DIR_BOTTOMLEFTBACK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后	
+        CAM_DIR_BOTTOMLEFTFRONT: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前	
+        CAM_DIR_BOTTOMRIGHTFRONT: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前	
+        CAM_DIR_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
     }
     ExtModule.RECamDirEm = RECamDirEm;
+
 
 
 
