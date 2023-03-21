@@ -323,10 +323,6 @@ Module.REgetAllUnVerHugeGroupIDs = function(projName) {
 
 
 
-//重置所有元素的显示状态（弃用）
-Module.REresetUserOperation = function(){
-  Module.RealBIMWeb.ResetUserOperation(0);
-}
 
 //获取场景所有BIM模型的节点名称
 Module.REgetAllHugeGroupIDs = function(projName){

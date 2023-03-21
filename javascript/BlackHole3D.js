@@ -657,7 +657,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(camLoc.camPos, "camPos")) return;
 
         var _delay = 0; if (!isEmpty(locDelay)) _delay = locDelay;
-        var _time = 1.0; if (!isEmpty(locTime)) _delay = locTime;
+        var _time = 1.0; if (!isEmpty(locTime)) _time = locTime;
         if (camLoc.camRotate[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
             return;
@@ -1444,6 +1444,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiType, 'uiType')) return;
         return Module.RealBIMWeb.UIWgtGetVisible(uiType);
     }
+
+    /**
+     * 恢复图形界面的模型、地形、按钮等为初始加载完成状态
+     */
+    Module.Graphics.resetInitialState = function () {
+        Module.RealBIMWeb.ResetUserOperation(0);
+    }
+
+
 
 
 
