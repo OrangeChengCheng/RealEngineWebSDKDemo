@@ -49,10 +49,23 @@ window.onload = function (event) {
     document.addEventListener("RECADLoadFinish", function (e) { RECADLoadFinish(e.detail.succeed) });
     document.addEventListener("RECADSelElement", function (e) { RECADSelElement(e.detail) });
 
+    
+    document.addEventListener("mousedown", mousedown);//鼠标中键按压监听
+
 
     if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
         console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
         RESystemReady();
+    }
+}
+
+
+
+function mousedown(e) {
+	//button：键类型  0：左键，1：中键，2：右键
+    if (e.button == 1) {
+        e.preventDefault();//取消事件的默认动作
+        return false;
     }
 }
 
@@ -202,10 +215,8 @@ function loadModel() {
         // {
         //     "dataSetId": "长地形",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
-        //     "useAssginVer": true,
-        //     "assginVer": 0,
-        //     "useTransInfo": false,
-        //     "transInfo": ""
+        //     "useTransInfo": true, "transInfo": [[0.01, 0.01, 0.01], [0, 0, 0, 1], [0, 0, 0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
         //     "dataSetId": "花园",

@@ -390,6 +390,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetSceOITLev();
     }
 
+    /**
+     * 获取当前的渲染元素属性状态数据
+     */
+    Module.Common.getCurRenderStateData = function () {
+        return new Uint8Array(Module.RealBIMWeb.GetSysRenderState());
+    }
+
+    /**
+     * 根据元素属性状态数据设置当前渲染的属性状态
+     * @param {Uint8Array} renderData //渲染的元素属性状态数据
+     */
+    Module.Common.setCurRenderStateData = function (renderData) {
+        var strrenderdata = renderData.byteLength.toString();
+        Module.RealBIMWeb.ReAllocHeapViews(strrenderdata); data = Module.RealBIMWeb.GetHeapView_U8(0);
+        data.set(renderData, 0);
+        Module.RealBIMWeb.SetSysRenderState(data.byteLength, data.byteOffset);
+    }
 
 
 
@@ -3352,6 +3369,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var curprojelemarr = [];
         for (var i = 0; i < tempselids.length; i += 2) {
             if (tempselids[i + 1] == curprojid) {
+                if (tempselids[i] == 4294967280) {
+                    //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                    continue;
+                }
                 curprojelemarr.push(tempselids[i]);
             } else {
                 if (curprojelemarr.length > 0) {
@@ -3450,6 +3471,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, "", visibalOnly));
         var elemIds = [];
         for (i = 0; i < tempelemids.length; i += 2) {
+            if (tempelemids[i] == 4294967280) {
+                //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                continue;
+            }
             elemIds.push(tempelemids[i]);
         }
         return elemIds;
@@ -3466,6 +3491,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_arr_id >= 0) {
             var _arr = new Uint32Array(Module.m_re_em_golarraybuf[_arr_id].buffer);
             for (i = 0; i < _arr.length; ++i) {
+                if (_arr[i] == 4294967280) {
+                    //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                    continue;
+                }
                 elemIds.push(_arr[i]);
             }
         }
@@ -4470,6 +4499,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var selids = new Uint32Array(Module.RealBIMWeb.GetSelectedUnverelemId());
         var arrunverelemid = [];
         for (var i = 0; i < selids.length; ++i) {
+            if (selids[i] == 4294967280) {
+                //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                continue;
+            }
             arrunverelemid.push(selids[i]);
         }
         return arrunverelemid;

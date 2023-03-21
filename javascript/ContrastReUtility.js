@@ -228,18 +228,7 @@ Module.REresetSceClr = function(sceArr,projName,elemScope){
   }
 }
 
-//获取当前构件的渲染状态
-Module.REgetSysRenderState = function(){
-  var renderdata = new Uint8Array(Module.RealBIMWeb.GetSysRenderState());
-  return renderdata;
-}
-//设置构件的渲染状态
-Module.REsetSysRenderState = function(renderData){
-  var strrenderdata = renderData.byteLength.toString();
-  Module.RealBIMWeb.ReAllocHeapViews(strrenderdata); data =Module.RealBIMWeb.GetHeapView_U8(0);
-  data.set(renderData,0);
-  Module.RealBIMWeb.SetSysRenderState(data.byteLength,data.byteOffset);
-}
+
 
 
 
