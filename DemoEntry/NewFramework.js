@@ -173,10 +173,18 @@ function RESystemEngineCreated(e) {
         // loadCAD();//加载CAD
 
         // 设置全局渲染性能控制参数
-        BlackHole3D.Common.setMaxResMemMB(5500);
-        BlackHole3D.Common.setExpectMaxInstMemMB(4500);
-        BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
-        BlackHole3D.Common.setPageLoadLev(2);
+        var isPhone = true;
+        if (isPhone) {
+            BlackHole3D.Common.setMaxResMemMB(500);
+            BlackHole3D.Common.setExpectMaxInstMemMB(400);
+            BlackHole3D.Common.setExpectMaxInstDrawFaceNum(1000000);
+            BlackHole3D.Common.setPageLoadLev(2);
+        } else {
+            BlackHole3D.Common.setMaxResMemMB(5500);
+            BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+            BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+            BlackHole3D.Common.setPageLoadLev(2);
+        }
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
     }
