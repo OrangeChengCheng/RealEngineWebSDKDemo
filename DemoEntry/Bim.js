@@ -43,16 +43,9 @@ function addREListener() {
     //探测
     document.addEventListener("RESystemSelElement", RESystemSelElement);//鼠标探测模型事件（左键单击和右键单击）
     document.addEventListener("RESystemSelShpElement", RESystemSelShpElement);//鼠标探测矢量元素事件
-    document.addEventListener("RESystemFrameSel", RESystemFrameSel);//按住Ctrl框选，结束后触发该事件
-    document.addEventListener("RECADSelElement", RECADSelElement);//二维图元点击事件
 
     //操作
     document.addEventListener("RELocateCam", RELocateCam);//调整相机方位完成事件
-
-    //加载
-    document.addEventListener("REDataSetLoadPanFinish", REDataSetLoadPanFinish);//全景场景加载完成事件
-    document.addEventListener("REPanLoadSingleFinish", REPanLoadSingleFinish);//全景场景中某一帧全景图设置成功的事件
-    document.addEventListener("RECADLoadFinish", RECADLoadFinish);//二维图纸加载完成事件
 }
 
 //场景初始化，需正确传递相关参数
@@ -81,9 +74,7 @@ function RESystemEngineCreated(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
-        // loadModel()//加载模型
-        loadPan();//加载360全景
-        // loadCAD();//加载CAD
+        loadModel()//加载模型
 
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
@@ -93,6 +84,7 @@ function RESystemEngineCreated(e) {
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
     }
+
 }
 
 //场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
@@ -120,23 +112,8 @@ function REDataSetLoadProgress(e) {
     progressFn(percent, info);
 }
 
-function RESystemFrameSel(e) {
-    console.log("-- Ctrl框选完成事件 --");
-    setTimeout(() => {
-        console.log(BlackHole3D.BIM.getSelElemIDs());
-    }, 0);
-}
-
 function RESystemSelShpElement(e) {
     console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
-}
-
-function RECADSelElement(e) {
-    console.log("-- 二维图元点击事件 --", e.detail);
-}
-
-function RECADLoadFinish(e) {
-    console.log("-- CAD加载完成事件 --");
 }
 
 function RESystemSelElement(e) {
@@ -146,45 +123,6 @@ function RESystemSelElement(e) {
 function RELocateCam(e) {
     console.log("-- 相机运动完成事件 --", e.detail);
 }
-
-//全景场景加载完成，此时可获取全部点位信息
-function REDataSetLoadPanFinish(e) {
-    console.log("-- 全景场景加载完成事件 --");
-    var isSuccess = e.detail.succeed;
-    if (isSuccess) {
-        console.log("===========================  360全景加载成功");
-        // 获取全部帧信息
-        var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
-        console.log(pandata);
-        // 设置360显示信息
-        BlackHole3D.Panorama.loadPanPic(pandata[0].elemId, 0);
-        console.log(pandata[0].elemId);
-
-        // 设置窗口模式
-        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpTypeEm.CAD, 0);
-        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.Panorama, 1);
-        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.CAD, BlackHole3D.REVpTypeEm.Panorama, 1);
-        BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Meter, 1.0);
-    } else {
-        console.log("===========================  360全景加载失败");
-    }
-}
-//全景场景图片设置成功
-function REPanLoadSingleFinish(e) {
-    console.log("-- 全景场景中某一帧全景图设置成功的事件 --");
-    var isSuccess = e.detail.succeed;
-    if (isSuccess) {
-        console.log("===========================  图片设置成功");
-        //   setOverViewSize();
-        //   //加载概略图CAD数据
-        //   addCADData();
-    } else {
-        console.log("===========================  图片设置失败");
-    }
-}
-
-
-
 
 // 加载模型
 function loadModel() {
@@ -291,27 +229,6 @@ function loadModel() {
 }
 
 
-//加载360
-function loadPan() {
-    var dataSetList = [
-        {
-            "dataSetId": "pan01",
-            "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
-        }
-    ];
-    BlackHole3D.Panorama.loadPan(dataSetList);
-}
-
-//加载CAD
-function loadCAD() {
-    BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
-    BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
-}
-
-
-
-
-
 
 
 function setSky() {
@@ -331,10 +248,6 @@ function setSky() {
     BlackHole3D.SkyBox.setSkyInfo(skyInfo);
 
 }
-
-
-
-
 
 
 
@@ -376,6 +289,7 @@ function addAnc() {
     ];
     BlackHole3D.Anchor.addAnc(ancList);
 }
+
 
 //添加闪烁锚点
 function addAncAnim() {
@@ -505,6 +419,7 @@ function changeElemClr() {
     var clr = new BlackHole3D.REColor(255, 0, 0, -1);
     BlackHole3D.BIM.setElemClr(dataSetId, elemIdList, clr);
 }
+
 
 //设置构件混合属性
 function changeElemBlendAttr() {
@@ -760,128 +675,6 @@ function animBone() {
     BlackHole3D.BIM.setGolElemBoneDestLoc(boneLocInfo);
 }
 
-//设置全景相机
-function setPanCam() {
-    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
-    var panElem1 = panInfoList[1];
-    var panElem2 = panInfoList[2];
-    BlackHole3D.Panorama.setCamLocateToDestPos(panElem1.pos, panElem2.pos, 0);
-
-}
-
-
-// 添加360锚点
-function addPanAnc() {
-    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
-    var panAncList = [];
-    for (let j = 0; j < panInfoList.length; j++) {
-        var panElem = panInfoList[j];
-
-        var model = new BlackHole3D.REPanAnc();
-        //model.panWindow = 0;//选填
-        model.ancName = "锚点:" + j;
-        model.pos = panElem.pos;
-        model.picPath = "https://demo.bjblackhole.com/imgs/bubbley.png";
-        model.picSize = [60, 60];
-        model.texFocus = [-1, -1];
-        model.text = "前进";
-        model.textClr = BlackHole3D.REColor(0, 255, 255);
-        model.useTexPos = false;
-        model.texBias = [-1, -1];
-        model.texPos = [30, 30];
-
-        panAncList.push(model);
-    }
-    BlackHole3D.Panorama.addAnc(panAncList);
-}
-
-
-
-
-//添加水面
-function addWater() {
-    var water1 = new BlackHole3D.REWaterInfo();
-    water1.waterName = "water001";//水面名称
-    water1.waterClr = new BlackHole3D.REColor(255, 0, 0, 255);//水面颜色
-    water1.blendDist = 1;//混合系数
-    water1.visible = true;//是否可见
-    water1.cornerPoint = [[17, 47.136409, -11.528129], [17, 50.136409, -11.528129], [14, 50.136409, -11.528129]];//角点
-
-    var water2 = new BlackHole3D.REWaterInfo();
-    water2.waterName = "water002";//水面名称
-    water2.waterClr = new BlackHole3D.REColor(0, 255, 0, 204);//水面颜色
-    water2.blendDist = 1;//混合系数
-    water2.visible = true;//是否可见
-    water2.cornerPoint = [[28.07652, 47.543973, 3.214592], [28.07652, 50.543973, 3.214592], [25.07652, 50.543973, 3.214592]];//角点
-
-    var water3 = new BlackHole3D.REWaterInfo();
-    water3.waterName = "water003";//水面名称
-    water3.waterClr = new BlackHole3D.REColor(0, 0, 255, 204);//水面颜色
-    water3.blendDist = 1;//混合系数
-    water3.visible = true;//是否可见
-    water3.cornerPoint = [[28.361801, 54.391705, -0.61], [30.229191, 52.810488, -0.61], [28.219878, 52.207864, -0.61]];//角点
-
-    var waterList = [water1, water2, water3];
-    BlackHole3D.Water.loadData(waterList);
-}
-
-
-
-//添加锚点
-function addCADAnc() {
-    var ancList = [];
-    var anc = new BlackHole3D.RECADAnc();
-    anc.anchorId = "anchor";
-    anc.pos = [15, 15];
-    anc.style = 2;
-    anc.innerClr = new BlackHole3D.REColor(255, 0, 0, 255);
-    anc.extClr = new BlackHole3D.REColor(0, 255, 0, 255);
-    ancList.push(anc);
-    BlackHole3D.CAD.addAnc(ancList);
-}
-
-
-//添加360对应的矢量锚点
-function addPanToCADShpAnc() {
-    //添加360的矢量锚点
-    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
-    if (panInfoList.count > 0) {
-        var arrCadAnc = [];
-        for (let i = 0; i < panInfoList.count; i++) {
-            let panElem = panInfoList[i];
-            let model = new BlackHole3D.RECADShpAnc();
-            model.pos = panElem.pos;
-            model.text = "test";
-            model.textClr = new BlackHole3D.REColor(255, 0, 255, 255);
-            model.textSize = 16;
-            model.shpPath = "https://demo.bjblackhole.com/BlackHole3.0/imgs/1.svg";
-            model.groupId = "group01";
-            model.anchorId = panElem.elemId;
-            model.textAlign = [0, 0];
-
-            arrCadAnc.push(model);
-        }
-        BlackHole3D.CAD.addShpAnc(arrCadAnc);
-    }
-}
-
-//添加矢量锚点
-function addCADShpAnc() {
-    //添加矢量锚点
-    var arrCadAnc = [];
-    var model = new BlackHole3D.RECADShpAnc();
-    model.pos = [1, 0];
-    model.text = "test";
-    model.textClr = new BlackHole3D.REColor(255, 0, 255, 255);
-    model.textSize = 16;
-    model.shpPath = "https://demo.bjblackhole.com/BlackHole3.0/imgs/1.svg";
-    model.groupId = "group01";
-    model.anchorId = "anchor001";
-    model.textAlign = [0, 0];
-
-    arrCadAnc.push(model);
-    BlackHole3D.CAD.addShpAnc(arrCadAnc);
-}
 
 
 
@@ -1032,131 +825,6 @@ function setAxisGridClip() {
         BlackHole3D.BIM.setElemsValidState("dataSet01", e.detail.elemids, true);//选出的对象置为有效        
     }
 }
-
-
-//添加小地图（CAD）
-function addMiniMapCAD() {
-    //先设置小地图的尺寸
-    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
-    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
-    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
-    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
-
-    //加载小地图CAD数据
-    BlackHole3D.MiniMap.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
-
-    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
-    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
-}
-
-//添加小地图（图片）
-function addMiniMapImage() {
-    //先设置小地图的尺寸
-    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
-    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
-    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
-    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
-
-    var texPath = "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png";
-    var picSize = [60, 40];
-    var texSize = [860, 500];
-    var insertPos = [0, 0];
-    var alpha = 255;
-    BlackHole3D.MiniMap.loadImage(texPath, picSize, texSize, insertPos, alpha)
-
-    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
-    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
-}
-
-
-//获取顶点映射信息转换为小地图相机相对模型相机的变换数据
-function getCamTransInfo() {
-    var pointList = [];
-    var conv1 = new BlackHole3D.RECADConvertInfo();
-    conv1.bimPoint = [-260.9, 136.1, 0];
-    conv1.cadPoint = [-152231.4198, 252077.9952];
-    pointList.push(conv1);
-
-    var conv2 = new BlackHole3D.RECADConvertInfo();
-    conv2.bimPoint = [-241.5, 104.1, 0];
-    conv2.cadPoint = [-152231.4198, 214377.9952];
-    pointList.push(conv2);
-
-    var conv3 = new BlackHole3D.RECADConvertInfo();
-    conv3.bimPoint = [-186.5, 138.1, 0];
-    conv3.cadPoint = [-87531.4198, 214377.9952];
-    pointList.push(conv3);
-
-    var unit = BlackHole3D.RE_CAD_UNIT.Millimeter;//CAD单位  
-    var camTransInfo = BlackHole3D.MiniMap.getConvertCamTransInfo(pointList, unit);//获取小地图相机变换数据
-    console.log(camTransInfo);
-}
-
-//通过顶点映射信息设置小地图相机变换
-function setConverCamTransInfo() {
-    var pointList = [];
-    var conv1 = new BlackHole3D.RECADConvertInfo();
-    conv1.bimPoint = [-260.9, 136.1, 0];
-    conv1.cadPoint = [-152231.4198, 252077.9952];
-    pointList.push(conv1);
-
-    var conv2 = new BlackHole3D.RECADConvertInfo();
-    conv2.bimPoint = [-241.5, 104.1, 0];
-    conv2.cadPoint = [-152231.4198, 214377.9952];
-    pointList.push(conv2);
-
-    var conv3 = new BlackHole3D.RECADConvertInfo();
-    conv3.bimPoint = [-186.5, 138.1, 0];
-    conv3.cadPoint = [-87531.4198, 214377.9952];
-    pointList.push(conv3);
-
-    var unit = BlackHole3D.RE_CAD_UNIT.Millimeter;//CAD单位  
-    BlackHole3D.MiniMap.setConvertCamTransInfo(pointList, unit);//设置转换
-}
-
-//通过转换对象设置小地图相机变换
-function setCamTransInfo() {
-    var transInfo = new BlackHole3D.RECADTransInfo();
-    transInfo.basePos = [0, 0, 0];//变换基点
-    transInfo.offset = [0, 0, 0];//偏移量
-    transInfo.scaleFactor = 1;//缩放比例
-    transInfo.angle = 0;//旋转角度
-    transInfo.normal = [0, 0, 1];//法向量
-    transInfo.axis = [0, 0, 0];//镜像轴向以基点为基准
-    BlackHole3D.MiniMap.setCamTransInfo(transInfo);
-}
-
-
-//添加小地图锚点
-function addMiniMapAnc() {
-    var shpAncList = [];
-    var shpAnc1 = new BlackHole3D.RECADShpAnc();
-    shpAnc1.anchorId = "anc001";
-    shpAnc1.pos = [-7, 0];
-    shpAnc1.shpPath = "http://realbim.bjblackhole.cn:8008/img/test01.svg";
-    shpAnc1.groupId = "group001";
-    shpAnc1.text = "锚点1";
-    shpAnc1.textClr = new BlackHole3D.REColor(255, 0, 0, 255);
-    shpAnc1.textSize = 16.0;
-    shpAnc1.textAlign = BlackHole3D.REGridPosEm.MM;
-    shpAncList.push(shpAnc1);
-
-    var shpAnc2 = new BlackHole3D.RECADShpAnc();
-    shpAnc2.anchorId = "anc002";
-    shpAnc2.pos = [5, -3];
-    shpAnc2.shpPath = "http://realbim.bjblackhole.cn:8008/img/test02.svg";
-    shpAnc2.groupId = "group001";
-    shpAnc2.text = "锚点2";
-    shpAnc2.textClr = new BlackHole3D.REColor(0, 255, 0, 255);
-    shpAnc2.textSize = 16.0;
-    shpAnc2.textAlign = BlackHole3D.REGridPosEm.MM;
-    shpAncList.push(shpAnc2);
-
-    BlackHole3D.MiniMap.addCADShpAnc(shpAncList);
-}
-
-
-
 
 
 
