@@ -173,7 +173,7 @@ function RESystemEngineCreated(e) {
         // loadCAD();//加载CAD
 
         // 设置全局渲染性能控制参数
-        var isPhone = true;
+        var isPhone = false;
         if (isPhone) {
             BlackHole3D.Common.setMaxResMemMB(500);
             BlackHole3D.Common.setExpectMaxInstMemMB(400);
