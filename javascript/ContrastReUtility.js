@@ -10,15 +10,7 @@ var RE2SDKCreateModule =function(ExtModule){
 
 
   
-//设置当前的操作模式(0:鼠标操作操作 1:触控操作)
-Module.REsetInputType = function(uInputType){
-  Module.RealBIMWeb.SetInputType((uInputType == 0) ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH);
-}
-//获取当前的操作模式(0:鼠标操作操作 1:触控操作)
-Module.REgetInputType = function(){
-  var _type =Module.RealBIMWeb.GetInputType();
-  return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
-}
+
 //设置物理屏幕分辨率的缩放系数
 Module.REsetScreenScale = function(fScale){
   Module.RealBIMWeb.SetScreenScale(fScale);

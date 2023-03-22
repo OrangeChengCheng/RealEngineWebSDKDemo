@@ -49,7 +49,7 @@ window.onload = function (event) {
     document.addEventListener("RECADLoadFinish", function (e) { RECADLoadFinish(e.detail.succeed) });
     document.addEventListener("RECADSelElement", function (e) { RECADSelElement(e.detail) });
 
-    
+
     document.addEventListener("mousedown", mousedown);//鼠标中键按压监听
 
 
@@ -62,7 +62,7 @@ window.onload = function (event) {
 
 
 function mousedown(e) {
-	//button：键类型  0：左键，1：中键，2：右键
+    //button：键类型  0：左键，1：中键，2：右键
     if (e.button == 1) {
         e.preventDefault();//取消事件的默认动作
         return false;
@@ -188,24 +188,24 @@ function RESystemEngineCreated(e) {
 // 加载模型
 function loadModel() {
     var dataSetList = [
-        {
-            "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "机房01",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "机房02",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        // {
-        //     "dataSetId": "小房子",
-        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
+        {
+            "dataSetId": "小房子",
+            "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
         //     "dataSetId": "桥",
         //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611aa1c3c4a7d1624c205c42c7af",
@@ -213,9 +213,15 @@ function loadModel() {
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
-        //     "dataSetId": "长地形",
+        //     "dataSetId": "长地形缩小百倍",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
         //     "useTransInfo": true, "transInfo": [[0.01, 0.01, 0.01], [0, 0, 0, 1], [0, 0, 0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "长地形原始比例",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
+        //     "useTransInfo": true, "transInfo": [[0.1, 0.1, 0.1], [0, 0, 0, 1], [0, 0, 0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
@@ -242,6 +248,42 @@ function loadModel() {
         //     "useAssginVer": true, "assginVer": 1,
         //     "useAssginVer2": true, "assginVer2": 0x7fffffff,
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        // },
+        // {
+        //     "dataSetId": "白膜房子",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a100ac716dd9cf6b7902a647a402f",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "收费站",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a100acd1f3f95c49237d217930cf0",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "遥感影像",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a103c21c2baf731084972b86062b4",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "倾斜摄影",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a103d9ced4377fc191fc9e628d642",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "点云",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a104240a67efb614a08cbe5bed24d",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "河流地形",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0a104eddec7ef18b3032cdd64bd6f1",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
@@ -318,47 +360,7 @@ function setSky() {
 
 
 
-//添加标签
-function addTags() {
-    var tagInfo = [
-        {
-            "tagname": "tag01",
-            "pos": [-151, -95, 67],
-            "info": [{
-                "picpath": "common",
-                "textinfo": "测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag002测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag003测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag004测试文字"
-            }
-            ]
-        }, {
-            "tagname": "tag012",
-            "pos": [-246, 18, 16],
-            "info": [{
-                "picpath": "common",
-                "textinfo": "测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag0012测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag0013测试文字"
-            }, {
-                "picpath": "",
-                "textinfo": "tag0014测试文字"
-            }
-            ]
-        }
-    ];
-    BlackHole3D.REaddTags(tagInfo);
-}
+
 
 
 

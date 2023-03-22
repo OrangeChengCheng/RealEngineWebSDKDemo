@@ -44,12 +44,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             false, 500, "", sysInfo.commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
             sysInfo.userName, sysInfo.passWord);
         if (isPhoneMode) {
-            Module.REsetSkyAtmActive(false);
-            Module.REsetReflState(false);
-            Module.REsetShadowState(false);
-            Module.REsetGhostState(false);
-            Module.REsetAOState(false);
-            Module.REsetSceOITLev(0);
+            Module.SkyBox.setSkyAtmActive(false);
+            Module.Common.setReflState(false);
+            Module.Common.setShadowState(false);
+            Module.Common.setGhostState(false);
+            Module.Common.setAOState(false);
+            Module.Common.setSceOITLev(0);
+            Module.setOperationMode(1);
         }
         return bool;
     }
@@ -162,7 +163,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.canvas.toDataURL();
     }
 
-
+    /**
+     * 设置当前的操作模式
+     * @param {Number} operationMode //模式类型 0:鼠标操作操作 1:触控操作
+     */
+    Module.setOperationMode = function (operationMode) {
+        var _operationMode = Module.RE_INPUT_TYPE.MOUSE; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH);
+        Module.RealBIMWeb.SetInputType(_operationMode);
+    }
+    //获取当前的操作模式(0:鼠标操作操作 1:触控操作)
+    Module.getOperationMode = function () {
+        var _type = Module.RealBIMWeb.GetInputType();
+        return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
+    }
 
 
 
@@ -1469,10 +1482,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.tagName = null;//标签的名称(唯一标识)
             this.pos = null;//标签的位置
-            this.infoList = null;//标签的内容（包含 Object 类型）{picPath:"",text:""}
+            this.infoList = null;//标签的内容（包含 RETagContent 类型）
         }
     }
     ExtModule.RETagInfo = RETagInfo;
+
+    class RETagContent {
+        constructor() {
+            this.picPath = null;//标签每一行的纹理路径(要求32 * 32像素，png格式)
+            this.text = null;//标签每一行的文字信息
+        }
+    }
+    ExtModule.RETagContent = RETagContent;
 
     class RELineTagInfo {
         constructor() {
@@ -1504,7 +1525,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 添加标签
-     * @param {Array} tagInfoList //标签信息集合（RETagInfo 类型）
+     * @param {Array} tagInfoList //标签信息集合（ RETagInfo 类型）
      */
     Module.Tag.addTags = function (tagInfoList) {
         if (isEmptyLog(tagInfoList, 'tagInfoList')) return;
