@@ -36,17 +36,17 @@ function addREListener() {
     //系统监听
     document.addEventListener("RESystemReady", RESystemReady);//系统初始化完成回调
     document.addEventListener("RESystemEngineCreated", RESystemEngineCreated);//系统引擎创建完成回调
+    document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);//场景模型加载完成回调
     document.addEventListener("RESystemRenderReady", RESystemRenderReady);//数据集模型加载进度反馈
     document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//数据集模型加载进度反馈
 
     //探测
-    document.addEventListener("REPanSelShpElement", REPanSelShpElement);//全景场景鼠标拾取事件
-    document.addEventListener("REMiniMapCADSelShpAnchor", REMiniMapCADSelShpAnchor);//小地图中的CAD锚点点击事件
+    document.addEventListener("RESystemSelElement", RESystemSelElement);//鼠标探测模型事件（左键单击和右键单击）
+    document.addEventListener("RESystemSelShpElement", RESystemSelShpElement);//鼠标探测矢量元素事件
 
     //加载
     document.addEventListener("REDataSetLoadPanFinish", REDataSetLoadPanFinish);//全景场景加载完成事件
     document.addEventListener("REPanLoadSingleFinish", REPanLoadSingleFinish);//全景场景中某一帧全景图设置成功的事件
-    document.addEventListener("REMiniMapLoadCAD", REMiniMapLoadCAD);//小地图中的CAD数据加载完成事件
 }
 
 //场景初始化，需正确传递相关参数
@@ -75,7 +75,9 @@ function RESystemEngineCreated(e) {
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
 
+        loadModel()//加载模型
         loadPan();//加载360全景
+        // loadCAD();//加载CAD
 
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
@@ -84,6 +86,16 @@ function RESystemEngineCreated(e) {
         BlackHole3D.Common.setPageLoadLev(2);
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
+    }
+}
+
+//场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
+function REDataSetLoadFinish(e) {
+    console.log("=========================== 引擎主场景模型加载完成 ");
+    if (e.detail.succeed) {
+        console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
+    } else {
+        console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }
 }
 
@@ -102,12 +114,16 @@ function REDataSetLoadProgress(e) {
     progressFn(percent, info);
 }
 
-function REPanSelShpElement(e) {
-    console.log("-- 全景场景鼠标拾取事件 --", e.detail);
+function RESystemSelShpElement(e) {
+    console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
-function REMiniMapCADSelShpAnchor(e) {
-    console.log("-- 小地图中的CAD锚点点击事件 --", e.detail);
+function RECADSelElement(e) {
+    console.log("-- 二维图元点击事件 --", e.detail);
+}
+
+function RESystemSelElement(e) {
+    console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 //全景场景加载完成，此时可获取全部点位信息
@@ -116,6 +132,10 @@ function REDataSetLoadPanFinish(e) {
     var isSuccess = e.detail.succeed;
     if (isSuccess) {
         console.log("===========================  360全景加载成功");
+        BlackHole3D.setViewSyn(true);
+        BlackHole3D.Panorama.setCamLocateTo(BlackHole3D.RECamDirEm.CAM_DIR_LEFT, 0);
+        // 设置窗口模式
+        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpRankEm.LR);
         // 获取全部帧信息
         var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
         // 设置360显示信息
@@ -130,21 +150,24 @@ function REPanLoadSingleFinish(e) {
     var isSuccess = e.detail.succeed;
     if (isSuccess) {
         console.log("===========================  图片设置成功");
-        // 设置窗口模式
-        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpRankEm.Single);
-        //加载概略图CAD数据  
-        // setOverViewSize();
-        // addCADData();
     } else {
         console.log("===========================  图片设置失败");
     }
 }
 
-function REMiniMapLoadCAD(e) {
-    console.log("-- 小地图中的CAD数据加载完成事件 --", e.detail);
-    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
-    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
+// 加载模型
+function loadModel() {
+    var dataSetList = [
+        {
+            "dataSetId": "厂房",
+            "resourcesAddress": "https://isuse.bjblackhole.com/default.aspx?dir=blackhole_res13&path=862ad9a07106441da8f2a677e0e35ff9",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
+    ];
+    BlackHole3D.Model.loadDataSet(dataSetList);
 }
+
 
 //加载360
 function loadPan() {
@@ -155,52 +178,6 @@ function loadPan() {
         }
     ];
     BlackHole3D.Panorama.loadPan(dataSetList);
-}
-
-//设置全景相机
-function setPanCam() {
-    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
-    var panElem1 = panInfoList[1];
-    var panElem2 = panInfoList[2];
-    BlackHole3D.Panorama.setCamLocateToDestPos(panElem1.pos, panElem2.pos, 0);
-}
-
-// 添加360锚点
-function addPanAnc() {
-    var panInfoList = BlackHole3D.Panorama.getElemInfo("pan01");
-    var panAncList = [];
-    for (let j = 0; j < panInfoList.length; j++) {
-        var panElem = panInfoList[j];
-
-        var model = new BlackHole3D.REPanAnc();
-        //model.panWindow = 0;//选填
-        model.ancName = "锚点:" + j;
-        model.pos = panElem.pos;
-        model.picPath = "https://demo.bjblackhole.com/imgs/bubbley.png";
-        model.picSize = [60, 60];
-        model.texFocus = [-1, -1];
-        model.text = "前进";
-        model.textClr = new BlackHole3D.REColor(0, 255, 255);
-        model.useTexPos = false;
-        model.texBias = [-1, -1];
-        model.texPos = [30, 30];
-
-        panAncList.push(model);
-    }
-    BlackHole3D.Panorama.addAnc(panAncList);
-}
-
-//设置概略图尺寸
-function setOverViewSize() {
-    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
-    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
-    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
-    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
-}
-
-//加载概略图CAD数据
-function addCADData() {
-    BlackHole3D.MiniMap.loadCAD("https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078cdabb2e98a3b98e1960acfa15c6/1/638041974736297275.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
 }
 
 

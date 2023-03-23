@@ -41,12 +41,14 @@ function addREListener() {
 
     //探测
     document.addEventListener("REPanSelShpElement", REPanSelShpElement);//全景场景鼠标拾取事件
-    document.addEventListener("REMiniMapCADSelShpAnchor", REMiniMapCADSelShpAnchor);//小地图中的CAD锚点点击事件
+    document.addEventListener("RECADSelElement", RECADSelElement);//二维图元点击事件
+    document.addEventListener("RECADSelAnchor", RECADSelAnchor);//二维图元锚点点击事件
+    document.addEventListener("RECADSelShpAnchor", RECADSelShpAnchor);//二维图元矢量锚点点击事件
 
     //加载
     document.addEventListener("REDataSetLoadPanFinish", REDataSetLoadPanFinish);//全景场景加载完成事件
     document.addEventListener("REPanLoadSingleFinish", REPanLoadSingleFinish);//全景场景中某一帧全景图设置成功的事件
-    document.addEventListener("REMiniMapLoadCAD", REMiniMapLoadCAD);//小地图中的CAD数据加载完成事件
+    document.addEventListener("RECADLoadFinish", RECADLoadFinish);//二维图纸加载完成事件
 }
 
 //场景初始化，需正确传递相关参数
@@ -106,8 +108,20 @@ function REPanSelShpElement(e) {
     console.log("-- 全景场景鼠标拾取事件 --", e.detail);
 }
 
-function REMiniMapCADSelShpAnchor(e) {
-    console.log("-- 小地图中的CAD锚点点击事件 --", e.detail);
+function RECADSelElement(e) {
+    console.log("-- 二维图元点击事件 --", e.detail);
+}
+
+function RECADLoadFinish(e) {
+    console.log("-- CAD加载完成事件 --");
+}
+
+function RECADSelAnchor(e) {
+    console.log("-- 二维图元锚点点击事件 --", e.detail);
+}
+
+function RECADSelShpAnchor(e) {
+    console.log("-- 二维图元矢量锚点点击事件 --", e.detail);
 }
 
 //全景场景加载完成，此时可获取全部点位信息
@@ -131,19 +145,12 @@ function REPanLoadSingleFinish(e) {
     if (isSuccess) {
         console.log("===========================  图片设置成功");
         // 设置窗口模式
-        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpRankEm.Single);
-        //加载概略图CAD数据  
-        // setOverViewSize();
-        // addCADData();
+        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.CAD, BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpRankEm.LR);
+        loadCAD();
+        
     } else {
         console.log("===========================  图片设置失败");
     }
-}
-
-function REMiniMapLoadCAD(e) {
-    console.log("-- 小地图中的CAD数据加载完成事件 --", e.detail);
-    BlackHole3D.MiniMap.setVisible(true);//设置概略图显示状态
-    BlackHole3D.MiniMap.setShowRangeRefresh();//调整CAD小地图显示，缩放到当前小地图展示范围
 }
 
 //加载360
@@ -155,6 +162,11 @@ function loadPan() {
         }
     ];
     BlackHole3D.Panorama.loadPan(dataSetList);
+}
+
+//加载CAD
+function loadCAD() {
+    BlackHole3D.CAD.loadCAD("https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078cdabb2e98a3b98e1960acfa15c6/1/638041974736297275.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
 }
 
 //设置全景相机
@@ -189,20 +201,6 @@ function addPanAnc() {
     }
     BlackHole3D.Panorama.addAnc(panAncList);
 }
-
-//设置概略图尺寸
-function setOverViewSize() {
-    BlackHole3D.MiniMap.setMaxRegion([300, 300]);//设置概略图最大的宽高
-    var scaleOrigin = [0, 0];//原点相对于主界面宽高的比例 [0,0]  取值范围0-1
-    var scaleDiagonal = [0.5, 0.5];//对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
-    BlackHole3D.MiniMap.setRegion(scaleOrigin, scaleDiagonal);//设置概略图占据主界面宽高比例
-}
-
-//加载概略图CAD数据
-function addCADData() {
-    BlackHole3D.MiniMap.loadCAD("https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078cdabb2e98a3b98e1960acfa15c6/1/638041974736297275.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
-}
-
 
 
 
