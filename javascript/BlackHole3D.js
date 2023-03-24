@@ -86,10 +86,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.releaseEngine = function (clearWebWorker) {
         var _bClearWebWorker = false; if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
         Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
-        //卸载GPU内存
-        if (typeof Module.GLctx != 'undefined') {
-            if (Module.GLctx.getExtension('WEBGL_lose_context') != null) {
-                Module.GLctx.getExtension('WEBGL_lose_context').loseContext();
+        //释放显存
+        if (typeof Module.ctx != 'undefined') {
+            if (Module.ctx.getExtension('WEBGL_lose_context') != null) {
+                Module.ctx.getExtension('WEBGL_lose_context').loseContext();
             }
         }
     }
@@ -6189,7 +6189,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RECADShpAnc} ancList //表示要添加的锚点信息集合（ RECADShpAnc 类型）
      */
     Module.MiniMap.addCADShpAnc = function (ancList) {
-        if (!isEmptyLog(ancList, 'ancList')) return false;
+        if (isEmptyLog(ancList, 'ancList')) return false;
 
         var _vector_ShpAnchor = new Module.RE_Vector_CAD_SHP_ANCHOR();
         for (let i = 0; i < ancList.length; i++) {
