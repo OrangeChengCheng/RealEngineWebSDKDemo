@@ -73,7 +73,7 @@ function RESystemEngineCreated(e) {
         BlackHole3D.Common.setMaxResMemMB(500);
         BlackHole3D.Common.setExpectMaxInstMemMB(400);
         BlackHole3D.Common.setExpectMaxInstDrawFaceNum(1000000);
-        BlackHole3D.Common.setPageLoadLev(2);
+        BlackHole3D.Common.setPageLoadLev(1);
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
     }

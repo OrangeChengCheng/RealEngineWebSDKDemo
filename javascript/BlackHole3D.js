@@ -5137,6 +5137,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REWaterInfo = REWaterInfo;
 
+
+    // MARK 加载
     /**
      * 创建水域对象
      * @param {REWaterInfo} waterInfoList //水面数据集合
@@ -5216,6 +5218,251 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.LocateToWater(waterName);
     }
+
+
+
+
+
+    // MARK 编辑
+    /**
+     * 进入水面编辑状态
+     */
+    Module.Water.startEditState = function () {
+        return Module.RealBIMWeb.BeginWaterEdit();
+    }
+
+    /**
+     * 退出水面编辑状态
+     */
+    Module.Water.endEditState = function () {
+        return Module.RealBIMWeb.EndWaterEdit();
+    }
+
+    /**
+     * 进入水面添加状态
+     */
+    Module.Water.startAddWaterState = function () {
+        return Module.RealBIMWeb.BeginAddWaterRgn();
+    }
+
+    /**
+     * 退出水面添加状态
+     */
+    Module.Water.endAddWaterState = function () {
+        return Module.RealBIMWeb.EndAddWaterRgn();
+    }
+
+    /**
+     * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.setWaterName = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.SetNewAddedWaterName(waterName);
+    }
+
+    /**
+     * 获取所有水面对象的名称
+     */
+    Module.Water.getAllWaterNames = function () {
+        var _vector = Module.RealBIMWeb.GetAllWaterNames();
+        var waterIDs = [];
+        for (let i = 0; i < _vector.size(); i++) {
+            waterIDs.push(_vector.get(i));
+        }
+        return waterIDs;
+    }
+
+    /**
+     * 把水面加入选择集
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.addToSelSet = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.AddWaterToSelSet(waterName);
+    }
+
+    /**
+     * 把指定水面移出选择集
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.delFromSelSet = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.RemoveWaterFromSelSet(waterName);
+    }
+
+    /**
+     * 清空选择集
+     */
+    Module.Water.clearSelSet = function () {
+        return Module.RealBIMWeb.ClearWaterSelSet();
+    }
+
+    /**
+     * 获取选择集中的所有水面标识
+     */
+    Module.Water.getAllSelWaterNames = function () {
+        var _vector = Module.RealBIMWeb.GetAllWaterNamesInSelSet();
+        var waterIDs = [];
+        for (let i = 0; i < _vector.size(); i++) {
+            waterIDs.push(_vector.get(i));
+        }
+        return waterIDs;
+    }
+
+    /**
+     * 删除当前选中的水面角点
+     */
+    Module.Water.delSelCorners = function () {
+        return Module.RealBIMWeb.DelWaterCornersInSelSet();
+    }
+
+    /**
+     * 获取指定水面对象的可见性
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.getVisible = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.GetWaterVisible(waterName);
+    }
+
+    /**
+     * 设置指定水面对象的可见性
+     * @param {String} waterName //水面唯一标识
+     * @param {Boolean} enable //是否可见
+     */
+    Module.Water.setVisible = function (waterName, enable) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.SetWaterVisible(waterName, enable);
+    }
+
+    /**
+     * 获取水体颜色
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.getClr = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+
+        var _clrarr = Module.RealBIMWeb.GetWaterColor(waterName);
+        var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
+
+        var waterClr = new BlackHole3D.REColor();
+        waterClr.red = _clrarr[0] * 255;
+        waterClr.green = _clrarr[1] * 255;
+        waterClr.blue = _clrarr[2] * 255;
+        waterClr.alpha = _alpha * 255;
+        return waterClr;
+    }
+
+    /**
+     * 设置水体颜色 （RGB）
+     * @param {String} waterName //水面唯一标识
+     * @param {REColor} waterClr //水面颜色 （REColor 类型）
+     */
+    Module.Water.setClr = function (waterName, waterClr) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        if (isEmptyLog(waterClr, 'waterClr')) return;
+        var _R = Math.round(waterClr.red) / 255.0;
+        var _G = Math.round(waterClr.green) / 255.0;
+        var _B = Math.round(waterClr.blue) / 255.0;
+        var _A = Math.round(waterClr.alpha) / 255.0;
+        var _clrArr = [_R, _G, _B];
+
+        var isClrSucc = Module.RealBIMWeb.SetWaterColor(waterName, _clrArr);
+        var isAlphaSucc = Module.RealBIMWeb.SetWaterAlpha(waterName, _A);
+        return isClrSucc && isAlphaSucc;
+    }
+
+    /**
+     * 获取水体透明度
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.getAlpha = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
+        return Math.floor(_alpha * 255);
+    }
+
+    /**
+     * 设置水体透明度
+     * @param {String} waterName //水面唯一标识
+     * @param {Number} alpha //水面透明度  取值范围 0~255，0表示全透明，255表示不透明
+     */
+    Module.Water.setAlpha = function (waterName, alpha) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        var _a = (parseInt(alpha) / 255);
+        return Module.RealBIMWeb.SetWaterAlpha(waterName, _a);
+    }
+
+    /**
+     * 获取水体跟模型混合系数
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.getBlendDist = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.GetWaterBlendDist(waterName);
+    }
+
+    /**
+     * 设置水体跟模型混合系数
+     * @param {String} waterName //水面唯一标识
+     * @param {Number} blendDist //混合距离  取值范围 0-1
+     */
+    Module.Water.setBlendDist = function (waterName, blendDist) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        return Module.RealBIMWeb.SetWaterBlendDist(waterName, blendDist);
+    }
+
+    /**
+     * 获取水面角点
+     * @param {String} waterName //水面唯一标识
+     */
+    Module.Water.getCorners = function (waterName) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+
+        var _vector = Module.RealBIMWeb.GetWaterCorners(waterName);
+        var crnersSet = [];
+        for (let i = 0; i < _vector.size(); i++) {
+            crnersSet.push(_vector.get(i));
+        }
+        return crnersSet
+    }
+
+    /**
+     * 设置水面角点（要在编辑水面模式下实时起作用）
+     * @param {String} waterName //水面唯一标识
+     * @param {Array} potList //水面点坐标集合 至少有三个点构成一个平面
+     */
+    Module.Water.setCorners = function (waterName, potList) {
+        if (isEmptyLog(waterName, 'waterName')) return;
+        if (!checkTypeLog(potList, 'potList', RE_Enum.RE_Check_Array)) return;
+
+        var _arrCorners = new Module.RE_Vector_dvec3();
+        for (let i = 0; i < potList.length; i++) {
+            let corners = potList[i];
+            _arrCorners.push_back(corners);
+        }
+        return Module.RealBIMWeb.SetWaterCorners(waterName, _arrCorners);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6327,6 +6574,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(groupId, 'groupId')) return;
         return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(groupId);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
