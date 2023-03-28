@@ -1403,7 +1403,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 图形显示（Graphics）
     Module.Graphics = typeof Module.Graphics !== "undefined" ? Module.Graphics : {};//增加 Graphics 模块
 
-
+    // MARK 渲染设置
     /**
      * 设置引擎UI按钮面板是否可见
      * @param {Boolean} enable //是否可见
@@ -1468,6 +1468,194 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.resetInitialState = function () {
         Module.RealBIMWeb.ResetUserOperation(0);
     }
+
+    /**
+     * 设置系统UI面板的停靠方式
+     * @param {Number} dockArea //停靠方式  0：下方停靠 1：左侧停靠  2：顶侧停靠  3：右侧停靠
+     */
+    Module.RESetBuiltInUIDockArea = function (dockArea) {
+        var _dockArea = 0; if (isEmpty(dockArea)) _dockArea = dockArea;
+        Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // MARK 按钮（Button）
+    class REUIBtnInfo {
+        constructor() {
+            this.uiID = null;//组件唯一标识，重复使用创建失败
+            this.stateParList = null;//按钮各个子状态的状态相关参数集合（ REUIBtnStateInfo 类型）
+            this.size = null;//按钮的期望尺寸, 二元数组
+            this.activeStateId = 0;//按钮的初始子状态id, stateParList 对象列表 index 下标
+            this.visible = true;//是否可见，默认可见
+        }
+    }
+    ExtModule.REUIBtnInfo = REUIBtnInfo;
+
+    class REUIBtnStateInfo {
+        constructor() {
+            this.text = null;//按钮部件的文字
+            this.hintText = null;//鼠标悬浮提示
+            this.texPath = null;//按钮图像路径
+            this.clrStyle = null;//颜色风格名称
+            this.sizeStyle = null;//尺寸风格名称
+        }
+    }
+    ExtModule.REUIBtnStateInfo = REUIBtnStateInfo;
+
+    /**
+     * 创建一个按钮控件
+     * @param {REUIBtnInfo} btnInfo //按钮信息
+     */
+    Module.Graphics.createBtn = function (btnInfo) {
+        if (isEmptyLog(btnInfo, 'btnInfo')) return;
+
+        var _strUIID = btnInfo.uiID;
+        var _vExpectSize = btnInfo.size;
+        var _uActiveStateID = 0; if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
+        var _bVisible = true; if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
+        var _bClickable = true;
+
+        var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
+        for (let i = 0; i < btnInfo.stateParList.length; i++) {
+            let statePar = btnInfo.stateParList[i];
+            let _par = {
+                m_strText: isEmpty(statePar.text) ? "" : statePar.text,
+                m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
+                m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
+                m_vecClrStates: isEmpty(statePar.clrStyle) ? Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_WHITETEXT_NOBG") : Module.RealBIMWeb.UIWgtGetClrStyle(statePar.clrStyle),
+                m_vecSizeStates: isEmpty(statePar.sizeStyle) ? Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER") : Module.RealBIMWeb.UIWgtGetSizeStyle(statePar.sizeStyle),
+            };
+            _arrStateParams.push_back(_par);
+        }
+        return Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
+    }
+
+    /**
+     * 获取按钮当前的子状态
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.getBtnActiveState = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtGetBtnActiveSubState(uiID);
+    }
+
+    /**
+     * 设置按钮当前的子状态
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} activeStateId //按钮的初始子状态id, stateParList 对象列表 index 下标
+     */
+    Module.Graphics.setBtnActiveState = function (uiID, activeStateId) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        if (isEmptyLog(activeStateId, 'activeStateId')) return;
+        return Module.RealBIMWeb.UIWgtSetBtnActiveSubState(uiID, activeStateId);
+    }
+
+    /**
+     * 在系统的UI面板中添加按钮
+     * @param {String} uiID //组件唯一标识
+     * @param {String} hintText //鼠标悬浮提示
+     * 
+     * @param {String} btnInfo //按钮信息
+     */
+    Module.Graphics.createSysPanelBtn = function (btnInfo) {
+        if (isEmptyLog(btnInfo, 'btnInfo')) return;
+
+        btnInfo.size = [48, 48];
+        btnInfo.activeStateId = 0;
+        btnInfo.visible = true;
+
+        var statePar = new BlackHole3D.REUIBtnStateInfo();
+        statePar.text = "";
+        statePar.hintText = btnInfo.stateParList[0].hintText;
+        statePar.texPath = btnInfo.stateParList[0].texPath;
+        statePar.clrStyle = "CS_BTN_WHITETEXT_NOBG";
+        statePar.sizeStyle = "SS_WND_HAVE_THIN_BORDER";
+
+        btnInfo.stateParList = [statePar];
+
+        var createState = Module.Graphics.createBtn(btnInfo);
+        var addState = Module.Graphics.addChildWidget("BuiltIn_Wnd_Panel", btnInfo.uiID);
+        return createState && addState;
+    }
+
+
+
+
+
+
+    // MARK 通用
+    /**
+     * 添加组件到指定父组件上
+     * @param {String} superUIID //父组件唯一标识
+     * @param {String} childUIID //子组件唯一标识
+     */
+    Module.Graphics.addChildWidget = function (superUIID, childUIID) {
+        if (isEmptyLog(superUIID, 'superUIID')) return;
+        if (isEmptyLog(childUIID, 'childUIID')) return;
+        return Module.RealBIMWeb.UIWgtAddChildWidget(superUIID, childUIID);
+    }
+
+    /**
+     * 移除组件的某个子组件 （不删除子组件）
+     * @param {String} superUIID //父组件唯一标识
+     * @param {String} childUIID //子组件唯一标识
+     */
+    Module.Graphics.removeChildWidget = function (superUIID, childUIID) {
+        if (isEmptyLog(superUIID, 'superUIID')) return;
+        if (isEmptyLog(childUIID, 'childUIID')) return;
+        return Module.RealBIMWeb.UIWgtRemoveChildWidget(superUIID, childUIID);
+    }
+
+    /**
+     * 删除一个控件
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.delWidget = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtDeleteWidget(uiID);
+    }
+
+    /**
+     * 移除组件的某个子组件 （不删除子组件）
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.removeSysPanelBtn = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtRemoveChildWidget("BuiltIn_Wnd_Panel", uiID);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -975,71 +975,9 @@ Module.REendOSGBEdit = function(){
 
 // MARK Button
   // =================== Button Widget 相关
-  /**
-   * 创建一个按钮控件
-   * @param {String} re_UIID //用来唯一标识一个按钮的字符串，如果创建时指定的该参数之前已用过，则创建失败
-   * @param {Object} el_Info //控件基本信息 ！！！以下参数均包含在 el_Info 中
-   * @param {Array[Number]} el_Size //创建的按钮的期望尺寸
-   * @param {Array[Number]} el_ActiveStateID //创建的按钮的初始子状态id	el_StateParams 对象列表 index 下标
-   * @param {Array[Number]} el_Visible //是否可见
-   * @param {Object} el_StateParams //指定按钮各个子状态的状态相关参数  STATE_PARAMS_W 类型 ！！！以下参数均包含在 el_StateParams 中
-   * @param {String} el_Text //按钮部件的文字
-   * @param {String} el_Hint //鼠标悬浮提示
-   * @param {String} el_TextureURL //按钮图像路径
-   * @param {String} el_ClrStates //颜色风格名称
-   * @param {String} el_SizeStates //尺寸风格名称
-   */
-  Module.REUIWgtCreateButton = function (re_UIID, el_Info) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_Info, 'el_Info')) return;
-    if (!checkNull(el_Info.el_StateParams, 'el_StateParams')) return;
-    if (!checkNull(el_Info.el_Size, 'el_Size')) return;
-    if (!(el_Info.el_StateParams instanceof Array)) {
-      logErrorWithPar('el_StateParams');
-      return;
-    };
+  
 
-    var _strUIID = re_UIID;
-    var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
-    var _vExpectSize = el_Info.el_Size;
-    var _uActiveStateID = 0; var _bVisible = true; var _bClickable = true;
-
-    el_Info.el_StateParams.forEach(value => {
-      let par = {
-        m_strText: (typeof value.el_Text != 'undefined') ? value.el_Text : "",
-        m_strHint: (typeof value.el_Hint != 'undefined') ? value.el_Hint : "",
-        m_strTextureURL: (typeof value.el_TextureURL != 'undefined') ? value.el_TextureURL : "",
-        m_vecClrStates: (typeof value.el_ClrStates != 'undefined') ? Module.RealBIMWeb.UIWgtGetClrStyle(value.el_ClrStates) : Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_BLUEFRAME_CHECKED"),
-        m_vecSizeStates: (typeof value.el_SizeStates != 'undefined') ? Module.RealBIMWeb.UIWgtGetSizeStyle(value.el_SizeStates) : Module.RealBIMWeb.UIWgtGetSizeStyle("SS_BTN_HAVE_FRAME"),
-      }
-      _arrStateParams.push_back(par);
-    });
-
-    if (typeof el_Info.el_ActiveStateID != 'undefined') { _uActiveStateID = el_Info.el_ActiveStateID; }
-    if (typeof el_Info.el_Visible != 'undefined') { _bVisible = el_Info.el_Visible; }
-
-    return Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
-  }
-
-  /**
-   * 获取按钮的子状态
-   * @param {String} re_UIID //控件id
-   */
-  Module.REUIWgtGetBtnActiveSubState = function (re_UIID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    return Module.RealBIMWeb.UIWgtGetBtnActiveSubState(re_UIID);
-  }
-
-  /**
-   * 设置按钮的子状态
-   * @param {String} re_UIID //控件id
-   * @param {Number} el_StateID //按钮的子状态id	el_StateParams 对象列表 index 下标
-   */
-  Module.REUIWgtSetBtnActiveSubState = function (re_UIID, el_StateID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_StateID, 'el_StateID')) return;
-    return Module.RealBIMWeb.UIWgtSetBtnActiveSubState(re_UIID, el_StateID);
-  }
+  
 
   /**
    * 获取按钮的某子状态使用的纹理路径
@@ -1954,14 +1892,6 @@ Module.REendOSGBEdit = function(){
     Module.RealBIMWeb.GetBuiltInUIColorStyle();
   }
 
-  /**
-   * 设置内置工具条的停靠方式
-   * @param {Boolean} el_DockArea //停靠方式  0：下方停靠 1：左侧停靠
-   */
-  Module.RESetBuiltInUIDockArea = function (el_DockArea) {
-    if (!checkNull(el_DockArea, 'el_DockArea')) return;
-    Module.RealBIMWeb.SetBuiltInUIDockArea(el_DockArea);
-  }
 
   /**
    * 全部重置UI按钮和关联的状态
@@ -2014,17 +1944,7 @@ Module.REendOSGBEdit = function(){
 
 
 // MARK UI 通用
-  // =================== UI 通用 相关
-  /**
-   * 为部件直接设置父子关系
-   * @param {String} re_BaseUIID //父组件id
-   * @param {Number} re_ChildUIID //子组件id
-   */
-  Module.REUIWgtAddChildWidget = function (re_BaseUIID, re_ChildUIID) {
-    if (!checkNull(re_BaseUIID, 're_BaseUIID')) return;
-    if (!checkNull(re_ChildUIID, 're_ChildUIID')) return;
-    return Module.RealBIMWeb.UIWgtAddChildWidget(re_BaseUIID, re_ChildUIID);
-  }
+  
 
   /**
    * 获取指定部件的子控件个数
@@ -2069,16 +1989,7 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtGetParentWidgetID(re_UIID);
   }
   
-  /**
-   * 移除控件的某个子控件
-   * @param {String} re_BaseUIID //父组件id
-   * @param {Number} re_ChildUIID //子组件id
-   */
-  Module.REUIWgtRemoveChildWidget = function (re_BaseUIID, re_ChildUIID) {
-    if (!checkNull(re_BaseUIID, 're_BaseUIID')) return;
-    if (!checkNull(re_ChildUIID, 're_ChildUIID')) return;
-    return Module.RealBIMWeb.UIWgtRemoveChildWidget(re_BaseUIID, re_ChildUIID);
-  }
+  
 
   /**
    * 移除控件的所有子控件
@@ -2089,14 +2000,7 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtRemoveAllChilden(re_UIID);
   }
 
-  /**
-   * 删除一个控件
-   * @param {String} re_UIID //组件id
-   */
-  Module.REUIWgtDeleteWidget = function (re_UIID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    return Module.RealBIMWeb.UIWgtDeleteWidget(re_UIID);
-  }
+  
 // MARK UI可见性  
   /**
    * 获取对应系统UI的可见性
