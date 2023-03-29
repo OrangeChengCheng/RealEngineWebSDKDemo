@@ -21,20 +21,7 @@ Module.REgetScreenScale = function(){
 }
 
 
-// 项目集设置单项目的位置偏移
-// 表示要处理的项目名称，为空串则表示处理所有项目
-// 表示偏移信息（缩放旋转平移）[[1,1,1],[0,0,0,1],[0,0,0]]
-Module.REsetMainSceTransform = function(projName,transInfo){
-  var _transinfo={
-    m_vScale:transInfo[0], m_qRotate:transInfo[1], m_vOffset:transInfo[2]
-  }
-  return Module.RealBIMWeb.SetMainSceTransform(projName,_transinfo);
-}
-// 项目集获取设置的单项目的位置偏移信息
-Module.REgetMainSceTransform = function(projName){
-  var _transinfo =Module.RealBIMWeb.GetMainSceTransform(projName);
-  return [_transinfo.m_vScale, _transinfo.m_qRotate, _transinfo.m_vOffset];
-}
+
 
 
 
@@ -174,65 +161,11 @@ Module.REtrain_BindCamToTrain = function(uTrainID, uTrainSide)
 
 
 
-//设置场景节点颜色
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REsetSceClr = function(sceArr,newClr,newClrPercent,newAlpha,newAlphapercent,projName,elemScope){
-  var _projName = "DefaultProj"; if(typeof projName != 'undefined'){_projName = projName;}
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  var projid = Module.RealBIMWeb.ConvGolStrID2IntID(_projName);
-  var clr = Module.REclrFix(newClr,newClrPercent); 
-  var alpha = Module.REalphaFix(newAlpha,newAlphapercent);
-  var _s = sceArr.length;
-  if(_s ==0){  //如果场景ID集合为空，则默认为改变所有场景的信息
-    Module.RealBIMWeb.ReAllocHeapViews("16"); clrs =Module.RealBIMWeb.GetHeapView_U32(0); clrs.set([0,projid,alpha,clr], 0);
-    Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, "", 0xffffffff, clrs.byteOffset, _elemScope);
-  }else{
-    var _s01 = (_s*16).toString();
-    Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs =Module.RealBIMWeb.GetHeapView_U32(0);
-    for(i =0; i<_s; ++i)
-    {
-      var eleid = sceArr[i];
-      clrs.set([0,projid,alpha,clr], 0);
-      Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, eleid, 0xffffffff, clrs.byteOffset, _elemScope);
-    }
-  }
-}
-//恢复场景节点颜色
-//elemScope：表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-Module.REresetSceClr = function(sceArr,projName,elemScope){
-  var _projName = "DefaultProj"; if(typeof projName != 'undefined'){_projName = projName;}
-  var _elemScope =0; if(typeof elemScope != 'undefined'){_elemScope =elemScope;}
-  var projid = Module.RealBIMWeb.ConvGolStrID2IntID(_projName);
-  var clr = 0x000000ff;  var alpha = 0x0080ffff;
-  var _s = sceArr.length;
-  if(_s ==0){  //如果场景ID集合为空，则默认为改变所有场景的信息
-    Module.RealBIMWeb.ReAllocHeapViews("16"); clrs =Module.RealBIMWeb.GetHeapView_U32(0); clrs.set([0,projid,alpha,clr], 0);
-    Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, "", 0xffffffff, clrs.byteOffset, _elemScope);
-  }else{
-    var _s01 = (_s*16).toString();
-    Module.RealBIMWeb.ReAllocHeapViews(_s01); clrs =Module.RealBIMWeb.GetHeapView_U32(0);
-    for(i =0; i<_s; ++i)
-    {
-      var eleid = sceArr[i];
-      clrs.set([0,projid,alpha,clr], 0);
-      Module.RealBIMWeb.SetHugeObjSubElemClrInfos(_projName, eleid, 0xffffffff, clrs.byteOffset, _elemScope);
-    }
-  }
-}
 
 
 
 
 
-
-
-
-
-//获取当前拾取到的UI相关信息(不常用)
-Module.REgetCurUIShpProbeRet = function(){
-  var shpproberet_ortho =Module.RealBIMWeb.GetCurShpProbeRet(Module.RE_SHP_PROBE_TYPE.ORTHO);
-  return shpproberet_ortho;
-}
 
 
 
@@ -298,15 +231,6 @@ Module.REgetUnVerHugeGroupProjToSelf = function(projName, sceName){
 
 
 
-//获取场景所有地形和倾斜摄影模型的节点
-Module.REgetAllUnVerHugeGroupIDs = function(projName) {
-  var arr1 = Module.RealBIMWeb.GetAllUnVerHugeGroupNames((typeof projName != 'undefined') ? projName : "");
-  var namearr = [];
-  for(i =0; i<arr1.size(); ++i){
-    namearr.push(arr1.get(i));
-  }
-  return namearr;
-}
 
 
 
@@ -316,36 +240,8 @@ Module.REgetAllUnVerHugeGroupIDs = function(projName) {
 
 
 
-//获取场景所有BIM模型的节点名称
-Module.REgetAllHugeGroupIDs = function(projName){
-  var arr1 =Module.RealBIMWeb.GetAllHugeObjNames((typeof projName != 'undefined') ? projName : "");
-  var nameArr = [];
-  for(i =0; i<arr1.size(); ++i){
-    nameArr.push(arr1.get(i));
-  }
-  return nameArr;
-}
 
 
-
-
-//正交投影下开始添加剖切线顶点
-Module.REclipWithTwoPoint = function(clipDir){
-  if(clipDir == "horizontal"){
-    return Module.RealBIMWeb.OrthographicBeginAddClippingVertex(Module.RE_CLIP_DIR.HORIZONTAL);
-  }else if(clipDir == "vertical"){
-    return Module.RealBIMWeb.OrthographicBeginAddClippingVertex(Module.RE_CLIP_DIR.VERTICAL);
-  }
-}
-//正交投影下退出剖切状态
-Module.REexitClipWithTwoPoint = function(){
-  Module.RealBIMWeb.OrthographicEndSceneClipping();
-}
-
-//设置剖切完成后是否自动聚焦到剖切面
-Module.REisAutoFocusWithClip = function(bool){
-  Module.RealBIMWeb.setTargetToClipPlane(bool);
-}
 
 
 

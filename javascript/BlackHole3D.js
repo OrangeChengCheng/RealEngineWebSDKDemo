@@ -4597,6 +4597,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+
+
+
+
     // MARK 剖切
 
     /**
@@ -6440,6 +6444,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(clipInfo.dataSetId, clipInfo.gridGroupName, _tempArrGridName,
             clipInfo.offset, clipInfo.minHeight, clipInfo.maxHeight,
             clipInfo.onlyVisible, clipInfo.includeInter);
+    }
+
+    /**
+     * 设置剖切完成后是否自动聚焦到剖切面
+     * @param {Boolean} enable //是否自动聚集
+     */
+    Module.Clip.setAutoFocusClipFace = function (enable) {
+        Module.RealBIMWeb.setTargetToClipPlane(enable);
     }
 
 
