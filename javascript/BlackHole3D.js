@@ -177,6 +177,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
     }
 
+    /**
+     * 暂停渲染主循环
+     */
+    Module.pauseRenderLoop = function () {
+        Module.RealBIMWeb.PauseRenderLoop();
+    }
+
+    /**
+     * 恢复渲染主循环
+     */
+    Module.resumeRenderLoop = function () {
+        Module.RealBIMWeb.ResumeRenderLoop();
+    }
+
 
 
 
@@ -420,6 +434,69 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         data.set(renderData, 0);
         Module.RealBIMWeb.SetSysRenderState(data.byteLength, data.byteOffset);
     }
+
+
+    class REShadowInfo {
+        constructor() {
+            this.enable = null;//表示是否启用阴影效果
+            this.quality = null;//表示阴影质量等级(0~5)
+            this.dynSMSize = null;//表示动态阴影图的尺寸
+            this.staticSMSize = null;//表示静态阴影图的尺寸
+            this.maxDynSMNum = null;//表示动态阴影图的最大个数
+            this.maxStaticSMNum = null;//表示静态阴影图的最大个数
+            this.minDynSMUpdateLen = null;//表示动态阴影图的最小更新帧间隔
+            this.minStaticSMUpdateLen = null;//表示静态阴影图的最小更新帧间隔
+            this.hiResoDist = null;//表示最高精度阴影的作用距离
+            this.filterKernelSize = null;//表示软阴影的过滤半径相对于阴影图一个纹素尺寸的倍数
+            this.depthBiasRatio = null;//表示阴影深度的偏移比例(用以消除自阴影)
+        }
+    }
+    ExtModule.REShadowInfo = REShadowInfo;
+
+    /**
+     * 设置阴影详细信息
+     * @param {REShadowInfo} shadowInfo //阴影信息 (REShadowInfo 类型)
+     */
+    Module.Common.setShadowInfo = function (shadowInfo) {
+        if (isEmptyLog(shadowInfo)) return
+        var _shadowInfoTemp = {
+            m_bShadowEnable: isEmpty(shadowInfo.enable) ? true : shadowInfo.enable,
+            m_uShadowQuality: isEmpty(shadowInfo.quality) ? 3 : shadowInfo.quality,
+            m_uShadowDynSMSize: isEmpty(shadowInfo.dynSMSize) ? 1024 : shadowInfo.dynSMSize,
+            m_uShadowStaticSMSize: isEmpty(shadowInfo.staticSMSize) ? 1024 : shadowInfo.staticSMSize,
+            m_uShadowMaxDynSMNum: isEmpty(shadowInfo.maxDynSMNum) ? 3 : shadowInfo.maxDynSMNum,
+            m_uShadowMaxStaticSMNum: isEmpty(shadowInfo.maxStaticSMNum) ? 5 : shadowInfo.maxStaticSMNum,
+            m_uShadowMinDynSMUpdateLen: isEmpty(shadowInfo.minDynSMUpdateLen) ? 1 : shadowInfo.minDynSMUpdateLen,
+            m_uShadowMinStaticSMUpdateLen: isEmpty(shadowInfo.minStaticSMUpdateLen) ? 1 : shadowInfo.minStaticSMUpdateLen,
+            m_dShadowHiResoDist: isEmpty(shadowInfo.hiResoDist) ? 6.1 : shadowInfo.hiResoDist,
+            m_dShadowFilterKernelSize: isEmpty(shadowInfo.filterKernelSize) ? 2.0 : shadowInfo.filterKernelSize,
+            m_dDepthBiasRatio: isEmpty(shadowInfo.depthBiasRatio) ? 0.001 : shadowInfo.depthBiasRatio,
+        };
+        Module.RealBIMWeb.SetSceShadowInfo(_shadowInfoTemp);
+    }
+
+    /**
+     * 获取当前阴影详细信息
+     */
+    Module.Common.getShadowInfo = function () {
+        var _shadowInfoTemp = Module.RealBIMWeb.GetSceShadowInfo();
+        var shadowInfo = new REShadowInfo();
+        shadowInfo.enable = _shadowInfoTemp.m_bShadowEnable;
+        shadowInfo.quality = _shadowInfoTemp.m_uShadowQuality;
+        shadowInfo.dynSMSize = _shadowInfoTemp.m_uShadowDynSMSize;
+        shadowInfo.staticSMSize = _shadowInfoTemp.m_uShadowStaticSMSize;
+        shadowInfo.maxDynSMNum = _shadowInfoTemp.m_uShadowMaxDynSMNum;
+        shadowInfo.maxStaticSMNum = _shadowInfoTemp.m_uShadowMaxStaticSMNum;
+        shadowInfo.minDynSMUpdateLen = _shadowInfoTemp.m_uShadowMinDynSMUpdateLen;
+        shadowInfo.minStaticSMUpdateLen = _shadowInfoTemp.m_uShadowMinStaticSMUpdateLen;
+        shadowInfo.hiResoDist = _shadowInfoTemp.m_dShadowHiResoDist;
+        shadowInfo.filterKernelSize = _shadowInfoTemp.m_dShadowFilterKernelSize;
+        shadowInfo.depthBiasRatio = _shadowInfoTemp.m_dDepthBiasRatio;
+        return shadowInfo;
+    }
+
+
+
 
 
 
@@ -1473,7 +1550,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置系统UI面板的停靠方式
      * @param {Number} dockArea //停靠方式  0：下方停靠 1：左侧停靠  2：顶侧停靠  3：右侧停靠
      */
-    Module.RESetBuiltInUIDockArea = function (dockArea) {
+    Module.Graphics.setSysPanelUIDockArea = function (dockArea) {
         var _dockArea = 0; if (isEmpty(dockArea)) _dockArea = dockArea;
         Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
     }
@@ -1560,30 +1637,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 在系统的UI面板中添加按钮
-     * @param {String} uiID //组件唯一标识
-     * @param {String} hintText //鼠标悬浮提示
-     * 
-     * @param {String} btnInfo //按钮信息
+     * 在系统的UI面板中添加按钮（统一样式） 
+     * @param {REUIBtnInfo} btnInfo //按钮信息 （REUIBtnInfo 类型）
      */
     Module.Graphics.createSysPanelBtn = function (btnInfo) {
         if (isEmptyLog(btnInfo, 'btnInfo')) return;
 
-        btnInfo.size = [48, 48];
-        btnInfo.activeStateId = 0;
-        btnInfo.visible = true;
+        var _strUIID = btnInfo.uiID;
+        var _vExpectSize = [48, 48];
+        var _uActiveStateID = 0; if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
+        var _bVisible = true; if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
+        var _bClickable = true;
 
-        var statePar = new BlackHole3D.REUIBtnStateInfo();
-        statePar.text = "";
-        statePar.hintText = btnInfo.stateParList[0].hintText;
-        statePar.texPath = btnInfo.stateParList[0].texPath;
-        statePar.clrStyle = "CS_BTN_WHITETEXT_NOBG";
-        statePar.sizeStyle = "SS_WND_HAVE_THIN_BORDER";
-
-        btnInfo.stateParList = [statePar];
-
-        var createState = Module.Graphics.createBtn(btnInfo);
-        var addState = Module.Graphics.addChildWidget("BuiltIn_Wnd_Panel", btnInfo.uiID);
+        var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
+        for (let i = 0; i < btnInfo.stateParList.length; i++) {
+            let statePar = btnInfo.stateParList[i];
+            let _par = {
+                m_strText: "",
+                m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
+                m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
+                m_vecClrStates: Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_WHITETEXT_NOBG"),
+                m_vecSizeStates: Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER"),
+            };
+            _arrStateParams.push_back(_par);
+        }
+        var createState = Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
+        var addState = Module.Graphics.addSysPanelChildWidget(btnInfo.uiID);
         return createState && addState;
     }
 
@@ -1593,6 +1672,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MARK 通用
+
+    /**
+     * 获取指定组件的所有子组件ID
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.getAllChildIds = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        var _idList = Module.RealBIMWeb.UIWgtGetAllChildrensID(uiID);
+        var _childIDList = [];
+        for (let i = 0; i < _idList.size(); i++) {
+            _childIDList.push(_idList.get(i));
+        }
+        return _childIDList;
+    }
+
+    /**
+     * 获取系统UI面板所有子组件的ID
+     */
+    Module.Graphics.getSysPanelAllChildIds = function () {
+        var _idList = Module.RealBIMWeb.UIWgtGetAllChildrensID("BuiltIn_Wnd_Panel");
+        var _childIDList = [];
+        for (let i = 0; i < _idList.size(); i++) {
+            _childIDList.push(_idList.get(i));
+        }
+        return _childIDList;
+    }
+
     /**
      * 添加组件到指定父组件上
      * @param {String} superUIID //父组件唯一标识
@@ -1625,12 +1731,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 移除组件的某个子组件 （不删除子组件）
+     * 移除系统UI面板的某个子组件 （不删除子组件）
      * @param {String} uiID //组件唯一标识
      */
-    Module.Graphics.removeSysPanelBtn = function (uiID) {
+    Module.Graphics.removeSysPanelWidget = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtRemoveChildWidget("BuiltIn_Wnd_Panel", uiID);
+    }
+
+    /**
+     * 将已经创建好的组件到系统UI面板 
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.addSysPanelChildWidget = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtAddChildWidget("BuiltIn_Wnd_Panel", uiID);
     }
 
 

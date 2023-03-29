@@ -354,37 +354,6 @@ Module.REisAutoFocusWithClip = function(bool){
 
 
 
-//暂停渲染主循环
-Module.REpauseRenderLoop = function()
-{
-  Module.RealBIMWeb.PauseRenderLoop();
-}
-//恢复渲染主循环
-Module.REresumeRenderLoop = function()
-{
-  Module.RealBIMWeb.ResumeRenderLoop();
-}
-
-
-
-
-
-// 字体设置相关
-
-
-
-
-
-
-
-//设置阴影详细信息
-Module.REsetShadowInfo = function(info){
-  Module.RealBIMWeb.SetSceShadowInfo(info);
-}
-//获取当前阴影详细信息
-Module.REgetShadowInfo = function(){
-  return Module.RealBIMWeb.GetSceShadowInfo();
-}
 
 
 
@@ -397,26 +366,8 @@ Module.REgetShadowInfo = function(){
 
 
 
-//设置场景实时反射开关状态
-Module.REsetReflState = function(bool){
-  var _info = Module.RealBIMWeb.GetSceReflInfo(); 
-  if(bool){_info.m_uQuality = 1;}else{_info.m_uQuality = 0;}
-  Module.RealBIMWeb.SetSceReflInfo(_info);
-}
-//获取当前场景实时反射开关状态
-Module.REgetReflState = function(){
-  var _info = Module.RealBIMWeb.GetSceReflInfo();
-  return (_info.m_uQuality > 0) ? true : false;
-}
-//设置地形边缘高光属性
-Module.REsetUnVerHugeGroupBorderEmis = function(projName,sceName,amp,range){
-  var emis = [amp,range];
-  return Module.RealBIMWeb.SetUnVerHugeGroupBorderEmis(projName,sceName,emis);
-}
-//获取地形边缘高光属性
-Module.REgetUnVerHugeGroupBorderEmis = function(projName,sceName){
-  return Module.RealBIMWeb.GetUnVerHugeGroupBorderEmis(projName,sceName);
-}
+
+
 
 
 
@@ -1966,19 +1917,7 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtIsChildWidget(re_BaseUIID, re_ChildUIID);
   }
 
-  /**
-   * 获取控件的所有子控件ID
-   * @param {String} re_UIID //组件id
-   */
-   Module.REUIWgtGetAllChildrensID = function (re_UIID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    var _idList = Module.RealBIMWeb.UIWgtGetAllChildrensID(re_UIID);
-    var el_ChildIDList = [];
-    for (let i = 0; i < _idList.size(); i++) {
-      el_ChildIDList.push(_idList.get(i));
-    }
-    return el_ChildIDList;
-  }
+  
 
   /**
    * 获取控件父控件ID
