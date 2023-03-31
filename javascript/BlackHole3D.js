@@ -2821,7 +2821,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var textobj = {
             m_strGolFontID: _GolFontID,
             m_bTextWeight: false,
-            m_strText: _textInfo.text,
+            m_strText: isEmpty(_textInfo.text) ? "" : _textInfo.text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
             m_qTextRect: TempTextRect,
@@ -4539,6 +4539,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: _info.m_uDestAlpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
         }
+    }
+
+    /**
+     * 重置某一块或全部的栅格模型的颜色
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Grid.resetDataSetClr = function (dataSetId) {
+        var _dataSetId = ""; if (isEmpty(dataSetId)) _dataSetId = dataSetId;
+        Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, "", { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
     }
 
     /**
