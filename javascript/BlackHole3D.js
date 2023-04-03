@@ -1841,7 +1841,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _lineHeight = 26; let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
                 _texRegions.push_back({
-                    m_strTexPath: _tagInfo.infoList[i].picPath,
+                    m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? "" : _tagInfo.infoList[i].picPath,
                     m_qTexRect: [-50, _lineHeight * (_lineCount - i - 1) + _lineSpace, -30, _lineHeight * (_lineCount - i) - _lineSpace],
                     m_uTexClrMult: 0xffffffff,
                     m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
@@ -1863,7 +1863,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 });
             }
             let _tempobj = {
-                m_strName: _tagInfo.tagName,
+                m_strName: isEmpty(_tagInfo.tagName) ? "" : _tagInfo.tagName,
                 m_vPos: _tagInfo.pos,
                 m_vBgMinSize: [150, 10],
                 m_vBgPadding: [5, 5],
