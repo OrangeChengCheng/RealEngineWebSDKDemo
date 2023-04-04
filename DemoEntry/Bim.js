@@ -46,6 +46,8 @@ function addREListener() {
 
     //操作
     document.addEventListener("RELocateCam", RELocateCam);//调整相机方位完成事件
+    // document.addEventListener("REClipFinish", REClipFinish);//裁剪完成回调事件
+
 }
 
 //场景初始化，需正确传递相关参数
@@ -124,6 +126,11 @@ function RELocateCam(e) {
     console.log("-- 相机运动完成事件 --", e.detail);
 }
 
+// function REClipFinish(e) {
+//     console.log("-- 裁剪完成回调事件 --", e.detail);
+// }
+
+
 // 加载模型
 function loadModel() {
     var dataSetList = [
@@ -137,6 +144,12 @@ function loadModel() {
         //     "dataSetId": "机房02",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "天台",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_lunkuoxian",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
@@ -230,6 +243,24 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "大片房子",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res08&path=3a09b3f0eee81543b873bb5a004d2717",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "管道",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res17&path=3a0a48e70c36a81e8c8dc5e15024bd0d",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        {
+            "dataSetId": "社区楼房",
+            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res08&path=3a0a4409fd840205a66b4d2ee7f5288a",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
@@ -834,7 +865,21 @@ function setAxisGridClip() {
 
 
 
-
+// 设置阴影信息
+function setShadow() {
+    var shadowInfo = new BlackHole3D.REShadowInfo();
+    shadowInfo.quality = 1;
+    shadowInfo.dynSMSize = 1024;
+    shadowInfo.staticSMSize = 1024;
+    shadowInfo.maxDynSMNum = 3;
+    shadowInfo.maxStaticSMNum = 5;
+    shadowInfo.minDynSMUpdateLen = 1;
+    shadowInfo.minStaticSMUpdateLen = 1;
+    shadowInfo.hiResoDist = 6.1;
+    shadowInfo.filterKernelSize = 2.0;
+    shadowInfo.depthBiasRatio = 0.001;
+    BlackHole3D.Common.setShadowInfo(shadowInfo);
+}
 
 
 

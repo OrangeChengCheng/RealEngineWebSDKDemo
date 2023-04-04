@@ -39,6 +39,7 @@ function addREListener() {
     document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);//场景模型加载完成回调
     document.addEventListener("RESystemRenderReady", RESystemRenderReady);//数据集模型加载进度反馈
     document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//数据集模型加载进度反馈
+    document.addEventListener("RESystemRenderVisible", RESystemRenderVisible);//判断当前渲染窗口是否可见的监听事件
 }
 
 //场景初始化，需正确传递相关参数
@@ -105,13 +106,29 @@ function REDataSetLoadProgress(e) {
     progressFn(percent, info);
 }
 
+function RESystemRenderVisible(e) {
+    console.log('-- 判断当前渲染窗口是否可见监听事件 --', e.detail);
+}
+
 // 加载模型
 function loadModel() {
     var dataSetList = [
+        // {
+        //     "dataSetId": "dataSet01",
+        //     "resourcesAddress": "http://121.229.18.166:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a0a34b97cee632df2939f4bf795938a",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "dataSet02",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res08&path=3a09b3f0eee81543b873bb5a004d2717",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         {
-            "dataSetId": "小房子",
-            "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+            "dataSetId": "机房01",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
     ];
