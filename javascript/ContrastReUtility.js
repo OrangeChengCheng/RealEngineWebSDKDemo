@@ -826,29 +826,7 @@ Module.REendOSGBEdit = function(){
 
   
 
-  /**
-   * 获取按钮的某子状态使用的纹理路径
-   * @param {String} re_UIID //控件id
-   * @param {Number} el_StateID //按钮的子状态id	el_StateParams 对象列表 index 下标
-   */
-  Module.REUIWgtGetBtnSubStateImgURL = function (re_UIID, el_StateID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_StateID, 'el_StateID')) return;
-    return Module.RealBIMWeb.UIWgtGetBtnSubStateImgURL(re_UIID, el_StateID);
-  }
-
-  /**
-   * 设置按钮的某子状态使用的纹理路径
-   * @param {String} re_UIID //控件id
-   * @param {Number} el_StateID //按钮的子状态id	el_StateParams 对象列表 index 下标
-   * @param {Number} el_TextureURL //按钮的子状态纹理路径
-   */
-  Module.REUIWgtSetBtnSubStateImgURL = function (re_UIID, el_StateID, el_TextureURL) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_StateID, 'el_StateID')) return;
-    if (!checkNull(el_TextureURL, 'el_TextureURL')) return;
-    return Module.RealBIMWeb.UIWgtSetBtnSubStateImgURL(re_UIID, el_StateID, el_TextureURL);
-  }
+  
 
   /**
    * 获取按钮的某子状态使用的按钮文字
@@ -1089,47 +1067,7 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtSetLableText(re_UIID, el_Text);
   }
 
-// MARK Image
-  // =================== Image 相关
-  /**
-   * 创建一个Image控件
-   * @param {String} re_UIID //控件id
-   * @param {Object} el_Info //控件基本信息 ！！！以下参数均包含在 el_Info 中
-   * @param {String} el_ImgURL //图片地址
-   * @param {Boolean} el_Visible //是否可见
-   * @param {Array[Number]} el_Size //期望大小 vec2
-   */
-  Module.REUIWgtCreateImage = function (re_UIID, el_Info) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_Info, 'el_Info')) return;
-    if (!checkNull(el_Info.el_ImgURL, 'el_ImgURL')) return;
 
-    if (!checkNull(el_Info.el_Size, 'el_Size')) return;
-
-    var _Visible = true; if (typeof el_Info.el_Visible != 'undefined') { _Visible = el_Info.el_Visible; }
-
-    return Module.RealBIMWeb.UIWgtCreateImage(re_UIID, _Visible, el_Info.el_Size, el_Info.el_ImgURL);
-  }
-
-  /**
-   * 获取图像UI控件所使用的图片资源的路径
-   * @param {String} re_UIID //控件id
-   */
-  Module.REUIWgtGetImageImgURL = function (re_UIID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    return Module.RealBIMWeb.UIWgtGetImageImgURL(re_UIID);
-  }
-
-  /**
-   * 设置图像UI控件所使用的图片资源的路径
-   * @param {String} re_UIID //控件id
-   * @param {String} el_ImgURL //图片地址
-   */
-  Module.REUIWgtSetImageImgURL = function (re_UIID, el_ImgURL) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_ImgURL, 'el_ImgURL')) return;
-    return Module.RealBIMWeb.UIWgtSetImageImgURL(re_UIID, el_ImgURL);
-  }
 
 // MARK NumInput
   // =================== 数值编辑 相关

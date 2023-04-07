@@ -183,12 +183,6 @@ function loadModel() {
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
-        //     "dataSetId": "花园",
-        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a095bf75602ca925fc87a7974565d9e",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
-        // {
         //     "dataSetId": "地图",
         //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a096c1a61a7e6545c97e8a1cc6ca1be",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
@@ -255,9 +249,27 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "社区楼房",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res08&path=3a0a4409fd840205a66b4d2ee7f5288a",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "地形桥",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a09f5926b4c7b2cd091d90c5cc5bfd3",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "花园",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res17&path=3a0a6795f0b2d41f358b67e6ef572ed4",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         {
-            "dataSetId": "社区楼房",
-            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res08&path=3a0a4409fd840205a66b4d2ee7f5288a",
+            "dataSetId": "楼房+地形",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_nanhuiskp",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
@@ -883,8 +895,82 @@ function setShadow() {
 
 
 
+// 添加锚点适用聚合锚点
+function addAncLODDemo() {
+    // 添加100个两种类型的锚点
+    var arrancinfo = [];
+    for (var i = 0; i < 10; ++i) {
+        for (var j = 0; j < 10; ++j) {
+            var ancInfo = new BlackHole3D.REAncInfo();
+            ancInfo.groupName = (j % 2 == 0) ? "group01" : "group02";
+            ancInfo.ancName = (i * 100 + j).toString();
+            ancInfo.pos = (j % 2 == 0) ? [400 + i * 40, -100 + j * 40, 0] : [400 + i * 40, 200 + j * 40, 0];;
+            ancInfo.picPath = (j % 2 == 0) ? "https://demo.bjblackhole.com/demopage/examplesImgs/tag.png" : "https://demo.bjblackhole.com/demopage/examplesImgs/anc.png";
+            ancInfo.textInfo = "标记" + (i * 100 + j).toString();
+            ancInfo.picWidth = 32;
+            ancInfo.picHeight = 32;
+            ancInfo.useLod = true;
+            ancInfo.linePos = [0, 50];
+            ancInfo.lineClr = new BlackHole3D.REColor(0, 255, 0, 255);
+            ancInfo.ancSize = 60;
+            ancInfo.selfAutoScaleDist = -1;
+            ancInfo.selfVisDist = -1;
+            ancInfo.textBias = [1, 0];
+            ancInfo.textFocus = [5, 2];
+            ancInfo.fontName = "RealBIMFont001";
+            ancInfo.textColor = new BlackHole3D.REColor(255, 255, 255, 255);
+            ancInfo.textBorderColor = new BlackHole3D.REColor(0, 0, 0, 128);
 
+            arrancinfo.push(ancInfo);
+        }
+    }
+    BlackHole3D.Anchor.addAnc(arrancinfo);
+}
 
+// 聚合锚点设置通用样式
+function addAncLODStyle() {
+    // 设置锚点聚合,锚点数量多的时候效果比较明显
+    var mergestyle01 = new BlackHole3D.REAncInfo();
+    mergestyle01.picPath = "https://demo.bjblackhole.com/demopage/examplesImgs/bubbler.png";
+    mergestyle01.picWidth = 60;
+    mergestyle01.picHeight = 60;
+    mergestyle01.textBias = [1, 0];
+    mergestyle01.fontName = "RealBIMFont001";
+    mergestyle01.textColor = new BlackHole3D.REColor(255, 255, 255, 255);
+    mergestyle01.textBorderColor = new BlackHole3D.REColor(0, 0, 0, 128);
+
+    var mergestyle02 = new BlackHole3D.REAncInfo();
+    mergestyle02.picPath = "https://demo.bjblackhole.com/demopage/examplesImgs/bubbley.png";
+    mergestyle02.picWidth = 60;
+    mergestyle02.picHeight = 60;
+    mergestyle02.textBias = [1, 0];
+    mergestyle02.fontName = "RealBIMFont001";
+    mergestyle02.textColor = new BlackHole3D.REColor(255, 255, 255, 255);
+    mergestyle02.textBorderColor = new BlackHole3D.REColor(0, 0, 0, 128);
+
+    //聚合信息
+    var bbBV = [[-2001.0, -2001.0, -500.0], [2001.0, 2001.0, -500.0]];
+    var ancLODInfo1 = new BlackHole3D.REAncLODInfo();
+    ancLODInfo1.groupName = "group01";
+    ancLODInfo1.lodLevel = 10;
+    ancLODInfo1.useCustomBV = true;
+    ancLODInfo1.customBV = bbBV;
+    ancLODInfo1.lodMergePxl = 300.0;
+    ancLODInfo1.lodMergeCap = 3;
+    ancLODInfo1.mergeStyle = mergestyle01;
+
+    var ancLODInfo2 = new BlackHole3D.REAncLODInfo();
+    ancLODInfo2.groupName = "group02";
+    ancLODInfo2.lodLevel = 10;
+    ancLODInfo2.useCustomBV = true;
+    ancLODInfo2.customBV = bbBV;
+    ancLODInfo2.lodMergePxl = 300.0;
+    ancLODInfo2.lodMergeCap = 3;
+    ancLODInfo2.mergeStyle = mergestyle02;
+
+    BlackHole3D.Anchor.setAncLODInfo(ancLODInfo1);
+    BlackHole3D.Anchor.setAncLODInfo(ancLODInfo2);
+}
 
 
 

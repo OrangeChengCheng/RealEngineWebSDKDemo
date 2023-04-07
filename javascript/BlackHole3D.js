@@ -1666,6 +1666,93 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return createState && addState;
     }
 
+    /**
+     * 获取按钮的某子状态使用的纹理路径
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} stateId //按钮的状态id, stateParList 对象列表 index 下标
+     */
+    Module.Graphics.getBtnStatePicPath = function (uiID, stateId) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        var curStateId = isEmpty(stateId) ? Module.RealBIMWeb.UIWgtGetBtnActiveSubState(uiID) : stateId;
+        return Module.RealBIMWeb.UIWgtGetBtnSubStateImgURL(uiID, curStateId);
+    }
+
+    /**
+     * 设置按钮的某子状态使用的纹理路径
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} stateId //按钮的状态id, stateParList 对象列表 index 下标
+     * @param {String} picPath //按钮的子状态纹理路径
+     */
+    Module.Graphics.setBtnStatePicPath = function (uiID, stateId, picPath) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        if (isEmptyLog(stateId, 'stateId')) return;
+        if (isEmptyLog(picPath, 'picPath')) return;
+        return Module.RealBIMWeb.UIWgtSetBtnSubStateImgURL(uiID, stateId, picPath);
+    }
+
+
+
+    // MARK 图片（Image）
+    class REUIImageInfo {
+        constructor() {
+            this.uiID = null;//组件唯一标识，重复使用创建失败
+            this.picPath = null;//图片地址
+            this.size = null;//按钮的期望尺寸, 二元数组
+            this.visible = true;//是否可见，默认可见
+        }
+    }
+    ExtModule.REUIImageInfo = REUIImageInfo;
+
+
+    /**
+     * 创建一个Image控件
+     * @param {REUIImageInfo} imageInfo //图片信息（REUIImageInfo 类型）
+     */
+    Module.Graphics.createImage = function (imageInfo) {
+        if (isEmptyLog(imageInfo, 'imageInfo')) return;
+        if (isEmptyLog(imageInfo.uiID, 'uiID')) return;
+        if (isEmptyLog(imageInfo.picPath, 'picPath')) return;
+        if (isEmptyLog(imageInfo.size, 'size')) return;
+
+        var _visible = isEmpty(imageInfo.visible) ? true : imageInfo.visible;
+        return Module.RealBIMWeb.UIWgtCreateImage(imageInfo.uiID, _visible, imageInfo.size, imageInfo.picPath);
+    }
+
+    /**
+     * 获取图像UI控件所使用的图片资源的路径
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.getImagePicPath = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtGetImageImgURL(uiID);
+    }
+
+    /**
+     * 设置图像UI控件所使用的图片资源的路径
+     * @param {String} uiID //组件唯一标识
+     * @param {String} picPath //图片地址
+     */
+    Module.Graphics.setImagePicPath = function (uiID, picPath) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        if (isEmptyLog(picPath, 'picPath')) return;
+        return Module.RealBIMWeb.UIWgtSetImageImgURL(uiID, picPath);
+    }
+
+    /**
+     * 创建一个系统UI面板上的Image控件
+     * @param {String} uiID //组件唯一标识
+     * @param {String} picPath //图片地址
+     */
+    Module.Graphics.createSysPanelImage = function (uiID, picPath) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        if (isEmptyLog(picPath, 'picPath')) return;
+
+        var _size = [10, 48];
+        var _visible = true;
+        var createState = Module.RealBIMWeb.UIWgtCreateImage(uiID, _visible, _size, picPath);
+        var addState = Module.Graphics.addSysPanelChildWidget(uiID);
+        return createState && addState;
+    }
 
 
 

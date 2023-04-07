@@ -179,6 +179,13 @@ function addPanelBtn() {
 
 
 
+//直接添加图片到系统UI面板
+function addPanelImg() {
+    var uiID = "img_001";
+    var picPath = "!(RealBIMAppFileCache)/webui/light/settings_nor.png";
+
+    BlackHole3D.Graphics.createSysPanelImage(uiID, picPath);
+}
 
 
 
