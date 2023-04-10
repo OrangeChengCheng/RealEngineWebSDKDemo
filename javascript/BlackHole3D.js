@@ -683,7 +683,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 卸载一个数据集
-     * @param {Number} dataSetId //数据集的唯一标识名
+     * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Model.unloadDataSet = function (dataSetId) {
         Module.RealBIMWeb.UnLoadMainSce(dataSetId);
@@ -707,6 +707,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Model.refreshAllDataSet = function (loadNewData) {
         Module.RealBIMWeb.RefreshMainData(loadNewData);
     }
+
+    /**
+     * 获取项目所有数据集加载状态
+     */
+    Module.Model.getAllDataSetReady = function () {
+        return Module.RealBIMWeb.IsMainSceReady();
+    }
+
+    /**
+     * 获取指定数据集加载状态
+     * @param {String} dataSetId //数据集的唯一标识名
+     */
+    Module.Model.getDataSetReady = function (dataSetId) {
+        return Module.RealBIMWeb.IsMainSceAllResLoaded(dataSetId);
+    }
+
+
+
+
+
 
 
 

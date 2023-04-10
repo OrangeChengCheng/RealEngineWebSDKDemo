@@ -267,12 +267,12 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        {
-            "dataSetId": "楼房+地形",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_nanhuiskp",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "楼房+地形",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_nanhuiskp",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
