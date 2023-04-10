@@ -5090,7 +5090,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Panorama.setCamLocateTo = function (locType, panWindow) {
         if (isEmptyLog(locType, "locType")) return;
         var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
-        var enumEval = locType;
+        var enumEval = eval(locType);
         Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
     }
 
