@@ -110,6 +110,22 @@ function REDataSetLoadProgress(e) {
 
 function RESystemUIEvent(e) {
     console.log('-- 鼠标点击图形界面系统按钮监听事件 --', e.detail);
+
+    if (e.detail.btnname == "Setting_Effect_UIClr_Style_Dark") {
+        console.log('-- 点击了系统设置（暗色主题） --');
+        if (e.detail.btnstate == 1) {
+            BlackHole3D.Graphics.setBtnStatePicPath("btn_001", 0, "!(RealBIMAppFileCache)/webui/dark/settings_nor.png");
+            BlackHole3D.Graphics.setSysPanelBtnClrStyle("btn_001", 1);
+        }
+    }
+    if (e.detail.btnname == "Setting_Effect_UIClr_Style_Light") {
+        console.log('-- 点击了系统设置（浅色主题） --');
+        if (e.detail.btnstate == 1) {
+            BlackHole3D.Graphics.setBtnStatePicPath("btn_001", 0, "!(RealBIMAppFileCache)/webui/light/settings_nor.png");
+            BlackHole3D.Graphics.setSysPanelBtnClrStyle("btn_001", 0);
+        }
+    }
+
     if (e.detail.btnname == "btn_001") {
         if (e.detail.btnstate == 0) {
             BlackHole3D.Graphics.setBtnActiveState("btn_001", 1);
@@ -173,7 +189,12 @@ function addPanelBtn() {
     statePar1.hintText = "自定义按钮";
     statePar1.texPath = "!(RealBIMAppFileCache)/webui/light/settings_nor.png";
 
-    btnInfo.stateParList = [statePar1];
+    var statePar2 = new BlackHole3D.REUIBtnStateInfo();
+    statePar2.text = "";
+    statePar2.hintText = "自定义按钮2";
+    statePar2.texPath = "!(RealBIMAppFileCache)/webui/light/settings_sel.png";
+
+    btnInfo.stateParList = [statePar1, statePar2];
     BlackHole3D.Graphics.createSysPanelBtn(btnInfo);
 }
 

@@ -1,4 +1,4 @@
-//版本：v3.1.0.1892
+//版本：v3.1.0.1910
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1575,10 +1575,48 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
     }
 
+    // /**
+    //  * 关闭系统UI面板按钮的二级界面并退出对应操作状态（不包括设置窗口）
+    //  */
+    // Module.Graphics.closeSysPanelSecWnd = function () {
+
+    //     // 退出剖切状态并关闭剖切相关窗口
+    //     Module.Clip.endClip();
+    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_Cutting", 0);
+    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_CubeCutting", 0);
+    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_BuildPlaneCutting", 0);
+    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_PickPlaneCutting", 0);
+    //     Module.RealBIMWeb.UIWgtSetVisible("CubeCuttingWnd", false);
+    //     Module.RealBIMWeb.UIWgtSetVisible("PlaneCuttingWnd", false);
+    //     Module.RealBIMWeb.UIWgtSetVisible("BuiltIn_Wnd_CuttingMode", false);
+
+    //     // 退出测量状态并关闭测量相关窗口
+    //     BuiltIn_Btn_Measure
+    // }
 
 
 
 
+    // MARK 窗口（Wnd）
+    /**
+     * 获取窗口的颜色风格
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.getWndClrStyle = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtGetWndColorStyle(uiID);
+    }
+
+    /**
+     * 设置窗口的颜色风格
+     * @param {String} uiID //组件唯一标识
+     * @param {String} clrStyleName //颜色风格名称
+     */
+    Module.Graphics.setWndClrStyle = function (uiID, clrStyleName) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        if (isEmptyLog(clrStyleName, 'clrStyleName')) return;
+        return Module.RealBIMWeb.UIWgtSetWndColorStyle(uiID, clrStyleName);
+    }
 
 
 
@@ -1657,7 +1695,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 在系统的UI面板中添加按钮（统一样式） 
+     * 在系统的UI面板中添加按钮（统一样式, 只支持两种子按钮状态） 
      * @param {REUIBtnInfo} btnInfo //按钮信息 （REUIBtnInfo 类型）
      */
     Module.Graphics.createSysPanelBtn = function (btnInfo) {
@@ -1668,15 +1706,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _uActiveStateID = 0; if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
         var _bVisible = true; if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
         var _bClickable = true;
+        var _wndClrStyle = Module.Graphics.getWndClrStyle == "CS_WND_DARK" ? 1 : 0;
 
         var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
         for (let i = 0; i < btnInfo.stateParList.length; i++) {
+            _btnClrStyle = (_wndClrStyle == 1) ? ((i == 1) ? "CS_BTN_WHITETEXT_NOBG" : "CS_WND_DARK") : ((i == 1) ? "CS_BTN_WHITETEXT_BLUEBG" : "CS_BTN_WHITETEXT_NOBG");
             let statePar = btnInfo.stateParList[i];
             let _par = {
                 m_strText: "",
                 m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
                 m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
-                m_vecClrStates: Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_WHITETEXT_NOBG"),
+                m_vecClrStates: Module.RealBIMWeb.UIWgtGetClrStyle(_btnClrStyle),
                 m_vecSizeStates: Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER"),
             };
             _arrStateParams.push_back(_par);
@@ -1709,6 +1749,52 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(picPath, 'picPath')) return;
         return Module.RealBIMWeb.UIWgtSetBtnSubStateImgURL(uiID, stateId, picPath);
     }
+
+    /**
+     * 设置按钮的某子状态使用的颜色配置
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} stateId //按钮的状态id, stateParList 对象列表 index 下标
+     * @param {String} clrStyleName //颜色风格名称
+     */
+    Module.Graphics.setBtnClrStyle = function (uiID, stateId, clrStyleName) {
+        if (isEmptyLog(uiID, 'uiID')) return false;
+        if (isEmptyLog(stateId, 'stateId')) return false;
+        if (isEmptyLog(clrStyleName, 'clrStyleName')) return false;
+        return Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, stateId, clrStyleName);
+    }
+
+    /**
+     * 获取按钮的某子状态使用的颜色配置
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} stateId //按钮的状态id, stateParList 对象列表 index 下标
+     */
+    Module.Graphics.getBtnClrStyle = function (uiID, stateId) {
+        if (isEmptyLog(uiID, 'uiID')) return "";
+        if (isEmptyLog(stateId, 'stateId')) return "";
+        return Module.RealBIMWeb.UIWgtGetBtnColorStyle(uiID, stateId);
+    }
+
+    /**
+     * 设置系统的UI面板按钮的主题颜色（只支持系统浅色和深色、只支持只有两种按钮子状态类型）
+     * @param {String} uiID //组件唯一标识
+     * @param {Number} clrStyle //颜色样式 0：浅色 1：深色
+     */
+    Module.Graphics.setSysPanelBtnClrStyle = function (uiID, clrStyle) {
+        if (isEmptyLog(uiID, 'uiID')) return false;
+        if (isEmptyLog(clrStyle, 'clrStyle')) return false;
+
+        if (clrStyle == 1) {
+            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_WND_DARK");
+            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_WHITETEXT_NOBG");
+            return state;
+        } else {
+            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_BTN_WHITETEXT_NOBG");
+            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_WHITETEXT_BLUEBG");
+            return state;
+        }
+    }
+
+
 
 
 

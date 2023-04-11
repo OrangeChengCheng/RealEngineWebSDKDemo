@@ -780,25 +780,7 @@ Module.REendOSGBEdit = function(){
     return Module.RealBIMWeb.UIWgtSetChildWgtLayoutType(re_UIID, el_LayoutType);
   }
 
-  /**
-   * 获取窗口的颜色风格
-   * @param {String} re_UIID //控件id
-   */
-  Module.REUIWgtGetWndColorStyle = function (re_UIID) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    return Module.RealBIMWeb.UIWgtGetWndColorStyle(re_UIID);
-  }
-
-  /**
-   * 设置窗口的颜色风格
-   * @param {String} re_UIID //控件id
-   * @param {String} el_ClrStyleName //颜色风格名称 (名称是通过UIWgtAddClrStyle函数加入风格池的）
-   */
-  Module.REUIWgtSetWndColorStyle = function (re_UIID, el_ClrStyleName) {
-    if (!checkNull(re_UIID, 're_UIID')) return;
-    if (!checkNull(el_ClrStyleName, 'el_ClrStyleName')) return;
-    return Module.RealBIMWeb.UIWgtSetWndColorStyle(re_UIID, el_ClrStyleName);
-  }
+  
 
   /**
    * 获取窗口的内部布局尺寸
@@ -1554,6 +1536,7 @@ Module.REendOSGBEdit = function(){
     var el_ClrStyles = [];
     for (let i = 0; i < _ClrStyles.size(); i++) {
       let value = _ClrStyles.get(i);
+      console.log(value);
       let par = {};
       par.el_ClrStyleType = RE_ClrStyleEnum[value.m_uClrStyleEnum];
       let _hex_reverse = (value.m_uClrStyleValue).toString(16);;
