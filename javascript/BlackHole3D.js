@@ -742,6 +742,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.RECamLoc = RECamLoc;
 
+    class REForceCamLoc {
+        // 相机方位信息
+        constructor() {
+            this.camPos = null;//相机位置
+            this.camRotate = [1e30, 1e30, 1e30, 1e30];//相机的朝向
+            this.camDir = [1e30, 1e30, 1e30];//相机的朝向（欧拉角）
+            this.force = false;//是否强制相机初始方位
+        }
+    }
+    ExtModule.REForceCamLoc = REForceCamLoc;
+
     /**
      * 获取当前加载的所有数据集id
      */
@@ -939,6 +950,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.getCamType = function () {
         return Module.RealBIMWeb.GetCamProjType();
     }
+
+    /**
+     * 设置主场景相机的投影类型
+     * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
+     */
+    Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
+        if (isEmptyLog(forceCamLoc, "forceCamLoc")) return false;
+        if (isEmptyLog(forceCamLoc.camPos, "camPos")) return false;
+        if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return false;
+
+        var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
+        return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate, forceCamLoc.camDir);
+    }
+
+    /**
+     * 获取主场景相机的投影类型
+     */
+    Module.Camera.getCamForcedInitLoc = function () {
+        var _forceInitLoc = Module.RealBIMWeb.GetCamForcedInitLoc();
+        var forceCamLoc = new REForceCamLoc();
+        forceCamLoc.force = _forceInitLoc.m_bForce;
+        forceCamLoc.camPos = _forceInitLoc.m_vCamPos;
+        forceCamLoc.camRotate = _forceInitLoc.m_qCamRotate;
+        forceCamLoc.camDir = _forceInitLoc.m_vCamDir;
+        return forceCamLoc;
+    }
+
+
+
+
 
 
 
@@ -4172,6 +4213,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         return Module.RealBIMWeb.GetHugeObjBorderEmis(dataSetId, "");
     }
+
+    /**
+     * 设置模型的最大光泽度
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} smooth //最大光泽度 取值范围[0,1]
+     */
+    Module.BIM.setMaxSmooth = function (dataSetId, smooth) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.SetHugeObjMaxSmooth(dataSetId, "", smooth);
+    }
+
+    /**
+     * 获取模型的最大光泽度
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getMaxSmooth = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetHugeObjMaxSmooth(dataSetId, "");
+    }
+
+
+
 
 
 

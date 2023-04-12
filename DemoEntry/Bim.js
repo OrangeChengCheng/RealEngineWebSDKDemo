@@ -133,6 +133,12 @@ function RELocateCam(e) {
 
 // 加载模型
 function loadModel() {
+    var forceCamLoc = new BlackHole3D.REForceCamLoc();
+    forceCamLoc.force = true;
+    forceCamLoc.camPos = [8.358493400297508, 52.50357912019764, 4.313767751405416];
+    //forceCamLoc.camRotate = [0.5005446775385528, -0.27213832861450266, -0.3925471059564452, 0.7220128291740741];
+    forceCamLoc.camDir = [0.7859494582786438, 0.509145130880376, -0.35079151177346235];
+    BlackHole3D.Camera.setCamForcedInitLoc(forceCamLoc);
     var dataSetList = [
         {
             "dataSetId": "机房01",
@@ -167,6 +173,12 @@ function loadModel() {
         // {
         //     "dataSetId": "桥",
         //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a09611aa1c3c4a7d1624c205c42c7af",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "长地形超大",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_nantong",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
