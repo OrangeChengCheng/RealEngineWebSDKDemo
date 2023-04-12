@@ -929,14 +929,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置主场景相机的投影类型
      * @param {Number} type //是否偏向
      */
-    Module.Camera.setCamPreferFPS = function (type) {
+    Module.Camera.setCamType = function (type) {
         Module.RealBIMWeb.SetCamProjType(type);
     }
 
     /**
      * 获取主场景相机的投影类型
      */
-    Module.Camera.getCamPreferFPS = function () {
+    Module.Camera.getCamType = function () {
         return Module.RealBIMWeb.GetCamProjType();
     }
 
