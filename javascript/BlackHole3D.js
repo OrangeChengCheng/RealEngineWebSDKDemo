@@ -952,7 +952,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置主场景相机的投影类型
+     * 设置相机的强制初始方位 （可以在加载模型之前设置）
      * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
      */
     Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
@@ -965,7 +965,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 获取主场景相机的投影类型
+     * 获取相机的强制初始方位信息
      */
     Module.Camera.getCamForcedInitLoc = function () {
         var _forceInitLoc = Module.RealBIMWeb.GetCamForcedInitLoc();
