@@ -6249,7 +6249,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.guid = null;  //标高的唯一标识
             this.name = null;   //标高的名称
-            this.lineclr = null;  //标高线颜色
+            this.lineClr = null;  //标高线颜色
             this.height = null;//高度
             this.topHeight = null;//顶高
             this.bottomHeight = null;//底高
@@ -6361,12 +6361,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 根据标高的guid获取三个高度值
-     * @param {String} groupName //组名称，该组轴网的唯一标识
+     * @param {String} groupName //组名称，该组标高的唯一标识
      * @param {String} guid //标高的唯一标识
      */
     Module.Elevation.getData = function (groupName, guid) {
         return Module.RealBIMWeb.GetLevelHeightInfo(groupName, guid);
     }
+
+    /**
+     * 设置标高是否允许被模型遮挡
+     * @param {Boolean} enable //是否允许遮挡
+     */
+    Module.Elevation.setOverlap = function (enable) {
+        Module.RealBIMWeb.SetLevelContactSce(enable);
+    }
+
+    /**
+     * 获取当前设置的标高是否允许被模型遮挡状态
+     */
+    Module.Elevation.getOverlap = function () {
+        return Module.RealBIMWeb.GetLevelContactSce();
+    }
+
+
+
 
 
 

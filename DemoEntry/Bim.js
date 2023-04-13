@@ -133,12 +133,6 @@ function RELocateCam(e) {
 
 // 加载模型
 function loadModel() {
-    var forceCamLoc = new BlackHole3D.REForceCamLoc();
-    forceCamLoc.force = true;
-    forceCamLoc.camPos = [8.358493400297508, 52.50357912019764, 4.313767751405416];
-    //forceCamLoc.camRotate = [0.5005446775385528, -0.27213832861450266, -0.3925471059564452, 0.7220128291740741];
-    forceCamLoc.camDir = [0.7859494582786438, 0.509145130880376, -0.35079151177346235];
-    BlackHole3D.Camera.setCamForcedInitLoc(forceCamLoc);
     var dataSetList = [
         {
             "dataSetId": "机房01",
