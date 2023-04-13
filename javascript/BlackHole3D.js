@@ -1612,7 +1612,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dockArea //停靠方式  0：下方停靠 1：左侧停靠  2：顶侧停靠  3：右侧停靠
      */
     Module.Graphics.setSysPanelUIDockArea = function (dockArea) {
-        var _dockArea = 0; if (isEmpty(dockArea)) _dockArea = dockArea;
+        var _dockArea = 0; if (!isEmpty(dockArea)) _dockArea = dockArea;
         Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
     }
 
@@ -4802,7 +4802,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      */
     Module.Grid.resetDataSetClr = function (dataSetId) {
-        var _dataSetId = ""; if (isEmpty(dataSetId)) _dataSetId = dataSetId;
+        var _dataSetId = ""; if (!isEmpty(dataSetId)) _dataSetId = dataSetId;
         Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, "", { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
     }
 
@@ -6319,6 +6319,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 删除所有标高数据
+     */
+    Module.Elevation.delAllData = function () {
+        var tempLevelName = new Module.RE_Vector_WStr();
+        Module.RealBIMWeb.DelLevelData(tempLevelName);
+    }
+
+    /**
      * 设置标高的显示颜色
      * @param {String} groupName //组名称，该组标高的唯一标识
      * @param {Array} guidList //guid集合
@@ -6729,13 +6737,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             clipInfo.onlyVisible, clipInfo.includeInter);
     }
 
-    /**
-     * 设置剖切完成后是否自动聚焦到剖切面
-     * @param {Boolean} enable //是否自动聚集
-     */
-    Module.Clip.setAutoFocusClipFace = function (enable) {
-        Module.RealBIMWeb.setTargetToClipPlane(enable);
-    }
+
 
 
 

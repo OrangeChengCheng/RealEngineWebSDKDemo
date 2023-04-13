@@ -194,18 +194,6 @@ Module.REtrain_BindCamToTrain = function(uTrainID, uTrainSide)
 
 
 
-//设置非版本管理复杂模型组的区域过滤信息
-//strProjName：表示要处理的项目名称，为空串则表示处理所有项目
-//strGroupName：表示要处理的复杂模型组的名称标识，若为空串则表示处理所有的复杂模型组
-//arrBounds：表示过滤区域的边界面序列
-//bFilterInner：表示是否显示过滤区域内数据
-Module.REsetUnVerHugeGroupRegionFilter = function(projName,sceName,arrBounds,bFilterInner){
-  var temparray =new Module.RE_Vector_dvec4();
-  for(var i=0;i<arrBounds.length;++i){
-    temparray.push_back(arrBounds[i]);
-  }
-  return Module.RealBIMWeb.SetUnVerHugeGroupRegionFilter(projName,sceName,temparray,bFilterInner);
-}
 
 
 
@@ -525,10 +513,6 @@ Module.REaddCustomPolyFenceShp = function(shpName, arrPots, bClose, uClr, fASDis
 
 
 
-
-
-
-// MOD-- 模型编辑功能
 
 
 
