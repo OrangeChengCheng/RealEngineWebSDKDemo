@@ -6278,7 +6278,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             };
             _tempLevels.push_back(_tempObj);
         }
-        Module.RealBIMWeb.SetLevelData(groupName, _tempLevels, dataSetId);
+        return Module.RealBIMWeb.SetLevelData(groupName, _tempLevels, dataSetId);
     }
 
     /**
