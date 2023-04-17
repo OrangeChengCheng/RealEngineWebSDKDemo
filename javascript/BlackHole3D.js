@@ -961,7 +961,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return false;
 
         var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
-        return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate, forceCamLoc.camDir);
+
+        if (forceCamLoc.camRotate[0] != 1e30) {
+            return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
+        }
+        if (forceCamLoc.camDir[0] != 1e30) {
+            var _camLocConv = Module.RealBIMWeb.GetCamLocConvert(forceCamLoc.camPos, forceCamLoc.camDir);
+            return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
+        }
     }
 
     /**
@@ -969,11 +976,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getCamForcedInitLoc = function () {
         var _forceInitLoc = Module.RealBIMWeb.GetCamForcedInitLoc();
+        var _camLocConv = Module.RealBIMWeb.GetCamLocConvert_Dir(_forceInitLoc.m_vCamPos, _forceInitLoc.m_qCamRotate);
         var forceCamLoc = new REForceCamLoc();
         forceCamLoc.force = _forceInitLoc.m_bForce;
         forceCamLoc.camPos = _forceInitLoc.m_vCamPos;
         forceCamLoc.camRotate = _forceInitLoc.m_qCamRotate;
-        forceCamLoc.camDir = _forceInitLoc.m_vCamDir;
+        forceCamLoc.camDir = _camLocConv.m_qCamDir;
         return forceCamLoc;
     }
 
