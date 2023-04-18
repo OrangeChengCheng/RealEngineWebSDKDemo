@@ -6124,7 +6124,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.guid = null;  //轴线的唯一标识
             this.name = null;   //轴线的名称
-            this.lineclr = null;  //轴线的颜色
+            this.lineClr = null;  //轴线的颜色
             this.pos = null;  //轴线两个顶点坐标
         }
     }
@@ -6140,8 +6140,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < infoList.length; i++) {
             let _info = infoList[i];
             let _tempArrPos = new Module.RE_Vector_vec3();
-            _tempArrPos.push_back(_info.pos[0]);
-            _tempArrPos.push_back(_info.pos[1]);
+            for (let j = 0; j < _info.pos.length; j++) {
+                _tempArrPos.push_back(_info.pos[j]);
+            }
             let _clr = clrToU32(_info.lineClr);
             let _tempObj = {
                 m_strGuid: _info.guid,
@@ -6186,6 +6187,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (var i = 0; i < groupNameList.length; ++i) {
             tempGridsName.push_back(groupNameList[i]);
         }
+        Module.RealBIMWeb.DelGridData(tempGridsName);
+    }
+
+    /**
+     * 删除所有轴网数据
+     */
+    Module.AxisGrid.delAllData = function () {
+        var tempGridsName = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.DelGridData(tempGridsName);
     }
 
