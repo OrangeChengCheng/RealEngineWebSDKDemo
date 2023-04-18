@@ -1,4 +1,4 @@
-//版本：v3.1.0.1921
+//版本：v3.1.0.1931
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -4239,6 +4239,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.getMaxSmooth = function (dataSetId) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         return Module.RealBIMWeb.GetHugeObjMaxSmooth(dataSetId, "");
+    }
+
+    /**
+     * 设置模型边界线是否启用法线光照的明暗效果
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {Boolean} enable //是否允许
+     */
+    Module.BIM.setBorderLineNorLight = function (dataSetId, enable) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.SetHugeObjBorderLineNor(dataSetId, "", enable);
+    }
+
+    /**
+     * 获取模型边界线是否启用法线光照的明暗效果
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     */
+    Module.BIM.getBorderLineNorLight = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetHugeObjBorderLineNor(dataSetId, "");
     }
 
 
