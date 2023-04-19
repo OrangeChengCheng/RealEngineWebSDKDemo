@@ -52,6 +52,9 @@ function addREListener() {
 
 //场景初始化，需正确传递相关参数
 function RESystemReady() {
+    // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://realbim.bjblackhole.cn:18080/author/author_path02.txt");
+    // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://realbim.bjblackhole.cn:18080/res/", "http://realbim.bjblackhole.cn:18080/pathindex/res/index.xml");
+
     console.log("=========================== 引擎底层初始化完成");
     progressFn(0.5, "RealEngine/WorkerJS Begin Init");
 
@@ -60,6 +63,7 @@ function RESystemReady() {
     sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
     sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
     sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
+    //sysInfo.commonUrl = "http://realbim.bjblackhole.cn:18080/res/res_gol006";
     sysInfo.userName = "admin";
     sysInfo.passWord = "xiyangyang";
     sysInfo.mainWndName = "BlackHole3D";
@@ -134,12 +138,12 @@ function RELocateCam(e) {
 // 加载模型
 function loadModel() {
     var dataSetList = [
-        {
-            "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "机房01",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "机房02",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
@@ -279,6 +283,18 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "MiniIO小房子",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0a66aee93946924f81713d912ed7e4",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        {
+            "dataSetId": "MiniIO小房子",
+            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res14&path=3a0aa997146ecdfee87474edef3fb335",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
@@ -979,7 +995,16 @@ function addAncLODStyle() {
 }
 
 
+//设置UV动画属性
+function addUVAnim() {
+    var anim = new BlackHole3D.REElemUVAnim();
+    anim.dataSetId = "dataSet01";
+    anim.elemIdList = [37, 133];
+    anim.scale = [1.0, 1.0];
+    anim.speed = [-1.0, 0.0];
 
+    BlackHole3D.BIM.setElemUVAnimAttr(anim);
+}
 
 
 
