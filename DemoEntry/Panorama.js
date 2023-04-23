@@ -51,6 +51,8 @@ function addREListener() {
 
 //场景初始化，需正确传递相关参数
 function RESystemReady() {
+    // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://realbim.bjblackhole.cn:18080/author/author_path02.txt");
+    // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://realbim.bjblackhole.cn:18080/res/", "http://realbim.bjblackhole.cn:18080/pathindex/res/index.xml");    
     console.log("=========================== 引擎底层初始化完成");
     progressFn(0.5, "RealEngine/WorkerJS Begin Init");
 
@@ -59,6 +61,7 @@ function RESystemReady() {
     sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
     sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
     sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
+    //sysInfo.commonUrl = "http://realbim.bjblackhole.cn:18080/res/res_gol006";
     sysInfo.userName = "admin";
     sysInfo.passWord = "xiyangyang";
     sysInfo.mainWndName = "BlackHole3D";
@@ -152,7 +155,11 @@ function loadPan() {
         {
             "dataSetId": "pan01",
             "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
-        }
+        },
+        // {
+        //     "dataSetId": "pan01",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0aaaf8c13ea016ade7fde73533b739",
+        // },
     ];
     BlackHole3D.Panorama.loadPan(dataSetList);
 }
