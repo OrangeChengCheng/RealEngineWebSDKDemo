@@ -144,12 +144,12 @@ function loadModel() {
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
-        // {
-        //     "dataSetId": "机房02",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
+        {
+            "dataSetId": "机房02",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
         //     "dataSetId": "天台",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_lunkuoxian",
@@ -1011,6 +1011,40 @@ function addUVAnim() {
 
     BlackHole3D.BIM.setElemUVAnimAttr(anim);
 }
+
+//使用数据进行剖切
+function useDataClip() {
+    var dataList = [
+        {
+            dataSetId: "机房01",
+            elemIdList: [787]
+        },
+        {
+            dataSetId: "机房02",
+            elemIdList: [785, 1065]
+        }
+    ];
+    BlackHole3D.Clip.setBoxClip(dataList);
+}
+
+
+
+
+//添加一组测量数据
+function addMeasureData() {
+    var measureInfo = new BlackHole3D.REMeasureInfo();
+    measureInfo.measureType = 1;
+    measureInfo.dataShowType = 1;
+    measureInfo.groupId = 100;
+    measureInfo.pointList = [
+        [5.2774847810884005, 20.279251129164138, 1.35592204225739],
+        [9.208837486233602, 19.28688892897917, 1.6398539371733278],
+    ];
+    BlackHole3D.Measure.addGroupData(measureInfo);
+}
+
+
+
 
 
 

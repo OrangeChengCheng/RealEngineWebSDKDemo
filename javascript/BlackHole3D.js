@@ -5522,15 +5522,106 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 测量（Measure）
     Module.Measure = typeof Module.Measure !== "undefined" ? Module.Measure : {};//增加 Measure 模块
 
+    // MARK 渲染设置
+    /**
+     * 设置测量线的颜色
+     * @param {String} clrType //颜色类型
+     * @param {REColor} lineClr //测量线颜色（REColor 类型）
+     */
+    Module.Measure.setLineClr = function (clrType, lineClr) {
+        var uclr = clrToU32(lineClr);
+        Module.RealBIMWeb.SetMeasureShapeColor(clrType, uclr);
+    }
 
     /**
-     * 坡度显示开关
+     * 设置测量显示文字的样式
+     * @param {String} clrType //颜色类型
+     * @param {String} fontName //字体样式名称，由REaddAGolFont接口创建的字体名称；填空字符串表示使用默认字体样式
+     * @param {REColor} lineClr //测量线颜色（REColor 类型）
+     * @param {Boolean} isBorder //表示本次设置该字体本身还是边框：true：表示设置边框颜色，false：表示设置字体本身
+     */
+    Module.Measure.setTextStyle = function (clrType, fontName, lineClr, isBorder) {
+        var uclr = clrToU32(lineClr);
+        var tempshapetype = isBorder ? (clrType + "_Border") : clrType;
+        var _fontStyle = "RealBIMFont001"; if (fontName != "") { _fontStyle = fontName; }
+        Module.RealBIMWeb.SetMeasureTextColor(tempshapetype, uclr);
+        Module.RealBIMWeb.SetMeasureTextFontName(tempshapetype, _fontStyle);
+    }
+
+    /**
+     * 重置测量样式为系统默认样式
+     */
+    Module.Measure.resetDefaultStyle = function () {
+        Module.RealBIMWeb.ResetMeasureShapeAppearance();
+    }
+
+    /**
+     * 获取测量显示的精度
+     */
+    Module.Measure.getValueDispPrecision = function () {
+        return Module.RealBIMWeb.GetMeasureValueDispPrecision();
+    }
+
+    /**
+     * 设置测量显示的精度
+     * @param {Number} precision //精度（正整数）
+     */
+    Module.Measure.setValueDispPrecision = function (precision) {
+        Module.RealBIMWeb.SetMeasureValueDispPrecision(precision);
+    }
+
+    /**
+     * 获取坡度显示状态
+     */
+    Module.Measure.getSlopeVisible = function () {
+        return Module.RealBIMWeb.GetGradeVisible();
+    }
+
+    /**
+     * 设置长度测量时两点之间的坡度显示开关
      * @param {Boolean} enable //是否开启
      */
     Module.Measure.setSlopeVisible = function (enable) {
-        Module.RealBIMWeb.SetSlopeVisible(enable);
+        Module.RealBIMWeb.SetGradeVisible(enable);
     }
 
+    /**
+     * 获取当前长度测量的数据显示模式
+     */
+    Module.Measure.getLengthDataShowType = function () {
+        var _type = Module.RealBIMWeb.GetMeasureLockDir();
+        return _type == 4 ? 3 : _type;
+    }
+
+    /**
+     * 设置当前长度测量的数据显示模式
+     * @param {Number} type //显示模式 1:沿线本身方向  2：测量线投射XY平面  3：测量线投射Z方向
+     */
+    Module.Measure.setLengthDataShowType = function (type) {
+        var _type = type == 3 ? 4 : type;
+        Module.RealBIMWeb.SetMeasureLockDir(_type);
+    }
+
+    /**
+     * 获取当前面积测量的数据显示模式
+     */
+    Module.Measure.getAreaDataShowType = function () {
+        return Module.RealBIMWeb.GetMeasureLockDir();
+    }
+
+    /**
+     * 设置当前面积测量的数据显示模式
+     * @param {Number} type //显示模式 1:平面上  2：平面投射XY平面
+     */
+    Module.Measure.setAreaDataShowType = function (type) {
+        Module.RealBIMWeb.SetMeasureLockDir(type);
+    }
+
+
+
+
+
+    // MARK 操作设置
     /**
      * 显示鼠标选中点到场景中电子围栏的最短距离
      */
@@ -5580,36 +5671,171 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置测量线的颜色
-     * @param {String} clrType //颜色类型
-     * @param {REColor} lineClr //测量线颜色（REColor 类型）
+     * 获取当前操作的测量类型
      */
-    Module.Measure.setLineClr = function (clrType, lineClr) {
-        var uclr = clrToU32(lineClr);
-        Module.RealBIMWeb.SetMeasureShapeColor(clrType, uclr);
+    Module.Measure.getMeasureType = function () {
+        var _type = Module.RealBIMWeb.GetMeasureType();
+        switch (_type) {
+            case 4:
+                _type = 3;
+                break;
+            case 8:
+                _type = 4;
+                break;
+            default:
+                break;
+        }
+        return _type;
     }
 
     /**
-     * 设置测量显示文字的样式
-     * @param {String} clrType //颜色类型
-     * @param {String} fontName //字体样式名称，由REaddAGolFont接口创建的字体名称；填空字符串表示使用默认字体样式
-     * @param {REColor} lineClr //测量线颜色（REColor 类型）
-     * @param {Boolean} isBorder //表示本次设置该字体本身还是边框：true：表示设置边框颜色，false：表示设置字体本身
+     * 设置当前操作的测量类型
+     * @param {Number} type //操作的测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
      */
-    Module.Measure.setTextStyle = function (clrType, fontName, lineClr, isBorder) {
-        var uclr = clrToU32(lineClr);
-        var tempshapetype = isBorder ? (clrType + "_Border") : clrType;
-        var _fontStyle = "RealBIMFont001"; if (fontName != "") { _fontStyle = fontName; }
-        Module.RealBIMWeb.SetMeasureTextColor(tempshapetype, uclr);
-        Module.RealBIMWeb.SetMeasureTextFontName(tempshapetype, _fontStyle);
+    Module.Measure.setMeasureType = function (type) {
+        var _type = isEmpty(type) ? 1 : type;
+        switch (_type) {
+            case 3:
+                _type = 4;
+                break;
+            case 4:
+                _type = 8;
+                break;
+            default:
+                break;
+        }
+        Module.RealBIMWeb.SetMeasureType(_type);
     }
 
     /**
-     * 重置测量样式为系统默认样式
+     * 获取是否是单次测量模式
      */
-    Module.Measure.resetDefaultStyle = function () {
-        Module.RealBIMWeb.ResetMeasureShapeAppearance();
+    Module.Measure.getSingleStyleState = function () {
+        return Module.RealBIMWeb.GetSingleMeasureMode();
     }
+
+    /**
+     * 设置是否是单次测量模式
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Measure.setSingleStyleState = function (enable) {
+        Module.RealBIMWeb.SetSingleMeasureMode(enable);
+    }
+
+    /**
+     * 进入测量交互模式
+     */
+    Module.Measure.startMeasureState = function () {
+        //接口进入测量模式和系统UI面板中的测量模式不联动，需要关闭系统UI面板(包含内联弹窗)
+        Module.RealBIMWeb.SetBuiltInUIVisible(false);
+        Module.RealBIMWeb.SetBuiltInUIEnable(false);
+        var state = Module.RealBIMWeb.EnterMeasureMode();
+        Module.RealBIMWeb.SetMeasureType(1);//默认进入长度测量
+        return state;
+    }
+
+    /**
+     * 结束测量交互模式
+     * @param {Boolean} enable //之前是否允许系统UI面板展示(默认为展示系统UI面板)
+     */
+    Module.Measure.endMeasureState = function (enable) {
+        var _enable = isEmpty(enable) ? true : enable;
+        if (_enable) {
+            //需要恢复关闭的系统UI面板(包含内联弹窗)
+            Module.RealBIMWeb.SetBuiltInUIEnable(true);
+            Module.RealBIMWeb.SetBuiltInUIVisible(true);
+        }
+        Module.RealBIMWeb.ExitMeasureMode();
+    }
+
+    /**
+     * 取消当前点选操作
+     */
+    Module.Measure.cancelCurPotOpt = function () {
+        return Module.RealBIMWeb.TerminateMeasurePath();
+    }
+
+    /**
+     * 获取当前是否处于测量交互模式
+     */
+    Module.Measure.getCurState = function () {
+        return Module.RealBIMWeb.IsInMeasureMode();
+    }
+
+    class REMeasureInfo {
+        constructor() {
+            this.measureType = null;//测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+            this.dataShowType = null;//数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向
+            this.groupId = null;//组id
+            this.pointList = null;//测量点集合
+        }
+    }
+    ExtModule.REMeasureInfo = REMeasureInfo;
+
+    /**
+     * 添加一组测量数据
+     * @param {REMeasureInfo} measureInfo //测量信息
+     */
+    Module.Measure.addGroupData = function (measureInfo) {
+        if (!Module.RealBIMWeb.IsInMeasureMode()) return;//不处于测量模式下无效
+        if (isEmptyLog(measureInfo, "measureInfo")) return;
+        if (isEmptyLog(measureInfo.groupId, "groupId")) return;
+        if (isEmptyLog(measureInfo.pointList, "pointList")) return;
+
+        var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureInfo.measureType;
+        switch (_measureType) {
+            case 3:
+                _measureType = 4;
+                break;
+            case 4:
+                _measureType = 8;
+                break;
+            default:
+                break;
+        }
+        var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : measureInfo.dataShowType;
+        if (_measureType == 1) {
+            _dataShowType = _dataShowType == 3 ? 4 : _dataShowType;
+        } else if (_measureType == 3) {
+            _dataShowType = _dataShowType == 3 ? 1 : _dataShowType;
+        } else {
+            _dataShowType = 1;
+        }
+        var _pointList = new Module.RE_Vector_dvec3();
+        for (let i = 0; i < measureInfo.pointList.length; i++) {
+            _pointList.push_back(measureInfo.pointList[i]);
+        }
+        Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
+    }
+
+    /**
+     * 删除一组测量数据
+     * @param {Number} groupId //组id
+     */
+    Module.Measure.delGroupData = function (groupId) {
+        Module.RealBIMWeb.RemoveAMeasureGroup(groupId);
+    }
+
+    /**
+     * 删除一类测量数据
+     * @param {Number} type //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+     */
+    Module.Measure.delTypeData = function (type) {
+        var _type = isEmpty(type) ? 1 : type;
+        switch (_type) {
+            case 3:
+                _type = 4;
+                break;
+            case 4:
+                _type = 8;
+                break;
+            default:
+                break;
+        }
+        Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
+    }
+
+
 
 
 
@@ -6606,7 +6832,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 剖切（Clip）
     Module.Clip = typeof Module.Clip !== "undefined" ? Module.Clip : {};//增加 Clip 模块
 
-
+    // MARK 通用
     /**
      * 获取剖切完成后的可见元素ID集合
      * @param {Boolean} deleteCrossPart //是否去除与包围体相交叉部分的构件，只保留包含在包围体内的；false：表示包含交叉；true：表示去除交叉
@@ -6661,7 +6887,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
     ExtModule.REClipInfo = REClipInfo;
-
 
     /**
      * 获取当前的剖面信息
@@ -6726,15 +6951,122 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 判断是否处于剖切浏览模式
      */
-    Module.Clip.getClipState = function () {
+    Module.Clip.getClipBrowseState = function () {
         return Module.RealBIMWeb.IsSceneClippingBrowsing();
     }
 
     /**
-     * 进入单面剖切状态
+     * 设置反向显示剖切区域
      */
-    Module.Clip.setSingleClip = function () {
-        Module.RealBIMWeb.OnSingleSurfaceClipClicked();
+    Module.Clip.setReverseShowClipRgn = function () {
+        Module.RealBIMWeb.ReverseShowClipRgn();
+    }
+
+    /**
+     * 设置当前剖切状态为浏览模式
+     */
+    Module.Clip.setClipBrowseStyle = function () {
+        Module.RealBIMWeb.ExecuteSceneClip(false);
+    }
+
+    /**
+     * 设置当前剖切状态为编辑模式
+     */
+    Module.Clip.setClipEditStyle = function () {
+        Module.RealBIMWeb.ExecuteSceneClip(true);
+    }
+
+    /**
+     * 重置剖切操作
+     */
+    Module.Clip.resetClip = function () {
+        if (!Module.RealBIMWeb.IsClipObjectValid()) return;//不在剖切模式下
+        if (Module.RealBIMWeb.IsSinglePlaneClipping()) {
+            // 是否是单面剖切
+            Module.RealBIMWeb.ResetClipping(true);
+        } else {
+            Module.RealBIMWeb.ResetClipping(false);
+        }
+    }
+
+    /**
+     * 获取是否是在剖切模式下
+     */
+    Module.Clip.getClipState = function () {
+        Module.RealBIMWeb.IsClipObjectValid();
+    }
+
+    /**
+     * 获取当前处于剖切模式的操作状态（单面剖切、体剖切）
+     */
+    Module.Clip.getClipOptState = function () {
+        if (!Module.RealBIMWeb.IsClipObjectValid()) return 0;//不在剖切模式下
+        return Module.RealBIMWeb.IsSinglePlaneClipping() ? 1 : 2;
+    }
+
+
+
+    // MARK 体剖切
+
+    /**
+     * 进入体剖切状态
+     * @param {Array} dataList //构件集合（支持多数据集构件集合） [{dataSetId:"",elemIdList:[]}]
+     */
+    Module.Clip.setBoxClip = function (dataList) {
+        if (isEmptyLog(dataList, "dataList")) return;
+
+        if (!dataList.length) {
+            Module.RealBIMWeb.BeginSceneClippingByElemSet(false, 0, 0);
+        } else {
+            var count = 0;
+            for (let i = 0; i < dataList.length; i++) {
+                let _obj = dataList[i];
+                let _list = _obj["elemIdList"];
+                count += _list.length;
+            }
+
+            var _moemory = (count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory)//分配空间
+            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (let i = 0; i < dataList.length; i++) {
+                let _obj = dataList[i];
+                let _list = _obj["elemIdList"];
+                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj["dataSetId"]);
+                let elemid = _list[i];
+                _elemIds.set([elemid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.BeginSceneClippingByElemSet(false, _elemIds.byteLength, _elemIds.byteOffset);
+        }
+    }
+
+    /**
+     * 进入体剖切状态（数据集模式）
+     * @param {Array} dataSetIdList //数据集标识集合,为空数组代表所有数据集
+     */
+    Module.Clip.setDataSetBoxClip = function (dataSetIdList) {
+        if (isEmptyLog(dataSetIdList, "dataSetIdList")) return;
+
+        var _vector_DataSetIds = new Module.RE_Vector_WStr();
+        for (let i = 0; i < dataSetIdList.length; i++) {
+            _vector_DataSetIds.push_back(dataSetIdList[i]);
+        }
+        Module.RealBIMWeb.BeginSceneClippingByProjSet(false, _vector_DataSetIds);
+    }
+
+    /**
+     * 获取体剖切变换模式
+     */
+    Module.Clip.getBoxClipTransType = function () {
+        return Module.RealBIMWeb.GetSceneClippingTransformMode();
+    }
+
+    /**
+     * 设置体剖切变换模式
+     * @param {Number} type //剖切变换模式(默认缩放) 0:位移 1:旋转 2:缩放  
+     */
+    Module.Clip.setBoxClipTransType = function (type) {
+        var _type = isEmpty(type) ? 2 : type;
+        Module.RealBIMWeb.SetSceneClippingTransformMode(_type);
     }
 
     /**
@@ -6748,6 +7080,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.ClipByProj(topHeight, bottomHeight, single, dataSetId);
     }
 
+
+
+
+
+
+    // MARK 单面剖切
+    /**
+     * 进入单面剖切状态
+     */
+    Module.Clip.setSingleClip = function () {
+        Module.RealBIMWeb.BeginSceneClippingByElemSet(true, 0, 0);
+    }
+
+    /**
+     * 获取单面剖切的创建方式
+     */
+    Module.Clip.getSingleClipCreateType = function () {
+        return Module.RealBIMWeb.GetClipPlaneCreateMode();
+    }
+
+    /**
+     * 设置单面剖切的创建方式（三点构面、鼠标拾取）
+     * @param {Number} type //创建模式(默认三点构面) 0:三点构面 1:鼠标拾取  
+     */
+    Module.Clip.setSingleClipCreateType = function (type) {
+        var _type = isEmpty(type) ? 0 : type;
+        Module.RealBIMWeb.SetClipPlaneCreateMode(_type);
+    }
+
+
+
+
+
+
+
+
+    // MARK 相机
     /**
      * 根据指定方向定位到剖切面并进行缩放
      * @param {RECamDirEm} locType //定位方向信息（RECamDirEm 枚举类型）
@@ -6784,6 +7153,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.TargetToCilpElem(strCamDir, _dScale)
     }
 
+    /**
+     * 定位相机到剖切面
+     */
+    Module.Clip.setLocateToClipPlane = function () {
+        Module.RealBIMWeb.TargetToClipRegion();
+    }
+
+
+
+
+
+
+
+    // MARK 组合剖切
 
     class REAxisGridClipInfo {
         constructor() {
@@ -6798,7 +7181,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
     ExtModule.REAxisGridClipInfo = REAxisGridClipInfo;
-
 
     /**
      * 根据轴网对场景裁剪
