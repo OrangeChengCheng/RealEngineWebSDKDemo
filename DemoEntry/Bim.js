@@ -87,6 +87,8 @@ function RESystemEngineCreated(e) {
         BlackHole3D.Common.setExpectMaxInstMemMB(4500);
         BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
         BlackHole3D.Common.setPageLoadLev(2);
+
+        // BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpRankEm.LR);
     } else {
         console.log("===========================  场景初始化 --> 失败！！！");
     }
@@ -144,12 +146,12 @@ function loadModel() {
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
-        {
-            "dataSetId": "机房02",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "机房02",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "天台",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_lunkuoxian",
@@ -287,7 +289,7 @@ function loadModel() {
         //     "dataSetId": "MiniIO小房子",
         //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0a66aee93946924f81713d912ed7e4",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
         // },
         // {
         //     "dataSetId": "长管道",
@@ -301,10 +303,17 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "版本对比楼房",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0ac47c6ed2ff3f469802152fc9c97e",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
+        //     "useAssginVer": true, "assginVer": 0,
+        //     "useAssginVer2": true, "assginVer2": 1,
+        // },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
-
 
 
 

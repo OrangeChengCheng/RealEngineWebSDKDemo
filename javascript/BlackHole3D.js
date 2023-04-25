@@ -4134,23 +4134,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置模型场景节点的可见性
-     * @param {String} dataSetId //数据集标识
-     * @param {Boolean} enable //是否可见
-     */
-    Module.BIM.setElemVisible = function (dataSetId, enable) {
-        Module.RealBIMWeb.SetHugeObjVisible(dataSetId, "", enable);
-    }
-
-    /**
-     * 获取模型场景节点的可见性
-     * @param {String} dataSetId //数据集标识
-     */
-    Module.BIM.getElemVisible = function (dataSetId) {
-        return Module.RealBIMWeb.GetHugeObjVisible(dataSetId, "");
-    }
-
-    /**
      * 设置复杂模型内子元素的深度偏移
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
