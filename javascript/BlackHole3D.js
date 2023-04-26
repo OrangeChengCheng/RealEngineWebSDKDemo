@@ -1,4 +1,4 @@
-//版本：v3.1.0.1934
+//版本：v3.1.0.1939
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -4135,7 +4135,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _count = regInfo.pointList.length;
         if (_count == 0) return;
-        
+
         var _moemory = (_count * 16).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory);
         var _polypots = Module.RealBIMWeb.GetHeapView_Double(0);
