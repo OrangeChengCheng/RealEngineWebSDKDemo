@@ -27,47 +27,6 @@ Module.REgetScreenScale = function(){
 
 
 
-//表示多边形区域场景裁剪的内部消息响应函数
-REpolyclipHugeObjSubElems_innerlistener_inited =false;
-Module.REpolyclipHugeObjSubElems_innerlistener = function(e){
-  var finalprojs =[]; var curprojname =""; var curprojelemids =[]; var curprojid =0xffffffff; var id1, id2;
-  for(i =0; i<e.detail.elemids.length/2; ++i){
-    id1 =e.detail.elemids[i*2+0]; id2 =e.detail.elemids[i*2+1];
-    if(id2 != curprojid){
-      if(curprojid != 0xffffffff){finalprojs.push({name: curprojname, ids: curprojelemids});}
-      curprojname =Module.RealBIMWeb.ConvGolIntID2StrID(id2); curprojelemids =[id1]; curprojid =id2;
-    }else{
-      curprojelemids.push(id1);
-    }
-  }
-  if(curprojelemids.length > 0){
-    finalprojs.push({name: curprojname, ids: curprojelemids}); 
-  }
-	var event = new CustomEvent("RealBIMPolyClipRet", {detail:{progress: e.detail.progress, projs: finalprojs, aabb: e.detail.aabb, userbatch: e.detail.userbatch}});
-	document.dispatchEvent(event);
-}
-
-//进行多边形区域场景裁剪
-//projName：表示要处理的项目名称，为空串则表示处理所有项目
-//sceName：表示要处理的场景节点名称，若为空串则表示处理所有的场景节点
-//PolyPotsArray：表示XY平面的多边形裁剪区域(多边形首端点与末端点相连可构成一个封闭区域)
-//dMinHeight,dMaxHeight：表示Z轴上多边形裁剪区域的最小/最大高度
-//bOnlyVisible：表示是否仅包含可见元素
-//bIncludeInter：表示是否包含与多边形区域边界相交的元素
-//uUserBatch：表示用户自定义批次编号
-Module.REpolyclipHugeObjSubElems = function(projName, sceName, PolyPotsArray, dMinHeight, dMaxHeight, bOnlyVisible, bIncludeInter, uUserBatch){
-  if(Module.REpolyclipHugeObjSubElems_innerlistener_inited == false){
-    Module.REpolyclipHugeObjSubElems_innerlistener_inited =true;
-    document.addEventListener("RealBIMPolyClipping", Module.REpolyclipHugeObjSubElems_innerlistener);
-  }
-  var innerstr = (PolyPotsArray.length*16).toString();
-  Module.RealBIMWeb.ReAllocHeapViews(innerstr); var polypots =Module.RealBIMWeb.GetHeapView_Double(0);
-  for(var j =0; j<PolyPotsArray.length; ++j)
-  {
-    polypots[2*j+0] =PolyPotsArray[j][0]; polypots[2*j+1] =PolyPotsArray[j][1];
-  }
-  Module.RealBIMWeb.PolyClipHugeObjSubElems(projName, sceName, polypots.byteLength, polypots.byteOffset, dMinHeight, dMaxHeight, bOnlyVisible, bIncludeInter, uUserBatch);  
-}
 
 
 //获取列车总数

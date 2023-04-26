@@ -2745,7 +2745,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _groupName = ""; if (!isEmpty(ancLODInfo.groupName)) { _groupName = ancLODInfo.groupName; }
         var _lodLevel = 1; if (!isEmpty(ancLODInfo.lodLevel)) { _lodLevel = ancLODInfo.lodLevel; }
         var _lodMergePxl = 100; if (!isEmpty(ancLODInfo.lodMergePxl)) { _lodMergePxl = ancLODInfo.lodMergePxl; }
-        var _lodMergeCap = 1; if (!isEmpty(ancLODInfo.lodMergeCap)) { _lodMergeCap = ancLODInfo.lodMergeCap; }
+        var _lodMergeCap = 2; if (!isEmpty(ancLODInfo.lodMergeCap)) { _lodMergeCap = ancLODInfo.lodMergeCap; }
         var _customBV = [[0, 0, 0], [0, 0, 0]]; if (ancLODInfo.useCustomBV) { _customBV = ancLODInfo.customBV; }
         var _linepos = [0, 0]; var _texfocus = [0, 0];
         var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.texBias)) { _textbias = ancLODInfo.mergeStyle.texBias; }
@@ -4078,6 +4078,73 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         return elemIds;
+    }
+
+
+    class RESelAxisGridRegInfo {
+        constructor() {
+            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
+            this.gridGroupName = null;//表示轴网所属组的唯一标识
+            this.gridNameList = null;//表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+            this.offset = null;//表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
+            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
+            this.onlyVisible = null;//表示是否仅包含可见元素
+            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
+        }
+    }
+    ExtModule.RESelAxisGridRegInfo = RESelAxisGridRegInfo;
+
+    /**
+     * 获取轴网范围内的构件
+     * @param {RESelAxisGridRegInfo} regInfo //轴网范围信息（RESelAxisGridRegInfo 类型）
+     */
+    Module.BIM.getAxisGridRegElem = function (regInfo) {
+        if (isEmpty(regInfo.dataSetId, 'dataSetId')) return;
+        if (isEmpty(regInfo.gridGroupName, 'gridGroupName')) return;
+        if (!checkTypeLog(regInfo.gridNameList, 'gridNameList', RE_Enum.RE_Check_Array)) return;
+
+        var _tempArrGridName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < regInfo.gridNameList.length; i++) {
+            _tempArrGridName.push_back(regInfo.gridNameList[i]);
+        }
+        Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(regInfo.dataSetId, regInfo.gridGroupName, _tempArrGridName,
+            regInfo.offset, regInfo.minHeight, regInfo.maxHeight,
+            regInfo.onlyVisible, regInfo.includeInter);
+    }
+
+    class RESelPolyFenceRegInfo {
+        constructor() {
+            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
+            this.pointList = null;//多边形点集合（必须为多边形首尾端点构成闭合区域）
+            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
+            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
+            this.onlyVisible = null;//表示是否仅包含可见元素
+            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
+        }
+    }
+    ExtModule.RESelPolyFenceRegInfo = RESelPolyFenceRegInfo;
+
+    /**
+     * 获取多边形范围内的构件
+     * @param {RESelPolyFenceRegInfo} regInfo //多边形范围信息（RESelPolyFenceRegInfo 类型）
+     */
+    Module.BIM.getPolyFenceRegElem = function (regInfo) {
+        if (isEmpty(regInfo.dataSetId, 'dataSetId')) return;
+        if (!checkTypeLog(regInfo.pointList, 'pointList', RE_Enum.RE_Check_Array)) return;
+
+        var _count = regInfo.pointList.length;
+        if (_count == 0) return;
+        
+        var _moemory = (_count * 16).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+        var _polypots = Module.RealBIMWeb.GetHeapView_Double(0);
+        for (let i = 0; i < _count; i++) {
+            let pot = regInfo.pointList[i];
+            //只取xy的值z不需要，有限制的顶高和低高
+            _polypots.set([pot[0], pot[1]], i * 2);
+        }
+        Module.RealBIMWeb.PolyClipHugeObjSubElems(regInfo.dataSetId, "", _polypots.byteLength, _polypots.byteOffset, regInfo.minHeight, regInfo.maxHeight, regInfo.onlyVisible, regInfo.includeInter);
     }
 
 
@@ -7151,37 +7218,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK 组合剖切
 
-    class REAxisGridClipInfo {
-        constructor() {
-            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
-            this.gridGroupName = null;//表示轴网所属组的唯一标识
-            this.gridNameList = null;//表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
-            this.offset = null;//表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
-            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
-            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
-            this.onlyVisible = null;//表示是否仅包含可见元素
-            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
-        }
-    }
-    ExtModule.REAxisGridClipInfo = REAxisGridClipInfo;
 
-    /**
-     * 根据轴网对场景裁剪
-     * @param {REAxisGridClipInfo} clipInfo //轴网裁剪信息（REAxisGridClipInfo 类型）
-     */
-    Module.Clip.setClipAxisGrid = function (clipInfo) {
-        if (isEmpty(clipInfo.dataSetId, 'dataSetId')) return;
-        if (isEmpty(clipInfo.gridGroupName, 'gridGroupName')) return;
-        if (!checkTypeLog(clipInfo.gridNameList, 'gridNameList', RE_Enum.RE_Check_Array)) return;
-
-        var _tempArrGridName = new Module.RE_Vector_WStr();
-        for (let i = 0; i < clipInfo.gridNameList.length; i++) {
-            _tempArrGridName.push_back(clipInfo.gridNameList[i]);
-        }
-        Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(clipInfo.dataSetId, clipInfo.gridGroupName, _tempArrGridName,
-            clipInfo.offset, clipInfo.minHeight, clipInfo.maxHeight,
-            clipInfo.onlyVisible, clipInfo.includeInter);
-    }
 
 
 

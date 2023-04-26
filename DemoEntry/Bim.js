@@ -856,8 +856,8 @@ function addDataInfoClip() {
 }
 
 
-//根据轴网进行剖切
-function setAxisGridClip() {
+//根据轴网获取轴网范围内的构件id
+function getSelAxisGridRegElem() {
     //添加轴网
     var infoList = [];
     var info1 = new BlackHole3D.REAxisGridInfo();
@@ -890,27 +890,55 @@ function setAxisGridClip() {
 
     BlackHole3D.AxisGrid.setData("AxisGrid01", infoList);
 
-    //添加剖切信息
-    var clipInfo = new BlackHole3D.REAxisGridClipInfo();
-    clipInfo.dataSetId = "dataSet01";
-    clipInfo.gridGroupName = "AxisGrid01";
-    clipInfo.gridNameList = ["B-10", "B-1", "A-1", "A-10",];
-    clipInfo.offset = [0, 0, 0, 0];
-    clipInfo.minHeight = 0.0;
-    clipInfo.maxHeight = 50.0;
-    clipInfo.onlyVisible = true;
-    clipInfo.includeInter = true;
+    //添加轴网范围信息
+    var regInfo = new BlackHole3D.RESelAxisGridRegInfo();
+    regInfo.dataSetId = "dataSet01";
+    regInfo.gridGroupName = "AxisGrid01";
+    regInfo.gridNameList = ["B-10", "B-1", "A-1", "A-10",];
+    regInfo.offset = [0, 0, 0, 0];
+    regInfo.minHeight = 0.0;
+    regInfo.maxHeight = 50.0;
+    regInfo.onlyVisible = true;
+    regInfo.includeInter = true;
 
-    BlackHole3D.Clip.setClipAxisGrid(clipInfo);
+    BlackHole3D.BIM.getAxisGridRegElem(regInfo);
 
-    //添加剖切监听回调
-    document.addEventListener("REClipFinish", REClipFinish);
-    function REClipFinish(e) {
-        console.log("剖切完成回调");
+    //添加选择范围监听回调
+    document.addEventListener("REElemSelRegFinish", REElemSelRegFinish);
+    function REElemSelRegFinish(e) {
+        console.log("获取范围内的构件回调完成");
         BlackHole3D.BIM.setElemsValidState("dataSet01", [], false);//全部置为无效
         BlackHole3D.BIM.setElemsValidState("dataSet01", e.detail.elemids, true);//选出的对象置为有效        
     }
 }
+
+//根据多边形获取范围内的构件id
+function getSelPolyFenceRegElem() {
+    //添加多边形范围信息
+    var regInfo = new BlackHole3D.RESelPolyFenceRegInfo();
+    regInfo.dataSetId = "机房01";
+    regInfo.pointList = [
+        [-20, 20, 0],
+        [23, -23, 0],
+        [53, 7, 0],
+        [10, 50, 0],
+    ];
+    regInfo.minHeight = 0.0;
+    regInfo.maxHeight = 50.0;
+    regInfo.onlyVisible = true;
+    regInfo.includeInter = true;
+
+    BlackHole3D.BIM.getPolyFenceRegElem(regInfo);
+
+    //添加选择范围监听回调
+    document.addEventListener("REElemSelRegFinish", REElemSelRegFinish);
+    function REElemSelRegFinish(e) {
+        console.log("获取范围内的构件回调完成", e.detail);
+        BlackHole3D.BIM.setElemsValidState("机房01", [], false);//全部置为无效
+        BlackHole3D.BIM.setElemsValidState("机房01", e.detail.elemids, true);//选出的对象置为有效        
+    }
+}
+
 
 
 
