@@ -119,8 +119,6 @@ function RESystemRenderReady() {
 // 加载进度条
 function REDataSetLoadProgress(e) {
     var percent = e.detail.progress; var info = e.detail.info;
-    console.log("--------", percent);
-    console.log("--------", info);
     progressFn(percent, info);
 }
 

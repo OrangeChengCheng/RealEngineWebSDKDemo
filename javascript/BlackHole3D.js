@@ -1116,7 +1116,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(skyInfo, "skyInfo")) return;
         if (isEmptyLog(skyInfo.skyTexPaths, "skyTexPaths")) return;
         var _sunMode = 1; if (!isEmpty(skyInfo.sunMode)) _sunMode = skyInfo.sunMode;
-        var _sunDir = [0.59215283, 0.63194525, -0.50000012]; if (!isEmpty(skyInfo.sunDir)) _sunDir = skyInfo.sunDir;
+        var _sunDir = [0.59215283, 0.63194525, -0.50000012]; 
+        if (!isEmpty(skyInfo.sunDir)) {
+            var v01 = skyInfo.sunDir[0];if(v01 == 0) v01 = 0.00001;
+            var v02 = skyInfo.sunDir[1];if(v02 == 0) v02 = 0.00001;
+            var v03 = skyInfo.sunDir[2];
+            //光照方向Z不能为从下向上，故不能为正值
+            if(v03 == 0) {
+                v03 = -0.00001;
+            } else if (v03 > 0) {
+                v03 = v03 * -1;
+            }
+            _sunDir = [v01, v02, v03];
+        }
         var _isNight = false; if (!isEmpty(skyInfo.isNight)) _isNight = skyInfo.isNight;
         var _exposeScale = 1.0; if (!isEmpty(skyInfo.exposeScale)) _exposeScale = skyInfo.exposeScale;
 
