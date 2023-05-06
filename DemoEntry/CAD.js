@@ -116,6 +116,7 @@ function RECADSelElement(e) {
 
 function RECADLoadFinish(e) {
     console.log("-- CAD加载完成事件 --");
+    progressFn(100, "CAD Load Finish");
 }
 
 function RESystemSelElement(e) {

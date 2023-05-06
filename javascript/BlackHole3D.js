@@ -1116,13 +1116,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(skyInfo, "skyInfo")) return;
         if (isEmptyLog(skyInfo.skyTexPaths, "skyTexPaths")) return;
         var _sunMode = 1; if (!isEmpty(skyInfo.sunMode)) _sunMode = skyInfo.sunMode;
-        var _sunDir = [0.59215283, 0.63194525, -0.50000012]; 
+        var _sunDir = [0.59215283, 0.63194525, -0.50000012];
         if (!isEmpty(skyInfo.sunDir)) {
-            var v01 = skyInfo.sunDir[0];if(v01 == 0) v01 = 0.00001;
-            var v02 = skyInfo.sunDir[1];if(v02 == 0) v02 = 0.00001;
+            var v01 = skyInfo.sunDir[0]; if (v01 == 0) v01 = 0.00001;
+            var v02 = skyInfo.sunDir[1]; if (v02 == 0) v02 = 0.00001;
             var v03 = skyInfo.sunDir[2];
             //光照方向Z不能为从下向上，故不能为正值
-            if(v03 == 0) {
+            if (v03 == 0) {
                 v03 = -0.00001;
             } else if (v03 > 0) {
                 v03 = v03 * -1;
@@ -3291,70 +3291,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REElemAttr = REElemAttr;
 
-    class REAnimWallInfo {
-        constructor() {
-            this.groupName = null;//	动态墙组名称
-            this.name = null;//	动态墙名称
-            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
-            this.texPath = null;//	动态墙纹理路径
-            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
-            this.isClose = null;//	动态墙是否强制闭合，默认闭合
-        }
-    }
-    ExtModule.REAnimWallInfo = REAnimWallInfo;
-
-    class REAnimPlaneInfo {
-        constructor() {
-            this.groupName = null;//不规则平面组名称
-            this.name = null;//不规则平面名称
-            this.potList = null;//不规则平面路径顶点坐标 (x,y,z)表示位置 w表示高度
-            this.texPath = null;//纹理路径
-        }
-    }
-    ExtModule.REAnimPlaneInfo = REAnimPlaneInfo;
-
-    class REAnimSphereInfo {
-        constructor() {
-            this.groupName = null;//扫描球组名称
-            this.nameList = null;//扫描球名称数组
-            this.potCenterList = null;//扫描球中心点坐标数组
-            this.radius = null;//当前批次扫描球半径
-            this.sphere = null;//是否为圆球，true表示圆球，false表示半球
-            this.texPath = null;//纹理路径
-        }
-    }
-    ExtModule.REAnimSphereInfo = REAnimSphereInfo;
-
-    class REAnimPolygonInfo {
-        constructor() {
-            this.groupName = null;//扫描平面组名称
-            this.nameList = null;//扫描平面名称数组
-            this.potCenterList = null;//扫描平面中心点坐标数组
-            this.radius = null;//当前批次扫描平面半径
-            this.radarScan = null;//扫描效果是否为雷达扫描，true为雷达扫描，false为扩散扫描
-            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
-            this.edgeNum = null;//多边形的边数
-            this.texPath = null;//纹理路径
-        }
-    }
-    ExtModule.REAnimPolygonInfo = REAnimPolygonInfo;
-
-    class REAnimPolyWallInfo {
-        constructor() {
-            this.groupName = null;//扫描多边形动态墙组名称
-            this.nameList = null;//扫描多边形动态墙名称数组
-            this.potCenterList = null;//扫描多边形动态墙中心点坐标数组
-            this.radius = null;//当前批次扫描多边形动态墙半径
-            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
-            this.edgeNum = null;//多边形的边数
-            this.height = null;//高度
-            this.texPath = null;//纹理路径
-            this.normalDir = null;//贴图是否沿法线方向，true为法线方向，false为切线方向
-        }
-    }
-    ExtModule.REAnimPolyWallInfo = REAnimPolyWallInfo;
-
-
 
 
     // MARK 构件属性
@@ -4558,6 +4494,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
     }
 
+    /**
+     * 添加颜色填充元素
+     * @param {String} fillElemId //填充元素标识
+     * @param {Array} pointList //多边形点集合（至少三个点构成面）
+     * @param {REColor} fillClr //填充颜色（REColor 类型）
+     */
+    Module.CAD.addFillElem = function (fillElemId, pointList, fillClr) {
+        if (isEmptyLog(fillElemId, "fillElemId")) return;
+        if (isEmptyLog(pointList, "pointList")) return;
+
+        var _vector_Points = new BlackHole3D.RE_Vector_dvec2();
+        for (let i = 0; i < pointList.length; i++) {
+            _vector_Points.push_back(pointList[i]);
+        }
+
+        var _fillClr = isEmpty(fillClr) ? 0xff0000ff : clrToU32(fillClr);
+        Module.RealBIMWeb.AddCADColorHatch(fillElemId, _vector_Points, _fillClr);
+    }
+
+    /**
+     * 删除颜色填充元素
+     * @param {String} fillElemId //填充元素标识
+     */
+    Module.CAD.delFillElem = function (fillElemId) {
+        if (isEmptyLog(fillElemId, "fillElemId")) return;
+        Module.RealBIMWeb.DeleteCADColorHatchById(fillElemId);
+    }
 
 
     // MARK 相机
@@ -5781,7 +5744,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许
      */
     Module.Measure.setSingleStyleState = function (enable) {
-        Module.RealBIMWeb.SetSingleMeasureMode(enable);
+        return Module.RealBIMWeb.SetSingleMeasureMode(enable);
     }
 
     /**
@@ -5807,7 +5770,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetBuiltInUIEnable(true);
             Module.RealBIMWeb.SetBuiltInUIVisible(true);
         }
-        Module.RealBIMWeb.ExitMeasureMode();
+        return Module.RealBIMWeb.ExitMeasureMode();
     }
 
     /**
@@ -6770,6 +6733,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 动画（Animation）
     Module.Animation = typeof Module.Animation !== "undefined" ? Module.Animation : {};//增加 Animation 模块
 
+    class REAnimWallInfo {
+        constructor() {
+            this.groupName = null;//	动态墙组名称
+            this.name = null;//	动态墙名称
+            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
+            this.texPath = null;//	动态墙纹理路径
+            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
+            this.isClose = null;//	动态墙是否强制闭合，默认闭合
+        }
+    }
+    ExtModule.REAnimWallInfo = REAnimWallInfo;
 
     /**
      * 创建一个动态墙
@@ -6785,6 +6759,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.AddAnimationWall(animWallInfo.groupName, animWallInfo.name, temparr, animWallInfo.texPath, animWallInfo.normalDir, _bClose);
     }
 
+    class REAnimPlaneInfo {
+        constructor() {
+            this.groupName = null;//不规则平面组名称
+            this.name = null;//不规则平面名称
+            this.potList = null;//不规则平面路径顶点坐标 (x,y,z)表示位置 w表示高度
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimPlaneInfo = REAnimPlaneInfo;
+
     /**
      * 创建一个扫描面
      * @param {REAnimPlaneInfo} animPlaneInfo //扫描面信息
@@ -6797,6 +6781,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return Module.RealBIMWeb.AddAnimationPlane(animPlaneInfo.groupName, animPlaneInfo.name, temparr, animPlaneInfo.texPath);
     }
+
+    class REAnimSphereInfo {
+        constructor() {
+            this.groupName = null;//扫描球组名称
+            this.nameList = null;//扫描球名称数组
+            this.potCenterList = null;//扫描球中心点坐标数组
+            this.radius = null;//当前批次扫描球半径
+            this.sphere = null;//是否为圆球，true表示圆球，false表示半球
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimSphereInfo = REAnimSphereInfo;
 
     /**
      * /创建一组半球体动画
@@ -6811,6 +6807,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _isSphere = true; if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
         return Module.RealBIMWeb.AddAnimationSpheres(animSphereInfo.groupName, temparr0, temparr, animSphereInfo.radius, _isSphere, animSphereInfo.texPath);
     }
+
+    class REAnimPolygonInfo {
+        constructor() {
+            this.groupName = null;//扫描平面组名称
+            this.nameList = null;//扫描平面名称数组
+            this.potCenterList = null;//扫描平面中心点坐标数组
+            this.radius = null;//当前批次扫描平面半径
+            this.radarScan = null;//扫描效果是否为雷达扫描，true为雷达扫描，false为扩散扫描
+            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null;//多边形的边数
+            this.texPath = null;//纹理路径
+        }
+    }
+    ExtModule.REAnimPolygonInfo = REAnimPolygonInfo;
 
     /**
      * 创建一组规则平面多边形动画
@@ -6828,6 +6838,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.AddAnimationPolygons(animPolygonInfo.groupName, temparr0, temparr, animPolygonInfo.radius, animPolygonInfo.texPath, _radarScan, _isRing, _edgeNum);
     }
 
+    class REAnimPolyWallInfo {
+        constructor() {
+            this.groupName = null;//扫描多边形动态墙组名称
+            this.nameList = null;//扫描多边形动态墙名称数组
+            this.potCenterList = null;//扫描多边形动态墙中心点坐标数组
+            this.radius = null;//当前批次扫描多边形动态墙半径
+            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null;//多边形的边数
+            this.height = null;//高度
+            this.texPath = null;//纹理路径
+            this.normalDir = null;//贴图是否沿法线方向，true为法线方向，false为切线方向
+        }
+    }
+    ExtModule.REAnimPolyWallInfo = REAnimPolyWallInfo;
+
     /**
      * 创建一组规则多边形动态墙
      * @param {REAnimPolyWallInfo} animPolyWallInfo //多边形动态墙信息
@@ -6843,6 +6868,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _edgeNum = 4; if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
         var _height = 0; if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
         return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
+    }
+
+    class REAnimAreaBufferInfo {
+        constructor() {
+            this.groupName = null;//路径平面组名称
+            this.name = null;//路径平面名称
+            this.potList = null;//中心线路径顶点坐标集合
+            this.texPath = null;//纹理路径
+            this.width = null;//平面宽度
+        }
+    }
+    ExtModule.REAnimAreaBufferInfo = REAnimAreaBufferInfo;
+
+    /**
+     * 创建一个规则的路径平面
+     * @param {REAnimAreaBufferInfo} animAreaBufferInfo //路径平面信息（REAnimAreaBufferInfo类型）
+     */
+    Module.Animation.addAnimAreaBuffer = function (animAreaBufferInfo) {
+        if (isEmptyLog(animAreaBufferInfo, "animAreaBufferInfo")) return;
+
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animAreaBufferInfo.potList.length; ++i) {
+            temparr.push_back(animAreaBufferInfo.potList[i]);
+        }
+        var _texPath = isEmpty(animAreaBufferInfo.texPath) ? "" : animAreaBufferInfo.texPath;
+        var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
+        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width);
     }
 
 

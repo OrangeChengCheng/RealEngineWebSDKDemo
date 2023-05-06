@@ -605,6 +605,38 @@ function addAnimPolyWall() {
     BlackHole3D.BIM.setShapeAnimStyle("polyWall", [], new BlackHole3D.REColor(0, 255, 255, 255), [0.0, 0.0, 0.5, 0.0]);
 }
 
+//创建一个规则的路径平面
+function addAnimAreaBuffer() {
+    var animAreaBufferInfo = new BlackHole3D.REAnimAreaBufferInfo();
+    animAreaBufferInfo.groupName = "Area";
+    animAreaBufferInfo.name = "Area01";
+    animAreaBufferInfo.potList = [
+        [16.8049, 48.3428, 4.7014],
+        [16.8049, 46.3428, 4.7014],
+        [16.8049, 44.3428, 4.7014],
+        [16.8049, 42.3428, 4.7014],
+        [16.8049, 40.3428, 4.7014],
+        [16.8478, 38.3428, 4.7014],
+        [16.7265, 36.3428, 3.9596],
+        [16.7265, 34.3428, 3.9596],
+        [16.7265, 32.3428, 3.9596],
+        [16.7265, 30.3428, 3.9596],
+        [16.6537, 28.3428, 3.9596],
+        [16.6537, 26.3428, 3.9596],
+    ];
+    animAreaBufferInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    animAreaBufferInfo.width = 0.5;
+    BlackHole3D.Animation.addAnimAreaBuffer(animAreaBufferInfo);
+
+    var animStyle = new BlackHole3D.REShpAnimStyle();
+    animStyle.groupName = "Area";
+    animStyle.nameList = [];
+    animStyle.animClr = new BlackHole3D.REColor(0, 255, 255);
+    animStyle.clrWeight = 0;
+    animStyle.scaleAndOffset = [0.0, 0.0, -0.5, 0.0];
+    BlackHole3D.Animation.setShapeAnimStyle(animStyle);
+}
+
 
 //添加一种全局字体
 function addGolFont() {
