@@ -1387,9 +1387,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.WorldPosToScreenPos(worldPos, _dScaleDist);
     }
 
+    /**
+     * 获取坐标显示的精度
+     */
+    Module.Coordinate.getValueDispPrecision = function () {
+        return Module.RealBIMWeb.GetFloatValueDispPrecision();
+    }
 
-
-
+    /**
+     * 设置坐标显示的精度
+     * @param {Number} precision //精度（正整数）
+     */
+    Module.Coordinate.setValueDispPrecision = function (precision) {
+        Module.RealBIMWeb.SetFloatValueDispPrecision(precision);
+    }
 
 
 
