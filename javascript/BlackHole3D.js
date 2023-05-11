@@ -870,6 +870,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 重置相机方位
+     */
+    Module.Camera.resetCamLocate = function () {
+        Module.RealBIMWeb.RestoreCamLocation();
+    }
+
+    /**
      * 设置相机位置的世界空间范围
      * @param {Array} arrCamBound //表示相机的移动范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
      */
@@ -1647,24 +1654,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
     }
 
-    // /**
-    //  * 关闭系统UI面板按钮的二级界面并退出对应操作状态（不包括设置窗口）
-    //  */
-    // Module.Graphics.closeSysPanelSecWnd = function () {
+    /**
+     * 预先载入一个指定的UI纹理
+     * @param {String} picPath //图片地址
+     */
+    Module.Graphics.setPreLoadPicPath = function (picPath) {
+        if (isEmptyLog(picPath, 'picPath')) return;
+        return Module.RealBIMWeb.PreLoadGUIImgs(picPath);
+    }
 
-    //     // 退出剖切状态并关闭剖切相关窗口
-    //     Module.Clip.endClip();
-    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_Cutting", 0);
-    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_CubeCutting", 0);
-    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_BuildPlaneCutting", 0);
-    //     Module.RealBIMWeb.UIWgtSetBtnActiveSubState("BuiltIn_Btn_PickPlaneCutting", 0);
-    //     Module.RealBIMWeb.UIWgtSetVisible("CubeCuttingWnd", false);
-    //     Module.RealBIMWeb.UIWgtSetVisible("PlaneCuttingWnd", false);
-    //     Module.RealBIMWeb.UIWgtSetVisible("BuiltIn_Wnd_CuttingMode", false);
-
-    //     // 退出测量状态并关闭测量相关窗口
-    //     BuiltIn_Btn_Measure
-    // }
 
 
 
@@ -3505,26 +3503,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, alphaWeight, elemScope) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(elemIdList, "elemIdList")) return;
 
         var _alphaWeight = 255; if (!isEmpty(alphaWeight)) _alphaWeight = alphaWeight;
-        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
-
         var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
-        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _alpha = alphaToU32_WA_UseCA(elemAlpha, _alphaWeight, false, true);
         var _clr = 0x000000ff;
         var _pbr = 0x00000000;
 
-        var _count = _elemIdListTemp.length;
-        var _moemory = (_count * 24).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-        var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _count; ++i) {
-            _clrs.set([_elemIdListTemp[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+        if (dataSetId == "") {
+            //多数据集设置
+            var _moemory = (24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
         }
-        Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+        else {
+            //指定数据集设置
+            var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = _elemIdListTemp.length;
+            var _moemory = (_count * 24).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < _count; ++i) {
+                _clrs.set([_elemIdListTemp[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+            }
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", (_elemIdListTemp.length) ? _clrs.byteLength : 0xffffffff, _clrs.byteOffset, _elemScope);
+        }
     }
 
     /**
