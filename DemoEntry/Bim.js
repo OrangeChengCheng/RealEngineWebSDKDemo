@@ -637,6 +637,31 @@ function addAnimAreaBuffer() {
     BlackHole3D.Animation.setShapeAnimStyle(animStyle);
 }
 
+//添加矢量管线动画
+function addAnimCylinder() {
+    var animCylinderInfo = new BlackHole3D.REAnimCylinderInfo();
+    animCylinderInfo.groupName = "Cylinder";
+    animCylinderInfo.name = "Cylinder01";
+    animCylinderInfo.potList = [
+        [9.1430188185162677, 20.725476954872974, 4.2981972694396973],
+        [9.1483041387047521, 35.597678617132431, 4.3007271089769965],
+        [9.2690000534057617, 35.983598709106445, 4.2999999523162842],
+        [9.654764235573321, 36.105368770864011, 4.295461189498031],
+        [17.264230213985602, 36.107975503022303, 4.3012027364956316],
+    ];
+    animCylinderInfo.texPath = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_Test_UV01/dynamic01.png";
+    animCylinderInfo.radius = 0.5;
+    BlackHole3D.Animation.addAnimCylinder(animCylinderInfo);
+
+    var animStyle = new BlackHole3D.REShpAnimStyle();
+    animStyle.groupName = "Cylinder";
+    animStyle.nameList = [];
+    animStyle.animClr = new BlackHole3D.REColor(0, 255, 255);
+    animStyle.clrWeight = 0;
+    animStyle.scaleAndOffset = [0.0, 0.0, -0.5, 0.0];
+    BlackHole3D.Animation.setShapeAnimStyle(animStyle);
+}
+
 
 //添加一种全局字体
 function addGolFont() {
@@ -1113,6 +1138,9 @@ function addMeasureData() {
     ];
     BlackHole3D.Measure.addGroupData(measureInfo);
 }
+
+
+
 
 
 

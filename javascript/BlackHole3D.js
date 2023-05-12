@@ -6896,6 +6896,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.potList = null;//中心线路径顶点坐标集合
             this.texPath = null;//纹理路径
             this.width = null;//平面宽度
+            this.texLength = -1.0;//纹理对应的长度，默认为0 代表纹理采用等比缩放，使用纹理长度代表当模型超出设定纹理长度时，UV按照纹理长度拼贴扩展
         }
     }
     ExtModule.REAnimAreaBufferInfo = REAnimAreaBufferInfo;
@@ -6913,7 +6914,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _texPath = isEmpty(animAreaBufferInfo.texPath) ? "" : animAreaBufferInfo.texPath;
         var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
-        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width);
+        var _texLength = (isEmpty(animAreaBufferInfo.texLength) || animAreaBufferInfo.texLength <= 0) ? -1.0 : animAreaBufferInfo.texLength;
+        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _texLength);
+    }
+
+    class REAnimCylinderInfo {
+        constructor() {
+            this.groupName = null;//路径管线组名称
+            this.name = null;//路径管线名称
+            this.potList = null;//中心线路径顶点坐标集合
+            this.texPath = null;//纹理路径
+            this.radius = null;//管线半径
+        }
+    }
+    ExtModule.REAnimCylinderInfo = REAnimCylinderInfo;
+
+    /**
+     * 创建一个规则的路径管线
+     * @param {REAnimCylinderInfo} animCylinderInfo //路径平面信息（REAnimCylinderInfo类型）
+     */
+    Module.Animation.addAnimCylinder = function (animCylinderInfo) {
+        if (isEmptyLog(animCylinderInfo, "animCylinderInfo")) return;
+
+        var temparr = new Module.RE_Vector_dvec3();
+        for (var i = 0; i < animCylinderInfo.potList.length; ++i) {
+            temparr.push_back(animCylinderInfo.potList[i]);
+        }
+        var _texPath = isEmpty(animCylinderInfo.texPath) ? "" : animCylinderInfo.texPath;
+        var _radius = isEmpty(animCylinderInfo.radius) ? 0 : animCylinderInfo.radius;
+        var _arrWidth = new Module.RE_Vector_dvec3();
+        return Module.RealBIMWeb.AddAnimationCylinder(animCylinderInfo.groupName, animCylinderInfo.name, temparr, _texPath, true, _radius, 18, _arrWidth);
     }
 
 
