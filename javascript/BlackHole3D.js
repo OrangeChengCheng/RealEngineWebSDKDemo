@@ -1,4 +1,4 @@
-//版本：v3.1.0.1970
+//版本：v3.1.0.1978
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
