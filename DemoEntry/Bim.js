@@ -46,6 +46,8 @@ function addREListener() {
 
     //操作
     document.addEventListener("RELocateCam", RELocateCam);//调整相机方位完成事件
+    document.addEventListener("REElevationUpdateFinish", REElevationUpdateFinish);//标高更新完成事件
+    document.addEventListener("REAxisGridUpdateFinish", REAxisGridUpdateFinish);//轴网更新完成事件
     // document.addEventListener("REClipFinish", REClipFinish);//裁剪完成回调事件
 
 }
@@ -132,6 +134,14 @@ function RESystemSelElement(e) {
 
 function RELocateCam(e) {
     console.log("-- 相机运动完成事件 --", e.detail);
+}
+
+function REElevationUpdateFinish(e) {
+    console.log("-- 标高更新完成事件 --", e.detail);
+}
+
+function REAxisGridUpdateFinish(e) {
+    console.log("-- 轴网更新完成事件 --", e.detail);
 }
 
 // function REClipFinish(e) {

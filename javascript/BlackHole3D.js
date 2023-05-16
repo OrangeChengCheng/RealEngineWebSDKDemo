@@ -1575,7 +1575,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         else {
             //没有拾取到任何对象
-            return { elemType: "" }
+            return { elemType: "", selPos: _probeRet.m_vSelPos, selScrPos:_probeRet.m_vSelScrPos }
         }
     }
 
@@ -2961,37 +2961,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REPotShpInfo = REPotShpInfo;
 
-    class RELineShpInfo {
-        constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.potList = null;//表示多边形折线序列
-            this.fillState = null;//表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
-            this.lineClr = null;//表示多边形的颜色（REColor 类型）
-            this.fillClr = null;//表示多边形的填充颜色（REColor 类型）
-            this.textPos = null;//表示多边形的文字标注的位置： >=0时，整数部分i/小数部分j：表示文字定位点在线段<i,i+1>上的偏移了长度百分比j [-1,0)表示文字定位在折线上并从首端点偏移折线总长度的百分比 -2表示文字定位在多边形所有顶点的中心位置处
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
-            this.lineWidth = null;//选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
-            this.textInfo = null;//表示顶点的文字标注信息（REShpTextInfo 类型）
-        }
-    }
-    ExtModule.RELineShpInfo = RELineShpInfo;
-
-    class REFenceShpInfo {
-        constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.potList = null;//表示多边形折线序列 xyzw, w分量表示端点处的围栏高度
-            this.isClose = null;//表示是否闭合
-            this.fenceClr = null;//表示多边形围栏的颜色（REColor 类型）
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
-        }
-    }
-    ExtModule.REFenceShpInfo = REFenceShpInfo;
-
-
     /**
      * 创建自定义顶点矢量
      * @param {REPotShpInfo} potShpInfo //矢量点信息（REPotShpInfo 类型）
@@ -3044,6 +3013,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         return Module.RealBIMWeb.AddCustomPotShp(potShpInfo.shpName, potShpInfo.pos, uPotSize, _uClr, textobj, potShpInfo.scrASDist, potShpInfo.scrVisDist, _bContactSce);
     }
+
+
+    
+    class RELineShpInfo {
+        constructor() {
+            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.potList = null;//表示多边形折线序列
+            this.fillState = null;//表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+            this.lineClr = null;//表示多边形的颜色（REColor 类型）
+            this.fillClr = null;//表示多边形的填充颜色（REColor 类型）
+            this.textPos = null;//表示多边形的文字标注的位置： >=0时，整数部分i/小数部分j：表示文字定位点在线段<i,i+1>上的偏移了长度百分比j [-1,0)表示文字定位在折线上并从首端点偏移折线总长度的百分比 -2表示文字定位在多边形所有顶点的中心位置处
+            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
+            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
+            this.lineWidth = null;//选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
+            this.textInfo = null;//表示顶点的文字标注信息（REShpTextInfo 类型）
+        }
+    }
+    ExtModule.RELineShpInfo = RELineShpInfo;
 
     /**
      * 创建自定义多边形折线矢量
@@ -3106,6 +3094,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         return Module.RealBIMWeb.AddCustomPolylineShp(lineShpInfo.shpName, _temparrpos, _fillState, _uClr, _uFillClr, _fTextPos, textobj, lineShpInfo.scrASDist, lineShpInfo.scrVisDist, _bContactSce, _linewidth);
     }
+
+    class REFenceShpInfo {
+        constructor() {
+            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.potList = null;//表示多边形折线序列 xyzw, w分量表示端点处的围栏高度
+            this.isClose = null;//表示是否闭合
+            this.fenceClr = null;//表示多边形围栏的颜色（REColor 类型）
+            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
+            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
+        }
+    }
+    ExtModule.REFenceShpInfo = REFenceShpInfo;
 
     /**
      * 创建自定义多边形围栏矢量
@@ -7782,10 +7783,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 管道（Pipe）
+    Module.Pipe = typeof Module.Pipe !== "undefined" ? Module.Pipe : {};//增加 Pipe 模块
+
+
+    // MARK 加载
+    class REPipeInfo {
+        constructor() {
+            this.groupName = null;//	动态墙组名称
+            this.name = null;//	动态墙名称
+            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
+            this.texPath = null;//	动态墙纹理路径
+            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
+            this.isClose = null;//	动态墙是否强制闭合，默认闭合
+        }
+    }
+    ExtModule.REPipeInfo = REPipeInfo;
+
+	// //添加连续管道
+	// //strProjName：项目名称
+	// //strID：连续管道唯一标识
+	// //uSubElemNum，pSubElemIDs：构件的个数和全局ID集合指针
+	// //strTextPath：纹理路径
+	// //uClr:连续管道的显示颜色ABGR
+	// static void AddContPipe(const std::wstring &strProjName, 
+    //     const std::wstring &strID, 
+    //     cn::u32 uSubElemNum, size_t/*cn::u32 **/ pSubElemIDs, 
+    //     const std::wstring &strTextPath, 
+    //     const cn::u32 uClr);
+
+
+    // MARK 渲染设置
 
 
 
 
+
+    // MARK 编辑
 
 
 
