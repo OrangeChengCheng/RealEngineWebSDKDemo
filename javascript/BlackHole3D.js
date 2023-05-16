@@ -2441,19 +2441,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REAncInfo = REAncInfo;
 
-    class REAncLODInfo {
-        constructor() {
-            this.groupName = null;//要聚合的锚点组的标识名，为空则表示所有的锚点对象
-            this.lodLevel = null;//聚合层级，范围1~10,默认为1，表示不聚合
-            this.useCustomBV = null;//是否用锚点的预估总包围盒，默认为false
-            this.customBV = null;//锚点的预估总包围盒,默认为当前场景的总包围盒，二维数组[[Xmin,Ymin,Zmin],[Xmax,Ymax,Zmax]]，当useCustomBV为false时，此参数无效，填空数组即可;
-            this.lodMergePxl = null;//锚点所在单元格进行LOD合并时的投影到屏幕的像素尺寸阈值
-            this.lodMergeCap = null;//锚点所在单元格进行LOD合并时的单元格容积阈值
-            this.mergeStyle = null;//点聚合后的样式 (REAncInfo 类型 参数选填)
-        }
-    }
-    ExtModule.REAncLODInfo = REAncLODInfo;
-
     /**
      * 添加锚点
      * @param {Array} ancList //锚点信息集合（REAncInfo 类型）
@@ -2759,6 +2746,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return groupNameList;
     }
+
+    class REAncLODInfo {
+        constructor() {
+            this.groupName = null;//要聚合的锚点组的标识名，为空则表示所有的锚点对象
+            this.lodLevel = null;//聚合层级，范围1~10,默认为1，表示不聚合
+            this.useCustomBV = null;//是否用锚点的预估总包围盒，默认为false
+            this.customBV = null;//锚点的预估总包围盒,默认为当前场景的总包围盒，二维数组[[Xmin,Ymin,Zmin],[Xmax,Ymax,Zmax]]，当useCustomBV为false时，此参数无效，填空数组即可;
+            this.lodMergePxl = null;//锚点所在单元格进行LOD合并时的投影到屏幕的像素尺寸阈值
+            this.lodMergeCap = null;//锚点所在单元格进行LOD合并时的单元格容积阈值
+            this.mergeStyle = null;//点聚合后的样式 (REAncInfo 类型 参数选填)
+        }
+    }
+    ExtModule.REAncLODInfo = REAncLODInfo;
 
     /**
      * 设置聚合锚点
@@ -7162,7 +7162,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取是否是在剖切模式下
      */
     Module.Clip.getClipState = function () {
-        Module.RealBIMWeb.IsClipObjectValid();
+        return Module.RealBIMWeb.IsClipObjectValid();
     }
 
     /**
