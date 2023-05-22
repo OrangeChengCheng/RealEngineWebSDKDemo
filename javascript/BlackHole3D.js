@@ -1,4 +1,4 @@
-//版本：v3.1.0.1978
+//版本：v3.1.0.1987
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -2108,7 +2108,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _lineCount = _tagInfo.infoList.length;
             let _lineHeight = 26; let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
-                _texRegions.push_back({
+                let obj_t = {
                     m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? "" : _tagInfo.infoList[i].picPath,
                     m_qTexRect: [-50, _lineHeight * (_lineCount - i - 1) + _lineSpace, -30, _lineHeight * (_lineCount - i) - _lineSpace],
                     m_uTexClrMult: 0xffffffff,
@@ -2116,10 +2116,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uFrameNumU: 1, m_uFrameNumV: 1,
                     m_uFrameStrideU: 0, m_uFrameStrideV: 0,
                     m_fFrameFreq: 0.0,
-                })  //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
+                };
+                _texRegions.push_back(obj_t);  //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
             }
             for (let i = 0; i < _lineCount; ++i) {
-                _textRegions.push_back({
+                let obj_t = {
                     m_strGolFontID: "RealBIMFont001",
                     m_bTextWeight: false,
                     m_strText: _tagInfo.infoList[i].text,
@@ -2128,7 +2129,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_qTextRect: [0, _lineHeight * (_lineCount - i - 1) + _lineSpace, 30, _lineHeight * (_lineCount - i) - _lineSpace],
                     m_uTextFmtFlag: ((1 << 1)/*TEXT_FMT_VCENTER*/ | (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 6)/*TEXT_FMT_NOCLIP*/),
                     m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-                });
+                };
+                _textRegions.push_back(obj_t);
             }
             let _tempobj = {
                 m_strName: isEmpty(_tagInfo.tagName) ? "" : _tagInfo.tagName,
