@@ -323,6 +323,24 @@ function loadModel() {
         //     "useAssginVer": true, "assginVer": 0,
         //     "useAssginVer2": true, "assginVer2": 1,
         // },
+        // {
+        //     "dataSetId": "双大楼",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res14&path=3a088db50b8506bf1d8eda9f7c0563d0",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
+        // },
+        // {
+        //     "dataSetId": "OSGB_山路",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_osgbmerge02",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
+        // },
+        // {
+        //     "dataSetId": "地形_雄安建筑进度",
+        //     "resourcesAddress": "http://121.229.18.166:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=69cfccd5b8b24fd1a223fe883393d716",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
+        // },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
@@ -1148,7 +1166,6 @@ function addMeasureData() {
     ];
     BlackHole3D.Measure.addGroupData(measureInfo);
 }
-
 
 
 
