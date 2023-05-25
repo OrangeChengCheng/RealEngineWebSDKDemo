@@ -1575,7 +1575,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         else {
             //没有拾取到任何对象
-            return { elemType: "", selPos: _probeRet.m_vSelPos, selScrPos:_probeRet.m_vSelScrPos }
+            return { elemType: "", selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos }
         }
     }
 
@@ -3017,7 +3017,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
-    
+
     class RELineShpInfo {
         constructor() {
             this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
@@ -3922,11 +3922,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var curprojid = tempselids[1];
         var curprojelemarr = [];
         for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i] == 4294967280) {
+                //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                continue;
+            }
             if (tempselids[i + 1] == curprojid) {
-                if (tempselids[i] == 4294967280) {
-                    //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
-                    continue;
-                }
                 curprojelemarr.push(tempselids[i]);
             } else {
                 if (curprojelemarr.length > 0) {
@@ -7018,11 +7018,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var curprojid = tempselids[1];
         var curprojelemarr = [];
         for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i] == 4294967280) {
+                //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                continue;
+            }
             if (tempselids[i + 1] == curprojid) {
-                if (tempselids[i] == 4294967280) {
-                    //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
-                    continue;
-                }
                 curprojelemarr.push(tempselids[i]);
             } else {
                 if (curprojelemarr.length > 0) {
@@ -7802,13 +7802,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REPipeInfo = REPipeInfo;
 
-	// //添加连续管道
-	// //strProjName：项目名称
-	// //strID：连续管道唯一标识
-	// //uSubElemNum，pSubElemIDs：构件的个数和全局ID集合指针
-	// //strTextPath：纹理路径
-	// //uClr:连续管道的显示颜色ABGR
-	// static void AddContPipe(const std::wstring &strProjName, 
+    // //添加连续管道
+    // //strProjName：项目名称
+    // //strID：连续管道唯一标识
+    // //uSubElemNum，pSubElemIDs：构件的个数和全局ID集合指针
+    // //strTextPath：纹理路径
+    // //uClr:连续管道的显示颜色ABGR
+    // static void AddContPipe(const std::wstring &strProjName, 
     //     const std::wstring &strID, 
     //     cn::u32 uSubElemNum, size_t/*cn::u32 **/ pSubElemIDs, 
     //     const std::wstring &strTextPath, 
