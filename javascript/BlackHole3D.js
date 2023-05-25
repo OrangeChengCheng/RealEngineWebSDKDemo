@@ -622,7 +622,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} useAssginVer2  //表示是否加载指定版本2，默认 false
      * @param {String} assginVer2 //指定版本号2，加载指定版本的时候，会用此版本号
      * @param {Number} dividePrior //项目内模型的细分优先级(值越小优先级越高)
-     * @param {dvec3} originCRS //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
+     * @param {dvec3} engineOrigin //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
      */
     Module.Model.loadDataSet = function (dataSetList, clearLoaded) {
         if (isRepeat(dataSetList, 'dataSetId')) {
@@ -640,7 +640,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _projNorth = 0.0; if (!isEmpty(dataSetModel.dataSetCRSNorth)) _projNorth = dataSetModel.dataSetCRSNorth;
             var _defMainProjCamFile = "";
             var _dividePrior = isEmpty(dataSetModel.dividePrior) ? 1.0 : dataSetModel.dividePrior;
-            var _originCRS = isEmpty(dataSetModel.originCRS) ? [0.0, 0.0, 0.0] : dataSetModel.originCRS;
+            var _originCRS = isEmpty(dataSetModel.engineOrigin) ? [0.0, 0.0, 0.0] : dataSetModel.engineOrigin;
             var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
@@ -7380,7 +7380,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} alpha //材质透明度 默认值：255， 取值范围 0~255，0表示全透明，255表示不透明
      */
     Module.MiniMap.loadImage = function (texPath, picSize, texSize, insertPos, alpha) {
-        if (!checkParamType(texPath, 'texPath', RE_Enum.RE_Check_String)) return;
+        if (!checkTypeLog(texPath, 'texPath', RE_Enum.RE_Check_String)) return;
 
         var _a = 1.0; if (!isEmpty(alpha)) _a = (parseInt(alpha) / 255);
         return Module.RealBIMWeb.LoadOverViewImage(texPath, texSize[0], texSize[1], insertPos, picSize[0], picSize[1], _a);
