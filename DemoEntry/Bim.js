@@ -85,6 +85,7 @@ function RESystemEngineCreated(e) {
         //     loadModel()//加载模型
         // }, 1);
         loadModel()//加载模型
+        // loadCAD();
 
         // 设置全局渲染性能控制参数
         BlackHole3D.Common.setMaxResMemMB(5500);
@@ -104,9 +105,18 @@ function REDataSetLoadFinish(e) {
     console.log("=========================== 引擎主场景模型加载完成 ");
     if (e.detail.succeed) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
+
+        
+        
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }
+}
+
+//加载CAD
+function loadCAD() {
+    BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.CAD, 1);
+    BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
 }
 
 //为了浏览效果，初始canvas是display:none;
@@ -784,6 +794,24 @@ function addTag() {
             ]
         }
     ];
+    BlackHole3D.Tag.addTags(tagInfoList);
+}
+
+//添加多行标签
+function addTags() {
+    var tagInfo1 = new BlackHole3D.RETagInfo();
+    tagInfo1.tagName = "tag01";
+    tagInfo1.pos = [60, 50, 20];
+
+    var tagCont1 = new BlackHole3D.RETagContent();
+    tagCont1.picPath = "https://demo.bjblackhole.com/demopage/examplesImgs/shandian.png";
+    tagCont1.text = "测试文字";
+    var tagCont2 = new BlackHole3D.RETagContent();
+    tagCont2.picPath = "https://demo.bjblackhole.com/demopage/examplesImgs/greenpot.png";
+    tagCont2.text = "tag002测试文字";
+    tagInfo1.infoList = [tagCont1, tagCont2];
+
+    var tagInfoList = [tagInfo1];
     BlackHole3D.Tag.addTags(tagInfoList);
 }
 
