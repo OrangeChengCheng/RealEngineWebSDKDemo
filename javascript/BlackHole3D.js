@@ -1,4 +1,4 @@
-//版本：v3.1.0.1997
+//版本：v3.1.0.1998
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -2785,17 +2785,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_textbias[0] < 0) {
             TempTextRect[0] = _linepos[0] - 1 - _texfocus[0]; TempTextRect[2] = _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
         } else if (_textbias[0] == 0) {
-            TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+            // TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
+            TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
         } else {
             TempTextRect[0] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0]; TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
         }
         if (_textbias[1] < 0) {
             TempTextRect[1] = _linepos[1] - 1 - _texfocus[1]; TempTextRect[3] = _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
         } else if (_textbias[1] == 0) {
-            TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+            // TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
+            TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
         } else {
             TempTextRect[1] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1]; TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
         }
+
         //创建一个锚点对象样式
         var tempobj = {
             m_strGroupName: _groupName,
