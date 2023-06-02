@@ -64,7 +64,7 @@ function RESystemReady() {
     sysInfo.workerjsPath = "javascript/RealBIMWeb_Worker.js";
     sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
     sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
-    sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
+    sysInfo.commonUrl = "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_gol001";
     //sysInfo.commonUrl = "http://realbim.bjblackhole.cn:18080/res/res_gol006";
     sysInfo.userName = "admin";
     sysInfo.passWord = "xiyangyang";
@@ -164,7 +164,7 @@ function loadModel() {
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_jifang",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },

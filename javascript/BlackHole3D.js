@@ -997,9 +997,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return forceCamLoc;
     }
 
+    /**
+     * 获取相机在自由移动模式下的速度
+     */
+    Module.Camera.getFreeCamMoveSpeed = function () {
+        return Module.RealBIMWeb.GetFreeCamMoveSpeed();
+    }
 
-
-
+    /**
+     * 设置相机在自由移动模式下的速度
+     * @param {Number} speed //速度
+     */
+    Module.Camera.setFreeCamMoveSpeed = function (speed) {
+        Module.RealBIMWeb.SetFreeCamMoveSpeed(speed);
+    }
 
 
 
@@ -1577,6 +1588,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //没有拾取到任何对象
             return { elemType: "", selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos }
         }
+    }
+
+    /**
+     * 设置鼠标的拾取模式
+     * @param {Number} type //拾取模式
+     */
+    Module.Probe.setProbeMode = function (type) {
+        var _type = isEmpty(type) ? Module.RE_PROBE_TYPE.NORM : (type == 1 ? Module.RE_PROBE_TYPE.POT : Module.RE_PROBE_TYPE.NORM)
+        Module.RealBIMWeb.SetExpectProbeMode(_type);
+    }
+
+    /**
+     * 获取鼠标的拾取模式
+     */
+    Module.Probe.getProbeMode = function () {
+        var _type = Module.RealBIMWeb.GetExpectProbeMode();
+        return _type.value;
     }
 
 
