@@ -1,4 +1,4 @@
-//版本：v3.1.0.2003
+//版本：v3.1.0.2013
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -14,12 +14,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class RESysInfo {
         // 引擎参数模型
         constructor() {
-            this.workerjsPath = '';//相对于html页面的RealBIMWeb_Worker.js的路径
+            this.workerjsPath = null;//相对于html页面的RealBIMWeb_Worker.js的路径
             this.renderWidth = 0;//初始化图形窗口的宽度
             this.renderHieght = 0;//初始化图形窗口的高度
-            this.commonUrl = 0;//引擎调用的公共资源的路径
-            this.userName = 0;//引擎资源发布服务配套的用户名
-            this.passWord = 0;//引擎资源发布服务配套的密码
+            this.commonUrl = null;//引擎调用的公共资源的路径
+            this.userName = "";//引擎资源发布服务配套的用户名
+            this.passWord = "";//引擎资源发布服务配套的密码
             this.mainWndName = 'BlackHole';//表示主窗口的名称,对应document.title，默认值 "BlackHole"
         }
     }
@@ -31,17 +31,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.initEngineSys = function (sysInfo) {
         if (isEmptyLog(sysInfo, 'sysInfo')) return;
-        if (isEmpty(sysInfo.workerjsPath) || isEmpty(sysInfo.commonUrl)) {
-            logParErr('sysInfo');
-            return;
-        }
+        if (isEmptyLog(sysInfo.workerjsPath, 'workerjsPath')) return;
+
+        var _commonUrl = isEmpty(sysInfo.commonUrl) ? "" : sysInfo.commonUrl;
         // if (!isEmpty(sysInfo.commonUrl)) sessionStorage.setItem("RECommonUrl", sysInfo.commonUrl);//保存资源地址
         Module['m_re_em_force_threadnum'] = isPhoneMode ? 1 : 8;//移动端强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
         Module["m_re_em_window_width"] = sysInfo.renderWidth;
         Module["m_re_em_window_height"] = sysInfo.renderHieght;
         var _strMainWndName = "BlackHole"; if (!isEmpty(sysInfo.mainWndName)) _strMainWndName = sysInfo.mainWndName;
         var bool = Module.RealBIMWeb.CreateEmuMgr(sysInfo.workerjsPath, _strMainWndName, sysInfo.renderWidth, sysInfo.renderHieght,
-            false, 500, "", sysInfo.commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
+            false, 500, "", _commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
             sysInfo.userName, sysInfo.passWord);
         if (isPhoneMode) {
             Module.SkyBox.setSkyAtmActive(false);
@@ -5013,9 +5012,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ProjUnVerHugeGroupToHeight(dataSetId, "", type, height, amp);
     }
 
+    /**
+     * 设置栅格的有效性
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {Boolean} enable //是否有效
+     */
+    Module.Grid.setValidState = function (dataSetId, enable) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
 
-
-
+        Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, "", (enable ? 1 : 0));
+    }
 
 
 
