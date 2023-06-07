@@ -8283,7 +8283,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
         PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
         PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
-        SysWnd_AffineTransMode: 'AffineTransModeWnd',//位置编辑仿射变换窗口
+        SysWnd_AffineTransMode_old: 'AffineTransModeWnd',//位置编辑仿射变换窗口(旧版，后期会移除)
+        SysWnd_AffineTransMode: 'PositionMatchingWnd',//位置编辑仿射变换窗口
     }
     ExtModule.RESysWndMateEm = RESysWndMateEm;
 
