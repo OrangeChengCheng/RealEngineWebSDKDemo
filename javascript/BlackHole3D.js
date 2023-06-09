@@ -817,12 +817,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 调整相机方位到对准构件集合
+     * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
      * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
      * @param {Array} locIDList //目标ID集合 包含  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {Array} elemIdList //构件的标识名 集合
      */
-    Module.Camera.setCamLocateToElem = function (locIDList, backDepth) {
+    Module.Camera.setCamLocateToElem = function (locIDList, backDepth, locType) {
         if (isEmptyLog(locIDList, "locIDList")) return;
         var obj_s = 0;
         var _offset = 0;
@@ -841,7 +842,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _offset += 2;
             }
         }
-        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth);
+        var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
+        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth, _locType);
     }
 
     /**
