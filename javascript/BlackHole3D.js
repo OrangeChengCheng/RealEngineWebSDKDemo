@@ -850,10 +850,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 调整相机定位到数据集
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
+     * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
      */
-    Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth) {
+    Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth, locType) {
         var _projname = ""; if (!isEmpty(dataSetId)) { _projname = dataSetId; }
-        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth);
+        var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth, _locType);
     }
 
     /**
