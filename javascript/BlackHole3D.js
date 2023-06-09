@@ -5695,7 +5695,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前面积测量的数据显示模式
      */
     Module.Measure.getAreaDataShowType = function () {
-        return Module.RealBIMWeb.GetMeasureLockDir();
+        return Module.RealBIMWeb.GetAreaProjLockDir();
     }
 
     /**
@@ -5703,7 +5703,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} type //显示模式 1:平面上  2：平面投射XY平面
      */
     Module.Measure.setAreaDataShowType = function (type) {
-        Module.RealBIMWeb.SetMeasureLockDir(type);
+        Module.RealBIMWeb.SetAreaProjLockDir(type);
     }
 
 
