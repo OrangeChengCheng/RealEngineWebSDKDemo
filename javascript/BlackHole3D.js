@@ -1,4 +1,4 @@
-//版本：v3.1.0.2024
+//版本：v3.1.0.2031
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -494,6 +494,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return shadowInfo;
     }
 
+    /**
+     * 获取整个场景的包围盒（BIM + Grid）
+     */
+    Module.Common.getSceBV = function () {
+        var gridBV = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox("", "");
+        var bimBV = Module.RealBIMWeb.GetHugeObjBoundingBox("", "");
+
+        var newBV = [];
+        //栅格和bim 求总包围盒合集 如果类型不存在，引擎会返回无效包围盒，即最小值填在最大值位置上，求和集不影响
+        var newMinX = Math.min(gridBV[0][0], bimBV[0][0]);
+        var newMinY = Math.min(gridBV[0][1], bimBV[0][1]);
+        var newMinZ = Math.min(gridBV[0][2], bimBV[0][2]);
+        var newMaxX = Math.max(gridBV[1][0], bimBV[1][0]);
+        var newMaxY = Math.max(gridBV[1][1], bimBV[1][1]);
+        var newMaxZ = Math.max(gridBV[1][2], bimBV[1][2]);
+        newBV = [newMinX, newMaxX, newMinY, newMaxY, newMinZ, newMaxZ];
+        return newBV;
+    }
 
 
 
@@ -1015,6 +1033,61 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetFreeCamMoveSpeed(speed);
     }
 
+    class REGisCamLoc {
+        // gis相机方位信息
+        constructor() {
+            this.lon = 0;//经度
+            this.lat = 0;//纬度
+            this.height = 0;//高程
+            this.heading = 0;//
+            this.pitch = 0;//
+            this.roll = 0;//
+        }
+    }
+    ExtModule.REGisCamLoc = REGisCamLoc;
+
+    /**
+     * 获取gis相机在目标坐标下转换的相机数据
+     * @param {String} srcCRS //表示源坐标系描述符
+     * @param {String} destCRS //表示目标坐标系描述符
+     * @param {REGisCamLoc} gisCamLoc //gis相机信息
+     */
+    Module.Camera.getCamLocByGISCoord = function (srcCRS, destCRS, gisCamLoc) {
+        var _vGISCoord = [gisCamLoc.lon, gisCamLoc.lat, gisCamLoc.height, 0];
+        var _vCamRotEuler = [gisCamLoc.heading, gisCamLoc.pitch, gisCamLoc.roll];
+        var _camLoc = Module.RealBIMWeb.GetCamLocByGISCoord(srcCRS, destCRS, _vGISCoord, _vCamRotEuler);
+        var _camLocConv = Module.RealBIMWeb.GetCamLocConvert_Dir(_camLoc.m_vCamPos, _camLoc.m_qCamRotate);
+
+        var camLoc = new RECamLoc();
+        camLoc.camPos = _camLoc.m_vCamPos;
+        camLoc.camRotate = _camLoc.m_qCamRotate;
+        camLoc.camDir = _camLocConv.m_qCamDir;
+        return camLoc;
+    }
+
+    /**
+     * 获取引擎相机在目标坐标下转换的gis相机数据
+     * @param {String} srcCRS //表示源坐标系描述符
+     * @param {String} destCRS //表示目标坐标系描述符
+     * @param {RECamLoc} camLoc //相机信息
+     */
+    Module.Camera.getGISCoordByCamLoc = function (srcCRS, destCRS, camLoc) {
+        var _camLoc = Module.RealBIMWeb.GetGISCoordByCamLoc(srcCRS, destCRS, camLoc.camPos, camLoc.camRotate);
+
+        var gisCamLoc = new REGisCamLoc();
+        gisCamLoc.lon = _camLoc.m_vCamPos[0];
+        gisCamLoc.lat = _camLoc.m_vCamPos[1];
+        gisCamLoc.height = _camLoc.m_vCamPos[2];
+        gisCamLoc.heading = _camLoc.m_qCamDir[0];
+        gisCamLoc.pitch = _camLoc.m_qCamDir[1];
+        gisCamLoc.roll = _camLoc.m_qCamDir[2];
+        return gisCamLoc;
+    }
+
+
+
+
+
 
 
     // MARK 碰撞检测
@@ -1395,9 +1468,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             temparr1[i * 4 + 0] = coordList[i][0]; temparr1[i * 4 + 1] = coordList[i][1]; temparr1[i * 4 + 2] = coordList[i][2]; temparr1[i * 4 + 3] = coordList[i][3];
         }
         var temparr2 = [];
-        if (Module.RealBIMWeb.TransGeoCoords(srcCRS, destCRS, temparr1.byteLength, temparr1.byteOffset)) {
+        var bool = Module.RealBIMWeb.TransGeoCoords(srcCRS, destCRS, temparr1.byteLength, temparr1.byteOffset);
+        if (bool) {
+            var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
             for (i = 0; i < _s; ++i) {
-                temparr2.push([temparr1[i * 4 + 0], temparr1[i * 4 + 1], temparr1[i * 4 + 2], temparr1[i * 4 + 3]]);
+                temparr2.push([temparr3[i * 4 + 0], temparr3[i * 4 + 1], temparr3[i * 4 + 2], temparr3[i * 4 + 3]]);
             }
         }
         return temparr2;
