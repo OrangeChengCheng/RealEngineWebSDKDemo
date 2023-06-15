@@ -106,8 +106,8 @@ function REDataSetLoadFinish(e) {
     if (e.detail.succeed) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
 
-        
-        
+
+
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }
@@ -1193,6 +1193,51 @@ function addMeasureData() {
         [9.208837486233602, 19.28688892897917, 1.6398539371733278],
     ];
     BlackHole3D.Measure.addGroupData(measureInfo);
+}
+
+//相机漫游
+function camRoam() {
+    var camLoc1 = new BlackHole3D.RECamLoc();
+    camLoc1.camPos = [-14.087076187133789, 11.930473327636719, 28.941125869750977];
+    camLoc1.camRotate = [0.36398818531917354, -0.17635701787344926, -0.398772547926534, 0.8230378230768128];
+
+    var camLoc2 = new BlackHole3D.RECamLoc();
+    camLoc2.camPos = [0.34126381084613344, 16.134409179738974, 11.219432115073792];
+    camLoc2.camRotate = [0.36398818531917354, -0.17635701787344926, -0.398772547926534, 0.8230378230768128];
+
+    var camLoc3 = new BlackHole3D.RECamLoc();
+    camLoc3.camPos = [7.1471613011448785, 27.16452603519661, 6.7370463930408];
+    camLoc3.camRotate = [0.5820258287219049, -0.11894105041097136, -0.16106109691864468, 0.7881359554588774];
+
+    var camLocList = [camLoc1, camLoc2, camLoc3];
+
+    var taskList = [];
+    for (let i = 0; i < camLocList.length; i++) {
+        taskList.push(
+            () => {
+                const element = camLocList[i];
+                var locDelay = 0;
+                var locTime = 2;
+                BlackHole3D.Camera.setCamLocateTo(element, locDelay, locTime);
+            }
+        );
+    }
+
+    let index = 0;
+    const intervalId = setInterval(() => {
+        if (index < taskList.length) {
+            taskList[index](); // 执行任务
+            index++;
+        } else {
+            clearInterval(intervalId); // 所有任务完成，清除计时器
+        }
+    }, 2000); // 每隔 1 秒执行一次
+
+    const intervalIdStop = setInterval(() => {
+        clearInterval(intervalId);
+    }, 3000);
+
+
 }
 
 
