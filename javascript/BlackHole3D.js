@@ -1078,9 +1078,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         gisCamLoc.lon = _camLoc.m_vCamPos[0];
         gisCamLoc.lat = _camLoc.m_vCamPos[1];
         gisCamLoc.height = _camLoc.m_vCamPos[2];
-        gisCamLoc.heading = _camLoc.m_qCamDir[0];
-        gisCamLoc.pitch = _camLoc.m_qCamDir[1];
-        gisCamLoc.roll = _camLoc.m_qCamDir[2];
+        gisCamLoc.heading = _camLoc.m_qCamDir[2];
+        gisCamLoc.pitch = _camLoc.m_qCamDir[0];
+        gisCamLoc.roll = _camLoc.m_qCamDir[1];
         return gisCamLoc;
     }
 
