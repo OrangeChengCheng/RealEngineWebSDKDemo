@@ -1,4 +1,4 @@
-//版本：v3.1.0.2032
+//版本：v3.1.0.2035
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1084,6 +1084,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return gisCamLoc;
     }
 
+    /**
+     * 获取当前相机的控制模式
+     */
+    Module.Camera.getCamMode = function () {
+        return Module.RealBIMWeb.GetCamMode();
+    }
 
 
 

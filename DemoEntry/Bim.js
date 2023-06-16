@@ -1233,11 +1233,6 @@ function camRoam() {
         }
     }, 2000); // 每隔 1 秒执行一次
 
-    const intervalIdStop = setInterval(() => {
-        clearInterval(intervalId);
-    }, 3000);
-
-
 }
 
 
