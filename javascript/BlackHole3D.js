@@ -1453,9 +1453,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             temparr1[i * 3 + 0] = coordList[i][0]; temparr1[i * 3 + 1] = coordList[i][1]; temparr1[i * 3 + 2] = coordList[i][2];
         }
         var temparr2 = [];
-        if (Module.RealBIMWeb.TransEngineCoords(forward, destCRS, temparr1.byteLength, temparr1.byteOffset)) {
+        var bool = Module.RealBIMWeb.TransEngineCoords(forward, destCRS, temparr1.byteLength, temparr1.byteOffset);
+        if (bool) {
+            var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
             for (i = 0; i < _s; ++i) {
-                temparr2.push([temparr1[i * 3 + 0], temparr1[i * 3 + 1], temparr1[i * 3 + 2]]);
+                temparr2.push([temparr3[i * 3 + 0], temparr3[i * 3 + 1], temparr3[i * 3 + 2]]);
             }
         }
         return temparr2;
