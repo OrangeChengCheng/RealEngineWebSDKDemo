@@ -2547,6 +2547,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.textClr = null;//锚点的字体颜
             this.textBorderClr = null;//锚点的字体边框颜色
             this.textBackClr = null;//锚点的字体背景颜色
+            this.textBackMode = null;//表示文字背景的处理模式 0：禁用文字背景 1：文字背景对应文字排版后返回的最终矩形区域 2：文字背景对应整体文字实际覆盖的矩形区域
             this.useLod = null;//是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
             this.animObjName = null;//锚点关联的动画对象名称(仅当 useLod==false时有效)
             this.animBoneID = null;//锚点关联的骨骼在动画对象内的ID(仅当 useLod==false时有效)
