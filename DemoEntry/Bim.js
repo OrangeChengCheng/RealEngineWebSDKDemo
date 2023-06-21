@@ -78,7 +78,9 @@ function RESystemEngineCreated(e) {
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
-
+    //设置世界坐标系
+    // var worldCRS = 'PROJCS["CGCS2000_3_Degree_GK_CM_116E",GEOGCS["GCS_China_Geodetic_Coordinate_System_2000",DATUM["D_China_2000",SPHEROID["CGCS2000",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Gauss_Kruger"],PARAMETER["False_Easting",500000.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",116.0],PARAMETER["Scale_Factor",1.0],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]';
+    // BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS);//设置引擎参考坐标系
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
         // setTimeout(() => {
@@ -140,6 +142,17 @@ function RESystemSelShpElement(e) {
 
 function RESystemSelElement(e) {
     console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+
+    // var probe = BlackHole3D.Probe.getCurCombProbeRet();
+    // var coordList = [(probe.elemType !== '' ? probe.elemPos : probe.selPos)];
+
+    // var forward = true;
+    // var destCRS = "EPSG:4326";
+    // var trans = BlackHole3D.Coordinate.getTransEngineCoords(forward, destCRS, coordList);
+    // var trans2 = BlackHole3D.Coordinate.getTransEngineCoords(forward, destCRS, coordList);
+    // console.log("-----------------trans", trans);
+    // console.log("-----------------trans2", trans2);
+    // var trans01 = BlackHole3D.Coordinate.getTransEngineCoords(forward, destCRS, coordList);
 }
 
 function RELocateCam(e) {
@@ -168,6 +181,12 @@ function loadModel() {
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
+        // {
+        //     "dataSetId": "dataSet01",
+        //     "resourcesAddress": "http://10.218.51.182:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a0a6ba1eeba3a26cdb223bb806ab1ba",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "机房02",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
@@ -394,7 +413,7 @@ function addAnc() {
             "ancSize": 60,
             "selfAutoScaleDist": -1,
             "selfVisDist": -1,
-            "textBias": [1, 0],
+            "texBias": [1, 0],
             "textFocus": [0, 0]
         }, {
             "ancName": "anc02",
@@ -409,13 +428,32 @@ function addAnc() {
             "ancSize": 60,
             "selfAutoScaledist": -1,
             "selfVisDist": -1,
-            "textBias": [1, 0],
+            "texBias": [1, 0],
             "textFocus": [0, 0]
         }
     ];
     BlackHole3D.Anchor.addAnc(ancList);
 }
 
+function addAnc2() {
+    var anc = new BlackHole3D.REAncInfo();
+    anc.ancName = "bim-anc-01";
+    anc.pos = [5.589634942790777, 15.313709638911453, 0.000028675116826804015];
+    anc.textInfo = "aaaaaaaaaaaaaaaaaaaaaaaaa";
+    anc.picPath = "https://demo.bjblackhole.com/demopage/examplesImgs/bubbler.png";
+    anc.picWidth = 30;
+    anc.picHeight = 30;
+    anc.ancSize = 60;
+    anc.texBias = [0, 1];
+    anc.texFocus = [-30, 0];
+    anc.fontName = "RealBIMFont001";
+    anc.textColor = new BlackHole3D.REColor(255, 255, 255, 255);
+    anc.textBorderColor = new BlackHole3D.REColor(0, 0, 0, 128);
+
+    var ancList = [];
+    ancList.push(anc);
+    BlackHole3D.Anchor.addAnc(ancList);
+}
 
 //添加闪烁锚点
 function addAncAnim() {
@@ -1236,7 +1274,47 @@ function camRoam() {
 }
 
 
+// 已知两个点坐标，求以这两个点为对角线的矩形另外两个点的坐标值
+function getRectPos() {
+    // 假设有两个三维点 (x1, y1, z1) 和 (x2, y2, z2)
+    // 求以这两个点为对角线的矩形另外两个三维点的坐标值
+    const x1 = 5.553109325749929;
+    const y1 = 14.738651250323581;
+    // const z1 = 0.000033230290977570576;
+    const x2 = 8.341317300600794;
+    const y2 = 15.607180413525267;
+    // const z2 = 4.359456477505427;
+    // const dx = x2 - x1;
+    // const dy = y2 - y1;
+    // const dz = z2 - z1;
 
+    // 假设有两个点 A(x1, y1) 和 B(x2, y2)
+    // 求以这两个点为对角线的矩形的另外两个点的坐标值
+
+    const AB = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));  // 对角线长度
+
+    const v_AB = [(x2 - x1) / AB, (y2 - y1) / AB];  // 对角线方向向量
+
+    const C1 = [x1, y2];  // 第一个解 C 点坐标
+    const D1 = [x2, y1];  // 第一个解 D 点坐标
+
+    const C2 = [x2, y1];  // 第二个解 C 点坐标
+    const D2 = [x1, y2];  // 第二个解 D 点坐标
+
+    // 检查第一个解是否符合矩形的形状要求
+    const CD1 = Math.sqrt((D1[0] - C1[0]) * (D1[0] - C1[0]) + (D1[1] - C1[1]) * (D1[1] - C1[1]));  // CD 长度
+    const cos1 = (D1[0] - C1[0]) * (x2 - x1) + (D1[1] - C1[1]) * (y2 - y1);  // CD 与 AB 的夹角余弦值
+    if (Math.abs(CD1 - AB) > 1e-6 || Math.abs(cos1) > 1e-6) {
+        // 如果不符合矩形的形状要求，则使用第二个解
+        console.log("11111111111111");
+        console.log(C2, D2)
+    } else {
+        console.log("22222222222222");
+        console.log(C1, D1)
+    }
+
+
+}
 
 
 
