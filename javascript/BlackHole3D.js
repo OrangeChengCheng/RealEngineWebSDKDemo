@@ -5794,6 +5794,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetAreaProjLockDir(type);
     }
 
+    /**
+     * 获取轴平行辅助线开启状态
+     */
+    Module.Measure.getAssistLineVisible = function () {
+        return Module.RealBIMWeb.GetAssistLineVisible();
+    }
+
+    /**
+     * 设置轴平行辅助线开启状态
+     * @param {Boolean} enable //是否开启
+     */
+    Module.Measure.setAssistLineVisible = function (enable) {
+        Module.RealBIMWeb.SetAssistLineVisible(enable);
+    }
+
 
 
 
