@@ -163,8 +163,43 @@ function addPipe() {
 }
 
 
+//显示中心线
+function showCenterLine() {
+    //矢量文字信息
+    var shpTextInfo = new BlackHole3D.REShpTextInfo();
+    shpTextInfo.text = "测试画线";
+    shpTextInfo.texBias = [1, 0];
+    shpTextInfo.fontName = "RealBIMFont001";
+    shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+    shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+    shpTextInfo.textBackMode = 2;
+    shpTextInfo.textBackBorder = 2;
+    shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+    //矢量线信息
+    var lineShpInfo = new BlackHole3D.RELineShpInfo();
+    lineShpInfo.shpName = "lineShp001";
+    lineShpInfo.potList = [[7.1701436042785645, 48.223918914794922, 4.2983889579772949],
+    [11.831266403198242, 48.225959777832031, 4.3002581596374512],
+    [12.217000007629395, 48.347602844238281, 4.3000001907348633],
+    [12.33899974822998, 49.225601196289062, 4.3000001907348633],
+    [12.461000442504883, 50.103599548339844, 4.3000001907348633],
+    [14.504650115966797, 50.225601196289062, 4.3000001907348633],
+    [16.548299789428711, 50.347602844238281, 4.3000001907348633],
+    [16.670528411865234, 50.733585357666016, 4.300051212310791],
+    [16.670173645019531, 58.365646362304688, 4.2994098663330078]];
+    lineShpInfo.fillState = 0;
+    lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+    lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+    lineShpInfo.textPos = -2;
+    lineShpInfo.scrASDist = -1.0;
+    lineShpInfo.scrVisDist = 300.0;
+    lineShpInfo.contactSce = false;
+    lineShpInfo.lineWidth = 2;
+    lineShpInfo.textInfo = shpTextInfo;
 
-
+    var addlineShpBool = BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+    console.log(addlineShpBool);
+}
 
 
 
