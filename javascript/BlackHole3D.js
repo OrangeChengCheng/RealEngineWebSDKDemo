@@ -7932,54 +7932,331 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MARK 加载
     class REPipeInfo {
         constructor() {
-            this.groupName = null;//	动态墙组名称
-            this.name = null;//	动态墙名称
-            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
-            this.texPath = null;//	动态墙纹理路径
-            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
-            this.isClose = null;//	动态墙是否强制闭合，默认闭合
+            this.dataSetId = null;// 数据集标识
+            this.pipeId = null;// 管道唯一标识
+            this.elemIdList = null;// 连续的构件id集合
+            this.texPath = null;// 纹理路径
+            this.pipeClr = null;// 管道显示的颜色 （REColor 类型）
         }
     }
     ExtModule.REPipeInfo = REPipeInfo;
 
-    // //添加连续管道
-    // //strProjName：项目名称
-    // //strID：连续管道唯一标识
-    // //uSubElemNum，pSubElemIDs：构件的个数和全局ID集合指针
-    // //strTextPath：纹理路径
-    // //uClr:连续管道的显示颜色ABGR
-    // static void AddContPipe(const std::wstring &strProjName, 
-    //     const std::wstring &strID, 
-    //     cn::u32 uSubElemNum, size_t/*cn::u32 **/ pSubElemIDs, 
-    //     const std::wstring &strTextPath, 
-    //     const cn::u32 uClr);
+    /**
+     * 添加一组连续管道
+     * @param {REPipeInfo} pipeInfo //管道信息 （REPipeInfo 类型）
+     */
+    Module.Pipe.addContPipe = function (pipeInfo) {
+        if (isEmptyLog(pipeInfo, 'pipeInfo')) return;
+        if (isEmptyLog(pipeInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(pipeInfo.elemIdList, 'elemIdList')) return;
+        if (isEmptyLog(pipeInfo.pipeId, 'pipeId')) return;
+
+        var count = pipeInfo.elemIdList.length;
+        var _moemory = (count * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < count; ++i) {
+            var eleid = pipeInfo.elemIdList[i];
+            _elemIds.set([eleid], i);
+        }
+
+        var _texPath = !isEmpty(pipeInfo.texPath) ? pipeInfo.texPath : "";
+        var _pipeClr = !isEmpty(pipeInfo.pipeClr) ? clrToU32(pipeInfo.pipeClr) : 0xffffffff;
+        Module.RealBIMWeb.AddContPipe(pipeInfo.dataSetId, pipeInfo.pipeId, _elemIds.byteLength, _elemIds.byteOffset, _texPath, _pipeClr);
+
+    }
+
+    /**
+     * 删除连续管道
+     * @param {Array} pipeIdList //管道id集合，空数组表示所有管道
+     */
+    Module.Pipe.delContPipe = function (pipeIdList) {
+        var _vector_PipeIds = new Module.RE_Vector_WStr();
+        for (let i = 0; i < pipeIdList.length; i++) {
+            let pipeId = pipeIdList[i];
+            _vector_PipeIds.push_back(pipeId);
+        }
+        Module.RealBIMWeb.DelContPipe(_vector_PipeIds);
+    }
+
+    /**
+     * 获取连续管道的标识集合
+     */
+    Module.Pipe.getAllContPipeId = function () {
+        var _temparr = Module.RealBIMWeb.GetAllContPipeID();
+        var pipeIdList = [];
+        for (var i = 0; i < _temparr.size(); ++i) {
+            var tempobj = _temparr.get(i);
+            pipeIdList.push(tempobj);
+        }
+        return pipeIdList;
+    }
+
+    /**
+     * 获取连续管道信息中构件的ID集合
+     * @param {String} pipeId //管道标识
+     */
+    Module.Pipe.getContPipeElemIDs = function (pipeId) {
+        var tempselids = new Uint32Array(Module.RealBIMWeb.GetContPipeSubElemID(pipeId));
+        var projidarr = [];
+        if (tempselids.length < 2) {
+            return [];
+        }
+        var curprojid = tempselids[1];
+        var curprojelemarr = [];
+        for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i + 1] == curprojid) {
+                curprojelemarr.push(tempselids[i]);
+            } else {
+                if (curprojelemarr.length > 0) {
+                    var curprojinfo = {};
+                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo["elemIdList"] = curprojelemarr;
+                    projidarr.push(curprojinfo);
+                    curprojelemarr = [];
+                }
+                curprojid = tempselids[i + 1];
+                curprojelemarr.push(tempselids[i]);
+            }
+        }
+        if (curprojelemarr.length > 0) {
+            var curprojinfo = {};
+            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo["elemIdList"] = curprojelemarr;
+            projidarr.push(curprojinfo);
+            curprojelemarr = [];
+        }
+        return projidarr.length ? projidarr[0] : {};
+    }
+
+    /**
+     * 获取连续管道信息
+     * @param {Array} pipeIdList //管道标识集合, 为空数组代表所有管道
+     */
+    Module.Pipe.getContPipeInfoXMLStr = function (pipeIdList) {
+        if (isEmptyLog(pipeIdList, 'pipeIdList')) return;
+        var _vector_PipeIds = new Module.RE_Vector_WStr();
+        for (let i = 0; i < pipeIdList.length; i++) {
+            let pipeId = pipeIdList[i];
+            _vector_PipeIds.push_back(pipeId);
+        }
+        return Module.RealBIMWeb.GetContPipe(_vector_PipeIds);
+    }
+
+    /**
+     * 加载连续管道
+     * @param {string} dataSetId //数据集标识
+     * @param {string} pipeInfoXMLStr //管道信息xml字符串
+     */
+    Module.Pipe.setContPipeInfoXMLStr = function (dataSetId, pipeInfoXMLStr) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(pipeInfoXMLStr, 'pipeInfoXMLStr')) return;
+        Module.RealBIMWeb.SetContPipe(dataSetId, pipeInfoXMLStr);
+    }
+
+    /**
+     * 生成连续管道中心线
+     * @param {Array} pipeIdList //管道标识集合, 为空数组代表所有管道
+     */
+    Module.Pipe.setGenContPipeCenterLine = function (pipeIdList) {
+        if (isEmptyLog(pipeIdList, 'pipeIdList')) return;
+        var _vector_PipeIds = new Module.RE_Vector_WStr();
+        for (let i = 0; i < pipeIdList.length; i++) {
+            let pipeId = pipeIdList[i];
+            _vector_PipeIds.push_back(pipeId);
+        }
+        Module.RealBIMWeb.GenContPipeCenterLine(_vector_PipeIds);
+    }
+
+
+
 
 
     // MARK 渲染设置
+    /**
+     * 设置连续管道的纹理
+     * @param {String} pipeId //管道标识
+     * @param {String} picPath //纹理地址
+     */
+    Module.Pipe.setContPipeTex = function (pipeId, picPath) {
+        if (isEmptyLog(pipeId, 'pipeId')) return;
+        if (isEmptyLog(picPath, 'picPath')) return;
+        return Module.RealBIMWeb.SetContPipeTex(pipeId, picPath);
+    }
 
+    /**
+     * 获取连续管道的纹理路径
+     * @param {String} pipeId //管道标识
+     */
+    Module.Pipe.getContPipeTex = function (pipeId) {
+        if (isEmptyLog(pipeId, 'pipeId')) return;
+        return Module.RealBIMWeb.GetContPipeTex(pipeId);
+    }
 
+    /**
+     * 设置连续管道的颜色
+     * @param {String} pipeId //管道标识
+     * @param {REColor} pipeClr //管道颜色
+     */
+    Module.Pipe.setContPipeClr = function (pipeId, pipeClr) {
+        if (isEmptyLog(pipeId, 'pipeId')) return;
+        var _pipeClr = !isEmpty(pipeClr) ? clrToU32(pipeClr) : 0xffffffff;
+        Module.RealBIMWeb.SetContPipeClr(pipeId, _pipeClr);
+    }
+
+    /**
+     * 获取连续管道的颜色
+     * @param {String} pipeId //管道标识
+     */
+    Module.Pipe.getContPipeClr = function (pipeId) {
+        if (isEmptyLog(pipeId, 'pipeId')) return;
+        var _uPipeClr = Module.RealBIMWeb.GetContPipeClr(pipeId);
+        return clrU32ToClr(_uPipeClr);
+    }
+
+    /**
+     * 设置当前连续管道的颜色
+     * @param {REColor} pipeClr //管道颜色
+     */
+    Module.Pipe.setCurContPipeClr = function (pipeClr) {
+        var _pipeClr = !isEmpty(pipeClr) ? clrToU32(pipeClr) : 0xffffffff;
+        Module.RealBIMWeb.SetCurContPipeClr(_pipeClr);
+    }
+
+    /**
+     * 获取当前连续管道的颜色
+     */
+    Module.Pipe.getCurContPipeClr = function () {
+        var _uPipeClr = Module.RealBIMWeb.GetCurContPipeClr();
+        return clrU32ToClr(_uPipeClr);
+    }
+
+    /**
+     * 设置连续管道是否显示
+     * @param {Array} pipeIdList //管道标识集合
+     * @param {Boolean} enable //是否显示
+     * @param {Boolean} showAnc //是否显示锚点，仅在 enable 为true时设置才有效
+     */
+    Module.Pipe.setShowContPipe = function (pipeIdList, enable, showAnc) {
+        if (isEmptyLog(pipeIdList, 'pipeIdList')) return;
+        var _vector_PipeIds = new Module.RE_Vector_WStr();
+        for (let i = 0; i < pipeIdList.length; i++) {
+            let pipeId = pipeIdList[i];
+            _vector_PipeIds.push_back(pipeId);
+        }
+        Module.RealBIMWeb.ShowContPipe(_vector_PipeIds, enable, showAnc);
+    }
 
 
 
     // MARK 编辑
+    /**
+     * 开始进入连续管道交互状态
+     */
+    Module.Pipe.startEditContPipeMode = function () {
+        Module.RealBIMWeb.EnterContPipeMode();
+    }
 
+    /**
+     * 结束连续管道交互模式
+     */
+    Module.Pipe.endEditContPipeMode = function () {
+        Module.RealBIMWeb.ExitContPipeMode();
+    }
 
+    /**
+     * 获取是否在连续管道编辑状态
+     */
+    Module.Pipe.getContPipeMode = function () {
+        return Module.RealBIMWeb.GetContPipeMode();
+    }
 
+    /**
+     * 设置当前连续管道
+     * @param {String} pipeId //管道标识
+     */
+    Module.Pipe.setCurContPipe = function (pipeId) {
+        if (isEmptyLog(pipeId, 'pipeId')) return;
+        Module.RealBIMWeb.SetCurContPipe(pipeId);
+    }
 
+    /**
+     * 获取当前连续管道ID
+     */
+    Module.Pipe.getCurContPipe = function () {
+        return Module.RealBIMWeb.GetCurContPipeID();
+    }
 
+    /**
+     * 保存当前连续管道
+     */
+    Module.Pipe.saveCurContPipe = function () {
+        Module.RealBIMWeb.SaveCurContPipe();
+    }
 
+    /**
+     * 重置当前连续管道
+     */
+    Module.Pipe.resetCurContPipe = function () {
+        Module.RealBIMWeb.ResetCurContPipe();
+    }
 
+    /**
+     * 从当前操作的管道中移除构件
+     * @param {string} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件标识集合, 为空数组代表所有构件
+     */
+    Module.Pipe.removeCurContPipeSubElem = function (dataSetId, elemIdList) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemUVAnim.dataSetId);
+        var count = elemIdList.length;
+        var _moemory = (count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < count; ++i) {
+            var eleid = pipeInfo.elemIdList[i];
+            _elemIds.set([eleid, _projid], i * 2);
+        }
+        Module.RealBIMWeb.RemoveCurContPipeSubElem(_elemIds.byteLength, _elemIds.byteOffset);
+    }
 
-
-
-
-
-
-
-
-
-
+    /**
+     * 获取当前连续管道的构件ID集合
+     */
+    Module.Pipe.getCurContPipeAllElemIDs = function () {
+        var tempselids = new Uint32Array(Module.RealBIMWeb.GetCurContPipeAllSubElemID());
+        var projidarr = [];
+        if (tempselids.length < 2) {
+            return [];
+        }
+        var curprojid = tempselids[1];
+        var curprojelemarr = [];
+        for (var i = 0; i < tempselids.length; i += 2) {
+            if (tempselids[i + 1] == curprojid) {
+                curprojelemarr.push(tempselids[i]);
+            } else {
+                if (curprojelemarr.length > 0) {
+                    var curprojinfo = {};
+                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo["elemIdList"] = curprojelemarr;
+                    projidarr.push(curprojinfo);
+                    curprojelemarr = [];
+                }
+                curprojid = tempselids[i + 1];
+                curprojelemarr.push(tempselids[i]);
+            }
+        }
+        if (curprojelemarr.length > 0) {
+            var curprojinfo = {};
+            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo["elemIdList"] = curprojelemarr;
+            projidarr.push(curprojinfo);
+            curprojelemarr = [];
+        }
+        return projidarr.length ? projidarr[0] : {};
+    }
 
 
 
@@ -8019,8 +8296,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 是不是空对象，并打印错误
-     */
+    * 是不是空对象，并打印错误
+    */
     function isEmptyLog(value, name) {
         if (!isEmpty(value)) return false;
         logParErr(name);
@@ -8106,7 +8383,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 32位颜色转十六进制颜色 ABGR -> RBG_HEX
      * @param {Number} colorU32 //32位颜色值
-     */
+    */
     function clrU32ToClr(colorU32) {
         let _hexStr = (colorU32).toString(16);
         let count = _hexStr.length;
@@ -8125,8 +8402,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 颜色对象->U32_ABGR
-     * @param {REColor} color 
-     */
+     * @param {REColor} color
+    */
     function clrToU32(color) {
         if (isEmpty(color.red) || isEmpty(color.green) || isEmpty(color.blue) || isEmpty(color.alpha)) return 0xFFFFFFFF;
         var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
@@ -8140,8 +8417,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 颜色对象->U32_WBGR
-     * @param {REColor} color 
-     */
+     * @param {REColor} color
+    */
     function clrToU32_WBGR(color) {
         if ((isEmpty(color.red) || color.red.toString() == "NaN")
             || (isEmpty(color.green) || color.green.toString() == "NaN")
@@ -8177,8 +8454,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 透明度->U32_WA
-     * @param {Number} alpha 
-     */
+     * @param {Number} alpha
+    */
     function alphaToU32_WA(alpha) {
         if (isEmpty(alpha)) return 0xFFFFFFFF;
         var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
@@ -8206,8 +8483,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 透明度权重->U32_WA
-     * @param {Number} alpha_W 
-     */
+     * @param {Number} alpha_W
+    */
     function alphaWToU32_WA(alpha_W) {
         if (isEmpty(alpha_W)) return 0xFFFFFFFF;
         var int_AW_r = 255 - Math.round(alpha_W);//设置透明度使用权重进行设置，不然会造成混合的异常（透明材质的情况）；透明值始终为0，想设置透明，即权重的比例增大；不透明，即权重的比例减少
@@ -8218,8 +8495,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     /**
      * 颜色对象->RGBA数组
-     * @param {REColor} color 
-     */
+     * @param {REColor} color
+    */
     function clrToRGBA_List(color) {
         var _R = Math.round(color.red) / 255.0;
         var _G = Math.round(color.green) / 255.0;
@@ -8230,8 +8507,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     /**
      * RGBA数组->颜色对象
-     * @param {Array} rbga_list 
-     */
+     * @param {Array} rbga_list
+    */
     function rgbaListToClr(rbga_list) {
         var _r = Math.floor(rbga_list[0] * 255);
         var _g = Math.floor(rbga_list[1] * 255);
@@ -8244,7 +8521,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 发光和PBR转换工具函数
      * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
-     */
+    */
     function convPBR(elemBlendAttr) {
         var intemis = (isEmpty(elemBlendAttr.elemEmis)) ? 0 : Math.round(elemBlendAttr.elemEmis);
         var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 0 : Math.round(elemBlendAttr.elemEmisPercent);
@@ -8261,7 +8538,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 深拷贝
      * @param {Object} obj //拷贝数据
-     */
+    */
     function deepClone(obj) {
         var _obj = JSON.stringify(obj); //  对象转成字符串
         var objClone = JSON.parse(_obj); //  字符串转成对象
@@ -8271,8 +8548,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 判断是否有重复值
      * @param {Array} array //列表
-     * @param {String} paramName //需要判断的key 
-     */
+    * @param {String} paramName //需要判断的key
+    */
     function isRepeat(array, paramName) {
         var objlist = [];
         for (const key in array) {
@@ -8341,32 +8618,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MARK CamLoc
     //表示ViewCude视图的类型
     const RECamDirEm = {
-        CAM_DIR_FRONT: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）	
-        CAM_DIR_BACK: "Module.RE_CAM_DIR.BACK",//面-后视图	
-        CAM_DIR_LEFT: "Module.RE_CAM_DIR.LEFT",//面-左视图	
-        CAM_DIR_RIGHT: "Module.RE_CAM_DIR.RIGHT",//面-右视图	
-        CAM_DIR_TOP: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）	
-        CAM_DIR_BOTTOM: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）	
-        CAM_DIR_TOPFRONT: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前	
-        CAM_DIR_TOPRIGHT: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右	
-        CAM_DIR_TOPBACK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后	
-        CAM_DIR_TOPLEFT: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左	
-        CAM_DIR_LEFTFRONT: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前	
-        CAM_DIR_RIGHTFRONT: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右	
-        CAM_DIR_RIGHTBACK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后	
-        CAM_DIR_LEFTBACK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左	
-        CAM_DIR_BOTTOMFRONT: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前	
-        CAM_DIR_BOTTOMRIGHT: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右	
-        CAM_DIR_BOTTOMBACK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后	
-        CAM_DIR_BOTTOMLEFT: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左	
-        CAM_DIR_TOPRIGHTBACK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后	
-        CAM_DIR_TOPLEFTBACK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后	
-        CAM_DIR_TOPLEFTFRONT: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前	
-        CAM_DIR_TOPRIGHTFRONT: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前	
-        CAM_DIR_BOTTOMRIGHTBACK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后	
-        CAM_DIR_BOTTOMLEFTBACK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后	
-        CAM_DIR_BOTTOMLEFTFRONT: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前	
-        CAM_DIR_BOTTOMRIGHTFRONT: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前	
+        CAM_DIR_FRONT: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
+        CAM_DIR_BACK: "Module.RE_CAM_DIR.BACK",//面-后视图
+        CAM_DIR_LEFT: "Module.RE_CAM_DIR.LEFT",//面-左视图
+        CAM_DIR_RIGHT: "Module.RE_CAM_DIR.RIGHT",//面-右视图
+        CAM_DIR_TOP: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
+        CAM_DIR_BOTTOM: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
+        CAM_DIR_TOPFRONT: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
+        CAM_DIR_TOPRIGHT: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
+        CAM_DIR_TOPBACK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
+        CAM_DIR_TOPLEFT: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
+        CAM_DIR_LEFTFRONT: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
+        CAM_DIR_RIGHTFRONT: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
+        CAM_DIR_RIGHTBACK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
+        CAM_DIR_LEFTBACK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
+        CAM_DIR_BOTTOMFRONT: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
+        CAM_DIR_BOTTOMRIGHT: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
+        CAM_DIR_BOTTOMBACK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
+        CAM_DIR_BOTTOMLEFT: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
+        CAM_DIR_TOPRIGHTBACK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
+        CAM_DIR_TOPLEFTBACK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
+        CAM_DIR_TOPLEFTFRONT: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
+        CAM_DIR_TOPRIGHTFRONT: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
+        CAM_DIR_BOTTOMRIGHTBACK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
+        CAM_DIR_BOTTOMLEFTBACK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
+        CAM_DIR_BOTTOMLEFTFRONT: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
+        CAM_DIR_BOTTOMRIGHTFRONT: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
         CAM_DIR_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
     }
     ExtModule.RECamDirEm = RECamDirEm;

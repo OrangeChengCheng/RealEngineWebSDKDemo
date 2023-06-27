@@ -187,12 +187,12 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        // {
-        //     "dataSetId": "机房02",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
+        {
+            "dataSetId": "机房02",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
         //     "dataSetId": "天台",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_lunkuoxian",
@@ -1317,6 +1317,14 @@ function getRectPos() {
 }
 
 
+// 添加连续管道
+function addPipe() {
+    var pipeInfo = new BlackHole3D.REPipeInfo();
+    pipeInfo.dataSetId = "机房01";
+    pipeInfo.pipeId = "pipe01";
+    pipeInfo.elemIdList = [728, 735, 749, 757, 751, 731, 729];
+    BlackHole3D.Pipe.addContPipe(pipeInfo);
+}
 
 
 
