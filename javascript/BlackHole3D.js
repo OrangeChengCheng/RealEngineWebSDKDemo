@@ -1782,6 +1782,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.PreLoadGUIImgs(picPath);
     }
 
+    /**
+     * 全部重置系统面板UI按钮和关联的状态
+     */
+    Module.Graphics.resetSysOptStateAndUI = function () {
+        Module.RealBIMWeb.ResetUserOperationOnUI();
+    }
+
 
 
 
