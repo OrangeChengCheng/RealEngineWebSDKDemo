@@ -1,4 +1,4 @@
-//版本：v3.1.0.2040
+//版本：v3.1.0.2044
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -4336,6 +4336,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 获取模型场景节点的仿射变换信息
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     */
+    Module.BIM.getElemTransform = function (dataSetId) {
+        var _COMMON_LOC = Module.RealBIMWeb.GetHugeObjTransform(dataSetId, "");
+        let transFormInfo = {
+            scale: _COMMON_LOC.m_vScale,
+            rotate: _COMMON_LOC.m_qRotate,
+            offset: _COMMON_LOC.m_vOffset,
+        };
+        return transFormInfo;
+    }
+
+    /**
      * 刷新数据集模型
      * @param {String} dataSetId //数据集标识
      * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
@@ -5077,6 +5091,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 获取栅格模型的仿射变换信息
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     */
+    Module.BIM.getDataSetTrans = function (dataSetId) {
+        var _COMMON_LOC = Module.RealBIMWeb.GetUnVerHugeGroupTransform(dataSetId, "");
+        let transFormInfo = {
+            scale: _COMMON_LOC.m_vScale,
+            rotate: _COMMON_LOC.m_qRotate,
+            offset: _COMMON_LOC.m_vOffset,
+        };
+        return transFormInfo;
+    }
+
+    /**
      * 根据数据集id获取总包围盒信息
      * @param {String} dataSetId //数据集标识
      */
@@ -5518,6 +5546,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return camLoc;
     }
 
+    /**
+     * 设置全景图的自动前进后退
+     * @param {String} elemId //某一帧全景图的唯一标识
+     * @param {Number} threshold //阈值
+     * @param {Number} MoveCoef //小于0则后退 ，否则前进
+     * @param {Number} time //时长
+     */
+    Module.Panorama.setCamAutoForward = function (elemId, threshold, MoveCoef, time) {
+        if (isEmptyLog(elemId, "elemId")) return;
+
+        var _threshold = isEmpty(threshold) ? 80.0 : threshold;
+        var _MoveCoef = isEmpty(MoveCoef) ? -1.0 : MoveCoef;
+        var _time = isEmpty(time) ? 2.0 : time;
+        Module.RealBIMWeb.SetPanCamAutoForward(_threshold, _MoveCoef, _time, elemId);
+    }
 
 
 
@@ -5576,7 +5619,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _panCamId = 0; if (!isEmpty(_panAncInfo.panWindow)) _panCamId = _panAncInfo.panWindow;
             var _pos = [0, 0, 0]; if (!isEmpty(_panAncInfo.pos)) _pos = _panAncInfo.pos;
             var _texPos = [0, 0]; if (!isEmpty(_panAncInfo.texPos)) _texPos = _panAncInfo.texPos;
-            var _useCamPost = false; if (!isEmpty(_panAncInfo._useCamPost)) _useCamPost = _panAncInfo._useCamPost;
+            var _useCamPost = false; if (!isEmpty(_panAncInfo.useTexPos)) _useCamPost = _panAncInfo.useTexPos;
             var tempobj = {
                 m_uSlot: _panCamId,
                 m_strPanAncName: _panAncInfo.ancName,
