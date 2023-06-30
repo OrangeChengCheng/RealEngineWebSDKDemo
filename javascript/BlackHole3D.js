@@ -5555,18 +5555,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置全景图的自动前进后退
-     * @param {String} elemId //某一帧全景图的唯一标识
      * @param {Number} threshold //阈值
      * @param {Number} MoveCoef //小于0则后退 ，否则前进
      * @param {Number} time //时长
+     * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
-    Module.Panorama.setCamAutoForward = function (elemId, threshold, MoveCoef, time) {
-        if (isEmptyLog(elemId, "elemId")) return;
-
+    Module.Panorama.setCamAutoForward = function (threshold, MoveCoef, time, panWindow) {
+        var _panWindow = isEmpty(panWindow) ? 0 : panWindow;
         var _threshold = isEmpty(threshold) ? 80.0 : threshold;
         var _MoveCoef = isEmpty(MoveCoef) ? -1.0 : MoveCoef;
         var _time = isEmpty(time) ? 2.0 : time;
-        Module.RealBIMWeb.SetPanCamAutoForward(_threshold, _MoveCoef, _time, elemId);
+        Module.RealBIMWeb.SetPanCamAutoForward(_threshold, _MoveCoef, _time, _panWindow);
     }
 
 
