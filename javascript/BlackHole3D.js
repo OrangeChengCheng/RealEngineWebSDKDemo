@@ -5101,7 +5101,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取栅格模型的仿射变换信息
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
      */
-    Module.BIM.getDataSetTrans = function (dataSetId) {
+    Module.Grid.getDataSetTrans = function (dataSetId) {
         var _COMMON_LOC = Module.RealBIMWeb.GetUnVerHugeGroupTransform(dataSetId, "");
         let transFormInfo = {
             scale: _COMMON_LOC.m_vScale,
