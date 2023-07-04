@@ -1,4 +1,4 @@
-//版本：v3.1.0.2046
+//版本：v3.1.0.2053
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -2565,6 +2565,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REAncInfo = REAncInfo;
 
+    // MARK 加载
     /**
      * 添加锚点
      * @param {Array} ancList //锚点信息集合（REAncInfo 类型）
@@ -2851,24 +2852,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 聚焦相机到指定的锚点
-     * @param {String} ancName //锚点的名称
-     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
-     */
-    Module.Anchor.setCamToAnc = function (ancName, backwardAmp) {
-        Module.RealBIMWeb.FocusCamToAnchor(ancName, backwardAmp);
-    }
-
-    /**
-     * 相机定位到组锚点
-     * @param {String} groupName //锚点组的标识
-     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
-     */
-    Module.Anchor.setCamToGroupAnc = function (groupName, backwardAmp) {
-        Module.RealBIMWeb.FocusCamToAnchorGroup(groupName, backwardAmp);
-    }
-
-    /**
      * 获取所有的锚点分组名称
      */
     Module.Anchor.getAllAncGroupNames = function () {
@@ -3013,6 +2996,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetAnchorLODInfo(_groupName, 1, false, [[0, 0, 0], [0, 0, 0]], 100, 1, mergestyle);
     }
 
+
+    // MARK 相机
+    /**
+     * 聚焦相机到指定的锚点
+     * @param {String} ancName //锚点的名称
+     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
+     */
+    Module.Anchor.setCamToAnc = function (ancName, backwardAmp) {
+        Module.RealBIMWeb.FocusCamToAnchor(ancName, backwardAmp);
+    }
+
+    /**
+     * 相机定位到组锚点
+     * @param {String} groupName //锚点组的标识
+     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
+     */
+    Module.Anchor.setCamToGroupAnc = function (groupName, backwardAmp) {
+        Module.RealBIMWeb.FocusCamToAnchorGroup(groupName, backwardAmp);
+    }
+
+
+
+
+
+    // MARK 渲染设置
     /**
      * 设置系统中锚点是否允许被场景遮挡
      * @param {String} groupName //锚点的组标识
@@ -3069,6 +3077,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 几何图形（Geometry）
     Module.Geometry = typeof Module.Geometry !== "undefined" ? Module.Geometry : {};//增加 Geometry 模块
 
+
+    // MARK 加载
     class REShpTextInfo {
         constructor() {
             this.text = null;//表示文字的内容
@@ -3086,6 +3096,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REPotShpInfo {
         constructor() {
             this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null;//矢量组名称
             this.pos = null;//表示顶点位置
             this.potSize = null;//示顶点的像素大小
             this.potClr = null;//顶点的颜色（REColor 类型）
@@ -3108,6 +3119,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _textInfo = potShpInfo.textInfo;
 
+        var _groupName = isEmpty(potShpInfo.groupName) ? "" : potShpInfo.groupName;
         var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
         var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
@@ -3147,7 +3159,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _bContactSce = false; if (!isEmpty(potShpInfo.contactSce)) _bContactSce = potShpInfo.contactSce;
         var _uClr = 0xFFFFFFFF; if (!isEmpty(potShpInfo.potClr)) _uClr = clrToU32(potShpInfo.potClr);
 
-        return Module.RealBIMWeb.AddCustomPotShp(potShpInfo.shpName, potShpInfo.pos, uPotSize, _uClr, textobj, potShpInfo.scrASDist, potShpInfo.scrVisDist, _bContactSce);
+        return Module.RealBIMWeb.AddCustomPotShp(potShpInfo.shpName, _groupName, potShpInfo.pos, uPotSize, _uClr, textobj, potShpInfo.scrASDist, potShpInfo.scrVisDist, _bContactSce);
     }
 
 
@@ -3155,6 +3167,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class RELineShpInfo {
         constructor() {
             this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null;//矢量组名称
             this.potList = null;//表示多边形折线序列
             this.fillState = null;//表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
             this.lineClr = null;//表示多边形的颜色（REColor 类型）
@@ -3180,7 +3193,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(lineShpInfo.textInfo, "textInfo")) return;
 
         var _textInfo = lineShpInfo.textInfo;
-
+        var _groupName = isEmpty(lineShpInfo.groupName) ? "" : lineShpInfo.groupName;
         var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
         var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
         var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
@@ -3228,12 +3241,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _linewidth = 1; if (!isEmpty(lineShpInfo.lineWidth)) _linewidth = lineShpInfo.lineWidth;
         var _fTextPos = -2; if (!isEmpty(lineShpInfo.textPos)) _fTextPos = lineShpInfo.textPos;
 
-        return Module.RealBIMWeb.AddCustomPolylineShp(lineShpInfo.shpName, _temparrpos, _fillState, _uClr, _uFillClr, _fTextPos, textobj, lineShpInfo.scrASDist, lineShpInfo.scrVisDist, _bContactSce, _linewidth);
+        return Module.RealBIMWeb.AddCustomPolylineShp(lineShpInfo.shpName, _groupName, _temparrpos, _fillState, _uClr, _uFillClr, _fTextPos, textobj, lineShpInfo.scrASDist, lineShpInfo.scrVisDist, _bContactSce, _linewidth);
     }
 
     class REFenceShpInfo {
         constructor() {
             this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null;//矢量组名称
             this.potList = null;//表示多边形折线序列 xyzw, w分量表示端点处的围栏高度
             this.isClose = null;//表示是否闭合
             this.fenceClr = null;//表示多边形围栏的颜色（REColor 类型）
@@ -3253,6 +3267,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(fenceShpInfo.shpName, "shpName")) return;
         if (!checkTypeLog(fenceShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
 
+        var _groupName = isEmpty(fenceShpInfo.groupName) ? "" : fenceShpInfo.groupName;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < fenceShpInfo.potList.length; ++i) {
             _temparrpos.push_back(fenceShpInfo.potList[i]);
@@ -3261,7 +3276,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _bContactSce = false; if (!isEmpty(fenceShpInfo.contactSce)) _bContactSce = fenceShpInfo.contactSce;
         var _uClr = 0xFFFFFFFF; if (!isEmpty(fenceShpInfo.fenceClr)) _uClr = clrToU32(fenceShpInfo.fenceClr);
 
-        return Module.RealBIMWeb.AddCustomPolyFenceShp(fenceShpInfo.shpName, _temparrpos, fenceShpInfo.isClose, _uClr, fenceShpInfo.scrASDist, fenceShpInfo.scrVisDist, _bContactSce);
+        return Module.RealBIMWeb.AddCustomPolyFenceShp(fenceShpInfo.shpName, _groupName, _temparrpos, fenceShpInfo.isClose, _uClr, fenceShpInfo.scrASDist, fenceShpInfo.scrVisDist, _bContactSce);
     }
 
     /**
@@ -3277,35 +3292,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.delAllShps = function () {
         Module.RealBIMWeb.DelAllCustomShps();
-    }
-
-    /**
-     * 设置自定义矢量对象的颜色
-     * @param {String} shpName //矢量标识名
-     * @param {REColor} shpClr //颜色（REColor 类型）
-     */
-    Module.Geometry.setShpClr = function (shpName, shpClr) {
-        if (isEmptyLog(shpName, 'shpName')) return;
-        if (isEmptyLog(shpClr, 'shpClr')) return;
-        Module.RealBIMWeb.SetCustomShpColor(shpName, clrToU32(shpClr));
-    }
-
-    /**
-     * 聚焦相机到指定的矢量对象
-     * @param {String} shpName //矢量标识名
-     * @param {Number} backwardAmp //表示相机在锚点中心处向后退的强度
-     */
-    Module.Geometry.setCamToShp = function (shpName, backwardAmp) {
-        if (isEmptyLog(shpName, 'shpName')) return;
-        Module.RealBIMWeb.FocusCamToCustomShp(shpName, backwardAmp);
-    }
-
-    /**
-     * 设置矢量是否允许顶点捕捉
-     * @param {Boolean} enable //是否允许
-     */
-    Module.Geometry.setShpPotCapture = function (enable) {
-        Module.RealBIMWeb.SetShpPotCapture(enable);
     }
 
     /**
@@ -3353,6 +3339,40 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         return potsNotInElems;
     }
+
+
+    // MARK 相机
+    /**
+     * 聚焦相机到指定的矢量对象
+     * @param {String} shpName //矢量标识名
+     * @param {Number} backwardAmp //表示相机在锚点中心处向后退的强度
+     */
+    Module.Geometry.setCamToShp = function (shpName, backwardAmp) {
+        if (isEmptyLog(shpName, 'shpName')) return;
+        Module.RealBIMWeb.FocusCamToCustomShp(shpName, backwardAmp);
+    }
+
+
+    // MARK 渲染设置
+    /**
+     * 设置矢量是否允许顶点捕捉
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Geometry.setShpPotCapture = function (enable) {
+        Module.RealBIMWeb.SetShpPotCapture(enable);
+    }
+
+    /**
+     * 设置自定义矢量对象的颜色
+     * @param {String} shpName //矢量标识名
+     * @param {REColor} shpClr //颜色（REColor 类型）
+     */
+    Module.Geometry.setShpClr = function (shpName, shpClr) {
+        if (isEmptyLog(shpName, 'shpName')) return;
+        if (isEmptyLog(shpClr, 'shpClr')) return;
+        Module.RealBIMWeb.SetCustomShpColor(shpName, clrToU32(shpClr));
+    }
+
 
 
 
@@ -3519,25 +3539,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
         var _count = _elemIdListTemp.length;
-        var _moemory = (_count * 16).toString();
+        var _moemory = (_count * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _count; ++i) {
             var eleid = _elemIdListTemp[i];
-            _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
+            _clrs.set([eleid, _projid, 0x00000000, 0, 0x00000000, 0x00000000], i * 6);
         }
-        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
         var elemAttrList = [];
-        for (var i = 0; i < clrinfoarr.length; i += 4) {
-            let elemAttrInfo = {};
+        for (var i = 0; i < clrinfoarr.length; i += 6) {
+            let elemAttrInfo = new REElemAttr();
+            // let elemAttrInfo = {};
             elemAttrInfo.elemId = clrinfoarr[i];
-            let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
-            let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
-            let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
+            let red = parseInt((clrinfoarr[i + 4]).toString(16).substring(6, 8), 16);
+            let green = parseInt((clrinfoarr[i + 4]).toString(16).substring(4, 6), 16);
+            let blue = parseInt((clrinfoarr[i + 4]).toString(16).substring(2, 4), 16);
             let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
             elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
             elemAttrInfo.alphaWeight = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
-            elemAttrInfo.clrWeight = parseInt((clrinfoarr[i + 3]).toString(16).substring(0, 2), 16);
+            elemAttrInfo.clrWeight = parseInt((clrinfoarr[i + 4]).toString(16).substring(0, 2), 16);
+            elemAttrInfo.elemEmis = parseInt((clrinfoarr[i + 5]).toString(16).substring(6, 8), 16);
+            elemAttrInfo.elemEmisPercent = parseInt((clrinfoarr[i + 5]).toString(16).substring(4, 6), 16);
+            let elemSmme = parseInt((clrinfoarr[i + 5]).toString(16).substring(2, 4), 16);
+            let uElemSmooth = Math.round(((elemSmme & 0x3F) / 63.0) * 255.0);
+            let uElemMeta = Math.round(((elemSmme >> 6) / 3.0) * 255.0);
+            elemAttrInfo.elemSmooth = uElemSmooth;
+            elemAttrInfo.elemMetal = uElemMeta;
+            elemAttrInfo.elemSmmePercent = parseInt((clrinfoarr[i + 5]).toString(16).substring(0, 2), 16);
             elemAttrList.push(elemAttrInfo);
         }
         return elemAttrList;
