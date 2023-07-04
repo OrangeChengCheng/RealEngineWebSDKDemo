@@ -2860,6 +2860,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 相机定位到组锚点
+     * @param {String} groupName //锚点组的标识
+     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
+     */
+    Module.Anchor.setCamToGroupAnc = function (groupName, backwardAmp) {
+        Module.RealBIMWeb.FocusCamToAnchorGroup(groupName, backwardAmp);
+    }
+
+    /**
      * 获取所有的锚点分组名称
      */
     Module.Anchor.getAllAncGroupNames = function () {
