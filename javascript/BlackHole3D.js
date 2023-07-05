@@ -3294,12 +3294,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelAllCustomShps();
     }
 
-    /**
-     * 获取矢量是否允许顶点捕捉
-     */
-    Module.Geometry.getShpPotCapture = function () {
-        return Module.RealBIMWeb.GetShpPotCapture();
-    }
+
 
     /**
      * 判断顶点集合是否在指定的构件集合内，并返还不在指定构件集合内的顶点集合
@@ -3340,6 +3335,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return potsNotInElems;
     }
 
+    /**
+     * 删除某个组的所有自定义矢量对象
+     * @param {String} groupName //矢量组标识
+     */
+    Module.Geometry.delGroupShp = function (groupName) {
+        return Module.RealBIMWeb.DelCustomShpByGroup(groupName);
+    }
+
+    /**
+     * 获取所有的组名
+     */
+    Module.Geometry.getAllGroupName = function () {
+        return Module.RealBIMWeb.GetCustomShpAllGroupName();
+    }
+
 
     // MARK 相机
     /**
@@ -3350,6 +3360,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setCamToShp = function (shpName, backwardAmp) {
         if (isEmptyLog(shpName, 'shpName')) return;
         Module.RealBIMWeb.FocusCamToCustomShp(shpName, backwardAmp);
+    }
+
+    /**
+     * 聚焦相机到指定的矢量组
+     * @param {String} groupName //矢量组标识
+     * @param {Number} backwardAmp //表示相机在锚点中心处向后退的强度
+     */
+    Module.Geometry.setCamToGroupShp = function (groupName, backwardAmp) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        Module.RealBIMWeb.FocusCamToCustomShpGroup(groupName, backwardAmp);
     }
 
 
@@ -3371,6 +3391,81 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(shpName, 'shpName')) return;
         if (isEmptyLog(shpClr, 'shpClr')) return;
         Module.RealBIMWeb.SetCustomShpColor(shpName, clrToU32(shpClr));
+    }
+
+    /**
+     * 获取矢量是否允许顶点捕捉
+     */
+    Module.Geometry.getShpPotCapture = function () {
+        return Module.RealBIMWeb.GetShpPotCapture();
+    }
+
+    /**
+     * 设置某个组的自定义矢量的可见性
+     * @param {String} groupName //矢量组标识
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Geometry.setGroupShpVisible = function (groupName, enable) {
+        Module.RealBIMWeb.SetCustomShpVisible(groupName, enable);
+    }
+
+    /**
+     * 获取某个组的自定义矢量的可见性
+     * @param {String} groupName //矢量组标识
+     */
+    Module.Geometry.getGroupShpVisible = function (groupName) {
+        return Module.RealBIMWeb.GetCustomShpVisible(groupName);
+    }
+
+    /**
+     * 设置某个组矢量元素是否与主场景产生深度遮挡
+     * @param {String} groupName //矢量组标识
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Geometry.setGroupShpCanOverlap = function (groupName, enable) {
+        Module.RealBIMWeb.SetCustomShpContactSce(groupName, enable);
+    }
+
+    /**
+     * 获取某个组矢量元素是否与主场景产生深度遮挡
+     * @param {String} groupName //矢量组标识
+     */
+    Module.Geometry.getGroupShpCanOverlap = function (groupName) {
+        return Module.RealBIMWeb.GetCustomShpContactSce(groupName);
+    }
+
+    /**
+     * 设置某个组矢量元素的全局最大可视距离，超过该距离矢量会消失
+     * @param {String} groupName //矢量组标识
+     * @param {Number} dist //距离
+     */
+    Module.Geometry.setGroupShpVisDist = function (groupName, dist) {
+        Module.RealBIMWeb.SetCustomShpVisDist(groupName, dist);
+    }
+
+    /**
+     * 获取某个组矢量元素的全局最大可视距离
+     * @param {String} groupName //矢量组标识
+     */
+    Module.Geometry.getGroupShpVisDist = function (groupName) {
+        return Module.RealBIMWeb.GetCustomShpVisDist(groupName);
+    }
+
+    /**
+     * 设置某个组矢量元素的全局最小自动缩放距离，超过该距离矢量会自动缩小
+     * @param {String} groupName //矢量组标识
+     * @param {Number} dist //距离
+     */
+    Module.Geometry.setGroupShpAutoScaleDist = function (groupName, dist) {
+        Module.RealBIMWeb.SetCustomShpAutoScaleDist(groupName, dist);
+    }
+
+    /**
+     * 获取某个组矢量元素的全局最小自动缩放距离
+     * @param {String} groupName //矢量组标识
+     */
+    Module.Geometry.getGroupShpAutoScaleDist = function (groupName) {
+        return Module.RealBIMWeb.GetCustomShpAutoScaleDist(groupName);
     }
 
 
