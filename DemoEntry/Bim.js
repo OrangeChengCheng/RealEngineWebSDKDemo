@@ -207,7 +207,7 @@ function loadModel() {
         // },
         // {
         //     "dataSetId": "小房子",
-        //     "resourcesAddress": "http://192.168.31.7:8008/blackhole3D/EngineRes/RequestEngineRes?dir=url_res13&path=3a0960059327a3a6b63933ed6fb956cc",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res15&path=3a0bef666513080b3b52aa9fc18cf17f",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
