@@ -1255,6 +1255,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 重置天空盒设置
+     */
+    Module.SkyBox.resetSkyInfo = function () {
+        var _skyTexPaths = [
+            "!(RealBIMAppFileCache)/skypics/oasisday_right.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_left.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_front.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_back.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_top.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_bottom.jpg.dds",
+        ];
+        var pathTemps = new Module.RE_Vector_Str();
+        for (let i = 0; i < _skyTexPaths.length; i++) {
+            pathTemps.push_back(_skyTexPaths[i]);
+        }
+        var _SkyInfo = {
+            m_arrSkyTexPaths: pathTemps,
+            m_bRightHand: true,
+            m_bAutoSun: false,
+            m_vDirectLDir: [0.59215283, 0.63194525, -0.50000012],
+            m_vAmbLightClr: [2.0, 2.0, 2.0],
+            m_vDirLightClr: [8.0, 8.0, 8.0],
+            m_fDynExposeAmp: 1.0,
+            m_fDynExposeRange: 10.0
+        };
+        Module.RealBIMWeb.SetSkyInfo(_SkyInfo);
+    }
+
+    /**
      * 获取天空盒的相关信息
      */
     Module.SkyBox.getSkyInfo = function () {
@@ -5688,16 +5717,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置全景图的自动前进后退
-     * @param {Number} threshold //阈值
-     * @param {Number} MoveCoef //小于0则后退 ，否则前进
+     * @param {Number} type //类型 0：前进 1：后退
      * @param {Number} time //时长
      * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
-    Module.Panorama.setCamAutoForward = function (threshold, MoveCoef, time, panWindow) {
+    Module.Panorama.setCamAutoForward = function (type, time, panWindow) {
+        var _type = isEmpty(type) ? 0 : type;
         var _panWindow = isEmpty(panWindow) ? 0 : panWindow;
-        var _threshold = isEmpty(threshold) ? 80.0 : threshold;
-        var _MoveCoef = isEmpty(MoveCoef) ? -1.0 : MoveCoef;
-        var _time = isEmpty(time) ? 2.0 : time;
+        var _threshold = _type == 1 ? 70 : 30;
+        var _MoveCoef = _type == 1 ? 1.0 : -1.0;
+        var _time = isEmpty(time) ? 1.0 : time;
         Module.RealBIMWeb.SetPanCamAutoForward(_threshold, _MoveCoef, _time, _panWindow);
     }
 
