@@ -1259,10 +1259,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.SkyBox.resetSkyInfo = function () {
         var _skyTexPaths = [
-            "!(RealBIMAppFileCache)/skypics/oasisday_right.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_left.jpg.dds",
             "!(RealBIMAppFileCache)/skypics/oasisday_front.jpg.dds",
             "!(RealBIMAppFileCache)/skypics/oasisday_back.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_right.jpg.dds",
+            "!(RealBIMAppFileCache)/skypics/oasisday_left.jpg.dds",
             "!(RealBIMAppFileCache)/skypics/oasisday_top.jpg.dds",
             "!(RealBIMAppFileCache)/skypics/oasisday_bottom.jpg.dds",
         ];
@@ -1272,7 +1272,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _SkyInfo = {
             m_arrSkyTexPaths: pathTemps,
-            m_bRightHand: true,
+            m_bRightHand: false,
             m_bAutoSun: false,
             m_vDirectLDir: [0.59215283, 0.63194525, -0.50000012],
             m_vAmbLightClr: [2.0, 2.0, 2.0],
@@ -1302,27 +1302,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         skyInfo.isNight = _isNight;
         skyInfo.exposeScale = _exposeScale;
         return skyInfo;
-    }
-
-    /**
-     * 获取天空盒的相关信息
-     */
-    Module.SkyBox.resetSkyInfo = function () {
-        var defaultSkyInfo = new RESkyInfo();
-        defaultSkyInfo.skyTexPaths = [
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_right.jpg.dds",
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_left.jpg.dds",
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_front.jpg.dds",
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_back.jpg.dds",
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_top.jpg.dds",
-            "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang/skybox_default/picture/oasisday_bottom.jpg.dds"
-        ];
-        console.log(defaultSkyInfo.skyTexPaths);
-        defaultSkyInfo.sunMode = 1;
-        defaultSkyInfo.sunDir = [0.59215283, 0.63194525, -0.50000012];
-        defaultSkyInfo.isNight = false;
-        defaultSkyInfo.exposeScale = 1.0;
-        Module.SkyBox.setSkyInfo(defaultSkyInfo);
     }
 
     /**
@@ -3376,7 +3355,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取所有的组名
      */
     Module.Geometry.getAllGroupName = function () {
-        return Module.RealBIMWeb.GetCustomShpAllGroupName();
+        let arrGroupName = Module.RealBIMWeb.GetCustomShpAllGroupName();
+        let _groupNameList = [];
+        for (let i = 0; i < arrGroupName.size(); i++) {
+            _groupNameList.push(arrGroupName.get(i));
+        }
+        return _groupNameList;
     }
 
 
@@ -3435,6 +3419,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许
      */
     Module.Geometry.setGroupShpVisible = function (groupName, enable) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         Module.RealBIMWeb.SetCustomShpVisible(groupName, enable);
     }
 
@@ -3443,6 +3430,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} groupName //矢量组标识
      */
     Module.Geometry.getGroupShpVisible = function (groupName) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         return Module.RealBIMWeb.GetCustomShpVisible(groupName);
     }
 
@@ -3452,6 +3442,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许
      */
     Module.Geometry.setGroupShpCanOverlap = function (groupName, enable) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         Module.RealBIMWeb.SetCustomShpContactSce(groupName, enable);
     }
 
@@ -3460,6 +3453,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} groupName //矢量组标识
      */
     Module.Geometry.getGroupShpCanOverlap = function (groupName) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         return Module.RealBIMWeb.GetCustomShpContactSce(groupName);
     }
 
@@ -3469,6 +3465,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dist //距离
      */
     Module.Geometry.setGroupShpVisDist = function (groupName, dist) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         Module.RealBIMWeb.SetCustomShpVisDist(groupName, dist);
     }
 
@@ -3477,6 +3476,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} groupName //矢量组标识
      */
     Module.Geometry.getGroupShpVisDist = function (groupName) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         return Module.RealBIMWeb.GetCustomShpVisDist(groupName);
     }
 
@@ -3486,6 +3488,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dist //距离
      */
     Module.Geometry.setGroupShpAutoScaleDist = function (groupName, dist) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         Module.RealBIMWeb.SetCustomShpAutoScaleDist(groupName, dist);
     }
 
@@ -3494,6 +3499,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} groupName //矢量组标识
      */
     Module.Geometry.getGroupShpAutoScaleDist = function (groupName) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        let groupNameList = Module.Geometry.getAllGroupName();
+        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
         return Module.RealBIMWeb.GetCustomShpAutoScaleDist(groupName);
     }
 
