@@ -4639,6 +4639,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 设置构件UV的显示和隐藏
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Boolean} visible //显示类型
+     */
+    Module.BIM.setElemUVVisible = function (dataSetId, elemIdList, visible, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+
+        var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
+        var _scale = visible ? [1.0, 1.0] : [0, 0];
+        var _speed = [0.0, 0.0];
+        var _lpUVAnimAttr = [_scale[0], _scale[1], _speed[0], _speed[1]];
+
+        if (dataSetId == "") {
+            //多数据集设置
+            Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr("", "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+        }
+        else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemUVAnim.dataSetId);
+            var _count = elemUVAnim.elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+            }
+            else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _elemIds.set([elemUVAnim.elemIdList[i], _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
+            }
+        }
+    }
+
 
 
 
