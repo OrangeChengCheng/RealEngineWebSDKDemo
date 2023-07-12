@@ -4660,19 +4660,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         else {
             //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemUVAnim.dataSetId);
-            var _count = elemUVAnim.elemIdList.length;
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
             if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
             }
             else {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
-                    _elemIds.set([elemUVAnim.elemIdList[i], _projid], i * 2);
+                    _elemIds.set([elemIdList[i], _projid], i * 2);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
             }
         }
     }
