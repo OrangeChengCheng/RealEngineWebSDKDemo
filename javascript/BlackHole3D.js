@@ -4614,7 +4614,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _elemScope = isEmpty(elemUVAnim.elemScope) ? 0 : elemUVAnim.elemScope;
         var _scale = isEmpty(elemUVAnim.scale) ? [1.0, 1.0] : elemUVAnim.scale;
         var _speed = isEmpty(elemUVAnim.speed) ? [0.0, 0.0] : elemUVAnim.speed;
-        var _lpUVAnimAttr = [_scale[0], _scale[1], _speed[0], _speed[1]];
+        var _lpUVAnimAttr = [_scale[0], _scale[1], (-1.0) * _speed[0], (-1.0) * _speed[1]];
 
         if (elemUVAnim.dataSetId == "") {
             //多数据集设置

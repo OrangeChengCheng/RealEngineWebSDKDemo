@@ -174,6 +174,7 @@ function REAxisGridUpdateFinish(e) {
 
 // 加载模型
 function loadModel() {
+
     var dataSetList = [
         {
             "dataSetId": "机房01",
@@ -184,6 +185,12 @@ function loadModel() {
         // {
         //     "dataSetId": "dataSet01",
         //     "resourcesAddress": "http://10.218.51.182:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a0a6ba1eeba3a26cdb223bb806ab1ba",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "房间面积",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0c75ad4137854250a4c5f0e462408a",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
@@ -369,6 +376,12 @@ function loadModel() {
         //     "resourcesAddress": "http://121.229.18.166:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=69cfccd5b8b24fd1a223fe883393d716",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0,
+        // },
+        // {
+        //     "dataSetId": "管道UV动画",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0c84a3ebe43139f2b1990518e22980",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
     ];
     BlackHole3D.Model.loadDataSet(dataSetList);
@@ -1327,6 +1340,37 @@ function addPipe() {
 }
 
 
+//开启动画
+function startAnim() {
+    var anim = new BlackHole3D.REElemUVAnim();
+    anim.dataSetId = "管道UV动画";
+    anim.elemIdList = [2, 3, 4, 5, 6, 10, 11, 14, 15, 17, 18, 19, 20, 25, 26, 29];
+    anim.scale = [0.1, 1.0];
+    anim.speed = [1.0, 0.0];
+    BlackHole3D.BIM.setElemUVAnimAttr(anim);
 
+    var anim = new BlackHole3D.REElemUVAnim();
+    anim.dataSetId = "管道UV动画";
+    anim.elemIdList = [1, 7, 8, 9, 12, 13, 16, 21, 22, 23, 24, 27, 28, 30];
+    anim.scale = [1.0, 1.0];
+    anim.speed = [1.0, 0.0];
+    BlackHole3D.BIM.setElemUVAnimAttr(anim);
+
+    var anim = new BlackHole3D.REElemUVAnim();
+    anim.dataSetId = "管道UV动画";
+    anim.elemIdList = [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46];
+    anim.scale = [0.5, 1.0];
+    anim.speed = [1.0, 0.0];
+    BlackHole3D.BIM.setElemUVAnimAttr(anim);
+}
+//结束动画
+function stopAnim() {
+    var anim = new BlackHole3D.REElemUVAnim();
+    anim.dataSetId = "管道UV动画";
+    anim.elemIdList = [];
+    anim.scale = [1.0, 1.0];
+    anim.speed = [0.0, 0.0];
+    BlackHole3D.BIM.setElemUVAnimAttr(anim);
+}
 
 
