@@ -1870,7 +1870,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_strText: isEmpty(statePar.text) ? "" : statePar.text,
                 m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
                 m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
-                m_vecClrStates: isEmpty(statePar.clrStyle) ? Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_WHITETEXT_NOBG") : Module.RealBIMWeb.UIWgtGetClrStyle(statePar.clrStyle),
+                m_vecClrStates: isEmpty(statePar.clrStyle) ? Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_GRAYTEXT_NOBG") : Module.RealBIMWeb.UIWgtGetClrStyle(statePar.clrStyle),
                 m_vecSizeStates: isEmpty(statePar.sizeStyle) ? Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER") : Module.RealBIMWeb.UIWgtGetSizeStyle(statePar.sizeStyle),
             };
             _arrStateParams.push_back(_par);
@@ -1914,7 +1914,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
         for (let i = 0; i < btnInfo.stateParList.length; i++) {
-            _btnClrStyle = (_wndClrStyle == 1) ? ((i == 1) ? "CS_BTN_WHITETEXT_NOBG" : "CS_WND_DARK") : ((i == 1) ? "CS_BTN_WHITETEXT_BLUEBG" : "CS_BTN_WHITETEXT_NOBG");
+            _btnClrStyle = (_wndClrStyle == 1) ? ((i == 1) ? "CS_BTN_WHITETEXT_NOBG" : "CS_WND_DARK") : ((i == 1) ? "CS_BTN_GRAYTEXT_BLUEBG" : "CS_BTN_GRAYTEXT_NOBG");
             let statePar = btnInfo.stateParList[i];
             let _par = {
                 m_strText: "",
@@ -1992,8 +1992,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_WHITETEXT_NOBG");
             return state;
         } else {
-            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_BTN_WHITETEXT_NOBG");
-            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_WHITETEXT_BLUEBG");
+            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_BTN_GRAYTEXT_NOBG");
+            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_GRAYTEXT_BLUEBG");
             return state;
         }
     }
@@ -8467,13 +8467,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
-        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemUVAnim.dataSetId);
+        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var count = elemIdList.length;
+        if (count == 0) {
+            Module.RealBIMWeb.RemoveCurContPipeSubElem(0xffffffff, 0);
+            return;
+        }
         var _moemory = (count * 8).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < count; ++i) {
-            var eleid = pipeInfo.elemIdList[i];
+            var eleid = elemIdList[i];
             _elemIds.set([eleid, _projid], i * 2);
         }
         Module.RealBIMWeb.RemoveCurContPipeSubElem(_elemIds.byteLength, _elemIds.byteOffset);
