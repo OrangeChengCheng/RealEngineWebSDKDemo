@@ -661,7 +661,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
-                m_sVer0: 0x7fffffff,
+                m_sVer0: -1,
                 m_sVer1: -1,
                 m_uVer0GolIDBias_L32: 0,
                 m_uVer0GolIDBias_H32: 0,
@@ -673,6 +673,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
             if (dataSetModel.useAssginVer2) {
                 _ver.m_sVer1 = dataSetModel.assginVer2; _ver.m_uVer1GolIDBias_H32 = intprojid;
+            }
+            if (!dataSetModel.useAssginVer&&!dataSetModel.useAssginVer2){
+                // 没有使用版本默认第一个版本为最新
+                _ver.m_sVer0 = 0x7fffffff;
             }
             Module.RealBIMWeb.LoadMainSceExt(
                 dataSetModel.dataSetId,
