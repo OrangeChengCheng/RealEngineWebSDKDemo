@@ -109,7 +109,6 @@ function REDataSetLoadFinish(e) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
 
 
-
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }
@@ -178,7 +177,7 @@ function loadModel() {
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_jifang",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_jifang",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
@@ -192,12 +191,37 @@ function loadModel() {
         //     "dataSetId": "房间面积",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0c75ad4137854250a4c5f0e462408a",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "useAssginVer2": true, "assginVer2": 0x7fffffff,
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "房间面积2",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0c75ad4137854250a4c5f0e462408a",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 100.0]],
+        //     "useAssginVer": false, "assginVer": -1,
+        //     "useAssginVer2": true, "assginVer2": 0x7fffffff,
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
         //     "dataSetId": "机房02",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "版本对比花园",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0b67f04da31dd122ba409ef7fa08a9",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+        //     "useAssginVer": true, "assginVer": 2,
+        //     "useAssginVer2": false, "assginVer2": 3,
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "版本对比花园2",
+        //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0b67f04da31dd122ba409ef7fa08a9",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 100]],
+        //     "useAssginVer": true, "assginVer": 2,
+        //     "useAssginVer2": false, "assginVer2": 3,
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
@@ -212,10 +236,16 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        {
+            "dataSetId": "小房子",
+            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res15&path=3a0bef666513080b3b52aa9fc18cf17f",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 10]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
-        //     "dataSetId": "小房子",
+        //     "dataSetId": "小房子2",
         //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res15&path=3a0bef666513080b3b52aa9fc18cf17f",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]],
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0, 0, 100]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
