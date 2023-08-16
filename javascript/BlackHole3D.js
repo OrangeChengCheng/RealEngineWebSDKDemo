@@ -1,4 +1,4 @@
-//版本：v3.1.0.2102
+//版本：v3.1.0.2108
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -8526,6 +8526,73 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+
+
+
+    // MOD-- 单构件（Entity）
+    Module.Entity = typeof Module.Entity !== "undefined" ? Module.Entity : {};//增加 Entity 模块
+
+
+    /**
+     * 获取是否在实体编辑状态
+     */
+    Module.Entity.getEidtMode = function () {
+        return Module.RealBIMWeb.GetEntityEidtMode();
+    }
+
+    /**
+     * 开始进入实体交互状态
+     */
+    Module.Entity.enterEidtMode = function () {
+        Module.RealBIMWeb.EnterEntityEidtMode();
+    }
+
+    /**
+     * 结束交互交互模式
+     */
+    Module.Entity.exitEidtMode = function () {
+        Module.RealBIMWeb.ExitEntityEidtMode();
+    }
+
+    /**
+     * 获取所有构件类型的唯一标识集合
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Entity.getAllTypeNames = function (dataSetId) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        let arrTypeName = Module.RealBIMWeb.GetEntityTypeNamesByProj(dataSetId);
+        var nameArr = [];
+        for (i = 0; i < arrTypeName.size(); ++i) {
+            nameArr.push(arrTypeName.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 设置当前的动画类型
+     * @param {String} dataSetId //数据集标识
+     * @param {String} typeName //构件类型标识
+     */
+    Module.Entity.setCurType = function (dataSetId, typeName) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(typeName, 'typeName')) return;
+        Module.RealBIMWeb.SetCurEntityType(dataSetId, typeName);
+    }
+
+    /**
+     * 创建一个GPUR动画实体
+     */
+    Module.Entity.createAnEntity = function () {
+        return Module.RealBIMWeb.CreateAnEntity();
+    }
+
+    /**
+     * 设置实体动画的播放状态
+     * @param {Number} mode //播放状态 0表示播放，1表示暂停
+     */
+    Module.Entity.setAnimPlayMode = function (mode) {
+        Module.RealBIMWeb.SetEntityAnimPlayMode(mode);
+    }
 
 
 

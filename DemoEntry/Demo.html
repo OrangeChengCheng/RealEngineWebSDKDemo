@@ -32,9 +32,8 @@
             </div>
         </div>
         <div class="btn">
-            <button onclick="leftChangeClr()">左侧模型颜色更改</button>
-            <button onclick="rightChangeClr()">右侧模型颜色更改</button>
-            <button onclick="resetClr()">重置</button>
+            <button onclick="startAnim()">开启动画</button>
+            <button onclick="stopAnim()">暂停动画</button>
         </div>
     </div>
     <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
@@ -88,21 +87,12 @@
             var isSuccess = e.detail.succeed;
             if (isSuccess) {
                 console.log("===========================  场景初始化 --> 成功！！！");
-                var dataSetList = [
-                    {
-                        "dataSetId": "leftDataSet",
-                        "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_jifang",
-                        "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                        "dataSetCRS": "", "dataSetCRSNorth": 0.0
-                    },
-                    {
-                        "dataSetId": "rightDataSet",
-                        "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res15&path=3a0bef666513080b3b52aa9fc18cf17f",
-                        "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                        "useAssginVer2": true, "assginVer2": 0,
-                        "dataSetCRS": "", "dataSetCRSNorth": 0.0
-                    }
-                ];
+                var dataSetList = [{
+                    "dataSetId": "单构件动画",
+                    "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02",
+                    "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+                    "dataSetCRS": "", "dataSetCRSNorth": 0.0
+                }];
                 BlackHole3D.Model.loadDataSet(dataSetList);
 
                 BlackHole3D.Common.setMaxResMemMB(5500);
@@ -135,38 +125,22 @@
                 //模型加载完成！！！
                 document.getElementById('canvas').style.display = "block";
                 BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
-                //双窗口展示（相机公用）
-                BlackHole3D.setViewMode(
-                    BlackHole3D.REVpTypeEm.BIM,
-                    BlackHole3D.REVpTypeEm.BIM,
-                    BlackHole3D.REVpRankEm.LR
-                );
+
+                BlackHole3D.Entity.enterEidtMode();//开始进入实体交互状态
+                BlackHole3D.Entity.setCurType("单构件动画", "[glb]out1");//设置当前的动画类型
+                BlackHole3D.Entity.createAnEntity();//创建一个GPUR动画实体
+                BlackHole3D.Entity.exitEidtMode();//结束交互交互模式
             } else {
                 //模型加载失败！！！
             }
         }
-        //左侧模型颜色更改
-        function leftChangeClr() {
-            //改变指定数据集的所有构件颜色
-            var elemAttr = new BlackHole3D.REElemAttr();
-            elemAttr.dataSetId = "leftDataSet";
-            elemAttr.elemIdList = [];
-            elemAttr.elemClr = new BlackHole3D.REColor(255, 0, 0, 204);
-            BlackHole3D.BIM.setElemAttr(elemAttr);
+        //开启动画
+        function startAnim() {
+            BlackHole3D.Entity.setAnimPlayMode(0);//设置实体动画的播放状态
         }
-        //右侧模型颜色更改
-        function rightChangeClr() {
-            //改变指定数据集的所有构件颜色
-            var elemAttr = new BlackHole3D.REElemAttr();
-            elemAttr.dataSetId = "rightDataSet";
-            elemAttr.elemIdList = [];
-            elemAttr.elemClr = new BlackHole3D.REColor(0, 255, 0, 204);
-            BlackHole3D.BIM.setElemAttr(elemAttr);
-        }
-        //重置
-        function resetClr() {
-            // 恢复所有数据集的所有构件颜色和透明度
-            BlackHole3D.BIM.resetElemAttr("", []);
+        //暂停动画
+        function stopAnim() {
+            BlackHole3D.Entity.setAnimPlayMode(1);//设置实体动画的播放状态
         }
     </script>
 </body>
