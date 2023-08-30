@@ -5409,7 +5409,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
      */
     Module.Grid.setFlatGolRegion = function (rgnInfoList, append) {
-        var _append = isEmpty(append) ? append : false;
+        var _append = !isEmpty(append) ? append : false;
         var jsonStr = JSON.stringify(rgnInfoList);
         Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr, _append);
     }

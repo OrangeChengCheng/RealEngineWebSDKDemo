@@ -177,7 +177,7 @@ function loadModel() {
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=anim_test02",
+            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res16&path=3a0d325faede50618815816ab569a14c",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
