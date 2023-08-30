@@ -1,4 +1,4 @@
-//版本：v3.1.0.2108
+//版本：v3.1.0.2122
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -5402,14 +5402,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置当前场景下的全局拍平区域，拍平区域默认对当前场景内的所有倾斜摄影数据均有效。
+     * @param {Boolean} append //是否追加到一个对象 ，true：不清理原有对象并加入该新ID所述区域， false：清理原有对象后指定该ID为集合中唯一对象
      * @param {Array} rgnInfoList //拍平区域信息  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
      * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
      * @param {Number} projectionHeight //拍平的高度
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
      */
-    Module.Grid.setFlatGolRegion = function (rgnInfoList) {
+    Module.Grid.setFlatGolRegion = function (rgnInfoList, append) {
+        var _append = isEmpty(append) ? append : false;
         var jsonStr = JSON.stringify(rgnInfoList);
-        Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr);
+        Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr, _append);
     }
 
     /**
