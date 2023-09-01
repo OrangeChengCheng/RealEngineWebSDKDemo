@@ -4900,6 +4900,53 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DeleteCADColorHatchById(fillElemId);
     }
 
+    class RECADAttr {
+        constructor() {
+            this.tag = "";//表示属性名称
+            this.value = "";//表示属性值
+        }
+    }
+    ExtModule.RECADAttr = RECADAttr;
+
+    /**
+     * 获取cad属性
+     * @param {String} elemId //元素标识
+     */
+    Module.CAD.getElemAttrs = function (elemId) {
+        if (isEmptyLog(elemId, "elemId")) return;
+        let arrAttris = Module.RealBIMWeb.GetCADAttributesByHandle(elemId);
+        let _attrList = [];
+        for (let i = 0; i < arrAttris.size(); i++) {
+            const element = arrAttris.get(i);
+            let _attr = new RECADAttr();
+            _attr.tag = element.m_strTag;
+            _attr.value = element.m_strValue;
+            _attrList.push(_attr);
+        }
+        return _attrList;
+    }
+
+    /**
+     * 根据cad属性查询cad图元标识
+     * @param {RECADAttr} attr //属性
+     */
+    Module.CAD.getAttrElemIds = function (attr) {
+        if (isEmptyLog(attr, "attr")) return;
+        let _cad_attrs = {
+            m_strTag: attr.tag,
+            m_strValue: attr.value
+        }
+
+        let arrElemIds = Module.RealBIMWeb.GetCADHandlesByAttribute(_cad_attrs);
+        let _elemIds = [];
+        for (let i = 0; i < arrElemIds.size(); i++) {
+            _elemIds.push(arrElemIds.get(i));
+        }
+        return _elemIds;
+    }
+
+
+
 
     // MARK 相机
     /**
