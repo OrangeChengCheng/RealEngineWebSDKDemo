@@ -40,6 +40,10 @@ function addREListener() {
     document.addEventListener("RESystemRenderReady", RESystemRenderReady);//数据集模型加载进度反馈
     document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//数据集模型加载进度反馈
 
+     //加载
+    document.addEventListener("REDataSetLoadPanFinish", REDataSetLoadPanFinish);//全景场景加载完成事件
+    document.addEventListener("REPanLoadSingleFinish", REPanLoadSingleFinish);//全景场景中某一帧全景图设置成功的事件
+
     //探测
     document.addEventListener("RESystemSelElement", RESystemSelElement);//鼠标探测模型事件（左键单击和右键单击）
     document.addEventListener("RESystemSelShpElement", RESystemSelShpElement);//鼠标探测矢量元素事件
@@ -170,14 +174,32 @@ function REAxisGridUpdateFinish(e) {
 //     console.log("-- 裁剪完成回调事件 --", e.detail);
 // }
 
+//加载360
+function loadPan() {
+    var dataSetList = [
+        {
+            "dataSetId": "pan01",
+            // "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
+            "resourcesAddress": "http://192.168.31.13:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res02&path=3a0d619987e9a46137e5f8d917031aa8",
+        },
+        // {
+        //     "dataSetId": "pan01",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0aaaf8c13ea016ade7fde73533b739",
+        // },
+    ];
+    BlackHole3D.Panorama.loadPan(dataSetList);
+}
+
 
 // 加载模型
 function loadModel() {
+    // 设置窗口模式
+    BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpRankEm.Single);
 
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/engineres/requestengineres?dir=url_res16&path=3a0d325faede50618815816ab569a14c",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
@@ -1404,3 +1426,35 @@ function stopAnim() {
 }
 
 
+
+
+//全景场景加载完成，此时可获取全部点位信息
+function REDataSetLoadPanFinish(e) {
+    console.log("-- 全景场景加载完成事件 --", e.detail);
+    progressFn(100, "Panorama Load Finish");
+    var isSuccess = e.detail.succeed;
+    if (isSuccess) {
+        console.log("===========================  360全景加载成功");
+        // 获取全部帧信息
+        var pandata = BlackHole3D.Panorama.getElemInfo("pan01");
+        // 设置360显示信息
+        BlackHole3D.Panorama.loadPanPic(pandata[0].elemId, 0);
+    } else {
+        console.log("===========================  360全景加载失败");
+    }
+}
+//全景场景图片设置成功
+function REPanLoadSingleFinish(e) {
+    console.log("-- 全景场景中某一帧全景图设置成功的事件 --", e.detail);
+    var isSuccess = e.detail.succeed;
+    if (isSuccess) {
+        console.log("===========================  图片设置成功");
+        // 设置窗口模式
+        BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.Panorama, BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpRankEm.Single);
+        //加载概略图CAD数据  
+        // setOverViewSize();
+        // addCADData();
+    } else {
+        console.log("===========================  图片设置失败");
+    }
+}
