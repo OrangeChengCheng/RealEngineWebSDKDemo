@@ -1,4 +1,4 @@
-//版本：v3.1.0.2134
+//版本：v3.1.0.2139
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -8649,6 +8649,109 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MOD-- 挤压（Extrude）
+    Module.Extrude = typeof Module.Extrude !== "undefined" ? Module.Extrude : {};//增加 Extrude 模块    
+
+    // MARK 加载
+    /**
+     * 添加挤压面上使用的纹理
+     * @param {String} picPath //纹理路径
+     * @param {Array} size //纹理大小
+     */
+    Module.Extrude.addExtrudeFaceTex = function (picPath, size) {
+        if (isEmptyLog(picPath, 'picPath')) return;
+        let _size = isEmpty(size) ? [0, 0] : size;
+        return Module.RealBIMWeb.AddExtrudeFaceTex(picPath, _size);
+    }
+
+    /**
+     * 清除挤压面使用的纹理
+     */
+    Module.Extrude.clearAllExtrudeFaceTex = function () {
+        return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
+    }
+
+
+    class REExtrudeInfo {
+        constructor() {
+            this.extrudeId = null;// 挤压标识
+            this.pointList = null;// 挤压区域点集合 至少三个点
+            this.texId = null;// 纹理id 由 addExtrudeFaceTex 返回的id
+            this.texPath = null;// 纹理路径
+            this.texSize = null;// 纹理大小
+            this.heightRange = null;//挤压高度范围 范围需要包含挤压区域点
+        }
+    }
+    ExtModule.REExtrudeInfo = REExtrudeInfo;
+
+    /**
+     * 创建一个挤压区域对象
+     * @param {REExtrudeInfo} extrudeInfo //挤压信息 （REExtrudeInfo 类型）
+     */
+    Module.Extrude.createExtrudeObj = function (extrudeInfo) {
+        if (isEmptyLog(extrudeInfo, 'extrudeInfo')) return;
+        if (isEmptyLog(extrudeInfo.extrudeId, 'extrudeId')) return;
+        if (isEmptyLog(extrudeInfo.pointList, 'pointList')) return;
+
+        let _vector_point = new BlackHole3D.RE_Vector_dvec3();
+        for (let i = 0; i < extrudeInfo.pointList.length; i++) {
+            const ele = extrudeInfo.pointList[i];
+            _vector_point.push_back(ele);
+        }
+        let _texId = isEmpty(extrudeInfo.texId) ? 0 : extrudeInfo.texId;
+        if (!isEmpty(extrudeInfo.texPath)) {
+            let _size = isEmpty(extrudeInfo.texSize) ? [0, 0] : extrudeInfo.texSize;
+            _texId = Module.Extrude.addExtrudeFaceTex(extrudeInfo.texPath, _size);
+        }
+        return Module.RealBIMWeb.CreateExtrudeObj(extrudeInfo.extrudeId, _vector_point, [0, 0, 1], _texId, extrudeInfo.heightRange);
+    }
+
+    /**
+     * 根据标识删除一个挤出区域对象
+     * @param {String} extrudeId //挤压标识
+     */
+    Module.Extrude.delExtrudeObj = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.DelExtrudeObj(extrudeId);
+    }
+
+
+    // MARK 编辑
+    /**
+     * 设置挤压对象的类型
+     * @param {String} extrudeId //挤压标识
+     * @param {REExtrudeTypeEm} type //类型 REExtrudeTypeEm 枚举
+     */
+    Module.Extrude.setExtrudeType = function (extrudeId, type) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        let _enumEval = isEmpty(type) ? eval("Module.RE_EXTRUDE_TYPE.None") : eval(REExtrudeTypeEm[type]);
+        return Module.RealBIMWeb.SetExtrudeObjType(extrudeId, _enumEval);
+    }
+
+    /**
+     * 获取挤压对象的类型
+     * @param {String} extrudeId //挤压标识
+     */
+    Module.Extrude.getExtrudeType = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        let _type = Module.RealBIMWeb.GetExtrudeObjType(extrudeId);
+        return _type.value;
+    }
+
+
+    // MARK 相机
+    /**
+     * 聚焦到指定的挤压对象区域
+     * @param {String} extrudeId //挤压标识
+     */
+    Module.Extrude.locateToExtrudeObj = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.LocateToExtrudeObj(extrudeId);
+    }
+
+
+
+
 
 
 
@@ -8677,8 +8780,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-    * 是不是空对象，并打印错误
-    */
+        * 是不是空对象，并打印错误
+        */
     function isEmptyLog(value, name) {
         if (!isEmpty(value)) return false;
         logParErr(name);
@@ -8764,7 +8867,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 32位颜色转十六进制颜色 ABGR -> RBG_HEX
      * @param {Number} colorU32 //32位颜色值
-    */
+        */
     function clrU32ToClr(colorU32) {
         let _hexStr = (colorU32).toString(16);
         let count = _hexStr.length;
@@ -8784,7 +8887,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 颜色对象->U32_ABGR
      * @param {REColor} color
-    */
+        */
     function clrToU32(color) {
         if (isEmpty(color.red) || isEmpty(color.green) || isEmpty(color.blue) || isEmpty(color.alpha)) return 0xFFFFFFFF;
         var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
@@ -8799,7 +8902,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 颜色对象->U32_WBGR
      * @param {REColor} color
-    */
+        */
     function clrToU32_WBGR(color) {
         if ((isEmpty(color.red) || color.red.toString() == "NaN")
             || (isEmpty(color.green) || color.green.toString() == "NaN")
@@ -8836,7 +8939,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 透明度->U32_WA
      * @param {Number} alpha
-    */
+        */
     function alphaToU32_WA(alpha) {
         if (isEmpty(alpha)) return 0xFFFFFFFF;
         var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
@@ -8865,7 +8968,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 透明度权重->U32_WA
      * @param {Number} alpha_W
-    */
+        */
     function alphaWToU32_WA(alpha_W) {
         if (isEmpty(alpha_W)) return 0xFFFFFFFF;
         var int_AW_r = 255 - Math.round(alpha_W);//设置透明度使用权重进行设置，不然会造成混合的异常（透明材质的情况）；透明值始终为0，想设置透明，即权重的比例增大；不透明，即权重的比例减少
@@ -8877,7 +8980,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 颜色对象->RGBA数组
      * @param {REColor} color
-    */
+        */
     function clrToRGBA_List(color) {
         var _R = Math.round(color.red) / 255.0;
         var _G = Math.round(color.green) / 255.0;
@@ -8889,7 +8992,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * RGBA数组->颜色对象
      * @param {Array} rbga_list
-    */
+        */
     function rgbaListToClr(rbga_list) {
         var _r = Math.floor(rbga_list[0] * 255);
         var _g = Math.floor(rbga_list[1] * 255);
@@ -8902,7 +9005,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 发光和PBR转换工具函数
      * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
-    */
+        */
     function convPBR(elemBlendAttr) {
         var intemis = (isEmpty(elemBlendAttr.elemEmis)) ? 0 : Math.round(elemBlendAttr.elemEmis);
         var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 0 : Math.round(elemBlendAttr.elemEmisPercent);
@@ -8919,7 +9022,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 深拷贝
      * @param {Object} obj //拷贝数据
-    */
+        */
     function deepClone(obj) {
         var _obj = JSON.stringify(obj); //  对象转成字符串
         var objClone = JSON.parse(_obj); //  字符串转成对象
@@ -8929,8 +9032,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 判断是否有重复值
      * @param {Array} array //列表
-    * @param {String} paramName //需要判断的key
-    */
+        * @param {String} paramName //需要判断的key
+        */
     function isRepeat(array, paramName) {
         var objlist = [];
         for (const key in array) {
@@ -9095,10 +9198,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule.REGridPosEm = REGridPosEm;
 
 
-
-
-
-
+    // MARK UI
+    //系统界面对应C++名称
+    const REExtrudeTypeEm = [
+        'Module.RE_EXTRUDE_TYPE.UNDEFINED',//未定义
+        'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT',//挖洞（镂空指定范围）
+        'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX',//使用断面纹理，断面以贴图队列中的指定贴图表现
+        'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX',//使用原表面纹理，保持原模型上贴图
+    ]
+    ExtModule.REExtrudeTypeEm = REExtrudeTypeEm;
 
 
 
