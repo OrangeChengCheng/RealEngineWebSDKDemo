@@ -1,4 +1,4 @@
-//版本：v3.1.0.2139
+//版本：v3.1.0.2158
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1000,11 +1000,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
 
         if (forceCamLoc.camRotate[0] != 1e30) {
-            return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
+            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
         }
         if (forceCamLoc.camDir[0] != 1e30) {
             var _camLocConv = Module.RealBIMWeb.GetCamLocConvert(forceCamLoc.camPos, forceCamLoc.camDir);
-            return Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
+            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
         }
     }
 
@@ -4072,6 +4072,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MARK 选择集
+    /**
+     * 设置当前的选择类型
+     * @param {Number} mode //类型（ 0:数据集| 1:构件级）
+     */
+    Module.BIM.setSelMode = function (mode) {
+        if (mode == 0) {
+            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.PROJ);
+        } else if (mode == 1) {
+            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.ELEM);
+        }
+    }
+
+    /**
+     * 获取当前的选择类型
+     */
+    Module.BIM.getSelMode = function () {
+        let cureditlevel = Module.RealBIMWeb.GetCtrlLevel();
+        let mode = cureditlevel.value != 0 ? 1 : 0; // 当前对外只有数据集和构件类型，单构件和构件都返回一个类型
+        return mode;
+    }
+
+
     class RESelElemsBlendAttr {
         constructor() {
             this.elemClr = new REColor(255, 0, 0, 255);//元素颜色（REColor 类型）
@@ -4308,10 +4330,52 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 清空选择集
+     * 清空选择集中的所有构件
      */
     Module.BIM.delAllSelElems = function () {
         Module.RealBIMWeb.RemoveFromSelElemIDs(0xffffffff, 0);
+    }
+
+    /**
+     * 获取当前选择集中所有的数据集id
+     */
+    Module.BIM.getSelDataSetIDs = function () {
+        var tempArr = Module.RealBIMWeb.GetCurSelProjIDs();
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 往当前选择集合添加数据集
+     * @param {String} dataSetId //数据集唯一标识
+     */
+    Module.BIM.addToSelDataSet = function (dataSetId) {
+        var _projvec = new Module.RE_Vector_WStr();
+        _projvec.push_back(dataSetId);
+        Module.RealBIMWeb.AddToCurSelProjIDs(_projvec);     //把1个数据集加入选择集
+    }
+
+    /**
+     * 从当前选择集合删除数据集
+     * @param {Array} dataSetIdList //数据集唯一标识集合
+     */
+    Module.BIM.delFromSelDateSets = function (dataSetIdList) {
+        var _projvec = new Module.RE_Vector_WStr();
+        for (let i = 0; i < dataSetIdList.length; i++) {
+            _projvec.push_back(dataSetIdList[i]);
+        }
+        Module.RealBIMWeb.RemoveFromCurSelProjIDs(_projvec);
+    }
+
+    /**
+     * 清空当前选择集中的所有数据集
+     */
+    Module.BIM.delAllSelDateSets = function () {
+        var _projvec = new Module.RE_Vector_WStr();
+        Module.RealBIMWeb.RemoveFromCurSelProjIDs(_projvec);
     }
 
     /**
@@ -4332,6 +4396,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return elemIds;
     }
+
 
     /**
      * 获取指定数据集内的子元素双版本比对的差异ID列表
@@ -4882,7 +4947,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(fillElemId, "fillElemId")) return;
         if (isEmptyLog(pointList, "pointList")) return;
 
-        var _vector_Points = new BlackHole3D.RE_Vector_dvec2();
+        var _vector_Points = new Module.RE_Vector_dvec2();
         for (let i = 0; i < pointList.length; i++) {
             _vector_Points.push_back(pointList[i]);
         }
@@ -5938,32 +6003,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Edit = typeof Module.Edit !== "undefined" ? Module.Edit : {};//增加 Edit 模块
 
     /**
-     * 设置当前的编辑级别
-     * @param {Boolean} level //等级（ 0:数据集| 1:pak级| 2:构件级）
-     */
-    Module.Edit.setEditNodeLevel = function (level) {
-        if (level == 0) {
-            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.PROJ);
-        } else if (level == 1) {
-            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.HMODEL);
-        } else if (level == 2) {
-            Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.ELEM);
-        }
-    }
-
-    /**
-     * 获取当前设置的编辑级别
-     */
-    Module.Edit.getEditNodeLevel = function () {
-        var cureditlevel = Module.RealBIMWeb.GetCtrlLevel();
-        return cureditlevel.value;
-    }
-
-    /**
      * 进入位置编辑状态
      */
     Module.Edit.startEdit = function () {
-        Module.RealBIMWeb.EnterSceneNodeEditMode();
+        return Module.RealBIMWeb.EnterSceneNodeEditMode();
     }
 
     /**
@@ -5977,6 +6020,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 打开位置编辑放射变换窗口 
      */
     Module.Edit.openAffineTransEditWnd = function () {
+        let bState = Module.RealBIMWeb.GetCurState();
+        if (bState != 19) {
+            logErr("没有进入编辑状态无法打开位置编辑窗口!");
+            return;
+        }
         return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, true);
     }
 
@@ -5987,15 +6035,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, false);
     }
 
-    /**
-     * 数据集编辑状态下将数据集加入到选择集
-     * @param {String} dataSetId //数据集唯一标识
-     */
-    Module.Edit.addDataSetToSel = function (dataSetId) {
-        var _projvec = new Module.RE_Vector_WStr();
-        _projvec.push_back(dataSetId);
-        Module.RealBIMWeb.AddToCurSelProjIDs(_projvec);     //把1个数据集加入选择集
-    }
+
 
 
 
@@ -8581,28 +8621,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 单构件（Entity）
     Module.Entity = typeof Module.Entity !== "undefined" ? Module.Entity : {};//增加 Entity 模块
 
-
-    /**
-     * 获取是否在实体编辑状态
-     */
-    Module.Entity.getEidtMode = function () {
-        return Module.RealBIMWeb.GetEntityEidtMode();
-    }
-
-    /**
-     * 开始进入实体交互状态
-     */
-    Module.Entity.enterEidtMode = function () {
-        Module.RealBIMWeb.EnterEntityEidtMode();
-    }
-
-    /**
-     * 结束交互交互模式
-     */
-    Module.Entity.exitEidtMode = function () {
-        Module.RealBIMWeb.ExitEntityEidtMode();
-    }
-
+    // MARK 加载
     /**
      * 获取所有构件类型的唯一标识集合
      * @param {String} dataSetId //数据集标识
@@ -8618,30 +8637,205 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置当前的动画类型
-     * @param {String} dataSetId //数据集标识
-     * @param {String} typeName //构件类型标识
+     * 获取当前场景下所有的实例信息(XML)
+     * @param {String} dataSetId //数据集标识, 空字符串获取所有数据集的实例信息
      */
-    Module.Entity.setCurType = function (dataSetId, typeName) {
-        if (isEmptyLog(dataSetId, 'dataSetId')) return;
-        if (isEmptyLog(typeName, 'typeName')) return;
-        Module.RealBIMWeb.SetCurEntityType(dataSetId, typeName);
+    Module.Entity.getXMLEntitys = function (dataSetId) {
+        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
+        return Module.RealBIMWeb.GetEntityInfo(_dataSetId);
     }
 
     /**
-     * 创建一个GPUR动画实体
+     * 设置当前场景下所有的实例信息(XML)
+     * @param {String} entityXML //实例信息XML
      */
-    Module.Entity.createAnEntity = function () {
-        return Module.RealBIMWeb.CreateAnEntity();
+    Module.Entity.setXMLEntitys = function (entityXML) {
+        if (isEmptyLog(entityXML, 'entityXML')) return;
+        Module.RealBIMWeb.SetEntityInfo(entityXML);
+    }
+
+    class REEntityInfo {
+        constructor() {
+            this.dataSetId = null;// 数据集标识
+            this.entityType = null;// 实例类型名称
+            this.elemId = null;// 构件唯一标识，重复添加失败, 0代表引擎自增创建id
+            this.scale = [1.0, 1.0, 1.0];// 缩放
+            this.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
+            this.offset = [0.0, 0.0, 0.0];// 平移
+            this.dataSetCRS = null;// 坐标系标识
+        }
+    }
+    ExtModule.REEntityInfo = REEntityInfo;
+
+    /**
+     * 添加一系列实例对象 添加完成RECreateEntitiesFinish回调
+     * @param {Array} entityList //实例信息集合 （REEntityInfo 类型）
+     */
+    Module.Entity.addEntities = function (entityList) {
+        if (isRepeat(entityList, 'dataSetId')) {
+            console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
+            return;
+        }
+        if (hasNullProt(entityList, 'entityType')) {
+            console.error('【REError】: entityType 不能为空');
+            return;
+        }
+        let _vector_entity = new Module.RE_Vector_ENTITY_INFO();
+        let _count = entityList.length;
+        for (let i = 0; i < _count; i++) {
+            let cEntity = entityList[i];
+            let cEntity_obj = {
+                m_strProjName: cEntity.dataSetId,
+                m_strTypeName: cEntity.entityType,
+                m_uEntityID: isEmpty(cEntity.elemId) ? 0 : cEntity.elemId,
+                m_vCustomScale: isEmpty(cEntity.scale) ? [1.0, 1.0, 1.0] : cEntity.scale,
+                m_qCustomRotate: isEmpty(cEntity.rotate) ? [0.0, 0.0, 0.0, 1.0] : cEntity.rotate,
+                m_vCustomOffset: isEmpty(cEntity.offset) ? [0.0, 0.0, 0.0] : cEntity.offset,
+                m_strCRS: isEmpty(cEntity.dataSetCRS) ? "" : cEntity.dataSetCRS
+            };
+            _vector_entity.push_back(cEntity_obj);
+        }
+        return Module.RealBIMWeb.AddEntities(_vector_entity);
     }
 
     /**
-     * 设置实体动画的播放状态
-     * @param {Number} mode //播放状态 0表示播放，1表示暂停
+     * 获取项目中所有的实例信息集合
+     * @param {String} dataSetId //数据集标识, 空字符串获取所有项目的实例信息
+     * @param {String} entityType //实例类型名称, 空字符串获取当前项目所有类型的实例信息
      */
-    Module.Entity.setAnimPlayMode = function (mode) {
-        Module.RealBIMWeb.SetEntityAnimPlayMode(mode);
+    Module.Entity.getEntitys = function (dataSetId, entityType) {
+        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
+        let _entityType = isEmpty(entityType) ? "" : entityType;
+        let arrEntity = Module.RealBIMWeb.GetAllEntity(_dataSetId, _entityType);
+        var entityList = [];
+        for (i = 0; i < arrEntity.size(); ++i) {
+            let cEntity = arrEntity.get(i);
+            let _entity = new REEntityInfo();
+            _entity.dataSetId = cEntity.m_strProjName;
+            _entity.entityType = cEntity.m_strTypeName;
+            _entity.elemId = cEntity.m_uEntityID;
+            _entity.scale = cEntity.m_vCustomScale;
+            _entity.rotate = cEntity.m_qCustomRotate;
+            _entity.offset = cEntity.m_vCustomOffset;
+            _entity.dataSetCRS = cEntity.m_strCRS;
+            entityList.push(_entity);
+        }
+        return entityList;
     }
+
+    /**
+     * 删除实例信息
+     * @param {String} dataSetId //数据集标识, 空字符串删除所有数据集的实例信息
+     * @param {String} entityType //实例类型名称, 空字符串删除指定数据集所有类型的实例信息
+     * @param {Array} elemIdList //实例id集合, 空数组删除指定数据集指定类型下的所有实例id匹配实例
+     */
+    Module.Entity.delEntities = function (dataSetId, entityType, elemIdList) {
+        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
+        let _entityType = isEmpty(entityType) ? "" : entityType;
+        let _elemIdList = isEmpty(elemIdList) ? [] : elemIdList;
+
+        if (_dataSetId == "") {
+            Module.RealBIMWeb.DelEntities("", "", 0xffffffff, 0);
+        } else {
+            let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
+            let count = _elemIdList.length;
+            let _moemory = (count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+            let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < count; ++i) {
+                var eleid = _elemIdList[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, _elemIds.byteLength, _elemIds.byteOffset);
+        }
+    }
+
+
+
+    // MARK 编辑
+    /**
+     * 获取是否在实体编辑状态
+     */
+    Module.Entity.getEditMode = function () {
+        return Module.RealBIMWeb.GetEntityEditMode();
+    }
+
+    /**
+     * 开始进入实体交互状态
+     */
+    Module.Entity.enterEditMode = function () {
+        Module.RealBIMWeb.EnterEntityEditMode();
+    }
+
+    /**
+     * 结束交互交互模式
+     */
+    Module.Entity.exitEditMode = function () {
+        Module.RealBIMWeb.ExitEntityEditMode();
+    }
+
+    /**
+     * 设置是否连续添加实例
+     * @param {Boolean} multiAdd //true为连续添加， false为单次添加
+     */
+    Module.Entity.setMultiAddEntity = function (multiAdd) {
+        Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
+    }
+
+    /**
+     * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
+     * @param {String} dataSetId //数据集标识，必填
+     * @param {String} entityType //实例类型名称，必填
+     */
+    Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(entityType) || entityType == "") { logParErr("entityType"); return; }
+        Module.RealBIMWeb.SetEntityType(dataSetId, entityType);
+    }
+
+
+    class REEntityAnimPlayInfo {
+        constructor() {
+            this.dataSetId = null;// 数据集标识
+            this.entityType = null;// 实例类型名称
+            this.elemIdList = null;// 构件标识集合
+            this.animPlayMode = 4;// 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.animPlayState = 1;// 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+        }
+    }
+    ExtModule.REEntityAnimPlayInfo = REEntityAnimPlayInfo;
+
+    /**
+     * 设置实体动画的播放信息
+     * @param {REEntityAnimPlayInfo} animPlayModeInfo //动画类型信息
+     */
+    Module.Entity.setAnimPlayMode = function (animPlayModeInfo) {
+        if (isEmptyLog(animPlayModeInfo, 'animPlayModeInfo')) return;
+
+        let _dataSetId = isEmpty(animPlayModeInfo.dataSetId) ? "" : animPlayModeInfo.dataSetId;
+        let _entityType = isEmpty(animPlayModeInfo.entityType) ? "" : animPlayModeInfo.entityType;
+        let _elemIdList = isEmpty(animPlayModeInfo.elemIdList) ? [] : animPlayModeInfo.elemIdList;
+        let _animPlayMode = isEmpty(animPlayModeInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animPlayModeInfo.animPlayMode);
+        let _animPlayState = isEmpty(animPlayModeInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayModeInfo.animPlayState);
+
+        if (_dataSetId == "") {
+            Module.RealBIMWeb.SetEntityAnimPlayMode("", "", 0xffffffff, 0, _animPlayState, _animPlayMode);
+        } else {
+            let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
+            let count = animPlayModeInfo.elemIdList.length;
+            let _moemory = (count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+            let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (i = 0; i < count; ++i) {
+                var eleid = _elemIdList[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.SetEntityAnimPlayMode(_dataSetId, _entityType, count ? _elemIds.byteLength : 0xffffffff, count ? _elemIds.byteOffset : 0, _animPlayState, _animPlayMode);
+        }
+    }
+
+
+
 
 
 
@@ -8693,7 +8887,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(extrudeInfo.extrudeId, 'extrudeId')) return;
         if (isEmptyLog(extrudeInfo.pointList, 'pointList')) return;
 
-        let _vector_point = new BlackHole3D.RE_Vector_dvec3();
+        let _vector_point = new Module.RE_Vector_dvec3();
         for (let i = 0; i < extrudeInfo.pointList.length; i++) {
             const ele = extrudeInfo.pointList[i];
             _vector_point.push_back(ele);
@@ -9057,6 +9251,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 判断是否有空值
+     * @param {Array} array //列表
+     * @param {String} paramName //需要判断的key
+     */
+    function hasNullProt(array, paramName) {
+        for (const key in array) {
+            if (Object.hasOwnProperty.call(array, key)) {
+                const element = array[key];
+                let isHas = isEmpty(element[paramName]);
+                if (isHas) return true;
+            }
+            else { continue; }
+        }
+        return false;
+    }
+
+    /**
      * 删除所有空属性
      */
     function removeEmptyProperty(obj) {
@@ -9209,6 +9420,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule.REExtrudeTypeEm = REExtrudeTypeEm;
 
 
+    // MARK Entity
+    //表示单构件动画播放模式
+    const REEntityAnimPlayModeEm = {
+        ONCE: "Module.RE_ANIM_PLAY.ONCE",//表示仅播放一次，播放到边界处时停止，位置/方向保持不变
+        ONCETURN: "Module.RE_ANIM_PLAY.ONCETURN",//表示仅播放一次，播放到边界处时停止，位置不变，方向调转
+        ONCERESET: "Module.RE_ANIM_PLAY.ONCERESET",//表示仅播放一次，播放到边界处时停止，位置移到另一边界，方向不变
+        REPEAT: "Module.RE_ANIM_PLAY.REPEAT",//表示重复播放，当播放到边界处时方向不变从另一边界处继续播放
+        REPEATTURN: "Module.RE_ANIM_PLAY.REPEATTURN",//表示重复播放，当播放到边界处时方向调转继续播放
+    }
+    ExtModule.REEntityAnimPlayModeEm = REEntityAnimPlayModeEm;
+
+    //表示单构件动画播放状态
+    const REEntityAnimPlayStateEm = {
+        PLAY: "Module.RE_ANIM_STATE.PLAY",//表示当前正处于播放状态
+        PAUSE: "Module.RE_ANIM_STATE.PAUSE",//表示当前正处于暂停状态
+        STOPMIN: "Module.RE_ANIM_STATE.STOPMIN",//表示当前正处于停止状态，播放位置在最小边界处
+        STOPMAX: "Module.RE_ANIM_STATE.STOPMAX",//表示当前正处于停止状态，播放位置在最大边界处
+    }
+    ExtModule.REEntityAnimPlayStateEm = REEntityAnimPlayStateEm;
 
 
 

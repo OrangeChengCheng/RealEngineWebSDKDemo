@@ -32,12 +32,16 @@
             </div>
         </div>
         <div class="btn">
+            <button onclick="addOneEntity()">添加实例A</button>
+            <button onclick="addTwoEntity()">添加实例B</button>
             <button onclick="startAnim()">开启动画</button>
             <button onclick="stopAnim()">暂停动画</button>
         </div>
     </div>
-    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
-    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+    <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
+    <script async type="text/javascript" src="javascript/BlackHole3D.js"></script>
+    <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
     <!-- 引擎初始化相关接口 -->
     <script type="text/javascript">
         BlackHole3D = typeof BlackHole3D !== "undefined" ? BlackHole3D : {};
@@ -64,6 +68,7 @@
             document.addEventListener("RESystemEngineCreated", RESystemEngineCreated);//场景初始化监听
             document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//模型加载进度监听
             document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);//模型加载完成状态
+            document.addEventListener("REExitEntityEditMode", REExitEntityEditMode);//单构件鼠标添加模式添加实例结束回调事件
             if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
                 console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
                 RESystemReady();
@@ -88,7 +93,7 @@
             if (isSuccess) {
                 console.log("===========================  场景初始化 --> 成功！！！");
                 var dataSetList = [{
-                    "dataSetId": "单构件动画",
+                    "dataSetId": "单构件模版",
                     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02",
                     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                     "dataSetCRS": "", "dataSetCRSNorth": 0.0
@@ -125,22 +130,75 @@
                 //模型加载完成！！！
                 document.getElementById('canvas').style.display = "block";
                 BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
-
-                BlackHole3D.Entity.enterEidtMode();//开始进入实体交互状态
-                BlackHole3D.Entity.setCurType("单构件动画", "[glb]out1");//设置当前的动画类型
-                BlackHole3D.Entity.createAnEntity();//创建一个GPUR动画实体
-                BlackHole3D.Entity.exitEidtMode();//结束交互交互模式
             } else {
                 //模型加载失败！！！
             }
         }
+        //单构件鼠标添加模式添加实例结束回调事件
+        function REExitEntityEditMode(e) {
+            alert("实例添加结束");
+        }
+        //添加实例A
+        function addOneEntity() {
+            BlackHole3D.Entity.enterEditMode();//进入编辑模式
+            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
+            if (typeNames.length) {
+                let entityList = [];
+                let entity = new BlackHole3D.REEntityInfo();//创建实例信息对象
+                entity.dataSetId = "单构件模版";
+                entity.entityType = typeNames[0];
+                entity.elemId = 1;//自定义构件id，不可重复，重复添加失败
+                entity.scale = [1.0, 1.0, 1.0];// 缩放
+                entity.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
+                entity.offset = [0.0, 0.0, 0.0];// 平移
+                entity.dataSetCRS = "";// 坐标系标识
+                entityList.push(entity);
+                let add = BlackHole3D.Entity.addEntities(entityList);//添加实例对象
+                add ? alert("实例添加成功") : alert("实例添加失败");
+            }
+            BlackHole3D.Entity.exitEditMode();//结束编辑模式
+        }
+        //添加实例B
+        function addTwoEntity() {
+            BlackHole3D.Entity.enterEditMode();//进入编辑模式
+            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
+            if (typeNames.length) {
+                let entityList = [];
+                let entity = new BlackHole3D.REEntityInfo();//创建实例信息对象
+                entity.dataSetId = "单构件模版";
+                entity.entityType = typeNames[0];
+                entity.elemId = 2;//自定义构件id，不可重复，重复添加失败
+                entity.scale = [1.0, 1.0, 1.0];// 缩放
+                entity.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
+                entity.offset = [10.0, 10.0, 0.0];// 平移
+                entity.dataSetCRS = "";// 坐标系标识
+                entityList.push(entity);
+                let add = BlackHole3D.Entity.addEntities(entityList);//添加实例对象
+                add ? alert("实例添加成功") : alert("实例添加失败");
+            }
+            BlackHole3D.Entity.exitEditMode();//结束编辑模式
+        }
         //开启动画
         function startAnim() {
-            BlackHole3D.Entity.setAnimPlayMode(0);//设置实体动画的播放状态
+            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
+            let animPlayInfo = new BlackHole3D.REEntityAnimPlayInfo();//创建实例动画信息
+            animPlayInfo.dataSetId = "单构件模版";
+            animPlayInfo.entityType = typeNames[0];
+            animPlayInfo.elemIdList = [];
+            animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;//动画的播放模式
+            animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;//动画的播放状态
+            BlackHole3D.Entity.setAnimPlayMode(animPlayInfo);//设置实体动画的播放信息
         }
         //暂停动画
         function stopAnim() {
-            BlackHole3D.Entity.setAnimPlayMode(1);//设置实体动画的播放状态
+            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
+            let animPlayInfo = new BlackHole3D.REEntityAnimPlayInfo();//创建实例动画信息
+            animPlayInfo.dataSetId = "单构件模版";
+            animPlayInfo.entityType = typeNames[0];
+            animPlayInfo.elemIdList = [];
+            animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;//动画的播放模式
+            animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;//动画的播放状态
+            BlackHole3D.Entity.setAnimPlayMode(animPlayInfo);//设置实体动画的播放信息
         }
     </script>
 </body>
