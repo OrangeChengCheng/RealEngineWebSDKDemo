@@ -8843,104 +8843,104 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-    // MOD-- 挤压（Extrude）
-    Module.Extrude = typeof Module.Extrude !== "undefined" ? Module.Extrude : {};//增加 Extrude 模块    
+    // MOD-- 挖洞（Excavate）
+    Module.Excavate = typeof Module.Excavate !== "undefined" ? Module.Excavate : {};//增加 Excavate 模块    
 
     // MARK 加载
     /**
-     * 添加挤压面上使用的纹理
+     * 添加挖洞面上使用的纹理
      * @param {String} picPath //纹理路径
      * @param {Array} size //纹理大小
      */
-    Module.Extrude.addExtrudeFaceTex = function (picPath, size) {
+    Module.Excavate.addExcavateFaceTex = function (picPath, size) {
         if (isEmptyLog(picPath, 'picPath')) return;
         let _size = isEmpty(size) ? [0, 0] : size;
         return Module.RealBIMWeb.AddExtrudeFaceTex(picPath, _size);
     }
 
     /**
-     * 清除挤压面使用的纹理
+     * 清除挖洞面使用的纹理
      */
-    Module.Extrude.clearAllExtrudeFaceTex = function () {
+    Module.Excavate.clearAllExcavateFaceTex = function () {
         return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
     }
 
 
-    class REExtrudeInfo {
+    class REExcavateInfo {
         constructor() {
-            this.extrudeId = null;// 挤压标识
-            this.pointList = null;// 挤压区域点集合 至少三个点
-            this.texId = null;// 纹理id 由 addExtrudeFaceTex 返回的id
+            this.excavateId = null;// 挖洞标识
+            this.pointList = null;// 挖洞区域点集合 至少三个点
+            this.texId = null;// 纹理id 由 addExcavateFaceTex 返回的id
             this.texPath = null;// 纹理路径
             this.texSize = null;// 纹理大小
-            this.heightRange = null;//挤压高度范围 范围需要包含挤压区域点
+            this.heightRange = null;//挖洞高度范围 范围需要包含挖洞区域点
         }
     }
-    ExtModule.REExtrudeInfo = REExtrudeInfo;
+    ExtModule.REExcavateInfo = REExcavateInfo;
 
     /**
-     * 创建一个挤压区域对象
-     * @param {REExtrudeInfo} extrudeInfo //挤压信息 （REExtrudeInfo 类型）
+     * 创建一个挖洞区域对象
+     * @param {REExcavateInfo} excavateInfo //挖洞信息 （REExcavateInfo 类型）
      */
-    Module.Extrude.createExtrudeObj = function (extrudeInfo) {
-        if (isEmptyLog(extrudeInfo, 'extrudeInfo')) return;
-        if (isEmptyLog(extrudeInfo.extrudeId, 'extrudeId')) return;
-        if (isEmptyLog(extrudeInfo.pointList, 'pointList')) return;
+    Module.Excavate.createExcavateObj = function (excavateInfo) {
+        if (isEmptyLog(excavateInfo, 'excavateInfo')) return;
+        if (isEmptyLog(excavateInfo.excavateId, 'excavateId')) return;
+        if (isEmptyLog(excavateInfo.pointList, 'pointList')) return;
 
         let _vector_point = new Module.RE_Vector_dvec3();
-        for (let i = 0; i < extrudeInfo.pointList.length; i++) {
-            const ele = extrudeInfo.pointList[i];
+        for (let i = 0; i < excavateInfo.pointList.length; i++) {
+            const ele = excavateInfo.pointList[i];
             _vector_point.push_back(ele);
         }
-        let _texId = isEmpty(extrudeInfo.texId) ? 0 : extrudeInfo.texId;
-        if (!isEmpty(extrudeInfo.texPath)) {
-            let _size = isEmpty(extrudeInfo.texSize) ? [0, 0] : extrudeInfo.texSize;
-            _texId = Module.Extrude.addExtrudeFaceTex(extrudeInfo.texPath, _size);
+        let _texId = isEmpty(excavateInfo.texId) ? 0 : excavateInfo.texId;
+        if (!isEmpty(excavateInfo.texPath)) {
+            let _size = isEmpty(excavateInfo.texSize) ? [0, 0] : excavateInfo.texSize;
+            _texId = Module.Excavate.addExcavateFaceTex(excavateInfo.texPath, _size);
         }
-        return Module.RealBIMWeb.CreateExtrudeObj(extrudeInfo.extrudeId, _vector_point, [0, 0, 1], _texId, extrudeInfo.heightRange);
+        return Module.RealBIMWeb.CreateExtrudeObj(excavateInfo.excavateId, _vector_point, [0, 0, 1], _texId, excavateInfo.heightRange);
     }
 
     /**
      * 根据标识删除一个挤出区域对象
-     * @param {String} extrudeId //挤压标识
+     * @param {String} excavateId //挖洞标识
      */
-    Module.Extrude.delExtrudeObj = function (extrudeId) {
-        if (isEmptyLog(extrudeId, 'extrudeId')) return;
-        return Module.RealBIMWeb.DelExtrudeObj(extrudeId);
+    Module.Excavate.delExcavateObj = function (excavateId) {
+        if (isEmptyLog(excavateId, 'excavateId')) return;
+        return Module.RealBIMWeb.DelExtrudeObj(excavateId);
     }
 
 
     // MARK 编辑
     /**
-     * 设置挤压对象的类型
-     * @param {String} extrudeId //挤压标识
-     * @param {REExtrudeTypeEm} type //类型 REExtrudeTypeEm 枚举
+     * 设置挖洞对象的类型
+     * @param {String} excavateId //挖洞标识
+     * @param {REExcavateTypeEm} type //类型 REExcavateTypeEm 枚举
      */
-    Module.Extrude.setExtrudeType = function (extrudeId, type) {
-        if (isEmptyLog(extrudeId, 'extrudeId')) return;
-        let _enumEval = isEmpty(type) ? eval("Module.RE_EXTRUDE_TYPE.None") : eval(REExtrudeTypeEm[type]);
-        return Module.RealBIMWeb.SetExtrudeObjType(extrudeId, _enumEval);
+    Module.Excavate.setExcavateType = function (excavateId, type) {
+        if (isEmptyLog(excavateId, 'excavateId')) return;
+        let _enumEval = isEmpty(type) ? eval("Module.RE_EXTRUDE_TYPE.None") : eval(REExcavateTypeEm[type]);
+        return Module.RealBIMWeb.SetExtrudeObjType(excavateId, _enumEval);
     }
 
     /**
-     * 获取挤压对象的类型
-     * @param {String} extrudeId //挤压标识
+     * 获取挖洞对象的类型
+     * @param {String} excavateId //挖洞标识
      */
-    Module.Extrude.getExtrudeType = function (extrudeId) {
-        if (isEmptyLog(extrudeId, 'extrudeId')) return;
-        let _type = Module.RealBIMWeb.GetExtrudeObjType(extrudeId);
+    Module.Excavate.getExcavateType = function (excavateId) {
+        if (isEmptyLog(excavateId, 'excavateId')) return;
+        let _type = Module.RealBIMWeb.GetExtrudeObjType(excavateId);
         return _type.value;
     }
 
 
     // MARK 相机
     /**
-     * 聚焦到指定的挤压对象区域
-     * @param {String} extrudeId //挤压标识
+     * 聚焦到指定的挖洞对象区域
+     * @param {String} excavateId //挖洞标识
      */
-    Module.Extrude.locateToExtrudeObj = function (extrudeId) {
-        if (isEmptyLog(extrudeId, 'extrudeId')) return;
-        return Module.RealBIMWeb.LocateToExtrudeObj(extrudeId);
+    Module.Excavate.locateToExcavateObj = function (excavateId) {
+        if (isEmptyLog(excavateId, 'excavateId')) return;
+        return Module.RealBIMWeb.LocateToExtrudeObj(excavateId);
     }
 
 
@@ -9411,13 +9411,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK UI
     //系统界面对应C++名称
-    const REExtrudeTypeEm = [
+    const REExcavateTypeEm = [
         'Module.RE_EXTRUDE_TYPE.UNDEFINED',//未定义
         'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT',//挖洞（镂空指定范围）
         'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX',//使用断面纹理，断面以贴图队列中的指定贴图表现
         'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX',//使用原表面纹理，保持原模型上贴图
     ]
-    ExtModule.REExtrudeTypeEm = REExtrudeTypeEm;
+    ExtModule.REExcavateTypeEm = REExcavateTypeEm;
 
 
     // MARK Entity
