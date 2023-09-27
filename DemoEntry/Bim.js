@@ -224,12 +224,12 @@ function loadModel() {
         //     "useAssginVer2": true, "assginVer2": 0x7fffffff,
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        {
-            "dataSetId": "机房02",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "机房02",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [10, 10, 10]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "版本对比花园",
         //     "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0b67f04da31dd122ba409ef7fa08a9",
