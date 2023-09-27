@@ -1,4 +1,4 @@
-//版本：v3.1.0.2158
+//版本：v3.1.0.2173
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -5011,6 +5011,50 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+    class RECADLayer {
+        constructor() {
+            this.layerName = null;//表示图层名称
+            this.color = null;//表示图层颜色
+            this.elemId = null;//元素标识
+            this.layerHide = false;//表示图层是否隐藏
+        }
+    }
+    ExtModule.RECADLayer = RECADLayer;
+
+    /**
+     * 获取cad当前所有图层信息
+     */
+    Module.CAD.getCurAllLayer = function () {
+        let _vector_layer = Module.RealBIMWeb.GetCADAllLayer();
+        let _layerList = [];
+        for (let i = 0; i < _vector_layer.size(); i++) {
+            const element = _vector_layer.get(i);
+            let _layer = new RECADLayer();
+            _layer.layerName = element.m_strLayerName;
+            _layer.color = clrU32ToClr(element.m_uColor);
+            _layer.elemId = element.m_strHandle;
+            _layer.layerHide = element.m_bHide;
+            _layerList.push(_layer);
+        }
+        return _layerList;
+    }
+
+    /**
+     * 设置显示隐藏图层
+     * @param {String} elemId //元素标识
+     * @param {Boolean} visible //显示隐藏 true：显示 false：隐藏
+     */
+    Module.CAD.setLayerVisible = function (elemId, visible) {
+        if (isEmptyLog(elemId, "elemId")) return;
+        if (visible) {
+            Module.RealBIMWeb.CADShowLayer(elemId);
+        } else {
+            Module.RealBIMWeb.CADHideLayer(elemId);
+        }
+    }
+
+
+
 
 
     // MARK 相机
@@ -5024,6 +5068,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 相机定位所有元素到当前屏幕
+     */
+    Module.CAD.setCamLocateToAllElem = function () {
+        Module.RealBIMWeb.FocusToAllCADElem();
+    }
+
+    /**
      * 设置CAD矢量锚点的相机缩放边界值
      * @param {String} groupId //锚点组ID
      * @param {Number} minScale //缩放最小边界（像素）
@@ -5032,6 +5083,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setGroupShpAncScale = function (groupId, minScale, maxScale) {
         Module.RealBIMWeb.SetCADShpAnchorScale(groupId, minScale, maxScale);
     }
+
+    /**
+     * 获取当前视口范围（最大值最小值）dMinX,dMinY 视口左下角坐标，dMaxX,dMaxY：视口右上角坐标
+     */
+    Module.CAD.getCurViewportRange = function () {
+        let _vector_range = Module.RealBIMWeb.GetCADCurViewport();
+        let range_obj = {};
+        if (_vector_range.size()) {
+            let _vMin = _vector_range.get(0);
+            let _vMax = _vector_range.get(1);
+            range_obj = {
+                minPot: _vMin,
+                maxPot: _vMax,
+            }
+        }
+        return range_obj;
+    }
+
+    /**
+     * 设置当前视口范围及相机定位
+     * @param {Array} minPot //视口左下角坐标
+     * @param {Array} maxPot //视口右上角坐标
+     */
+    Module.CAD.setCurViewportRange = function (minPot, maxPot) {
+        Module.RealBIMWeb.FocusToViewport(minPot, maxPot);
+    }
+
+
+
 
 
 
@@ -5309,6 +5389,163 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.delGroupShpAnc = function (groupId) {
         Module.RealBIMWeb.DelGroupCADShpAnchors(groupId);
     }
+
+
+    // MARK 标注
+    /**
+     * 开启标注绘制（初始默认-箭头）
+     */
+    Module.CAD.startCommentDraw = function () {
+        Module.RealBIMWeb.StartCADCommentDraw();
+    }
+
+    /**
+     * 结束标注绘制
+     */
+    Module.CAD.endCommentDraw = function () {
+        Module.RealBIMWeb.EndCADCommentDraw();
+    }
+
+    /**
+     * 保存当前绘制标注
+     */
+    Module.CAD.saveCurCommentDraw = function () {
+        Module.RealBIMWeb.CADSaveCurCommentDraw();
+    }
+
+    /**
+     * 取消当前绘制标注
+     */
+    Module.CAD.cancelCurCommentDraw = function () {
+        Module.RealBIMWeb.CADCancekCurCommentDraw();
+    }
+
+    /**
+     * 设置当前标注绘制样式
+     * @param {Number} style //样式类型 0：箭头 1：云线框 2：矩形 3：椭圆 4：文字
+     */
+    Module.CAD.setDrawingCommentStyle = function (style) {
+        let _uCommentStyle = isEmpty(style) ? 0 : style;
+        switch (style) {
+            case 2:
+                _uCommentStyle = 4;
+                break;
+            case 3:
+                _uCommentStyle = 5;
+                break;
+            case 4:
+                _uCommentStyle = 7;
+                break;
+            default:
+                break;
+        }
+        Module.RealBIMWeb.SetCADCurDrawingCommentStyle(_uCommentStyle);
+    }
+
+    /**
+     * 设置文字标注内容
+     * @param {String} text //文字内容 (换行请用\n表示)
+     */
+    Module.CAD.setTextCommentText = function (text) {
+        let _text = isEmpty(text) ? "" : text;
+        Module.RealBIMWeb.SetCADCurTextCommentText(_text);
+    }
+
+    /**
+     * 设置标注线宽
+     * @param {Number} width //线宽
+     */
+    Module.CAD.setCommentLineWidth = function (width) {
+        let _width = isEmpty(width) ? 1.0 : width;
+        Module.RealBIMWeb.SetCADCommentLinewidth(_width);
+    }
+
+    /**
+     * 设置标注颜色
+     * @param {REColor} color //颜色（REColor 类型）
+     */
+    Module.CAD.setCommentColor = function (color) {
+        let _color_u32 = clrToU32_WBGR(color);
+        Module.RealBIMWeb.SetCADCommentColor(_color_u32);
+    }
+
+    /**
+     * 设置标注文字尺寸
+     * @param {Number} size //尺寸
+     */
+    Module.CAD.setCommentTextSize = function (size) {
+        let _size = isEmpty(size) ? 1.0 : size;
+        Module.RealBIMWeb.SetCADCommentTextSize(_size);
+    }
+
+
+    // MARK 测量
+    /**
+     * 开启测量绘制
+     */
+    Module.CAD.startMeasurementDraw = function () {
+        Module.RealBIMWeb.StartCADMeasurementDraw();
+    }
+
+    /**
+     * 结束测量绘制
+     */
+    Module.CAD.endMeasurementDraw = function () {
+        Module.RealBIMWeb.EndCADMeasurementDraw();
+    }
+
+    /**
+     * 保存当前测量绘制
+     */
+    Module.CAD.saveCurMeasurementDraw = function () {
+        Module.RealBIMWeb.CADSaveCurMeasurementDraw();
+    }
+
+    /**
+     * 取消当前测量绘制
+     */
+    Module.CAD.cancelCurMeasurementDraw = function () {
+        Module.RealBIMWeb.CADCancelCurMeasurementDraw();
+    }
+
+    /**
+     * 删除所有测量
+     */
+    Module.CAD.delAllMeasurementDraw = function () {
+        Module.RealBIMWeb.CADDeleteAllMeasurement();
+    }
+
+    /**
+     * 设置测量样式
+     * @param {Number} style //类型 0：单次长度测量 1：连续长度测量
+     */
+    Module.CAD.setMeasurementStyle = function (style) {
+        let _style = isEmpty(style) ? 0 : style;
+        Module.RealBIMWeb.SetCADMeasurementStyle(_style);
+    }
+
+    /**
+     * 获取长度测量信息
+     * @param {String} measureId //测量标识 通过绘制测量完成监听事件事件获取(RECADMeasurementDrawFinished) 只能返回单次测量，连续测量不支持返回
+     */
+    Module.CAD.getLengthMeasurementInfo = function (measureId) {
+        if (isEmptyLog(measureId, "measureId")) return;
+        let _info = Module.RealBIMWeb.CADGetLengthMeasurementInfo(measureId);
+        let info_obj = {
+            totalLength: _info[2],//总长度
+            differX: _info[0],//x轴差值
+            differY: _info[1],//y轴差值
+        };
+        return info_obj;
+    }
+
+
+
+
+
+
+
+
 
 
 

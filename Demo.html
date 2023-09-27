@@ -13,29 +13,15 @@
     <div id="canvas-cntr">
         <canvas id="canvas" style="width:100%; height:100%;" oncontextmenu="event.preventDefault()"
             tabindex="1"></canvas>
-        <div class="custom-loading-container">
-            <div class="loading-box">
-                <div class="icon-box">
-                    <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
-                </div>
-                <div class="common-global-progress-box">
-                    <div class="custom-progress-box">
-                        <div class="progress-bar">
-                            <div class="progress-bar-outer">
-                                <div class="progress-bar-inner"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="custom-text"></div>
-                </div>
-                <div class="process-info-box"></div>
-            </div>
-        </div>
         <div class="btn">
-            <button onclick="addOneEntity()">添加实例A</button>
-            <button onclick="addTwoEntity()">添加实例B</button>
-            <button onclick="startAnim()">开启动画</button>
-            <button onclick="stopAnim()">暂停动画</button>
+            <button onclick="startComment()">开启标注</button>
+            <button onclick="endComment()">结束标注</button>
+            <button onclick="changeStyle(0)">箭头</button>
+            <button onclick="changeStyle(1)">云线框</button>
+            <button onclick="changeStyle(2)">矩形</button>
+            <button onclick="changeStyle(3)">椭圆</button>
+            <button onclick="changeStyle(4)">文字</button>
+            <button onclick="changeColor()">黄色</button>
         </div>
     </div>
     <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
@@ -66,9 +52,7 @@
             }
             document.addEventListener("RESystemReady", RESystemReady);//系统初始化监听
             document.addEventListener("RESystemEngineCreated", RESystemEngineCreated);//场景初始化监听
-            document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//模型加载进度监听
-            document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);//模型加载完成状态
-            document.addEventListener("REExitEntityEditMode", REExitEntityEditMode);//单构件鼠标添加模式添加实例结束回调事件
+            document.addEventListener("RECADLoadFinish", RECADLoadFinish);
             if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
                 console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
                 RESystemReady();
@@ -76,7 +60,8 @@
         }
         function RESystemReady() {
             var sysInfo = new BlackHole3D.RESysInfo();
-            sysInfo.workerjsPath = "https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb_Worker.js";
+            // sysInfo.workerjsPath = "https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb_Worker.js";
+            sysInfo.workerjsPath = "javascript/RealBIMWeb_Worker.js";
             sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
             sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
             sysInfo.commonUrl = "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001";
@@ -92,13 +77,9 @@
             var isSuccess = e.detail.succeed;
             if (isSuccess) {
                 console.log("===========================  场景初始化 --> 成功！！！");
-                var dataSetList = [{
-                    "dataSetId": "单构件模版",
-                    "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02",
-                    "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                    "dataSetCRS": "", "dataSetCRSNorth": 0.0
-                }];
-                BlackHole3D.Model.loadDataSet(dataSetList);
+                BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpTypeEm.CAD, 0);
+                //加载CAD资源
+                BlackHole3D.CAD.loadCAD("https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=CAD/1_3019722.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
 
                 BlackHole3D.Common.setMaxResMemMB(5500);
                 BlackHole3D.Common.setExpectMaxInstMemMB(4500);
@@ -108,97 +89,42 @@
                 console.log("===========================  场景初始化 --> 失败！！！");
             }
         }
-        function REDataSetLoadProgress(e) {
-            var progBoxCntr = document.querySelector(".custom-loading-container");
-            var progBox = document.querySelector(".progress-bar-inner");
-            var progTxt = document.querySelector(".custom-text");
-            var progInfo = document.querySelector(".process-info-box");
-            var percent = e.detail.progress;
-            var processInfo = e.detail.info;
-            if (percent < 100) {
-                progBox.style.width = `${percent}%`
-                progBoxCntr.style.display = "flex";
-                progTxt.innerHTML = `${percent}%`
-                progInfo.innerHTML = processInfo
-            } else {
-                progBoxCntr.style.display = "none";
-            }
-        }
-        //模型加载完成状态
-        function REDataSetLoadFinish(e) {
-            if (e.detail.succeed) {
-                //模型加载完成！！！
+        //CAD加载完成，需要设置图形窗口显示CAD
+        function RECADLoadFinish(isSuccess) {
+            if (isSuccess) {
+                console.log("=========================== 引擎渲染器初始化完成 ");
                 document.getElementById('canvas').style.display = "block";
                 BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
+                console.log("================ CAD加载成功");
+                //设置CAD显示
+                BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.CAD, "", BlackHole3D.REVpRankEm.LR);
             } else {
-                //模型加载失败！！！
+                console.log("================ CAD加载失败");
             }
         }
-        //单构件鼠标添加模式添加实例结束回调事件
-        function REExitEntityEditMode(e) {
-            alert("实例添加结束");
+        //开启标注
+        function startComment() {
+            BlackHole3D.CAD.startCommentDraw();//开启标注绘制（初始默认-箭头）
         }
-        //添加实例A
-        function addOneEntity() {
-            BlackHole3D.Entity.enterEditMode();//进入编辑模式
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            if (typeNames.length) {
-                let entityList = [];
-                let entity = new BlackHole3D.REEntityInfo();//创建实例信息对象
-                entity.dataSetId = "单构件模版";
-                entity.entityType = typeNames[0];
-                entity.elemId = 1;//自定义构件id，不可重复，重复添加失败
-                entity.scale = [1.0, 1.0, 1.0];// 缩放
-                entity.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
-                entity.offset = [0.0, 0.0, 0.0];// 平移
-                entity.dataSetCRS = "";// 坐标系标识
-                entityList.push(entity);
-                let add = BlackHole3D.Entity.addEntities(entityList);//添加实例对象
-                add ? alert("实例添加成功") : alert("实例添加失败");
+        //结束标注
+        function endComment() {
+            BlackHole3D.CAD.endCommentDraw();//结束标注绘制
+        }
+        //切换标注样式
+        function changeStyle(style) {
+            if (style == 4) {
+                let content = prompt("请输入文字", "");
+                if (content && content.length) {
+                    BlackHole3D.CAD.setDrawingCommentStyle(style);//样式类型 0：箭头 1：云线框 2：矩形 3：椭圆 4：文字
+                    BlackHole3D.CAD.setTextCommentText(content);//设置文字标注内容
+                }
+            } else {
+                BlackHole3D.CAD.setDrawingCommentStyle(style);//样式类型 0：箭头 1：云线框 2：矩形 3：椭圆 4：文字
             }
-            BlackHole3D.Entity.exitEditMode();//结束编辑模式
         }
-        //添加实例B
-        function addTwoEntity() {
-            BlackHole3D.Entity.enterEditMode();//进入编辑模式
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            if (typeNames.length) {
-                let entityList = [];
-                let entity = new BlackHole3D.REEntityInfo();//创建实例信息对象
-                entity.dataSetId = "单构件模版";
-                entity.entityType = typeNames[0];
-                entity.elemId = 2;//自定义构件id，不可重复，重复添加失败
-                entity.scale = [1.0, 1.0, 1.0];// 缩放
-                entity.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
-                entity.offset = [10.0, 10.0, 0.0];// 平移
-                entity.dataSetCRS = "";// 坐标系标识
-                entityList.push(entity);
-                let add = BlackHole3D.Entity.addEntities(entityList);//添加实例对象
-                add ? alert("实例添加成功") : alert("实例添加失败");
-            }
-            BlackHole3D.Entity.exitEditMode();//结束编辑模式
-        }
-        //开启动画
-        function startAnim() {
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            let animPlayInfo = new BlackHole3D.REEntityAnimPlayInfo();//创建实例动画信息
-            animPlayInfo.dataSetId = "单构件模版";
-            animPlayInfo.entityType = typeNames[0];
-            animPlayInfo.elemIdList = [];
-            animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;//动画的播放模式
-            animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;//动画的播放状态
-            BlackHole3D.Entity.setAnimPlayMode(animPlayInfo);//设置实体动画的播放信息
-        }
-        //暂停动画
-        function stopAnim() {
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            let animPlayInfo = new BlackHole3D.REEntityAnimPlayInfo();//创建实例动画信息
-            animPlayInfo.dataSetId = "单构件模版";
-            animPlayInfo.entityType = typeNames[0];
-            animPlayInfo.elemIdList = [];
-            animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;//动画的播放模式
-            animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;//动画的播放状态
-            BlackHole3D.Entity.setAnimPlayMode(animPlayInfo);//设置实体动画的播放信息
+        //设置颜色
+        function changeColor() {
+            BlackHole3D.CAD.setCommentColor(new BlackHole3D.REColor(255, 255, 0, 255));//设置标注颜色
         }
     </script>
 </body>
