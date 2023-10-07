@@ -5015,7 +5015,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.layerName = null;//表示图层名称
             this.color = null;//表示图层颜色
-            this.elemId = null;//元素标识
+            this.layerId = null;//图层标识
             this.layerHide = false;//表示图层是否隐藏
         }
     }
@@ -5032,7 +5032,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _layer = new RECADLayer();
             _layer.layerName = element.m_strLayerName;
             _layer.color = clrU32ToClr(element.m_uColor);
-            _layer.elemId = element.m_strHandle;
+            _layer.layerId = element.m_strHandle;
             _layer.layerHide = element.m_bHide;
             _layerList.push(_layer);
         }
@@ -5041,15 +5041,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置显示隐藏图层
-     * @param {String} elemId //元素标识
+     * @param {String} layerId //图层标识
      * @param {Boolean} visible //显示隐藏 true：显示 false：隐藏
      */
-    Module.CAD.setLayerVisible = function (elemId, visible) {
-        if (isEmptyLog(elemId, "elemId")) return;
+    Module.CAD.setLayerVisible = function (layerId, visible) {
+        if (isEmptyLog(layerId, "layerId")) return;
         if (visible) {
-            Module.RealBIMWeb.CADShowLayer(elemId);
+            Module.RealBIMWeb.CADShowLayer(layerId);
         } else {
-            Module.RealBIMWeb.CADHideLayer(elemId);
+            Module.RealBIMWeb.CADHideLayer(layerId);
         }
     }
 
@@ -5526,7 +5526,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 获取长度测量信息
-     * @param {String} measureId //测量标识 通过绘制测量完成监听事件事件获取(RECADMeasurementDrawFinished) 只能返回单次测量，连续测量不支持返回
+     * @param {String} measureId //测量标识 通过绘制测量完成监听事件事件获取(RECADMeasurementDrawFinish) 只能返回单次测量，连续测量不支持返回
      */
     Module.CAD.getLengthMeasurementInfo = function (measureId) {
         if (isEmptyLog(measureId, "measureId")) return;
