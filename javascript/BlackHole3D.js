@@ -8909,8 +8909,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} entityList //实例信息集合 （REEntityInfo 类型）
      */
     Module.Entity.addEntities = function (entityList) {
-        if (isRepeat(entityList, 'dataSetId')) {
-            console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
+        if (hasNullProt(entityList, 'dataSetId')) {
+            console.error('【REError】: dataSetId 不能为空');
+            return;
+        }
+        if (isRepeat(entityList, 'elemId')) {
+            console.error('【REError】: elemId 不能为空不可重复');
             return;
         }
         if (hasNullProt(entityList, 'entityType')) {
