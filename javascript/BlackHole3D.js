@@ -1,4 +1,4 @@
-//版本：v3.1.0.2187
+//版本：v3.1.0.2193
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -190,6 +190,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ResumeRenderLoop();
     }
 
+    /**
+     * 添加一个URL自定义参数字段信息
+     * @param {String} urlWildcard //表示要匹配的URL通配符
+     * @param {String} paramStr //表示匹配的URL需要添加的自定义参数字段 字符串
+     */
+    Module.addUrlExtParam = function (urlWildcard, paramStr) {
+        return Module.RealBIMWeb.AddAURLExtParam(urlWildcard, paramStr);
+    }
+
+    /**
+     * 删除所有的URL自定义参数字段信息
+     */
+    Module.delAllURLExtParams = function () {
+        Module.RealBIMWeb.DelAllURLExtParams();
+    }
 
 
 
@@ -5630,22 +5645,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, "", { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
     }
 
-    /**
-     * 设置栅格模型的可见性
-     * @param {String} dataSetId //数据集标识
-     * @param {Boolean} visible //是否可见
-     */
-    Module.Grid.setDataSetVisible = function (dataSetId, visible) {
-        Module.RealBIMWeb.SetUnVerHugeGroupVisible(dataSetId, "", visible);
-    }
-
-    /**
-     * 获取栅格模型的可见性
-     * @param {String} dataSetId //数据集标识
-     */
-    Module.Grid.getDataSetVisible = function (dataSetId) {
-        return Module.RealBIMWeb.GetUnVerHugeGroupVisible(dataSetId, "");
-    }
 
     /**
      * 设置栅格模型的仿射变换信息
@@ -8873,23 +8872,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return nameArr;
     }
 
-    /**
-     * 获取当前场景下所有的实例信息(XML)
-     * @param {String} dataSetId //数据集标识, 空字符串获取所有数据集的实例信息
-     */
-    Module.Entity.getXMLEntitys = function (dataSetId) {
-        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
-        return Module.RealBIMWeb.GetEntityInfo(_dataSetId);
-    }
-
-    /**
-     * 设置当前场景下所有的实例信息(XML)
-     * @param {String} entityXML //实例信息XML
-     */
-    Module.Entity.setXMLEntitys = function (entityXML) {
-        if (isEmptyLog(entityXML, 'entityXML')) return;
-        Module.RealBIMWeb.SetEntityInfo(entityXML);
-    }
 
     class REEntityInfo {
         constructor() {
@@ -9075,8 +9057,51 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 获取实例的仿射变换信息
+     * @param {String} dataSetId //数据集标识，必填
+     * @param {Array} elemIdList //构件id集合，空数组表示获取全部
+     */
+    Module.Entity.getTransInfo = function (dataSetId, elemIdList) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
 
+        let _elemIdList = isEmpty(elemIdList) ? [] : elemIdList;
+        let count = _elemIdList.length;
+        if (!count) {
+            let arrEntity = Module.RealBIMWeb.GetAllEntity(dataSetId, "");
+            for (let i = 0; i < arrEntity.size(); i++) {
+                let entity_obj = arrEntity.get(i);
+                _elemIdList.push(entity_obj.m_uEntityID);
+            }
+        }
 
+        let entityTransList = [];
+        for (let i = 0; i < _elemIdList.length; i++) {
+            let entityTrans_obj = Module.RealBIMWeb.GetEntityTransform(dataSetId, _elemIdList[i]);
+            let _trans_obj = new RELocInfo();
+            _trans_obj.scale = entityTrans_obj.m_vScale;
+            _trans_obj.rotate = entityTrans_obj.m_qRotate;
+            _trans_obj.offset = entityTrans_obj.m_vOffset;
+            entityTransList.push(_trans_obj);
+        }
+        return entityTransList;
+    }
+
+    /**
+     * 设置实例的仿射变换信息
+     * @param {String} dataSetId //数据集标识，必填
+     * @param {Number} elemId //构件id
+     * @param {RELocInfo} locInfo //位置信息
+     */
+    Module.Entity.setTransInfo = function (dataSetId, elemId, locInfo) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        let _trans_obj = {
+            m_vScale: locInfo.scale,
+            m_qRotate: locInfo.rotate,
+            m_vOffset: locInfo.offset,
+        };
+        return Module.RealBIMWeb.SetEntityTransform(dataSetId, elemId, _trans_obj);
+    }
 
 
 
