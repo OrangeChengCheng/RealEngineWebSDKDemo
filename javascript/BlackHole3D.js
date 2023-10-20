@@ -1,4 +1,4 @@
-//版本：v3.1.0.2193
+//版本：v3.1.0.2201
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -8895,10 +8895,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             console.error('【REError】: dataSetId 不能为空');
             return;
         }
-        if (isRepeat(entityList, 'elemId')) {
-            console.error('【REError】: elemId 不能为空不可重复');
-            return;
-        }
         if (hasNullProt(entityList, 'entityType')) {
             console.error('【REError】: entityType 不能为空');
             return;
@@ -8960,16 +8956,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_dataSetId == "") {
             Module.RealBIMWeb.DelEntities("", "", 0xffffffff, 0);
         } else {
-            let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
-            let count = _elemIdList.length;
-            let _moemory = (count * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
-            let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < count; ++i) {
-                var eleid = _elemIdList[i];
-                _elemIds.set([eleid, _projid], i * 2);
+            if (!_elemIdList.length) {
+                Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, 0xffffffff, 0);
+            } else {
+                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
+                let count = _elemIdList.length;
+                let _moemory = (count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+                let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < count; ++i) {
+                    var eleid = _elemIdList[i];
+                    _elemIds.set([eleid, _projid], i * 2);
+                }
+                Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, _elemIds.byteLength, _elemIds.byteOffset);
             }
-            Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, _elemIds.byteLength, _elemIds.byteOffset);
         }
     }
 
@@ -9617,6 +9617,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //系统界面对应C++名称
     const RESysWndMateEm = {
         PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//底部主工具栏-地形透明度
+        PanelBtn_FocusBoxSel: 'BuiltIn_Btn_FocusBoxSel',//底部主工具栏-框选放大
         PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//底部主工具栏-重置操作
         PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//底部主工具栏-隔离构件
         PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//底部主工具栏-隐藏构件
