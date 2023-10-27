@@ -1,4 +1,4 @@
-//版本：v3.1.0.2206
+//版本：v3.1.0.2214
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -6269,6 +6269,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Edit.closeAffineTransEditWnd = function () {
         return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, false);
+    }
+
+    /**
+     * 设置位置编辑放射变换窗口扩展按钮的可见性（重置|退出|保存）
+     * @param {Boolean} visible //是否显示
+     */
+    Module.Edit.setExtendBtnVisible = function (visible) {
+        Module.RealBIMWeb.SetPositionMatchSaveBtnVisible(visible);
     }
 
 
