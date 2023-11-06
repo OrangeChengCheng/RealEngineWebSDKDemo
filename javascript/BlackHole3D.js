@@ -1,4 +1,4 @@
-//版本：v3.1.0.2214
+//版本：v3.1.0.2221
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -9111,6 +9111,69 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetEntityTransform(dataSetId, elemId, _trans_obj);
     }
 
+    /**
+     * 设置模型内子元素集合的总包围盒矢量是否显示
+     * @param {Boolean} visible //是否显示
+     */
+    Module.Entity.setBVShpVisiable = function (visible) {
+        Module.RealBIMWeb.SetBVShpVisiable(visible);
+    }
+
+
+    class REEntityBVInfo {
+        constructor() {
+            this.lineClr = null;// 包围盒线颜色 （REColor 类型）
+            this.lineWidth = null;// 包围盒线宽度
+            this.faceClr = null;// 包围盒面颜色 （REColor 类型）
+            this.visiableType = 0;// 显示类型 0：全部显示  1：只显示线  2：只显示面 （默认显示全部）
+        }
+    }
+    ExtModule.REEntityBVInfo = REEntityBVInfo;
+
+    /**
+     * 设置包围盒矢量的样式
+     * @param {REEntityBVInfo} entityBVInfo //包围盒信息
+     */
+    Module.Entity.setBVShpStyle = function (entityBVInfo) {
+        let _lineClr = isEmpty(entityBVInfo.lineClr) ? 0xff00ffff : clrToU32(entityBVInfo.lineClr);
+        let _lineWidth = isEmpty(entityBVInfo.lineWidth) ? 3 : entityBVInfo.lineWidth;
+        let _faceClr = isEmpty(entityBVInfo.faceClr) ? 0x0fffffff : clrToU32(entityBVInfo.faceClr);
+        let _visiableType = isEmpty(entityBVInfo.visiableType) ? 255 : (entityBVInfo.visiableType ? entityBVInfo.visiableType : 255);
+
+        Module.RealBIMWeb.SetBVShpStyle(_lineClr, _lineWidth, _faceClr, _visiableType);
+    }
+
+    /**
+     * 设置包围盒展示的范围
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有项目
+     * @param {Array} elemIdList //构件id集合, 为空数组则表示处理所有构件
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.Entity.setBVShpRange = function (dataSetId, elemIdList, elemScope) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+
+        if (dataSetId == "") {
+            Module.RealBIMWeb.SetBVAttachHugeObjSubElems("", 0xffffffff, 0, _elemScope);
+        } else {
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetBVAttachHugeObjSubElems(dataSetId, 0xffffffff, 0, _elemScope);
+            } else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _elemIds.set([elemIdList[i], _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetBVAttachHugeObjSubElems(dataSetId, _elemIds.byteLength, _elemIds.byteOffset, _elemScope);
+            }
+        }
+    }
+
+
 
 
 
@@ -9633,7 +9696,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
         PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
         PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
-        SysWnd_AffineTransMode_old: 'AffineTransModeWnd',//位置编辑仿射变换窗口(旧版，后期会移除)
         SysWnd_AffineTransMode: 'PositionMatchingWnd',//位置编辑仿射变换窗口
     }
     ExtModule.RESysWndMateEm = RESysWndMateEm;
