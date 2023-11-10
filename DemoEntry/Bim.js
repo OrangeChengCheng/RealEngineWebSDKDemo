@@ -245,14 +245,20 @@ function loadModel() {
         //     "engineOrigin": [491154.03125, 4717785, 0.0]
 
         // }
+        // {
+        //     "dataSetId": "机房01",
+        //     // "resourcesAddress": "https://www.cim.xaxcsz.com/api/ecx-gateway/res/3a0e4de41350c1ec3994ef491b0f7793",
+        //     // "resourcesAddress": "https://www.cim.xaxcsz.com/api/ecx-gateway/res/3a0e4de3aa656cf466f41f959cf7d981",
+        //     // "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0a58909668b31b5360ebde89f6eb2c",
+        //     "resourcesAddress": "https://www.cim.xaxcsz.com:18000/res/7e28fcef34434cb4b168aa1eeb5c1be8",
+        //     // "resourcesAddress": "https://www.cim.xaxcsz.com:18000/res/res_entity_anim_test02",
+        //     // "resourcesAddress": "http://10.218.51.104:9999/api/ecx-gateway/res/3a0e3402b0437ff0dba647d1bfcdc1f6",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         {
             "dataSetId": "机房01",
-            // "resourcesAddress": "https://www.cim.xaxcsz.com/api/ecx-gateway/res/3a0e4de41350c1ec3994ef491b0f7793",
-            // "resourcesAddress": "https://www.cim.xaxcsz.com/api/ecx-gateway/res/3a0e4de3aa656cf466f41f959cf7d981",
-            // "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0a58909668b31b5360ebde89f6eb2c",
-            "resourcesAddress": "https://www.cim.xaxcsz.com:18000/res/3a0a58909668b31b5360ebde89f6eb2c",
-            // "resourcesAddress": "https://www.cim.xaxcsz.com:18000/res/res_entity_anim_test02",
-            // "resourcesAddress": "http://10.218.51.104:9999/api/ecx-gateway/res/3a0e3402b0437ff0dba647d1bfcdc1f6",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
