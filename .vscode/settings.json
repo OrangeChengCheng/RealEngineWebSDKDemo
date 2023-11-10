@@ -3,5 +3,6 @@
     "markdown.preview.fontSize": 12,
     "debug.console.fontSize": 12,
     "terminal.integrated.fontSize": 12,
-    "scm.inputFontSize": 12
+    "scm.inputFontSize": 12,
+    "liveServer.settings.port": 5500
 }
