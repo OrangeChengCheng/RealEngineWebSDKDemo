@@ -60,8 +60,8 @@ function addREListener() {
 function RESystemReady() {
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://10.218.51.104:9999/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://10.218.51.104:9999/api/ecx-gateway/res/", "http://10.218.51.104:9999/api/ecx-gateway/pathindex/res/index.xml");
-    BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com:18000/author/author_path02.txt");
-    BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com:18000/res/", "https://www.cim.xaxcsz.com:18000/pathindex/res/index.xml");
+    // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com:18000/author/author_path02.txt");
+    // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com:18000/res/", "https://www.cim.xaxcsz.com:18000/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com/api/ecx-gateway/res/", "https://www.cim.xaxcsz.com/api/ecx-gateway/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://realbim.bjblackhole.cn:18080/author/author_path02.txt");
@@ -93,8 +93,8 @@ function RESystemEngineCreated(e) {
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
     //设置世界坐标系
-    var worldCRS = 'PROJCS["CGCS2000_3_Degree_GK_CM_116E",GEOGCS["GCS_China_Geodetic_Coordinate_System_2000",DATUM["D_China_2000",SPHEROID["CGCS2000",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Gauss_Kruger"],PARAMETER["False_Easting",500000.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",116.0],PARAMETER["Scale_Factor",1.0],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]';
-    // var worldCRS = 'EPSG:3857';
+    // var worldCRS = 'PROJCS["CGCS2000_3_Degree_GK_CM_116E",GEOGCS["GCS_China_Geodetic_Coordinate_System_2000",DATUM["D_China_2000",SPHEROID["CGCS2000",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Gauss_Kruger"],PARAMETER["False_Easting",500000.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",116.0],PARAMETER["Scale_Factor",1.0],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]';
+    var worldCRS = 'EPSG:3857';
     BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS);//设置引擎参考坐标系
     if (isSuccess) {
         console.log("===========================  场景初始化 --> 成功！！！");
@@ -211,6 +211,22 @@ function loadModel() {
     // BlackHole3D.addUrlExtParam("http://10.218.51.104:9999/api/ecx-gateway/res*", "serviceid=1714135161618042881&token=123123");
 
     var dataSetList = [
+        { //天地图
+            dataSetId: "3a0e7d54a427f08ffa38ee829199163c",
+            resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0e7d54a427f08ffa38ee829199163c"
+        },
+        { //BIM
+            dataSetId: "3a0e5915cf59744cc2b10848c98b112a",
+            resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0e5915cf59744cc2b10848c98b112a",
+            dataSetCRS: `PROJCS["Transverse_Mercator",GEOGCS["GCS_WGS_1984",DATUM["D_WGS84",SPHEROID["WGS84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Transverse_Mercator"],PARAMETER["scale_factor",1],PARAMETER["central_meridian",114.3333],PARAMETER["latitude_of_origin",0],PARAMETER["false_easting",800000],PARAMETER["false_northing",0],UNIT["Meter",1]]`,
+            engineOrigin: [-800000, -3400000, 0.0]
+        },
+        { //倾斜摄影
+            dataSetId: "3a0e71b7ada9d754726e12cdcbd606a4",
+            resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0e71b7ada9d754726e12cdcbd606a4",
+            dataSetCRS: "EPSG:4547",
+            engineOrigin: [569478, 3375298, 0.0]
+        }
         // {
         //     dataSetId: "3a0d9efd-46f2-bea2-a85a-21b35fef5f72",
         //     resourcesAddress:
@@ -256,12 +272,12 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        {
-            "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "机房01",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "dataSet01",
         //     "resourcesAddress": "http://10.218.51.182:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a0a6ba1eeba3a26cdb223bb806ab1ba",
