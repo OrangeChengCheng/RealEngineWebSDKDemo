@@ -1,4 +1,4 @@
-//版本：v3.1.0.2243
+//版本：v3.1.0.2254
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -919,6 +919,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.resetCamLocate = function () {
         Module.RealBIMWeb.RestoreCamLocation();
+    }
+
+    /**
+     * 调整相机定位到包围盒
+     * @param {Array} arrBound //包围盒范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
+     */
+    Module.Camera.setCamLocateToBound = function (arrBound) {
+        Module.RealBIMWeb.TargetToAABB(arrBound);
     }
 
     /**
