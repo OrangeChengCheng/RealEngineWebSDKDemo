@@ -1,4 +1,4 @@
-//版本：v3.1.0.2259
+//版本：v3.1.0.2265
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -4955,10 +4955,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.loadCAD = function (filePath, unit, scale) {
         if (isEmptyLog(filePath, "filePath")) return;
-        var _unit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty(unit)) _unit = unit;
+        var _unit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
         var _scale = 1.0; if (!isEmpty(scale)) _scale = scale;
         Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
     }
+
+    /**
+     * 卸载所有CAD文件
+     */
+    Module.CAD.unloadCAD = function () {
+        Module.RealBIMWeb.UnLoadCAD();
+    }
+
 
     /**
      * 添加颜色填充元素
@@ -8107,8 +8115,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.MiniMap.loadCAD = function (filePath, unit, scale) {
         if (isEmptyLog(filePath, "filePath")) return;
-
-        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+        var _CADUnit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
         var _CADScale = 1.0; if (!isEmpty(scale)) { _CADScale = scale; }
         Module.RealBIMWeb.LoadOverViewCAD(filePath, _CADUnit, _CADScale);
     }
@@ -8288,7 +8295,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_BIMPoints.push_back(convInfo.bimPoint);
             _vector_CADPoints.push_back(convInfo.cadPoint);
         }
-        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+        var _CADUnit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
 
         var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
 
@@ -8323,7 +8330,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_BIMPoints.push_back(convInfo.bimPoint);
             _vector_CADPoints.push_back(convInfo.cadPoint);
         }
-        var _CADUnit = RECadUnitEm.CAD_UNIT_Meter; if (!isEmpty) _CADUnit = unit;
+        var _CADUnit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
         var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
         return Module.RealBIMWeb.SetOverViewCamTransformInfo(_vector_TransformInfo);
     }
@@ -9713,26 +9720,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MARK CAD
     //CAD单位
     const RECadUnitEm = {
-        CAD_UNIT_Inch: 1,//英寸
-        CAD_UNIT_Foot: 2,//英尺
-        CAD_UNIT_Mile: 3,//英里
-        CAD_UNIT_Millimeter: 4,//毫米
-        CAD_UNIT_Centimeter: 5,//厘米
-        CAD_UNIT_Meter: 6,//米
-        CAD_UNIT_Kilometer: 7,//千米
-        CAD_UNIT_Microinch: 8,//微英寸
-        CAD_UNIT_Mil: 9,//毫英寸
-        CAD_UNIT_Yard: 10,//码
-        CAD_UNIT_Angstrom: 11,//埃
-        CAD_UNIT_Nanometer: 12,//纳米
-        CAD_UNIT_Micron: 13,//微米
-        CAD_UNIT_Decimeter: 14,//分米
-        CAD_UNIT_Decameter: 15, //十米
-        CAD_UNIT_Hectometer: 16,//百米
-        CAD_UNIT_Gigameter: 17,//百万公里
-        CAD_UNIT_Astro: 18,//天文
-        CAD_UNIT_Lightyear: 19,//光年
-        CAD_UNIT_Parsec: 20,//天体
+        CAD_UNIT_Inch: "Module.RE_CAD_UNIT.Inch",//英寸
+        CAD_UNIT_Foot: "Module.RE_CAD_UNIT.Foot",//英尺
+        CAD_UNIT_Mile: "Module.RE_CAD_UNIT.Mile",//英里
+        CAD_UNIT_Millimeter: "Module.RE_CAD_UNIT.Millimeter",//毫米
+        CAD_UNIT_Centimeter: "Module.RE_CAD_UNIT.Centimeter",//厘米
+        CAD_UNIT_Meter: "Module.RE_CAD_UNIT.Meter",//米
+        CAD_UNIT_Kilometer: "Module.RE_CAD_UNIT.Kilometer",//千米
+        CAD_UNIT_Microinch: "Module.RE_CAD_UNIT.Microinch",//微英寸
+        CAD_UNIT_Mil: "Module.RE_CAD_UNIT.Mil",//毫英寸
+        CAD_UNIT_Yard: "Module.RE_CAD_UNIT.Yard",//码
+        CAD_UNIT_Angstrom: "Module.RE_CAD_UNIT.Angstrom",//埃
+        CAD_UNIT_Nanometer: "Module.RE_CAD_UNIT.Nanometer",//纳米
+        CAD_UNIT_Micron: "Module.RE_CAD_UNIT.Micron",//微米
+        CAD_UNIT_Decimeter: "Module.RE_CAD_UNIT.Decimeter",//分米
+        CAD_UNIT_Decameter: "Module.RE_CAD_UNIT.Decameter", //十米
+        CAD_UNIT_Hectometer: "Module.RE_CAD_UNIT.Hectometer",//百米
+        CAD_UNIT_Gigameter: "Module.RE_CAD_UNIT.Gigameter",//百万公里
+        CAD_UNIT_Astro: "Module.RE_CAD_UNIT.Astro",//天文
+        CAD_UNIT_Lightyear: "Module.RE_CAD_UNIT.Lightyear",//光年
+        CAD_UNIT_Parsec: "Module.RE_CAD_UNIT.Parsec",//天体
     }
     ExtModule.RECadUnitEm = RECadUnitEm;
 
