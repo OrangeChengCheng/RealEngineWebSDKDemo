@@ -1,4 +1,4 @@
-//版本：v3.1.0.2273
+//版本：v3.1.0.2278
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1726,6 +1726,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Probe.getProbeMode = function () {
         var _type = Module.RealBIMWeb.GetExpectProbeMode();
         return _type.value;
+    }
+
+    /**
+     * 设置一个自定义场景探测的指令 注：探测结果在 RECustomProbeFinish 监听事件中返回
+     * @param {dvec3} rayPos //表示世界空间下探测射线的位置（xyz）
+     * @param {dvec3} rayDir //表示世界空间下探测射线的朝向（欧拉朝向）
+     * @param {Number} index //表示自定义探测对应的批次
+     */
+    Module.Probe.setCustomProbeExecute = function (rayPos, rayDir, index) {
+        if (isEmptyLog(rayPos, 'rayPos')) return;
+        if (isEmptyLog(rayDir, 'rayDir')) return;
+        let _index = isEmpty(index) ? 0 : index;
+        return Module.RealBIMWeb.PerformACustomProbe(rayPos, rayDir, _index);
     }
 
 
