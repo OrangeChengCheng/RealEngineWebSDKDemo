@@ -1,4 +1,4 @@
-//版本：v3.1.0.2298
+//版本：v3.1.0.2303
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -2608,7 +2608,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.animBoneID = null;//锚点关联的骨骼在动画对象内的ID(仅当 useLod==false时有效)
             this.picNum = null;//闪烁时循环播放的图片个数
             this.playFrame = null;//闪烁的帧率，即1秒钟闪几下
-
+            this.textOffset = null;//文字偏移像素 [x,y] x:左右偏移，正数向右，负数向左， y:上下偏移，正数向上，负数向下
         }
     }
     ExtModule.REAncInfo = REAncInfo;
@@ -2641,6 +2641,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
             var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
             var _textBackClr = 0x00000000; if (!isEmpty(ancInfo.textBackClr)) { _textBackClr = clrToU32(ancInfo.textBackClr); }
+            var _textOffset = [0, 0]; if (!isEmpty(ancInfo.textOffset)) { _textOffset = ancInfo.textOffset; }
 
             var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
             if (_textbias[0] < 0) {
@@ -2690,7 +2691,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_strText: ancInfo.textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
-                    m_qTextRect: TempTextRect,
+                    m_qTextRect: [(TempTextRect[0] + _textOffset[0]), (TempTextRect[1] + _textOffset[1]), (TempTextRect[2] + _textOffset[0]), (TempTextRect[3] + _textOffset[1])],
                     m_uTextFmtFlag: TempTextFmtFlag,
                     m_uTextBackMode: _textBackMode, m_sTextBackBorder: _textBackBorder, m_uTextBackClr: _textBackClr
                 }
