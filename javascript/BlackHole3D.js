@@ -5767,15 +5767,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     /**
-     * 设根据项目名称设置局部拍平区域，仅针对当前项目有效，且拍平位置为当前项目的原始位置，如果项目有发生偏移，则拍平区域应重设为偏移后的位置
+     * 设根据项目名称设置局部拍平区域，仅针对当前项目有效，且拍平位置为当前项目的原始位置，如果项目有发生偏移，则拍平区域应重设为当前拾取位置减去项目偏移值，包括拍平投影目标坐标也需要减去项目偏移值
      * @param {String} dataSetId //数据集标识
      * @param {Array} rgnInfoList //拍平区域信息  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
      * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
-     * @param {Number} projectionHeight //拍平的高度
+     * @param {Number} projectionHeight //拍平投影到目标z轴坐标
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
     */
     Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        // 因为局部拍平如果项目进行了偏移，那么需要对拍平区域的数据进行处理，需要使用偏移之前得数据
+        var dataSetTrans = BlackHole3D.Coordinate.getDataSetTransform(dataSetId);
+        var dataSetTrans_offset = dataSetTrans.offset;
+        for (let i = 0; i < rgnInfoList.length; i++) {
+            const element = rgnInfoList[i];
+            element.projectionHeight = element.projectionHeight - dataSetTrans_offset[2];
+            for (let j = 0; j < element.regionVertex.length; j++) {
+                const point = element.regionVertex[j];
+                point[0] = point[0] - dataSetTrans_offset[0];
+                point[1] = point[1] - dataSetTrans_offset[1];
+                point[2] = point[2] - dataSetTrans_offset[2];
+            }
+        }
         var jsonStr = JSON.stringify(rgnInfoList);
         return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, jsonStr);
     }
@@ -5785,7 +5798,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} append //是否追加到一个对象 ，true：不清理原有对象并加入该新ID所述区域， false：清理原有对象后指定该ID为集合中唯一对象
      * @param {Array} rgnInfoList //拍平区域信息  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
      * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
-     * @param {Number} projectionHeight //拍平的高度
+     * @param {Number} projectionHeight //拍平投影到目标z轴坐标
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
      */
     Module.Grid.setFlatGolRegion = function (rgnInfoList, append) {
