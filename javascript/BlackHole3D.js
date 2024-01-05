@@ -3403,7 +3403,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < volumeShpInfo.potList.length; ++i) {
             let _point = volumeShpInfo.potList[i];
-            _point[2] = _minHeight; _point[3] = _maxHeight;
+            _point[2] = _minHeight; _point[3] = (_maxHeight - _minHeight);
             _temparrpos.push_back(_point);
         }
 
