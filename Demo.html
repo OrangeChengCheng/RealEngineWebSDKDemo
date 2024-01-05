@@ -32,10 +32,8 @@
             </div>
         </div>
         <div class="btn">
-            <button onclick="addOnceEntity()">鼠标单次点选添加（左键添加自动结束）</button>
-            <button onclick="addContEntity()">鼠标连续点选添加（左键添加右键结束）</button>
-            <button onclick="startEdit()">开启添加</button>
-            <button onclick="EndEdit()">结束添加</button>
+            <button onclick="AddEnclosure()">创建体积矢量</button>
+            <button onclick="Cam()">相机聚焦到体积矢量</button>
         </div>
     </div>
     <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
@@ -66,7 +64,6 @@
             document.addEventListener("RESystemEngineCreated", RESystemEngineCreated);//场景初始化监听
             document.addEventListener("REDataSetLoadProgress", REDataSetLoadProgress);//模型加载进度监听
             document.addEventListener("REDataSetLoadFinish", REDataSetLoadFinish);//模型加载完成状态
-            document.addEventListener("REExitEntityEditMode", REExitEntityEditMode);//单构件鼠标添加模式添加实例结束回调事件
             if ((typeof BlackHole3D["m_re_em_window_width"] != 'undefined') && (typeof BlackHole3D["m_re_em_window_height"] != 'undefined') && (typeof BlackHole3D.RealBIMWeb != 'undefined')) {
                 console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
                 RESystemReady();
@@ -92,13 +89,7 @@
                 console.log("===========================  场景初始化 --> 成功！！！");
                 var dataSetList = [{
                     "dataSetId": "场景",
-                    "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0d1a40b0839b041b28f1215f305db5",
-                    "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-                    "dataSetCRS": "", "dataSetCRSNorth": 0.0
-                },
-                {
-                    "dataSetId": "单构件模版",
-                    "resourcesAddress": "https://enginegraph-test.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0eb506a8a0968ff7cf4a0af12c91d6",
+                    "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_jifang",
                     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                     "dataSetCRS": "", "dataSetCRSNorth": 0.0
                 }];
@@ -138,44 +129,30 @@
                 //模型加载失败！！！
             }
         }
-        //单构件鼠标添加模式添加实例结束回调事件
-        function REExitEntityEditMode(e) {
-            alert("实例添加结束");
-            BlackHole3D.Entity.exitEditMode();//结束编辑模式
+        //创建围栏
+        function AddEnclosure() {
+            //体积矢量信息
+            var volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
+            volumeShpInfo.shpName = "volumeShp001";
+            volumeShpInfo.potList = [[14.717769348031592, 57.95791001082713, 4, 3],
+            [11.833832403710415, 57.88562541960681, 5, 4],
+            [12.011666543451309, 54.24507412739243, 4, 2],
+            [14.82709974581475, 54.341189629415496, 4, 2]];
+            volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
+            volumeShpInfo.scrASDist = -1.0;
+            volumeShpInfo.scrVisDist = 300.0;
+            volumeShpInfo.contactSce = true;
+            volumeShpInfo.genLine = true;
+            volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
+            volumeShpInfo.lineWidth = 2;
+            var addVolumeShpBool = BlackHole3D.Geometry.addPolyVolumeShp(volumeShpInfo);
+            console.log(addVolumeShpBool);
         }
-        //鼠标单次点选添加（左键添加自动结束）
-        function addOnceEntity() {
-            let isEditting = BlackHole3D.Entity.getEditMode();//获取是否在添加状态
-            if (!isEditting) {
-                alert("请先开启编辑模式");
-                return;
-            }
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            if (typeNames.length) {
-                BlackHole3D.Entity.setMultiAddEntity(false);//设置是否连续添加
-                BlackHole3D.Entity.setMouseAddEntity("单构件模版", typeNames[0]);//设置鼠标点选添加的实力对象
-            }
-        }
-        //鼠标连续点选添加（左键添加右键结束）
-        function addContEntity() {
-            let isEditting = BlackHole3D.Entity.getEditMode();//获取是否在添加状态
-            if (!isEditting) {
-                alert("请先开启编辑模式");
-                return;
-            }
-            let typeNames = BlackHole3D.Entity.getAllTypeNames("单构件模版");//获取所有的实例类型名称
-            if (typeNames.length) {
-                BlackHole3D.Entity.setMultiAddEntity(true);//设置是否连续添加
-                BlackHole3D.Entity.setMouseAddEntity("单构件模版", typeNames[0]);//设置鼠标点选添加的实力对象
-            }
-        }
-        // 开启添加
-        function startEdit() {
-            BlackHole3D.Entity.enterEditMode();//进入编辑模式
-        }
-        // 结束添加
-        function EndEdit() {
-            BlackHole3D.Entity.exitEditMode();//结束编辑模式
+        //相机聚焦到点
+        function Cam() {
+            var shpName = "volumeShp001";
+            var backwardAmp = 1;
+            BlackHole3D.Geometry.setCamToShp(shpName, backwardAmp);
         }
     </script>
 </body>
