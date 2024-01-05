@@ -32,12 +32,13 @@
             </div>
         </div>
         <div class="btn">
-            <button onclick="AddEnclosure()">创建体积矢量</button>
+            <button onclick="AddVolumeShp()">创建体积矢量</button>
+            <button onclick="AddVolumeShpHor()">创建体积矢量(水平)</button>
             <button onclick="Cam()">相机聚焦到体积矢量</button>
         </div>
     </div>
-    <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
-    <script async type="text/javascript" src="javascript/BlackHole3D.js"></script>
+    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
     <!-- 引擎初始化相关接口 -->
     <script type="text/javascript">
         BlackHole3D = typeof BlackHole3D !== "undefined" ? BlackHole3D : {};
@@ -129,8 +130,8 @@
                 //模型加载失败！！！
             }
         }
-        //创建围栏
-        function AddEnclosure() {
+        //创建体积矢量
+        function AddVolumeShp() {
             //体积矢量信息
             var volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
             volumeShpInfo.shpName = "volumeShp001";
@@ -148,7 +149,28 @@
             var addVolumeShpBool = BlackHole3D.Geometry.addPolyVolumeShp(volumeShpInfo);
             console.log(addVolumeShpBool);
         }
-        //相机聚焦到点
+        //创建体积矢量(水平)
+        function AddVolumeShpHor() {
+            //体积矢量信息
+            var volumeShpInfo = new BlackHole3D.REVolumeShpHorInfo();
+            volumeShpInfo.shpName = "volumeShp002";
+            volumeShpInfo.potList = [[5.383515246504353, 38.96061150365045, 0],
+            [8.522834191496631, 38.4990381279356, 0],
+            [8.380334587255167, 33.95165196047751, 0],
+            [4.7155933164953066, 34.81662803783975, 0]];
+            volumeShpInfo.minHeight = 4;
+            volumeShpInfo.maxHeight = 6;
+            volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
+            volumeShpInfo.scrASDist = -1.0;
+            volumeShpInfo.scrVisDist = 300.0;
+            volumeShpInfo.contactSce = true;
+            volumeShpInfo.genLine = true;
+            volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
+            volumeShpInfo.lineWidth = 2;
+            var addVolumeShpBool = BlackHole3D.Geometry.addPolyVolumeShpHor(volumeShpInfo);
+            console.log(addVolumeShpBool);
+        }
+        //相机聚焦到矢量
         function Cam() {
             var shpName = "volumeShp001";
             var backwardAmp = 1;

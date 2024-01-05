@@ -3370,6 +3370,52 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.AddCustomBVShp(volumeShpInfo.shpName, _groupName, _temparrpos, _uClr, volumeShpInfo.scrASDist, volumeShpInfo.scrVisDist, _bContactSce, _bGenLine, _uLineClr, _uLineWidth);
     }
 
+    class REVolumeShpHorInfo {
+        constructor() {
+            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null;//矢量组名称
+            this.potList = null;//表示多边形折线序列点（必须为多边形首尾端点构成闭合区域）
+            this.minHeight = null;//表示Z轴上多边形体积的最小高度
+            this.maxHeight = null;//表示Z轴上多边形体积的最大高度
+            this.fenceClr = null;//表示多边形体积面的颜色（REColor 类型）
+            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
+            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
+            this.genLine = null;//表示是否生成线矢量
+            this.lineClr = null;//表示线矢量颜色
+            this.lineWidth = null;//表示线矢量宽度
+        }
+    }
+    ExtModule.REVolumeShpHorInfo = REVolumeShpHorInfo;
+
+    /**
+     * 创建自定义多边形体积矢量（水平）
+     * @param {REVolumeShpHorInfo} volumeShpInfo //体积矢量信息（REVolumeShpHorInfo 类型）
+     */
+    Module.Geometry.addPolyVolumeShpHor = function (volumeShpInfo) {
+        if (isEmptyLog(volumeShpInfo, "volumeShpInfo")) return;
+        if (isEmptyLog(volumeShpInfo.shpName, "shpName")) return;
+        if (!checkTypeLog(volumeShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
+
+        var _groupName = isEmpty(volumeShpInfo.groupName) ? "" : volumeShpInfo.groupName;
+        var _minHeight = isEmpty(volumeShpInfo.minHeight) ? 0 : volumeShpInfo.minHeight;
+        var _maxHeight = isEmpty(volumeShpInfo.maxHeight) ? 0 : volumeShpInfo.maxHeight;
+        var _temparrpos = new Module.RE_Vector_dvec4();
+        for (var i = 0; i < volumeShpInfo.potList.length; ++i) {
+            let _point = volumeShpInfo.potList[i];
+            _point[2] = _minHeight; _point[3] = _maxHeight;
+            _temparrpos.push_back(_point);
+        }
+
+        var _bContactSce = false; if (!isEmpty(volumeShpInfo.contactSce)) _bContactSce = volumeShpInfo.contactSce;
+        var _uClr = 0xFFFFFFFF; if (!isEmpty(volumeShpInfo.fenceClr)) _uClr = clrToU32(volumeShpInfo.fenceClr);
+        var _bGenLine = isEmpty(volumeShpInfo.genLine) ? false : volumeShpInfo.genLine;
+        var _uLineClr = isEmpty(volumeShpInfo.lineClr) ? 0xff0000ff : clrToU32(volumeShpInfo.lineClr);
+        var _uLineWidth = isEmpty(volumeShpInfo.lineWidth) ? 2 : volumeShpInfo.lineWidth;
+
+        return Module.RealBIMWeb.AddCustomBVShp(volumeShpInfo.shpName, _groupName, _temparrpos, _uClr, volumeShpInfo.scrASDist, volumeShpInfo.scrVisDist, _bContactSce, _bGenLine, _uLineClr, _uLineWidth);
+    }
+
 
     /**
      * 删除某个自定义矢量对象
