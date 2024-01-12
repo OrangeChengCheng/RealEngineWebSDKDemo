@@ -1,4 +1,4 @@
-//版本：v3.1.0.2343
+//版本：v3.1.0.2344
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -5832,6 +5832,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, "", (enable ? 1 : 0));
     }
 
+    /**
+     * 设置栅格的裙带强度
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {Boolean} amp //表示将地形裙带强度(0~1) 
+     */
+    Module.Grid.setTerrSkirtAmp = function (dataSetId, amp) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        let _amp = isEmpty(amp) ? 1 : amp;
+        Module.RealBIMWeb.SetTerrSkirtAmp(dataSetId, _amp);
+    }
+
+    /**
+     * 获取栅格的裙带强度
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     */
+    Module.Grid.getTerrSkirtAmp = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetTerrSkirtAmp(dataSetId);
+    }
 
 
 
