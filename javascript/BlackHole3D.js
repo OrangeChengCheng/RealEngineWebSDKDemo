@@ -1772,6 +1772,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 获取UI工具条的颜色风格
+     */
+    Module.Graphics.getSysUIColorStyle = function () {
+        return Module.RealBIMWeb.GetBuiltInUIColorStyle();
+    }
+
+    /**
      * 设置地理坐标系UI是否允许显示
      * @param {Boolean} enable //是否可见
      */
@@ -5058,7 +5065,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.loadCAD = function (filePath, unit, scale) {
         if (isEmptyLog(filePath, "filePath")) return;
-        var _unit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
+        var _unit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : unit == "" ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
         var _scale = 1.0; if (!isEmpty(scale)) _scale = scale;
         Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
     }
@@ -9398,6 +9405,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(excavateId, 'excavateId')) return;
         let _type = Module.RealBIMWeb.GetExtrudeObjType(excavateId);
         return _type.value;
+    }
+
+    /**
+     * 设置挖洞效果是否允许覆盖生效
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} effect //是否生效
+     */
+    Module.Excavate.setExcavateEffect = function (dataSetId, effect) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+
+        let b1 = Module.RealBIMWeb.SetHugeObjProjToGolShp(dataSetId, "", effect);
+        let b2 = Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, "", effect);
+        return b1 || b2;
+    }
+
+    /**
+     * 获取挖洞效果是否允许覆盖生效
+     * @param {String} dataSetId //数据集标识, 必填
+     */
+    Module.Excavate.getExcavateEffect = function (dataSetId) {
+        if (isEmptyLog(dataSetId, 'dataSetId') && !dataSetId.length) return;
+
+        let b1 = Module.RealBIMWeb.GetHugeObjProjToGolShp(dataSetId, "");
+        let b2 = Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, "");
+        return b1 || b2;
     }
 
 

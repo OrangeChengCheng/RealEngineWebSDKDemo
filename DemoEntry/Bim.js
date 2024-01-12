@@ -285,9 +285,9 @@ function loadModel() {
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
         // {
-        //     "dataSetId": "dataSet01",
-        //     "resourcesAddress": "http://10.218.51.182:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a0a6ba1eeba3a26cdb223bb806ab1ba",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetId": "机房03",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
@@ -366,7 +366,7 @@ function loadModel() {
         // {
         //     "dataSetId": "长地形缩小百倍",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_osgbmerge01",
-        //     "useTransInfo": true, "transInfo": [[0.01, 0.01, 0.01], [0, 0, 0, 1], [0, 0, 0]],
+        //     "useTransInfo": true, "transInfo": [[0.01, 0.01, 0.01], [0, 0, 0, 1], [5, 20, -30]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
