@@ -1,4 +1,4 @@
-//版本：v3.1.0.2370
+//版本：v3.1.0.2371
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -688,6 +688,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _defMainProjCamFile = "";
             var _dividePrior = isEmpty(dataSetModel.dividePrior) ? 1.0 : dataSetModel.dividePrior;
             var _originCRS = isEmpty(dataSetModel.engineOrigin) ? [0.0, 0.0, 0.0] : dataSetModel.engineOrigin;
+            var _preciseCRS = isEmpty(dataSetModel.preciseCRS) ? true : dataSetModel.preciseCRS;
+            var _terrImgShpAlone = isEmpty(dataSetModel.terrImgShpAlone) ? false : dataSetModel.terrImgShpAlone;
+            var _terrSuffix = isEmpty(dataSetModel.terrSuffix) ? '' : dataSetModel.terrSuffix;
+            var _terrSph = isEmpty(dataSetModel.terrSph) ? true : dataSetModel.terrSph;
             var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
@@ -718,6 +722,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 "",
                 _defMainProjCamFile, _useCamPost,
                 _dividePrior, _originCRS,
+                _preciseCRS, _terrImgShpAlone,
+                _terrSuffix, _terrSph
             );
             Module.RealBIMWeb.SetSceVersionInfoExt(dataSetModel.dataSetId, _ver);
         }
@@ -5090,6 +5096,85 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.unloadCAD = function () {
         Module.RealBIMWeb.UnLoadCAD();
+    }
+
+    /**
+     * 加载一个cad矢量资源
+     * @param {Boolean} clearLoaded //是否清除掉已经加载好的项目 默认为false
+     * @param {object} dataSetCadShp //数据  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
+     * @param {String} dataSetId //数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
+     * @param {String} resourcesAddress //数据集资源包地址
+     * @param {Boolean} useTransInfo //表示该项目是否需要调整位置，默认false
+     * @param {Array} transInfo //项目的偏移信息，依次为缩放、旋转（四元数）、平移
+     * @param {Number} minLoadDist //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+     * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
+     * @param {String} dataSetCRS //当前子项的坐标系标识
+     * @param {Number} dataSetCRSNorth //当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）dataSetCRS 为空时此参数无定意义
+     * @param {Boolean} useAssginVer  //表示是否加载指定版本，默认 false
+     * @param {String} assginVer //指定版本号，加载指定版本的时候，会用此版本号
+     * @param {Boolean} useAssginVer2  //表示是否加载指定版本2，默认 false
+     * @param {String} assginVer2 //指定版本号2，加载指定版本的时候，会用此版本号
+     * @param {Number} dividePrior //项目内模型的细分优先级(值越小优先级越高)
+     * @param {dvec3} engineOrigin //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
+     * @param {Boolean} preciseCRS //表示在进行地理信息坐标系定位时是否采用精确计算模式
+     * @param {Boolean} terrImgShpAlone //表示项目中的地形矢量是否需要独立镂空显示(将禁用影像图片显示)
+     * @param {String} terrSuffix //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示
+     * @param {Boolean} terrSph //表示项目中的地形系统数据是否允许适配到球面地形
+     */
+    Module.CAD.loadCadShp = function (dataSetCadShp, clearLoaded) {
+        if (isEmpty(dataSetCadShp.dataSetId)) {
+            console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
+            return;
+        }
+
+        var _deftransinfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]]; if (dataSetCadShp.useTransInfo) _deftransinfo = dataSetCadShp.transInfo;
+        var _useCamPost = false;
+        var _minLoadDist = 1e30; if (!isEmpty(dataSetCadShp.minLoadDist)) _minLoadDist = dataSetCadShp.minLoadDist;
+        var _maxLoadDist = 1e30; if (!isEmpty(dataSetCadShp.maxLoadDist)) _maxLoadDist = dataSetCadShp.maxLoadDist;
+        var _projCRS = ""; if (!isEmpty(dataSetCadShp.dataSetCRS)) _projCRS = dataSetCadShp.dataSetCRS;
+        var _projNorth = 0.0; if (!isEmpty(dataSetCadShp.dataSetCRSNorth)) _projNorth = dataSetCadShp.dataSetCRSNorth;
+        var _defMainProjCamFile = "";
+        var _dividePrior = isEmpty(dataSetCadShp.dividePrior) ? 1.0 : dataSetCadShp.dividePrior;
+        var _originCRS = isEmpty(dataSetCadShp.engineOrigin) ? [0.0, 0.0, 0.0] : dataSetCadShp.engineOrigin;
+        var _preciseCRS = isEmpty(dataSetCadShp.preciseCRS) ? true : dataSetCadShp.preciseCRS;
+        var _terrImgShpAlone = isEmpty(dataSetCadShp.terrImgShpAlone) ? true : dataSetCadShp.terrImgShpAlone;
+        var _terrSuffix = isEmpty(dataSetCadShp.terrSuffix) ? "CADSHP" : dataSetCadShp.terrSuffix;
+        var _terrSph = isEmpty(dataSetCadShp.terrSph) ? false : dataSetCadShp.terrSph;
+        var _isMainProj = (((typeof clearLoaded == 'undefined') || clearLoaded) ? true : false);
+        var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetCadShp.dataSetId);
+        var _ver = {
+            m_sVer0: -1,
+            m_sVer1: -1,
+            m_uVer0GolIDBias_L32: 0,
+            m_uVer0GolIDBias_H32: 0,
+            m_uVer1GolIDBias_L32: 0,
+            m_uVer1GolIDBias_H32: 0
+        };
+        if (dataSetCadShp.useAssginVer) {
+            _ver.m_sVer0 = dataSetCadShp.assginVer; _ver.m_uVer0GolIDBias_H32 = intprojid;
+        }
+        if (dataSetCadShp.useAssginVer2) {
+            _ver.m_sVer1 = dataSetCadShp.assginVer2; _ver.m_uVer1GolIDBias_H32 = intprojid;
+        }
+        if (!dataSetCadShp.useAssginVer && !dataSetCadShp.useAssginVer2) {
+            // 没有使用版本默认第一个版本为最新
+            _ver.m_sVer0 = 0x7fffffff;
+        }
+
+        Module.RealBIMWeb.LoadMainSceExt(
+            dataSetCadShp.dataSetId,
+            _isMainProj,
+            _projCRS, _projNorth,
+            dataSetCadShp.resourcesAddress + "/total.xml",
+            _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
+            _minLoadDist, _maxLoadDist,
+            "",
+            _defMainProjCamFile, _useCamPost,
+            _dividePrior, _originCRS,
+            _preciseCRS, _terrImgShpAlone,
+            _terrSuffix, _terrSph
+        );
+        Module.RealBIMWeb.SetSceVersionInfoExt(dataSetCadShp.dataSetId, _ver);
     }
 
 
