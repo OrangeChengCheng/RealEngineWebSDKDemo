@@ -5890,7 +5890,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         // 因为局部拍平如果项目进行了偏移，那么需要对拍平区域的数据进行处理，需要使用偏移之前得数据
-        var dataSetTrans = BlackHole3D.Coordinate.getDataSetTransform(dataSetId);
+        var dataSetTrans = Module.Coordinate.getDataSetTransform(dataSetId);
         var dataSetTrans_offset = dataSetTrans.offset;
         for (let i = 0; i < rgnInfoList.length; i++) {
             const element = rgnInfoList[i];
@@ -7160,7 +7160,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _clrarr = Module.RealBIMWeb.GetWaterColor(waterName);
         var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
 
-        var waterClr = new BlackHole3D.REColor();
+        var waterClr = new Module.REColor();
         waterClr.red = _clrarr[0] * 255;
         waterClr.green = _clrarr[1] * 255;
         waterClr.blue = _clrarr[2] * 255;
