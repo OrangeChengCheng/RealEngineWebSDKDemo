@@ -1,4 +1,4 @@
-//版本：v3.1.0.2356
+//版本：v3.1.0.2370
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -206,6 +206,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelAllURLExtParams();
     }
 
+    /**
+     * 添加一个URL自定义请求头信息
+     * @param {String} urlWildcard //表示要匹配的URL通配符
+     * @param {String} headerStr //表示匹配的URL需要添加的自定义请求头 字符串 "HeaderName0:HeaderValue0|HeaderName1:HeaderValue1|..."
+     */
+    Module.addUrlExtHeader = function (urlWildcard, headerStr) {
+        return Module.RealBIMWeb.AddAURLExtHeader(urlWildcard, headerStr);
+    }
+
+    /**
+     * 删除所有的URL自定义请求头信息
+     */
+    Module.delAllURLExtHeaders = function () {
+        Module.RealBIMWeb.DelAllURLExtHeaders();
+    }
 
 
 
