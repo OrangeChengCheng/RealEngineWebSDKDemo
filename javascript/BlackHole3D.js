@@ -2259,6 +2259,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.picPath = null;//标签每一行的纹理路径(要求32 * 32像素，png格式)
             this.text = null;//标签每一行的文字信息
+            this.onlyText = false;//是否只有文字， 不设置表示默认都有
         }
     }
     ExtModule.RETagContent = RETagContent;
@@ -2305,10 +2306,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _lineCount = _tagInfo.infoList.length;
             let _lineHeight = 26; let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
+                let _needPic = !isEmpty(_tagInfo.infoList[i].onlyText) ? _tagInfo.infoList[i].onlyText : false;
+                let _picDefClr = _needPic ? 0xffffffff : 0x00ffffff;
+                let _left = _needPic ? -50 : 0;
+                let _bottom = _lineHeight * (_lineCount - i - 1) + _lineSpace;
+                let _right = _needPic ? -30 : 0;
+                let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
                     m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? "" : _tagInfo.infoList[i].picPath,
-                    m_qTexRect: [-50, _lineHeight * (_lineCount - i - 1) + _lineSpace, -30, _lineHeight * (_lineCount - i) - _lineSpace],
-                    m_uTexClrMult: 0xffffffff,
+                    m_qTexRect: [_left, _bottom, _right, _top],
+                    m_uTexClrMult: _picDefClr,
                     m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
                     m_uFrameNumU: 1, m_uFrameNumV: 1,
                     m_uFrameStrideU: 0, m_uFrameStrideV: 0,
@@ -2317,13 +2324,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _texRegions.push_back(obj_t);  //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
             }
             for (let i = 0; i < _lineCount; ++i) {
+                let _left = 0;
+                let _bottom = _lineHeight * (_lineCount - i - 1) + _lineSpace;
+                let _right = 30;
+                let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
                     m_strGolFontID: "RealBIMFont001",
                     m_bTextWeight: false,
-                    m_strText: _tagInfo.infoList[i].text,
+                    m_strText: isEmpty(_tagInfo.infoList[i].text) ? "" : _tagInfo.infoList[i].text,
                     m_uTextClr: 0xffffffff,
                     m_uTextBorderClr: 0x80000000,
-                    m_qTextRect: [0, _lineHeight * (_lineCount - i - 1) + _lineSpace, 30, _lineHeight * (_lineCount - i) - _lineSpace],
+                    m_qTextRect: [_left, _bottom, _right, _top],
                     m_uTextFmtFlag: ((1 << 1)/*TEXT_FMT_VCENTER*/ | (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 6)/*TEXT_FMT_NOCLIP*/),
                     m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
                 };
