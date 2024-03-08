@@ -32,13 +32,13 @@
             </div>
         </div>
         <div class="btn">
-            <button onclick="AddVolumeShp()">创建体积矢量</button>
-            <button onclick="AddVolumeShpHor()">创建体积矢量(水平)</button>
-            <button onclick="Cam()">相机聚焦到体积矢量</button>
+            <button onclick="toRoom1()">定位房间一</button>
+            <button onclick="toRoom2()">定位房间二</button>
+            <button onclick="toRoom3()">定位房间三</button>
         </div>
     </div>
-    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
-    <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+    <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
+    <script async type="text/javascript" src="javascript/BlackHole3D.js"></script>
     <!-- 引擎初始化相关接口 -->
     <script type="text/javascript">
         BlackHole3D = typeof BlackHole3D !== "undefined" ? BlackHole3D : {};
@@ -89,8 +89,8 @@
             if (isSuccess) {
                 console.log("===========================  场景初始化 --> 成功！！！");
                 var dataSetList = [{
-                    "dataSetId": "场景",
-                    "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_jifang",
+                    "dataSetId": "定位房间",
+                    "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0c75ad4137854250a4c5f0e462408a",
                     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
                     "dataSetCRS": "", "dataSetCRSNorth": 0.0
                 }];
@@ -130,51 +130,69 @@
                 //模型加载失败！！！
             }
         }
-        //创建体积矢量
-        function AddVolumeShp() {
-            //体积矢量信息
-            var volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
-            volumeShpInfo.shpName = "volumeShp001";
-            volumeShpInfo.potList = [[14.717769348031592, 57.95791001082713, 4, 3],
-            [11.833832403710415, 57.88562541960681, 5, 4],
-            [12.011666543451309, 54.24507412739243, 4, 2],
-            [14.82709974581475, 54.341189629415496, 4, 2]];
-            volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
-            volumeShpInfo.scrASDist = -1.0;
-            volumeShpInfo.scrVisDist = 300.0;
-            volumeShpInfo.contactSce = true;
-            volumeShpInfo.genLine = true;
-            volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
-            volumeShpInfo.lineWidth = 2;
-            var addVolumeShpBool = BlackHole3D.Geometry.addPolyVolumeShp(volumeShpInfo);
-            console.log(addVolumeShpBool);
+        //定位房间一
+        function toRoom1() {
+            locRoom(2.28, 0, [5720, 5724, 5725, 5727]);
+
+
+            // 添加标签
+
+            // 获取构件的包围盒
+            var _aabb = BlackHole3D.BIM.getElemTotalBV("定位房间", [5720, 5724, 5725, 5727]);
+            // 计算包围盒中心点坐标
+            const centerX = (_aabb[1] + _aabb[0]) / 2;
+            const centerY = (_aabb[3] + _aabb[2]) / 2;
+            // const centerZ = (_aabb[5] + _aabb[4]) / 2;
+            const centerZ = _aabb[5];
+            var centerPot = [centerX, centerY, centerZ];
+
+
+            var tagInfo1 = new BlackHole3D.RETagInfo();
+            tagInfo1.tagName = "tag01";
+            tagInfo1.pos = centerPot;
+            var tagCont1 = new BlackHole3D.RETagContent();
+            tagCont1.text = "这是户号454654";
+            tagCont1.onlyText = true;
+            var tagCont2 = new BlackHole3D.RETagContent();
+            tagCont2.text = "这是房间码dfdsfdsfg5d4s4g5fdg456d4g564df65g4";
+            tagCont2.onlyText = true;
+            tagInfo1.infoList = [tagCont1, tagCont2];
+            var tagInfoList = [tagInfo1];
+            BlackHole3D.Tag.addTags(tagInfoList);
         }
-        //创建体积矢量(水平)
-        function AddVolumeShpHor() {
-            //体积矢量信息
-            var volumeShpInfo = new BlackHole3D.REVolumeShpHorInfo();
-            volumeShpInfo.shpName = "volumeShp002";
-            volumeShpInfo.potList = [[5.383515246504353, 38.96061150365045, 0],
-            [8.522834191496631, 38.4990381279356, 0],
-            [8.380334587255167, 33.95165196047751, 0],
-            [4.7155933164953066, 34.81662803783975, 0]];
-            volumeShpInfo.minHeight = 4;
-            volumeShpInfo.maxHeight = 6;
-            volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
-            volumeShpInfo.scrASDist = -1.0;
-            volumeShpInfo.scrVisDist = 300.0;
-            volumeShpInfo.contactSce = true;
-            volumeShpInfo.genLine = true;
-            volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
-            volumeShpInfo.lineWidth = 2;
-            var addVolumeShpBool = BlackHole3D.Geometry.addPolyVolumeShpHor(volumeShpInfo);
-            console.log(addVolumeShpBool);
+        //定位房间一
+        function toRoom2() {
+            locRoom(6.08, 3.80, [5763]);
         }
-        //相机聚焦到矢量
-        function Cam() {
-            var shpName = "volumeShp001";
-            var backwardAmp = 1;
-            BlackHole3D.Geometry.setCamToShp(shpName, backwardAmp);
+        //定位房间一
+        function toRoom3() {
+            locRoom(9.88, 7.60, [5779]);
+        }
+        // 定位房间
+        function locRoom(topHeight, bottomHeight, elemIdList) {
+            // 设置剖切轮廓线颜色
+            let clipPlanesClr = new window.BlackHole3D.REColor(254, 255, 255, 0);
+            window.BlackHole3D.BIM.setClipPlanesContourLineClr(clipPlanesClr);
+            // 剖切房间(数据集标识，顶高，底高，是否单侧剖切)
+            window.BlackHole3D.Clip.setClipSpecifyHeight("定位房间", topHeight, bottomHeight, true);
+            // 重置所有构件颜色，防止切换房间时，上次选中的房间颜色依旧存在
+            window.BlackHole3D.BIM.resetElemAttr("定位房间", []);
+            // 相机定位房间
+            let locIDList = [{ dataSetId: "定位房间", elemIdList: elemIdList }];
+            window.BlackHole3D.Camera.setCamLocateToElem(
+                locIDList,
+                1.0,
+                window.BlackHole3D.RECamDirEm.CAM_DIR_TOP
+            );
+            // 设置模型颜色
+            let elemAttr = new window.BlackHole3D.REElemAttr();
+            let elemClr = new window.BlackHole3D.REColor(254, 64, 7, 255);
+            elemAttr.dataSetId = "定位房间";
+            elemAttr.elemIdList = elemIdList;
+            elemAttr.elemClr = elemClr;
+            window.BlackHole3D.BIM.setElemAttr(elemAttr);
+            // 设置模型的深度偏移值
+            window.BlackHole3D.BIM.setElemDepthBias("定位房间", elemIdList, -0.00002);
         }
     </script>
 </body>
