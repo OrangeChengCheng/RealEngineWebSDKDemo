@@ -61,8 +61,8 @@ function RESystemReady() {
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://10.218.51.104:9999/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://10.218.51.104:9999/api/ecx-gateway/res/", "http://10.218.51.104:9999/api/ecx-gateway/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com:18000/author/author_path02.txt");
-    // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com:18000/res/", "https://www.cim.xaxcsz.com:18000/pathindex/res/index.xml");
-    // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt");
+    BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://cim.xaxcsz.com:18000/res/", "https://cim.xaxcsz.com:18000/pathindex/res/index.xml");
+    BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com/api/ecx-gateway/res/", "https://www.cim.xaxcsz.com/api/ecx-gateway/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://realbim.bjblackhole.cn:18080/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://realbim.bjblackhole.cn:18080/res/", "http://realbim.bjblackhole.cn:18080/pathindex/res/index.xml");
@@ -280,7 +280,7 @@ function loadModel() {
         // },
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "resourcesAddress": "https://cim.xaxcsz.com:8088/blackhole3d/EngineRes/RequestEngineRes?dir=url_res02&path=3a0b1adfccd11ddaf69b08d2d4ae1ec4",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
