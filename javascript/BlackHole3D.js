@@ -1,4 +1,4 @@
-//版本：v3.1.0.2406
+//版本：v3.1.0.2414
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -11,6 +11,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
     // MOD-- 引擎模块
+    // MARK 基础
     class RESysInfo {
         // 引擎参数模型
         constructor() {
@@ -79,118 +80,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 释放引擎所占用的浏览器资源
-     * @param {Boolean} clearWebWorker //是否同步清除已创建的webWorker
-     */
-    Module.releaseEngine = function (clearWebWorker) {
-        var _bClearWebWorker = false; if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
-        Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
-        //释放显存
-        if (typeof Module.ctx != 'undefined') {
-            if (Module.ctx.getExtension('WEBGL_lose_context') != null) {
-                Module.ctx.getExtension('WEBGL_lose_context').loseContext();
-            }
-        }
-    }
-
-    /**
-     * 获取当前SDK版本
-     */
-    Module.getVersion = function () {
-        return Module.RealBIMWeb.GetRealEngineVersion();
-    }
-
-    /**
-     * 设置窗口的显示模式，此接口适用于需要双屏显示，以及需要单双屏切换的应用场景。
-     * @param {REVpTypeEm} viewport0 //第0个视图要显示的场景内容 REVpTypeEm 枚举类型
-     * @param {REVpTypeEm} viewport1 //第1个视图要显示的场景内容 REVpTypeEm 枚举类型
-     * @param {REVpRankEm} screenMode //视图0与视图1在屏幕上的排列方式 REVpRankEm 枚举类型
-     */
-    Module.setViewMode = function (viewport0, viewport1, screenMode) {
-        Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
-    }
-
-    /**
-     * 设置360相机与BIM相机是否同步
-     * @param {Boolean} isSync //是否同步
-     */
-    Module.setViewSyn = function (isSync) {
-        Module.RealBIMWeb.SetViewSyn(isSync);
-    }
-
-    /**
-     * 获取当前设置的360相机与BIM相机是否同步状态
-     */
-    Module.getViewSyn = function () {
-        return Module.RealBIMWeb.GetViewSyn();
-    }
-
-    /**
-     * 获取鼠标是否翻转了左右相机拖动键操作
-     */
-    Module.getCamRevLR = function () {
-        return Module.RealBIMWeb.CamRevLR();
-    }
-
-    /**
-     * 设置是否翻转鼠标左右相机拖动键操作行为
-     * @param {Boolean} reverseLR //是否翻转
-     */
-    Module.setCamRevLR = function (reverseLR) {
-        Module.RealBIMWeb.SetCamRevLR(reverseLR);
-    }
-
-    /**
-     * 获取是否允许ESC键退出测量/剖切操作
-     */
-    Module.getEscKeyExitOpEnable = function () {
-        return Module.RealBIMWeb.EscKeyExitOpEnable();
-    }
-
-    /**
-     * 设置是否允许ESC键退出测量/剖切操作
-     * @param {Boolean} enable //是否允许
-     */
-    Module.setEscKeyExitOpEnable = function (enable) {
-        Module.RealBIMWeb.SetEscKeyExitOpEnable(enable);
-    }
-
-    /**
-     * 生成屏幕快照
-     */
-    Module.getScreenSnapshot = function () {
-        return Module.canvas.toDataURL();
-    }
-
-    /**
-     * 设置当前的操作模式
-     * @param {Number} operationMode //模式类型 0:鼠标操作操作 1:触控操作
-     */
-    Module.setOperationMode = function (operationMode) {
-        var _operationMode = Module.RE_INPUT_TYPE.MOUSE; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH);
-        Module.RealBIMWeb.SetInputType(_operationMode);
-    }
-    //获取当前的操作模式(0:鼠标操作操作 1:触控操作)
-    Module.getOperationMode = function () {
-        var _type = Module.RealBIMWeb.GetInputType();
-        return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
-    }
-
-    /**
-     * 暂停渲染主循环
-     */
-    Module.pauseRenderLoop = function () {
-        Module.RealBIMWeb.PauseRenderLoop();
-    }
-
-    /**
-     * 恢复渲染主循环
-     */
-    Module.resumeRenderLoop = function () {
-        Module.RealBIMWeb.ResumeRenderLoop();
-    }
-
-    /**
      * 添加一个URL自定义参数字段信息
      * @param {String} urlWildcard //表示要匹配的URL通配符
      * @param {String} paramStr //表示匹配的URL需要添加的自定义参数字段 字符串
@@ -222,8 +111,157 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelAllURLExtHeaders();
     }
 
+    /**
+     * 释放引擎所占用的浏览器资源
+     * @param {Boolean} clearWebWorker //是否同步清除已创建的webWorker
+     */
+    Module.releaseEngine = function (clearWebWorker) {
+        var _bClearWebWorker = false; if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
+        Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
+        //释放显存
+        if (typeof Module.ctx != 'undefined') {
+            if (Module.ctx.getExtension('WEBGL_lose_context') != null) {
+                Module.ctx.getExtension('WEBGL_lose_context').loseContext();
+            }
+        }
+    }
+
+    /**
+     * 获取当前SDK版本
+     */
+    Module.getVersion = function () {
+        return Module.RealBIMWeb.GetRealEngineVersion();
+    }
+
+    /**
+     * 暂停渲染主循环
+     */
+    Module.pauseRenderLoop = function () {
+        Module.RealBIMWeb.PauseRenderLoop();
+    }
+
+    /**
+     * 恢复渲染主循环
+     */
+    Module.resumeRenderLoop = function () {
+        Module.RealBIMWeb.ResumeRenderLoop();
+    }
 
 
+
+
+    // MARK 效果展示
+    /**
+     * 设置窗口的显示模式，此接口适用于需要双屏显示，以及需要单双屏切换的应用场景。
+     * @param {REVpTypeEm} viewport0 //第0个视图要显示的场景内容 REVpTypeEm 枚举类型
+     * @param {REVpTypeEm} viewport1 //第1个视图要显示的场景内容 REVpTypeEm 枚举类型
+     * @param {REVpRankEm} screenMode //视图0与视图1在屏幕上的排列方式 REVpRankEm 枚举类型
+     */
+    Module.setViewMode = function (viewport0, viewport1, screenMode) {
+        Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
+    }
+
+    /**
+     * 设置360相机与BIM相机是否同步
+     * @param {Boolean} isSync //是否同步
+     */
+    Module.setViewSyn = function (isSync) {
+        Module.RealBIMWeb.SetViewSyn(isSync);
+    }
+
+    /**
+     * 获取当前设置的360相机与BIM相机是否同步状态
+     */
+    Module.getViewSyn = function () {
+        return Module.RealBIMWeb.GetViewSyn();
+    }
+
+    /**
+     * 生成屏幕快照
+     */
+    Module.getScreenSnapshot = function () {
+        return Module.canvas.toDataURL();
+    }
+
+
+
+    // MARK 操作
+    /**
+     * 获取鼠标是否翻转了左右相机拖动键操作
+     */
+    Module.getCamRevLR = function () {
+        return Module.RealBIMWeb.CamRevLR();
+    }
+
+    /**
+     * 设置是否翻转鼠标左右相机拖动键操作行为
+     * @param {Boolean} reverseLR //是否翻转
+     */
+    Module.setCamRevLR = function (reverseLR) {
+        Module.RealBIMWeb.SetCamRevLR(reverseLR);
+    }
+
+    /**
+     * 获取是否允许ESC键退出测量/剖切操作
+     */
+    Module.getEscKeyExitOpEnable = function () {
+        return Module.RealBIMWeb.EscKeyExitOpEnable();
+    }
+
+    /**
+     * 设置是否允许ESC键退出测量/剖切操作
+     * @param {Boolean} enable //是否允许
+     */
+    Module.setEscKeyExitOpEnable = function (enable) {
+        Module.RealBIMWeb.SetEscKeyExitOpEnable(enable);
+    }
+
+    /**
+     * 设置当前的操作模式
+     * @param {Number} operationMode //模式类型 0:鼠标操作操作 1:触控操作
+     */
+    Module.setOperationMode = function (operationMode) {
+        var _operationMode = Module.RE_INPUT_TYPE.MOUSE; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH);
+        Module.RealBIMWeb.SetInputType(_operationMode);
+    }
+
+    //获取当前的操作模式(0:鼠标操作操作 1:触控操作)
+    Module.getOperationMode = function () {
+        var _type = Module.RealBIMWeb.GetInputType();
+        return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
+    }
+
+    /**
+     * 设置鼠标中间按下对应的旋转中心
+     * @param {Number} operationMode //模式类型 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角
+     */
+    Module.setCamModeOnMidBtnDown = function (operationMode) {
+        var _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_CAM_MODE.M_ROT_AROUND : Module.RE_CAM_MODE.M_ROT_CAMERA);
+        Module.RealBIMWeb.SetCamModeOnMidBtnDown(_operationMode);
+    }
+
+    //获取鼠标中间按下对应的旋转中心
+    Module.getCamModeOnMidBtnDown = function () {
+        var _type = Module.RealBIMWeb.GetCamModeOnMidBtnDown();
+        let numType = 0;
+        if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
+        if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
+        return numType;
+    }
+
+    /**
+     * 设置Ctrl+点选已选构件模式
+     * @param {Number} operationMode //模式类型 0:反选构件 1:穿透构件
+     */
+    Module.setCtrlSelectedMode = function (operationMode) {
+        var _operationMode = 0; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? 0 : 1);
+        Module.RealBIMWeb.SetCtrlSelectedMode(_operationMode);
+    }
+
+    //获取Ctrl+点选已选构件模式
+    Module.getCtrlSelectedMode = function () {
+        return Module.RealBIMWeb.GetCtrlSelectedMode();
+    }
 
 
 
