@@ -280,10 +280,16 @@ function loadModel() {
         // },
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://cim.xaxcsz.com:8088/blackhole3d/EngineRes/RequestEngineRes?dir=url_res02&path=3a0b1adfccd11ddaf69b08d2d4ae1ec4",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
+        // {
+        //     "dataSetId": "发光",
+        //     "resourcesAddress": "https://cim.xaxcsz.com:8088/blackhole3d/EngineRes/RequestEngineRes?dir=url_res02&path=3a0b1adfccd11ddaf69b08d2d4ae1ec4",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "机房03",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
