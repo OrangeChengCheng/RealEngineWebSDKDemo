@@ -2344,7 +2344,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _lineCount = _tagInfo.infoList.length;
             let _lineHeight = 26; let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
-                let _needPic = !isEmpty(_tagInfo.infoList[i].onlyText) ? _tagInfo.infoList[i].onlyText : false;
+                let _needPic = !isEmpty(_tagInfo.infoList[i].onlyText) ? !_tagInfo.infoList[i].onlyText : false;
                 let _picDefClr = _needPic ? 0xffffffff : 0x00ffffff;
                 let _left = _needPic ? -50 : 0;
                 let _bottom = _lineHeight * (_lineCount - i - 1) + _lineSpace;
