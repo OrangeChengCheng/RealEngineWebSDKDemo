@@ -1,4 +1,4 @@
-//版本：v3.1.0.2455
+//版本：v3.1.0.2459
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -190,7 +190,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取鼠标是否翻转了左右相机拖动键操作
      */
     Module.getCamRevLR = function () {
-        return Module.RealBIMWeb.CamRevLR();
+        return Module.RealBIMWeb.GetCamRevLR();
     }
 
     /**
@@ -232,20 +232,77 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置鼠标中间按下对应的旋转中心
-     * @param {Number} operationMode //模式类型 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角
+     * 设置鼠标中键按下对应的相机操作
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
      */
     Module.setCamModeOnMidBtnDown = function (operationMode) {
-        var _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_CAM_MODE.M_ROT_AROUND : Module.RE_CAM_MODE.M_ROT_CAMERA);
+        if (isEmpty(operationMode)) operationMode = 0;
+        var _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
+        if (operationMode == -1) _operationMode = Module.RE_CAM_MODE.M_IDLE;
+        if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
+        if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
+        if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
         Module.RealBIMWeb.SetCamModeOnMidBtnDown(_operationMode);
     }
 
-    //获取鼠标中间按下对应的旋转中心
+    //获取鼠标中键按下对应的相机操作
     Module.getCamModeOnMidBtnDown = function () {
         var _type = Module.RealBIMWeb.GetCamModeOnMidBtnDown();
         let numType = 0;
+        if (_type == Module.RE_CAM_MODE.M_IDLE) numType = -1;
         if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
+        return numType;
+    }
+
+    /**
+     * 设置鼠标左键按下对应的相机操作
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
+     */
+    Module.setCamModeOnLeftBtnDown = function (operationMode) {
+        if (isEmpty(operationMode)) operationMode = 2;
+        var _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        if (operationMode == -1) _operationMode = Module.RE_CAM_MODE.M_IDLE;
+        if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
+        if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
+        if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        Module.RealBIMWeb.SetCamModeOnLBtnDown(_operationMode);
+    }
+
+    //获取鼠标左键按下对应的相机操作
+    Module.getCamModeOnLeftBtnDown = function () {
+        var _type = Module.RealBIMWeb.GetCamModeOnLBtnDown();
+        let numType = 2;
+        if (_type == Module.RE_CAM_MODE.M_IDLE) numType = -1;
+        if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
+        if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
+        return numType;
+    }
+
+    /**
+     * 设置鼠标右键按下对应的相机操作
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
+     */
+    Module.setCamModeOnRightBtnDown = function (operationMode) {
+        if (isEmpty(operationMode)) operationMode = 1;
+        var _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
+        if (operationMode == -1) _operationMode = Module.RE_CAM_MODE.M_IDLE;
+        if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
+        if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
+        if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        Module.RealBIMWeb.SetCamModeOnRBtnDown(_operationMode);
+    }
+
+    //获取鼠标右键按下对应的相机操作
+    Module.getCamModeOnRightBtnDown = function () {
+        var _type = Module.RealBIMWeb.GetCamModeOnRBtnDown();
+        let numType = 1;
+        if (_type == Module.RE_CAM_MODE.M_IDLE) numType = -1;
+        if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
+        if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
         return numType;
     }
 
@@ -261,6 +318,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //获取Ctrl+点选已选构件模式
     Module.getCtrlSelectedMode = function () {
         return Module.RealBIMWeb.GetCtrlSelectedMode();
+    }
+
+    /**
+     * 设置相机操作固定中心点
+     * @param {dvec3} centerPos //中心点坐标 [x,y,z]
+     * @param {Boolean} enable //是否生效（默认有效）
+     */
+    Module.setCamFixCenterPos = function (centerPos, enable) {
+        let _enable = isEmpty(enable) ? true : enable;
+        Module.RealBIMWeb.SetFixCamProbePos(_enable, centerPos);
+    }
+
+    //获取相机操作固定中心点是否生效
+    Module.getCamFixCenterPosEnable = function () {
+        return Module.RealBIMWeb.GetIsFixCamProbePos();
     }
 
 
@@ -581,6 +653,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return newBV;
     }
 
+    /**
+     * 设置自定义场景包围盒 注：影响右侧viewcube作用范围
+     * @param {Array} arrBound //包围盒范围，[Xmin, Xmax, Ymin, Ymax, Zmin, Zmax]
+     * @param {Boolean} enable //是否有效（默认有效）
+     */
+    Module.Common.setSceCustomBV = function (arrBound, enable) {
+        let _enable = isEmpty(enable) ? true : enable;
+        let _arrBound = [[0, 0, 0], [0, 0, 0]];
+        if (_enable) {
+            _arrBound = [[arrBound[0], arrBound[2], arrBound[4]], [arrBound[1], arrBound[3], arrBound[5]]];
+        }
+        Module.RealBIMWeb.SetSceCustomBV(_arrBound);
+    }
+
+    /**
+     * 获取自定义场景包围盒
+     */
+    Module.Common.getSceCustomBV = function () {
+        let _bvTemp = Module.RealBIMWeb.GetSceCustomBV();
+        var aabbList = [];
+        aabbList.push(_bvTemp[0][0]);  //Xmin
+        aabbList.push(_bvTemp[1][0]);  //Xmax
+        aabbList.push(_bvTemp[0][1]);  //Ymin
+        aabbList.push(_bvTemp[1][1]);  //Ymax
+        aabbList.push(_bvTemp[0][2]);  //Zmin
+        aabbList.push(_bvTemp[1][2]);  //Zmax
+        return aabbList;
+    }
 
 
 
