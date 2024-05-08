@@ -1,4 +1,4 @@
-//版本：v3.1.0.2459
+//版本：v3.1.0.2462
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1038,8 +1038,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _offset += 2;
             }
         }
+        let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth, _locType);
+        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth, _useCustomDir, _locType);
     }
 
     /**
@@ -1050,8 +1051,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth, locType) {
         var _projname = ""; if (!isEmpty(dataSetId)) { _projname = dataSetId; }
+        let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth, _locType);
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth, _useCustomDir, _locType);
     }
 
     /**
