@@ -5445,7 +5445,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     }
 
+    /**
+     * 设置cad背景颜色
+     * @param {REColor} color //颜色（REColor 类型）
+     */
+    Module.CAD.setBgClr = function (color) {
+        Module.RealBIMWeb.CADSetBakClr(color.red / 255.0, color.green / 255.0, color.blue / 255.0);
+    }
 
+    /**
+     * 通过文字进行构件检索
+     * @param {String} searchText //搜索文字
+     */
+    Module.CAD.setBgClr = function (searchText) {
+        if (isEmpty(searchText) || searchText == "") { logParErr("searchText"); return; }
+        var _arrIds = new Module.RE_Vector_WStr();
+        var _arrTextInfos = new Module.RE_Vector_WStr();
+        Module.RealBIMWeb.CADSearchText(searchText, _arrIds, _arrTextInfos);
+        let search_arr = [];
+        for (let i = 0; i < _arrIds.size(); i++) {
+            search_arr.push({
+                elemId: _arrIds.get(i),
+                elemText: _arrTextInfos.get(i)
+            });
+        }
+        return search_arr;
+    }
 
 
 
