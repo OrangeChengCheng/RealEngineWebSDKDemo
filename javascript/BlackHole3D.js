@@ -5450,24 +5450,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} color //颜色（REColor 类型）
      */
     Module.CAD.setBgClr = function (color) {
-        Module.RealBIMWeb.CADSetBakClr(color.red / 255.0, color.green / 255.0, color.blue / 255.0);
+        Module.RealBIMWeb.CADSetBakClr([color.red / 255.0, color.green / 255.0, color.blue / 255.0]);
     }
+
+    class RECADTextInfo {
+        constructor() {
+            this.elemId = null;//二维图元的id
+            this.text = null;//文字信息
+        }
+    }
+    ExtModule.RECADTextInfo = RECADTextInfo;
 
     /**
      * 通过文字进行构件检索
      * @param {String} searchText //搜索文字
      */
-    Module.CAD.setBgClr = function (searchText) {
+    Module.CAD.getElemsSearchText = function (searchText) {
         if (isEmpty(searchText) || searchText == "") { logParErr("searchText"); return; }
         var _arrIds = new Module.RE_Vector_WStr();
         var _arrTextInfos = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.CADSearchText(searchText, _arrIds, _arrTextInfos);
         let search_arr = [];
         for (let i = 0; i < _arrIds.size(); i++) {
-            search_arr.push({
-                elemId: _arrIds.get(i),
-                elemText: _arrTextInfos.get(i)
-            });
+            let textInfo = new RECADTextInfo();
+            textInfo.elemId = _arrIds.get(i);
+            textInfo.text = _arrTextInfos.get(i);
+            search_arr.push(textInfo);
         }
         return search_arr;
     }
