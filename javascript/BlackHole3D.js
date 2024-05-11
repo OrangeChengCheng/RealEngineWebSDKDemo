@@ -3978,7 +3978,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(elemIdList)) return;
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
+        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
         var _count = _elemIdListTemp.length;
         var _moemory = (_count * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
@@ -4134,7 +4134,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         else {
             //指定数据集设置
-            var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, false) : elemIdList;
+            var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = _elemIdListTemp.length;
             var _moemory = (_count * 24).toString();
@@ -4588,7 +4588,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
         if (_count == 0) {
-            var _elemIdListTemp = Module.BIM.getDataSetAllElemIDs(dataSetId, false);
+            var _elemIdListTemp = Module.BIM.getDataSetAllElemIDs(dataSetId, true);
             var _moemory = (_elemIdListTemp.length * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
