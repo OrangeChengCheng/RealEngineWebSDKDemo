@@ -89,6 +89,7 @@ function RESystemReady() {
 
 //初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
+    // BlackHole3D.Common.setFakeSphMode(true)
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
@@ -284,6 +285,12 @@ function loadModel() {
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
+        // {
+        //     "dataSetId": "伪球面",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "发光",
         //     "resourcesAddress": "https://cim.xaxcsz.com:8088/blackhole3d/EngineRes/RequestEngineRes?dir=url_res02&path=3a0b1adfccd11ddaf69b08d2d4ae1ec4",

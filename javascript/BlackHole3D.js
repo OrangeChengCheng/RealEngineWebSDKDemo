@@ -6438,6 +6438,12 @@ Module.Grid.setMonomerElemHideClr = function (elemClr) {
 
 
 
+// MOD-- 地形（Terrain）
+Module.Terrain = typeof Module.Terrain !== "undefined" ? Module.Terrain : {};//增加 Terrain 模块
+
+// MARK 加载
+
+
 
 
 
