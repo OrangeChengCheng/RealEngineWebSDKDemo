@@ -89,7 +89,7 @@ function RESystemReady() {
 
 //初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
-    // BlackHole3D.Common.setFakeSphMode(true)
+    BlackHole3D.Common.setFakeSphMode(true)
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
@@ -279,9 +279,15 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "机房01",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_terrain_shx",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         {
-            "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "dataSetId": "地形系统",
+            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
