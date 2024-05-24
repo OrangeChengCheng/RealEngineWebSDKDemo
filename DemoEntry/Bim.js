@@ -43,6 +43,7 @@ function addREListener() {
     //加载
     document.addEventListener("REDataSetLoadPanFinish", REDataSetLoadPanFinish);//全景场景加载完成事件
     document.addEventListener("REPanLoadSingleFinish", REPanLoadSingleFinish);//全景场景中某一帧全景图设置成功的事件
+    document.addEventListener("RELODLevelChange", RELODLevelChange);//LOD分级触发回调事件
 
     //探测
     document.addEventListener("RESystemSelElement", RESystemSelElement);//鼠标探测模型事件（左键单击和右键单击）
@@ -56,7 +57,7 @@ function addREListener() {
 
 }
 
-//场景初始化，需正确传递相关参数
+// MOD-- 场景初始化，需正确传递相关参数
 function RESystemReady() {
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://10.218.51.104:9999/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://10.218.51.104:9999/api/ecx-gateway/res/", "http://10.218.51.104:9999/api/ecx-gateway/pathindex/res/index.xml");
@@ -82,12 +83,12 @@ function RESystemReady() {
     BlackHole3D.initEngineSys(sysInfo);
     BlackHole3D.Common.setUseWebCache(false);//是否允许使用浏览器缓存
 
-
+    BlackHole3D.addUrlExtHeader("http://realbim.bjblackhole.cn:8008/*", "aaaa:application/testtype|Content-type:application/testtype02");
     // window.BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", 'https://www.cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt');
     //   window.BlackHole3D.addPathIndex("RealEngineInitPathIndex", 'https://www.cim.xaxcsz.com/api/ecx-gateway/res/', 'https://www.cim.xaxcsz.com/api/ecx-gateway/pathindex/res/index.xml');
 }
 
-//初始化完成后，同时加载两个项目，第一个设置了偏移值
+// MOD-- 初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
     BlackHole3D.Common.setFakeSphMode(true)
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
@@ -118,19 +119,19 @@ function RESystemEngineCreated(e) {
 
 }
 
+
 //场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
 function REDataSetLoadFinish(e) {
     console.log("=========================== 引擎主场景模型加载完成 ");
     if (e.detail.succeed) {
         console.log("=========================== 引擎主场景模型加载 --> 成功！！！");
 
-
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
     }
 }
 
-//加载CAD
+// MOD-- 加载CAD
 function loadCAD() {
     BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.CAD, 1);
     BlackHole3D.CAD.loadCAD("http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_cad/103-Floor Plan - 三层建筑平面图.dwg", BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter, 1.0);
@@ -145,7 +146,7 @@ function RESystemRenderReady() {
     BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
 }
 
-// 加载进度条
+// MOD-- 加载进度条
 function REDataSetLoadProgress(e) {
     var percent = e.detail.progress; var info = e.detail.info;
     progressFn(percent, info);
@@ -186,24 +187,12 @@ function REAddEntityFinish(e) {
     console.log("-- 裁剪完成回调事件 --", e.detail);
 }
 
-//加载360
-function loadPan() {
-    var dataSetList = [
-        {
-            "dataSetId": "pan01",
-            // "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
-            "resourcesAddress": "http://192.168.31.13:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res02&path=3a0d619987e9a46137e5f8d917031aa8",
-        },
-        // {
-        //     "dataSetId": "pan01",
-        //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0aaaf8c13ea016ade7fde73533b739",
-        // },
-    ];
-    BlackHole3D.Panorama.loadPan(dataSetList);
+function RELODLevelChange(e) {
+    console.log("-- LOD分级触发回调事件 --", e.detail);
 }
 
 
-// 加载模型
+// MOD-- 加载模型
 function loadModel() {
     // 设置窗口模式
     BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpTypeEm.None, BlackHole3D.REVpRankEm.Single);
@@ -212,6 +201,30 @@ function loadModel() {
     // BlackHole3D.addUrlExtParam("http://10.218.51.104:9999/api/ecx-gateway/res*", "serviceid=1714135161618042881&token=123123");
 
     var dataSetList = [
+        // {
+        //     "dataSetId": "机房01",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "机房03",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        {
+            "dataSetId": "地形系统",
+            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
+        // {
+        //     "dataSetId": "伪球面",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // { //天地图
         //     dataSetId: "天地图",
         //     resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0e7d54a427f08ffa38ee829199163c"
@@ -280,33 +293,9 @@ function loadModel() {
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
-        //     "dataSetId": "机房01",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_terrain_shx",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
-        {
-            "dataSetId": "地形系统",
-            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
-        // {
-        //     "dataSetId": "伪球面",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
-        // {
         //     "dataSetId": "发光",
         //     "resourcesAddress": "https://cim.xaxcsz.com:8088/blackhole3d/EngineRes/RequestEngineRes?dir=url_res02&path=3a0b1adfccd11ddaf69b08d2d4ae1ec4",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
-        // {
-        //     "dataSetId": "机房03",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
         // {
@@ -539,7 +528,21 @@ function loadModel() {
     BlackHole3D.Model.loadDataSet(dataSetList);
 }
 
-
+// MOD-- 加载360
+function loadPan() {
+    var dataSetList = [
+        {
+            "dataSetId": "pan01",
+            // "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
+            "resourcesAddress": "http://192.168.31.13:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res02&path=3a0d619987e9a46137e5f8d917031aa8",
+        },
+        // {
+        //     "dataSetId": "pan01",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:18080/res/3a0aaaf8c13ea016ade7fde73533b739",
+        // },
+    ];
+    BlackHole3D.Panorama.loadPan(dataSetList);
+}
 
 function setSky() {
     var skyInfo = new BlackHole3D.RESkyInfo();
@@ -1565,7 +1568,7 @@ function REPanLoadSingleFinish(e) {
 
 
 
-
+// MARK 漫游相机
 const GISCRS = 'PROJCS["CGCS2000_3_Degree_GK_CM_116E",GEOGCS["GCS_China_Geodetic_Coordinate_System_2000",DATUM["D_China_2000",SPHEROID["CGCS2000",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Gauss_Kruger"],PARAMETER["False_Easting",500000.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",116.0],PARAMETER["Scale_Factor",1.0],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]';
 const BIMCRS = "EPSG:4326";
 
@@ -5212,4 +5215,17 @@ function camRoam() {
             clearInterval(interval)
         }
     }, 500);
+}
+
+
+
+// MARK 添加地形矢量样式
+function addTerrShpStyle() {
+    let _cShpStyleInfo = BlackHole3D.Terrain.getShpStyle("", "shangxicitypt_Style");
+
+
+    let textStyle = _cShpStyleInfo.textStyleList[0] || [];
+    textStyle.textClr = new BlackHole3D.REColor(0, 255, 0);
+
+    BlackHole3D.Terrain.setShpStyle("", "shangxicitypt_Style", _cShpStyleInfo);
 }
