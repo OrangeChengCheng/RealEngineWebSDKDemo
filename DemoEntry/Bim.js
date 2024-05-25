@@ -5221,11 +5221,11 @@ function camRoam() {
 
 // MARK 添加地形矢量样式
 function addTerrShpStyle() {
-    let _cShpStyleInfo = BlackHole3D.Terrain.getShpStyle("", "shangxicitypt_Style");
+    let _cShpStyleInfo = BlackHole3D.Terrain.getShpStyle("地形系统", "shangxicitypt_Style");
 
 
     let textStyle = _cShpStyleInfo.textStyleList[0] || [];
     textStyle.textClr = new BlackHole3D.REColor(0, 255, 0);
 
-    BlackHole3D.Terrain.setShpStyle("", "shangxicitypt_Style", _cShpStyleInfo);
+    BlackHole3D.Terrain.setShpStyle("地形系统", "shangxicitypt_Style", _cShpStyleInfo);
 }
