@@ -1,4 +1,4 @@
-//版本：v3.1.0.2499
+//版本：v3.1.0.2503
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -6574,7 +6574,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 获取地形数据层单元的矢量样式标识名
+     * 获取地形数据层单元的父级资源是否忽略重用
      * @param {String} dataSetId //数据集的唯一标识名（必填）
      * @param {String} unitId //层单元标识（必填）
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
@@ -6584,6 +6584,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitOmitParent(dataSetId, unitId, _resType);
+    }
+
+    /**
+     * 设置地形数据层单元的矢量是否用于生成影像图片的孔洞
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     * @param {Boolean} enable //是否作用
+     */
+    Module.Terrain.setUnitUnitShpHole = function (dataSetId, unitId, resType, enable) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(unitId, "unitId")) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        let _enable = isEmpty(enable) ? false : enable;
+        return Module.RealBIMWeb.SetTerrUnitShpHole(dataSetId, unitId, _resType, _enable);
+    }
+
+    /**
+     * 获取地形数据层单元的矢量是否用于生成影像图片的孔洞
+     * @param {String} dataSetId //数据集的唯一标识名（必填）
+     * @param {String} unitId //层单元标识（必填）
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     */
+    Module.Terrain.getUnitUnitShpHole = function (dataSetId, unitId, resType) {
+        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        return Module.RealBIMWeb.GetTerrUnitShpHole(dataSetId, unitId, _resType);
     }
 
     /**
