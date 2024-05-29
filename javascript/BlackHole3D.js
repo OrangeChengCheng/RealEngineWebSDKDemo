@@ -1,4 +1,4 @@
-//版本：v3.1.0.2503
+//版本：v3.1.0.2505
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -6479,13 +6479,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {String} unitId //层单元标识
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
-     * @param {Number} layerLev //层级别（默认为0，作用于遮挡关系，建议级别不要过多，级别越多消耗资源越大）
+     * @param {Number} layerLev //层级别（默认为1，作用于遮挡关系，建议级别不要过多，级别越多消耗资源越大）
      */
     Module.Terrain.setUnitLayerlev = function (dataSetId, unitId, resType, layerLev) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(unitId, "unitId")) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
-        let _layerLev = isEmpty(layerLev) ? 0 : layerLev;
+        let _layerLev = isEmpty(layerLev) ? 1 : layerLev;
+        if (_layerLev < 1) { logParErr("layerLev"); return; }
         return Module.RealBIMWeb.SetTerrUnitLayerID(dataSetId, unitId, _resType, _layerLev);
     }
 
