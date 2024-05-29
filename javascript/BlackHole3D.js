@@ -6566,7 +6566,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      * @param {Boolean} omitParent //忽略父级重用
      */
-    Module.Terrain.setUnitUnitOmitParent = function (dataSetId, unitId, resType, omitParent) {
+    Module.Terrain.setUnitOmitParent = function (dataSetId, unitId, resType, omitParent) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(unitId, "unitId")) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
@@ -6580,7 +6580,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} unitId //层单元标识（必填）
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
-    Module.Terrain.getUnitUnitOmitParent = function (dataSetId, unitId, resType) {
+    Module.Terrain.getUnitOmitParent = function (dataSetId, unitId, resType) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
@@ -6594,7 +6594,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      * @param {Boolean} enable //是否作用
      */
-    Module.Terrain.setUnitUnitShpHole = function (dataSetId, unitId, resType, enable) {
+    Module.Terrain.setUnitShpHole = function (dataSetId, unitId, resType, enable) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(unitId, "unitId")) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
@@ -6608,7 +6608,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} unitId //层单元标识（必填）
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
-    Module.Terrain.getUnitUnitShpHole = function (dataSetId, unitId, resType) {
+    Module.Terrain.getUnitShpHole = function (dataSetId, unitId, resType) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
@@ -6622,7 +6622,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      * @param {ivec2} range //级别范围，二维数组 [最小级别,最大级别] 
      */
-    Module.Terrain.setUnitUnitLODLevRange = function (dataSetId, unitId, resType, range) {
+    Module.Terrain.setUnitLODLevRange = function (dataSetId, unitId, resType, range) {
         if (isEmptyLog(dataSetId, "dataSetId")) return;
         if (isEmptyLog(unitId, "unitId")) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
@@ -6636,7 +6636,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} unitId //层单元标识（必填）
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
-    Module.Terrain.getUnitUnitLODLevRange = function (dataSetId, unitId, resType) {
+    Module.Terrain.getUnitLODLevRange = function (dataSetId, unitId, resType) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
         if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
