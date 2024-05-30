@@ -90,7 +90,7 @@ function RESystemReady() {
 
 // MOD-- 初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
-    BlackHole3D.Common.setFakeSphMode(true)
+    // BlackHole3D.Common.setFakeSphMode(true)
     console.log("当前 WebSDK 运行版本", BlackHole3D.getVersion());
     console.log("=========================== 场景初始化完成");
     var isSuccess = e.detail.succeed;
@@ -213,11 +213,18 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "地形系统",
+        //     "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         {
-            "dataSetId": "地形系统",
-            "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+            "dataSetId": "CAD矢量",
+            "resourcesAddress": "http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a12da58787198ce1101c52b9c870649",
+            "terrImgShpAlone": true,
+            "terrSuffix": "CADSHP",
+            "terrSph": false,
         },
         // {
         //     "dataSetId": "伪球面",
