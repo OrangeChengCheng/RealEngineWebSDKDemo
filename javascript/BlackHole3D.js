@@ -1,4 +1,4 @@
-//版本：v3.1.0.2511
+//版本：v3.1.0.2514
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -7233,6 +7233,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Edit.setExtendBtnVisible = function (visible) {
         Module.RealBIMWeb.SetPositionMatchSaveBtnVisible(visible);
+    }
+
+    /**
+     * 设置数据集是否可编辑，所有数据集默认是可编辑的
+     * @param {Array} dataSetIdList //数据集唯一标识集合
+     */
+    Module.Edit.setDataSetEditEnable = function (dataSetIdList) {
+        var _projvec = new Module.RE_Vector_WStr();
+        for (let i = 0; i < dataSetIdList.length; i++) {
+            _projvec.push_back(dataSetIdList[i]);
+        }
+        Module.RealBIMWeb.SetSceneNodeEditable(_projvec);
+    }
+
+    /**
+     * 获取数据集是否可编辑
+     * @param {String} dataSetId //数据集唯一标识
+     */
+    Module.Edit.getDataSetEditEnable = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
     }
 
 
