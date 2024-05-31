@@ -7245,7 +7245,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < dataSetIdList.length; i++) {
             _projvec.push_back(dataSetIdList[i]);
         }
-        let _enable = isEmpty(enable) ? false : enable
+        let _enable = isEmpty(enable) ? true : enable
         Module.RealBIMWeb.SetSceneNodeEditable(_projvec, _enable);
     }
 

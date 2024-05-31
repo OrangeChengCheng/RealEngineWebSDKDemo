@@ -201,31 +201,31 @@ function loadModel() {
     // BlackHole3D.addUrlExtParam("http://10.218.51.104:9999/api/ecx-gateway/res*", "serviceid=1714135161618042881&token=123123");
 
     var dataSetList = [
-        // {
-        //     "dataSetId": "机房01",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
-        // {
-        //     "dataSetId": "机房03",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
+        {
+            "dataSetId": "机房01",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
+        {
+            "dataSetId": "机房03",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
         //     "dataSetId": "地形系统",
         //     "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
-        {
-            "dataSetId": "CAD矢量",
-            "resourcesAddress": "http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a12da58787198ce1101c52b9c870649",
-            "terrImgShpAlone": true,
-            "terrSuffix": "CADSHP",
-            "terrSph": false,
-        },
+        // {
+        //     "dataSetId": "CAD矢量",
+        //     "resourcesAddress": "http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a12da58787198ce1101c52b9c870649",
+        //     "terrImgShpAlone": true,
+        //     "terrSuffix": "CADSHP",
+        //     "terrSph": false,
+        // },
         // {
         //     "dataSetId": "伪球面",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
