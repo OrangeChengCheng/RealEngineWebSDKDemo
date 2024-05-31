@@ -7238,13 +7238,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 设置数据集是否可编辑，所有数据集默认是可编辑的
      * @param {Array} dataSetIdList //数据集唯一标识集合
+     * @param {Boolean} enable //是否允许编辑
      */
-    Module.Edit.setDataSetEditEnable = function (dataSetIdList) {
+    Module.Edit.setDataSetEditEnable = function (dataSetIdList, enable) {
         var _projvec = new Module.RE_Vector_WStr();
         for (let i = 0; i < dataSetIdList.length; i++) {
             _projvec.push_back(dataSetIdList[i]);
         }
-        Module.RealBIMWeb.SetSceneNodeEditable(_projvec);
+        let _enable = isEmpty(enable) ? false : enable
+        Module.RealBIMWeb.SetSceneNodeEditable(_projvec, _enable);
     }
 
     /**
