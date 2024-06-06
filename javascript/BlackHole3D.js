@@ -6930,6 +6930,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.DelAllTerrShpStyles(dataSetId);
     }
 
+    /**
+     * 获取数据集所属的全局地形实例标识
+     * @param {String} dataSetId //数据集的唯一标识名
+     */
+    Module.Terrain.getDataSetTerrId = function (dataSetId) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        return Module.RealBIMWeb.GetTerrUnitOwnerName(dataSetId);
+    }
+
+    /**
+     * 获取全局地形实例下包含数据集集合
+     * @param {String} terrId //全局地形实例标识
+     */
+    Module.Terrain.getTerrSubAllDataSetId = function (terrId) {
+        if (isEmptyLog(terrId, "terrId")) return;
+        var tempArr = Module.RealBIMWeb.GetProjNamesByTerrID(terrId);
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            if (tempArr.get(i) === 'RealBIMInnerDefaultSphProj') {
+                continue;
+            }
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
 
 
 
