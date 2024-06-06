@@ -4619,30 +4619,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.BIM.addToSelElems = function (dataSetId, elemIdList) {
         if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmpty(elemIdList) || !elemIdList.length) { logParErr("elemIdList"); return; }
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
-        if (_count == 0) {
-            var _elemIdListTemp = Module.BIM.getDataSetAllElemIDs(dataSetId, true);
-            var _moemory = (_elemIdListTemp.length * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
-            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _elemIdListTemp.length; ++i) {
-                var eleid = _elemIdListTemp[i];
-                _elemIds.set([eleid, _projid], i * 2);
-            }
-            Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
-        } else {
-            var _moemory = (_count * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
-            var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
-                var eleid = elemIdList[i];
-                _elemIds.set([eleid, _projid], i * 2);
-            }
-            Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+        // if (_count == 0) {
+        //     var _elemIdListTemp = Module.BIM.getDataSetAllElemIDs(dataSetId, true);
+        //     var _moemory = (_elemIdListTemp.length * 8).toString();
+        //     Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        //     var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        //     for (i = 0; i < _elemIdListTemp.length; ++i) {
+        //         var eleid = _elemIdListTemp[i];
+        //         _elemIds.set([eleid, _projid], i * 2);
+        //     }
+        //     Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+        // } else {
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _count; ++i) {
+            var eleid = elemIdList[i];
+            _elemIds.set([eleid, _projid], i * 2);
         }
+        Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
+        // }
 
     }
 
