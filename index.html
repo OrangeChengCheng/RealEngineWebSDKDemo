@@ -1,153 +1,163 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <style>
+            html,
+            body {
+                padding: 0;
+                margin: 0;
+                /* overflow: hidden; */
+                height: 100%;
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                background-color: red !important;
+            }
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
-    <title>RealEngineWebSDKDemo</title>
-    <style>
-        html,
-        body {
-            padding: 0;
-            margin: 0;
-            /* overflow: hidden; */
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-        }
+            #canvas-cntr {
+                background-color: red !important;
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
 
-        #canvas-cntr {
-            width: 100%;
-            height: 100%;
-            display: flex;
-        }
+            #canvas-cntr01 {
+                width: 50%;
+                height: 100%;
+                display: flex;
+            }
 
-        #canvas-cntr01 {
-            width: 50%;
-            height: 100%;
-            display: flex;
-        }
+            #canvas-cntr02 {
+                flex: 1;
+                height: 100%;
+                display: flex;
+            }
 
-        #canvas-cntr02 {
-            flex: 1;
-            height: 100%;
-            display: flex;
-        }
+            #canvas,
+            #canvas01,
+            #canvas01 {
+                flex: 1;
+            }
 
-        #canvas,
-        #canvas01,
-        #canvas01 {
-            flex: 1;
-        }
+            #prog-box-cntr {
+                position: absolute;
+                margin-left: 25%;
+                top: 45%;
+                height: 80px;
+                width: 50%;
+                background: rgba(255, 255, 255, 0);
+                z-index: 999;
+            }
 
-        #prog-box-cntr {
-            position: absolute;
-            margin-left: 25%;
-            top: 45%;
-            height: 80px;
-            width: 50%;
-            background: rgba(255, 255, 255, 0.0);
-            z-index: 999;
-        }
+            #prog-box-cntr01,
+            #prog-box-cntr02 {
+                position: absolute;
+                margin-left: 10%;
+                top: 45%;
+                height: 80px;
+                width: 30%;
+                background: rgba(255, 255, 255, 0);
+                z-index: 999;
+            }
 
-        #prog-box-cntr01,
-        #prog-box-cntr02 {
-            position: absolute;
-            margin-left: 10%;
-            top: 45%;
-            height: 80px;
-            width: 30%;
-            background: rgba(255, 255, 255, 0.0);
-            z-index: 999;
-        }
+            #prog-bar-cntr,
+            #prog-bar-cntr01,
+            #prog-bar-cntr02 {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 40px;
+                width: 100%;
+                background: rgba(255, 255, 255, 1);
+                border: 1px solid #c8c8c8;
+            }
 
-        #prog-bar-cntr,
-        #prog-bar-cntr01,
-        #prog-bar-cntr02 {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 40px;
-            width: 100%;
-            background: rgba(255, 255, 255, 1.0);
-            border: 1px solid #C8C8C8;
-        }
+            #prog-bar,
+            #prog-bar01,
+            #prog-bar02 {
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 2;
+                height: 40px;
+                width: 100%;
+                line-height: 40px;
+                color: white;
+                text-align: center;
+                font-size: 20px;
+                font-weight: bold;
+                font-family: Georgia;
+                clip: rect(0px, 0, 40px, 0px);
+                background: #00a1f5;
+            }
 
-        #prog-bar,
-        #prog-bar01,
-        #prog-bar02 {
-            position: absolute;
-            left: 0;
-            top: 0;
-            z-index: 2;
-            height: 40px;
-            width: 100%;
-            line-height: 40px;
-            color: white;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            font-family: Georgia;
-            clip: rect(0px, 0, 40px, 0px);
-            background: #00A1F5;
-        }
+            #prog-value,
+            #prog-value01,
+            #prog-value02 {
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 2;
+                width: 100%;
+                height: 40px;
+                line-height: 40px;
+                color: black;
+                text-align: center;
+                font-size: 20px;
+                font-weight: bold;
+                font-family: Georgia;
+                background: rgba(255, 255, 255, 0);
+            }
 
-        #prog-value,
-        #prog-value01,
-        #prog-value02 {
-            position: absolute;
-            left: 0;
-            top: 0;
-            z-index: 2;
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
-            color: black;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            font-family: Georgia;
-            background: rgba(255, 255, 255, 0.0);
-        }
+            #prog-info,
+            #prog-info01,
+            #prog-info02 {
+                position: absolute;
+                left: 0;
+                top: 40px;
+                z-index: 1;
+                width: 100%;
+                height: 40px;
+                line-height: 40px;
+                color: black;
+                text-align: center;
+                font-size: 10px;
+                font-weight: bold;
+                font-family: Georgia;
+                background: rgba(255, 255, 255, 0);
+            }
+            #prog-bg {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgb(90, 131, 176);
+            }
+        </style>
+    </head>
 
-        #prog-info,
-        #prog-info01,
-        #prog-info02 {
-            position: absolute;
-            left: 0;
-            top: 40px;
-            z-index: 1;
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
-            color: black;
-            text-align: center;
-            font-size: 10px;
-            font-weight: bold;
-            font-family: Georgia;
-            background: rgba(255, 255, 255, 0.0);
-        }
-    </style>
-</head>
-
-<body>
-    <!-- 单引擎窗口 -->
-    <div id="canvas-cntr">
-        <canvas id="canvas" style="width:100%; height:100%;" oncontextmenu="event.preventDefault()"
-            tabindex="1"></canvas>
-        <div id="prog-box-cntr">
-            <div id="prog-bar-cntr">
-                <div id="prog-bar"></div>
+    <body>
+        <!-- 单引擎窗口 -->
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%; background-color: red" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="prog-bg">
+                <div id="prog-box-cntr">
+                    <div id="prog-bar-cntr">
+                        <div id="prog-bar"></div>
+                    </div>
+                    <div id="prog-value">0%</div>
+                    <div id="prog-info"></div>
+                </div>
             </div>
-            <div id="prog-value">0%</div>
-            <div id="prog-info"></div>
         </div>
-    </div>
 
-    <!-- 多引擎窗口 -->
-    <!-- <div id="canvas-cntr01">
+        <!-- 多引擎窗口 -->
+        <!-- <div id="canvas-cntr01">
         <canvas id="canvas01" style="width:100%; height:100%;" oncontextmenu="event.preventDefault()"
             tabindex="1"></canvas>
         <div id="prog-box-cntr01">
@@ -170,104 +180,99 @@
         </div>
     </div> -->
 
-    <!-- 引擎初始化 -->
-    <script type='text/javascript'>
-        function progressFn(percent, info, canvasID) {
-
-            if (canvasID == "canvas01") {
-                var progBoxCntr01 = document.getElementById('prog-box-cntr01');
-                var progBar01 = document.getElementById('prog-bar01');
-                var progValue01 = document.getElementById('prog-value01');
-                var progInfo01 = document.getElementById('prog-info01');
-                if (percent < 100) {
-                    progBoxCntr01.style.display = "block";
-                    var allWidth01 = parseInt(getStyle(progBoxCntr01, 'width'));
-                    // 修改clip的的宽度值
-                    progBar01.style.clip = 'rect(0px, ' + percent / 100 * allWidth01 + 'px, 40px, 0px)';
-                    // 设定内层两个div的文字内容一样
-                    progValue01.innerHTML = percent + "%  ";
-                    progInfo01.innerHTML = info;
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function progressFn(percent, info, canvasID) {
+                if (canvasID == 'canvas01') {
+                    var progBoxCntr01 = document.getElementById('prog-box-cntr01');
+                    var progBar01 = document.getElementById('prog-bar01');
+                    var progValue01 = document.getElementById('prog-value01');
+                    var progInfo01 = document.getElementById('prog-info01');
+                    if (percent < 100) {
+                        progBoxCntr01.style.display = 'block';
+                        var allWidth01 = parseInt(getStyle(progBoxCntr01, 'width'));
+                        // 修改clip的的宽度值
+                        progBar01.style.clip = 'rect(0px, ' + (percent / 100) * allWidth01 + 'px, 40px, 0px)';
+                        // 设定内层两个div的文字内容一样
+                        progValue01.innerHTML = percent + '%  ';
+                        progInfo01.innerHTML = info;
+                    } else {
+                        progBoxCntr01.style.display = 'none';
+                    }
+                } else if (canvasID == 'canvas02') {
+                    var progBoxCntr02 = document.getElementById('prog-box-cntr02');
+                    var progBar02 = document.getElementById('prog-bar02');
+                    var progValue02 = document.getElementById('prog-value02');
+                    var progInfo02 = document.getElementById('prog-info02');
+                    if (percent < 100) {
+                        progBoxCntr02.style.display = 'block';
+                        var allWidth02 = parseInt(getStyle(progBoxCntr02, 'width'));
+                        // 修改clip的的宽度值
+                        progBar02.style.clip = 'rect(0px, ' + (percent / 100) * allWidth02 + 'px, 40px, 0px)';
+                        // 设定内层两个div的文字内容一样
+                        progValue02.innerHTML = percent + '%  ';
+                        progInfo02.innerHTML = info;
+                    } else {
+                        progBoxCntr02.style.display = 'none';
+                    }
                 } else {
-                    progBoxCntr01.style.display = "none";
+                    var progBoxCntr = document.getElementById('prog-box-cntr');
+                    var progBar = document.getElementById('prog-bar');
+                    var progValue = document.getElementById('prog-value');
+                    var progInfo = document.getElementById('prog-info');
+                    var prog_bg = document.getElementById('prog-bg');
+
+                    if (percent < 100) {
+                        progBoxCntr.style.display = 'block';
+                        var allWidth = parseInt(getStyle(progBoxCntr, 'width'));
+                        // 修改clip的的宽度值
+                        progBar.style.clip = 'rect(0px, ' + (percent / 100) * allWidth + 'px, 40px, 0px)';
+                        // 设定内层两个div的文字内容一样
+                        progValue.innerHTML = percent + '%  ';
+                        progInfo.innerHTML = info;
+                    } else {
+                        progBoxCntr.style.display = 'none';
+                        prog_bg.style.display = 'none';
+                    }
+                }
+
+                // 获取当前元素的属性值
+                function getStyle(obj, attr) {
+                    if (obj.currentStyle) {
+                        return obj.currentStyle[attr];
+                    } else {
+                        return getComputedStyle(obj, false)[attr];
+                    }
                 }
             }
-            else if (canvasID == "canvas02") {
-                var progBoxCntr02 = document.getElementById('prog-box-cntr02');
-                var progBar02 = document.getElementById('prog-bar02');
-                var progValue02 = document.getElementById('prog-value02');
-                var progInfo02 = document.getElementById('prog-info02');
-                if (percent < 100) {
-                    progBoxCntr02.style.display = "block";
-                    var allWidth02 = parseInt(getStyle(progBoxCntr02, 'width'));
-                    // 修改clip的的宽度值
-                    progBar02.style.clip = 'rect(0px, ' + percent / 100 * allWidth02 + 'px, 40px, 0px)';
-                    // 设定内层两个div的文字内容一样
-                    progValue02.innerHTML = percent + "%  ";
-                    progInfo02.innerHTML = info;
-                } else {
-                    progBoxCntr02.style.display = "none";
-                }
-            }
-            else {
-                var progBoxCntr = document.getElementById('prog-box-cntr');
-                var progBar = document.getElementById('prog-bar');
-                var progValue = document.getElementById('prog-value');
-                var progInfo = document.getElementById('prog-info');
-
-                if (percent < 100) {
-                    progBoxCntr.style.display = "block";
-                    var allWidth = parseInt(getStyle(progBoxCntr, 'width'));
-                    // 修改clip的的宽度值
-                    progBar.style.clip = 'rect(0px, ' + percent / 100 * allWidth + 'px, 40px, 0px)';
-                    // 设定内层两个div的文字内容一样
-                    progValue.innerHTML = percent + "%  ";
-                    progInfo.innerHTML = info;
-                } else {
-                    progBoxCntr.style.display = "none";
-                }
-            }
-
-
-
-            // 获取当前元素的属性值
-            function getStyle(obj, attr) {
-                if (obj.currentStyle) {
-                    return obj.currentStyle[attr];
-                } else {
-                    return getComputedStyle(obj, false)[attr];
-                }
-            }
-        }
-    </script>
-    <!-- <script type="text/javascript" src="DemoEntry/MoveCanvas.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/Template.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/main_osgb.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/test.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/main_360_map.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/miniMap.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/main_cad.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/NewFramework.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/Panorama.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/CAD.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/Water.js"></script> -->
-    <script type="text/javascript" src="DemoEntry/Bim.js"></script>
-    <!-- <script type="text/javascript" src="DemoEntry/Pipe.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/PanCAD.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/BimPan.js"></script> -->
-    <!-- <script type="text/javascript" src="DemoEntry/UI.js"></script> -->
-    <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
-    <script async type="text/javascript" src="javascript/BlackHole3D.js"></script>
-    <!-- <script async type="text/javascript" src="javascript/ReUtility.js"></script> -->
-    <!-- <script>
+        </script>
+        <!-- <script type="text/javascript" src="DemoEntry/MoveCanvas.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/Template.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/main_osgb.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/test.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/main_360_map.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/miniMap.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/main_cad.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/NewFramework.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/Panorama.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/CAD.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/Water.js"></script> -->
+        <script type="text/javascript" src="DemoEntry/Bim.js"></script>
+        <!-- <script type="text/javascript" src="DemoEntry/Pipe.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/PanCAD.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/BimPan.js"></script> -->
+        <!-- <script type="text/javascript" src="DemoEntry/UI.js"></script> -->
+        <script async type="text/javascript" src="javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="javascript/ReUtility.js"></script> -->
+        <!-- <script>
         g_re_em_force_engine_dir = "http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_SDK/RealBIMWeb.js";
     </script> -->
 
-    <!-- <script async type="text/javascript" src="http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_SDK/RealBIMWeb.js"></script>
+        <!-- <script async type="text/javascript" src="http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_SDK/RealBIMWeb.js"></script>
     <script async type="text/javascript" src="http://realbim.bjblackhole.cn:8000/TestPages/RealBIMWeb_SDK/ReUtility.js"></script> -->
-    <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/EngineWebSDk/RealBIMWeb.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/EngineWebSDk/RealBIMWeb.js"></script>
     <script async type="text/javascript" src="https://demo.bjblackhole.com/EngineWebSDk/BlackHole3D.js"></script>
      -->
-
-</body>
-
+    </body>
 </html>
