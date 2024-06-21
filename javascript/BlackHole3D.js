@@ -1,4 +1,4 @@
-//版本：v3.1.0.2572
+//版本：v3.1.0.2587
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -822,8 +822,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dividePrior //项目内模型的细分优先级(值越小优先级越高)
      * @param {dvec3} engineOrigin //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
      * @param {Boolean} preciseCRS //表示在进行地理信息坐标系定位时是否采用精确计算模式
-     * @param {Boolean} terrImgShpAlone //表示项目中的地形矢量是否需要独立镂空显示(将禁用影像图片显示)
-     * @param {String} terrSuffix //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示
+     * @param {Boolean} groundDisplay //表示项目中的地形矢量是否需要贴地显示(将禁用影像图片显示) 
+     * @param {String} terrSuffix //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示（如果地形矢量为不贴地，那么这个参数不能为空，如果地形矢量允许可以独立编辑则此参数需要唯一，允许多个地形矢量同时编辑则此参数相同。如果地形矢量为贴地，那么这参数传空字符串）
      * @param {Boolean} terrSph //表示项目中的地形系统数据是否允许适配到球面地形
      * @param {String} dataSetSGContent //表示项目对应的主场景组文件内容字符串
      */
@@ -845,7 +845,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _dividePrior = isEmpty(dataSetModel.dividePrior) ? 1.0 : dataSetModel.dividePrior;
             var _originCRS = isEmpty(dataSetModel.engineOrigin) ? [0.0, 0.0, 0.0] : dataSetModel.engineOrigin;
             var _preciseCRS = isEmpty(dataSetModel.preciseCRS) ? true : dataSetModel.preciseCRS;
-            var _terrImgShpAlone = isEmpty(dataSetModel.terrImgShpAlone) ? false : dataSetModel.terrImgShpAlone;
+            var _terrImgShpAlone = isEmpty(dataSetModel.groundDisplay) ? false : !dataSetModel.groundDisplay;
             var _terrSuffix = isEmpty(dataSetModel.terrSuffix) ? '' : dataSetModel.terrSuffix;
             var _terrSph = isEmpty(dataSetModel.terrSph) ? true : dataSetModel.terrSph;
             let _dataSetSGContent = isEmpty(dataSetModel.dataSetSGContent) ? "" : dataSetModel.dataSetSGContent;
