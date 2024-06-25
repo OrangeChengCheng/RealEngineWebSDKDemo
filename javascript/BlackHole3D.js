@@ -1,4 +1,4 @@
-//版本：v3.1.0.2588
+//版本：v3.1.0.2591
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -793,6 +793,130 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return fontInfoList;
     }
+
+
+
+
+    // MOD-- 灯光（Light）
+    Module.Light = typeof Module.Light !== "undefined" ? Module.Light : {};//增加 Light 模块
+
+    // MARK 聚光灯
+    class RESpotLightInfo {
+        constructor() {
+            this.lightId = null;//表示光源的标识名
+            this.selfRotate = [1, 0, 0, 0];//表示光源的自身旋转分量
+            this.selfOffset = [0, 0, 0];//表示光源的自身平移分量
+            this.lightClr = new REColor(255, 255, 255);//表示光源的颜色 （REColor 类型）
+            this.brightness = 1.0;//表示光源的亮度
+            this.emissionRadius = 0.5;//表示光源的发光体半径(>=0表示绝对半径；<0表示体半径处的期望照度[sqrt(brightness/(4*pi*ExpectIllum))])
+            this.range = -0.01;//表示光源的最大影响半径(>=0表示绝对半径；<0表示影响半径处的期望照度[sqrt(brightness/(4*pi*ExpectIllum))])
+            this.openAngle = 180.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180)
+            this.fadeAngle = 30.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度后的衰减角度(单位为角度0~180)
+            this.shadowFreq = 0xffffffff;//表示光源阴影所属的更新频率组ID(0xffffffff->禁用阴影；0x7fffffff->禁用阴影(但允许调用GetWorLoc)；0->毎帧实时更新；>0->表示一个频率组ID，
+            this.shadowMask = 0x00ffffff;//表示局部光源对应的模型阴影投射掩码(仅0~23bit有效)
+        }
+    }
+    ExtModule.RESpotLightInfo = RESpotLightInfo;
+
+
+    /**
+     * 添加一组聚光灯
+     * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
+     * @param {Array} spotLights //聚光灯信息集合
+     */
+    Module.Light.addSpotLights = function (dataSetId, spotLights) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        if (isEmpty(spotLights) || !spotLights.length) { logParErr("spotLights"); return false; }
+
+        let vector_SPOT_INFO = new Module.RE_Vector_SPOT_INFO();
+        for (let i = 0; i < spotLights.length; i++) {
+            const element = spotLights[i];
+            if (isEmpty(element.lightId) || !element.lightId.length) { logParErr("lightId"); return false; }
+            let spot_info = {
+                m_strName: element.lightId,
+                m_qSelfRotate: element.selfRotate,
+                m_vSelfOffset: element.selfOffset,
+                m_vClr: isEmpty(element.lightClr) ? new REColor(255, 255, 255) : [Math.round(element.lightClr.red) / 255.0, Math.round(element.lightClr.green) / 255.0, Math.round(element.lightClr.blue) / 255.0],
+                m_fLum: element.brightness,
+                m_fBodyRadius: element.emissionRadius,
+                m_fRange: element.range,
+                m_fOpenAngle: element.openAngle,
+                m_fFadeAngle: element.fadeAngle,
+                m_uShadowFreq: element.shadowFreq,
+                m_uShadowMask: element.shadowMask,
+            };
+            vector_SPOT_INFO.push_back(spot_info);
+        }
+        return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO);
+    }
+
+    /**
+     * 添加一组聚光灯
+     * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
+     * @param {String} lightId //表示光源的标识名
+     * @param {Boolean} localSpace //是否是局部信息 true->聚光灯的信息位于项目内局部空间(全局聚光灯为引擎世界空间)；false->聚光灯的信息位于引擎世界空间（数据集标识为空则为世界空间属性）
+     */
+    Module.Light.getSpotLightInfo = function (dataSetId, lightId, localSpace) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        if (isEmpty(lightId) || !lightId.length) { logParErr("lightId"); return false; }
+        let _localSpace = ture;
+        if (!dataSetId.length) _localSpace = false;
+        !isEmpty(localSpace) ? _localSpace = localSpace : _localSpace = true;
+
+        let _cSpotLightInfo = Module.RealBIMWeb.GetSpotLightInfo(dataSetId, lightId, _localSpace);
+        let spot_info = new RESpotLightInfo();
+        spot_info.lightId = _cSpotLightInfo.m_strName;
+        spot_info.selfRotate = _cSpotLightInfo.m_qSelfRotate;
+        spot_info.selfOffset = _cSpotLightInfo.m_vSelfOffset;
+        spot_info.selfOffset = new REColor(Math.round(_cSpotLightInfo.m_vClr[0] * 255), Math.round(_cSpotLightInfo.m_vClr[1] * 255), Math.round(_cSpotLightInfo.m_vClr[2] * 255));
+        spot_info.brightness = _cSpotLightInfo.m_fLum;
+        spot_info.emissionRadius = _cSpotLightInfo.m_fBodyRadius;
+        spot_info.range = _cSpotLightInfo.m_fRange;
+        spot_info.openAngle = _cSpotLightInfo.m_fOpenAngle;
+        spot_info.fadeAngle = _cSpotLightInfo.m_fFadeAngle;
+        spot_info.shadowFreq = _cSpotLightInfo.m_uShadowFreq;
+        spot_info.shadowMask = _cSpotLightInfo.m_uShadowMask;
+
+        return spot_info;
+    }
+
+    /**
+     * 获取所有的聚光灯标识
+     * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
+     */
+    Module.Light.getAllSpotLightIds = function (dataSetId) {
+        var tempArr = Module.RealBIMWeb.GetAllSpotLightNames(dataSetId);
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 删除一组聚光灯
+     * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
+     * @param {Array} lightIds //聚光灯标识集合
+     */
+    Module.Light.delSpotLights = function (dataSetId, lightIds) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        if (isEmpty(lightIds) || !lightIds.length) { logParErr("lightIds"); return false; }
+
+        return Module.RealBIMWeb.DelSpotLights(dataSetId, lightIds);
+    }
+
+    /**
+     * 删除所有的聚光灯
+     * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
+     * @param {Boolean} isAll //表示是否删除系统中所有的全局和局部聚光灯
+     */
+    Module.Light.delAllSpotLights = function (dataSetId, isAll) {
+        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        let _isAll = isEmpty(isAll) ? false : isAll;
+        return Module.RealBIMWeb.DelAllSpotLights(dataSetId, _isAll);
+    }
+
+
 
 
 

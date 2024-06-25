@@ -5246,3 +5246,28 @@ function addTerrShpStyle() {
 
     BlackHole3D.Terrain.setShpStyle("地形系统", "shangxicitypt_Style", _cShpStyleInfo);
 }
+
+
+// MARK 添加聚光灯
+function addSpotLights() {
+    let spotLight = new BlackHole3D.RESpotLightInfo();
+    spotLight.lightId = "light001";
+    // spotLight.selfRotate =
+    spotLight.selfOffset = [13.261326877094588, 56.03715383840854, 3];
+    spotLight.lightClr = new BlackHole3D.REColor(255, 0, 0);
+    // spotLight.brightness =
+    // spotLight.emissionRadius =
+    // spotLight.range =
+    // spotLight.openAngle =
+    // spotLight.fadeAngle =
+    // spotLight.shadowFreq =
+    // spotLight.shadowMask =
+
+    BlackHole3D.Light.addSpotLights("机房01", [spotLight]);
+}
+
+
+
+
+
+
