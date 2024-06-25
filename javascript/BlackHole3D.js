@@ -1,4 +1,4 @@
-//版本：v3.1.0.2591
+//版本：v3.1.0.2593
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -846,23 +846,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             };
             vector_SPOT_INFO.push_back(spot_info);
         }
-        return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO);
+        return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, dataSetId === "" ? false : true);
     }
 
     /**
      * 获取聚光灯信息
      * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
      * @param {String} lightId //表示光源的标识名
-     * @param {Boolean} localSpace //是否是局部信息 true->聚光灯的信息位于项目内局部空间(全局聚光灯为引擎世界空间)；false->聚光灯的信息位于引擎世界空间（数据集标识为空则为世界空间属性）
      */
-    Module.Light.getSpotLightInfo = function (dataSetId, lightId, localSpace) {
+    Module.Light.getSpotLightInfo = function (dataSetId, lightId) {
         if (isEmptyLog(dataSetId, "dataSetId")) return false;
         if (isEmpty(lightId) || !lightId.length) { logParErr("lightId"); return false; }
-        let _localSpace = true;
-        if (!dataSetId.length) _localSpace = false;
-        !isEmpty(localSpace) ? _localSpace = localSpace : _localSpace = true;
 
-        let _cSpotLightInfo = Module.RealBIMWeb.GetSpotLightInfo(dataSetId, lightId, _localSpace);
+        let _cSpotLightInfo = Module.RealBIMWeb.GetSpotLightInfo(dataSetId, lightId, dataSetId === "" ? false : true);
+        if (_cSpotLightInfo.m_qSelfRotate[0] === 0 && _cSpotLightInfo.m_qSelfRotate[1] === 0 && _cSpotLightInfo.m_qSelfRotate[2] === 0 && _cSpotLightInfo.m_qSelfRotate[3] === 0) {
+            return null;
+        }
         let spot_info = new RESpotLightInfo();
         spot_info.lightId = _cSpotLightInfo.m_strName;
         spot_info.selfRotate = _cSpotLightInfo.m_qSelfRotate;
