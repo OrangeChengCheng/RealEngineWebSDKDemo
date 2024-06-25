@@ -5250,20 +5250,58 @@ function addTerrShpStyle() {
 
 // MARK 添加聚光灯
 function addSpotLights() {
+    //设置夜晚效果
+    var skyInfo = new BlackHole3D.RESkyInfo();
+    skyInfo.skyTexPaths = [
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/right.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/left.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/front.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/back.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/top.jpg",
+        "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=skybox/bottom.jpg"
+    ];
+    skyInfo.sunMode = 1;
+    skyInfo.sunDir = [-0.377973, -0.761482, -0.526576];
+    skyInfo.isNight = true;
+    skyInfo.exposeScale = 1.0;
+    BlackHole3D.SkyBox.setSkyInfo(skyInfo);
+
+    
+
     let spotLight = new BlackHole3D.RESpotLightInfo();
     spotLight.lightId = "light001";
-    // spotLight.selfRotate =
-    spotLight.selfOffset = [13.261326877094588, 56.03715383840854, 3];
+    spotLight.selfOffset = [13.261326877094588, 56.03715383840854, 4];
     spotLight.lightClr = new BlackHole3D.REColor(255, 0, 0);
-    // spotLight.brightness =
-    // spotLight.emissionRadius =
-    // spotLight.range =
-    // spotLight.openAngle =
-    // spotLight.fadeAngle =
-    // spotLight.shadowFreq =
-    // spotLight.shadowMask =
+    spotLight.brightness = 2000;
+    spotLight.emissionBodyRadius = 0.1;
+    spotLight.range = 20;
+    spotLight.openAngle = 90.0;
+    spotLight.fadeAngle = 20.0;
+    spotLight.hasShadow = true;
 
-    BlackHole3D.Light.addSpotLights("机房01", [spotLight]);
+    let spotLight2 = new BlackHole3D.RESpotLightInfo();
+    spotLight2.lightId = "light002";
+    spotLight2.selfOffset = [13.261326877094588, 60, 3];
+    spotLight2.lightClr = new BlackHole3D.REColor(0, 255, 0);
+    spotLight2.brightness = 1200;
+    spotLight2.emissionBodyRadius = 0.3;
+    spotLight2.range = 5;
+    spotLight2.openAngle = 100.0;
+    spotLight2.fadeAngle = 20.0;
+    spotLight2.hasShadow = true;
+
+    let spotLight3 = new BlackHole3D.RESpotLightInfo();
+    spotLight3.lightId = "light003";
+    spotLight3.selfOffset = [16, 57, 3];
+    spotLight3.lightClr = new BlackHole3D.REColor(0, 0, 255);
+    spotLight3.brightness = 2400;
+    spotLight3.emissionBodyRadius = 0.2;
+    spotLight3.range = 10;
+    spotLight3.openAngle = 150.0;
+    spotLight3.fadeAngle = 30.0;
+    spotLight3.hasShadow = true;
+
+    BlackHole3D.Light.addSpotLights("机房01", [spotLight, spotLight2, spotLight3]);
 }
 
 
