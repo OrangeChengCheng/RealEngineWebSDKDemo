@@ -809,7 +809,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.lightClr = new REColor(255, 255, 255);//表示光源的颜色 （REColor 类型）
             this.brightness = 1.0;//表示光源的亮度
             this.emissionBodyRadius = 0.5;//表示光源的发光体半径，相同亮度在反射效果下发光体半径越大，反射光效果越发散，反之越聚集
-            this.range = -0.01;//表示光源的最大影响半径
+            this.influenceRange = -0.01;//表示光源的最大影响半径
             this.openAngle = 180.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180)，默认180度
             this.fadeAngle = 30.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度后的衰减角度(单位为角度0~180)，默认30度
             this.hasShadow = false;//是否需要阴影
@@ -821,7 +821,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 添加一组聚光灯
      * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
-     * @param {Array} spotLights //聚光灯信息集合
+     * @param {Array} spotLights //聚光灯信息集合 （RESpotLightInfo 类型）
      */
     Module.Light.addSpotLights = function (dataSetId, spotLights) {
         if (isEmptyLog(dataSetId, "dataSetId")) return false;
@@ -838,7 +838,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_vClr: isEmpty(element.lightClr) ? new REColor(255, 255, 255) : [Math.round(element.lightClr.red) / 255.0, Math.round(element.lightClr.green) / 255.0, Math.round(element.lightClr.blue) / 255.0],
                 m_fLum: isEmpty(element.brightness) ? 1.0 : element.brightness,
                 m_fBodyRadius: isEmpty(element.emissionBodyRadius) ? 0.3 : element.emissionBodyRadius,
-                m_fRange: isEmpty(element.range) ? -0.01 : element.range,
+                m_fRange: isEmpty(element.influenceRange) ? -0.01 : element.influenceRange,
                 m_fOpenAngle: isEmpty(element.openAngle) ? 180.0 : element.openAngle,
                 m_fFadeAngle: isEmpty(element.fadeAngle) ? 30.0 : element.fadeAngle,
                 m_uShadowFreq: (isEmpty(element.hasShadow) || !element.hasShadow) ? 0xffffffff : 1,
@@ -850,7 +850,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 添加一组聚光灯
+     * 获取聚光灯信息
      * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
      * @param {String} lightId //表示光源的标识名
      * @param {Boolean} localSpace //是否是局部信息 true->聚光灯的信息位于项目内局部空间(全局聚光灯为引擎世界空间)；false->聚光灯的信息位于引擎世界空间（数据集标识为空则为世界空间属性）
@@ -870,7 +870,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         spot_info.lightClr = new REColor(Math.round(_cSpotLightInfo.m_vClr[0] * 255), Math.round(_cSpotLightInfo.m_vClr[1] * 255), Math.round(_cSpotLightInfo.m_vClr[2] * 255));
         spot_info.brightness = _cSpotLightInfo.m_fLum;
         spot_info.emissionBodyRadius = _cSpotLightInfo.m_fBodyRadius;
-        spot_info.range = _cSpotLightInfo.m_fRange;
+        spot_info.influenceRange = _cSpotLightInfo.m_fRange;
         spot_info.openAngle = _cSpotLightInfo.m_fOpenAngle;
         spot_info.fadeAngle = _cSpotLightInfo.m_fFadeAngle;
         spot_info.hasShadow = (_cSpotLightInfo.m_uShadowFreq > 0 && _cSpotLightInfo.m_uShadowFreq !== 0xffffffff && _cSpotLightInfo.m_uShadowFreq !== 0x7fffffff) ? true : false;
