@@ -1,4 +1,4 @@
-//版本：v3.1.0.2593
+//版本：v3.1.0.2596
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -805,12 +805,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.lightId = null;//表示光源的唯一标识名
             this.selfRotate = [1, 0, 0, 0];//表示光源的自身旋转分量
-            this.selfOffset = [0, 0, 0];//表示光源的自身平移分量
-            this.lightClr = new REColor(255, 255, 255);//表示光源的颜色 （REColor 类型）
-            this.brightness = 1.0;//表示光源的亮度
-            this.emissionBodyRadius = 0.5;//表示光源的发光体半径，相同亮度在反射效果下发光体半径越大，反射光效果越发散，反之越聚集
-            this.influenceRange = -0.01;//表示光源的最大影响半径
-            this.openAngle = 180.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180)，默认180度
+            this.selfOffset = [0, 0, 0];//表示光源的坐标点
+            this.lightClr = new REColor(255, 255, 255);//表示光源的颜色 （REColor 类型）, 无法修改透明度
+            this.brightness = 100.0;//表示光源的亮度
+            this.emissionBodyRadius = 0.2;//表示光源的发光体半径，相同亮度在反射效果下发光体半径越大，反射光效果越发散，反之越聚集
+            this.influenceRange = 15;//表示光源的最大影响半径（影响半径会受亮度影响衰减效果，暂不暴露给用户，以公式方式自动填入）
+            this.openAngle = 180.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180，以-z轴向两边分别打开的角度，180即为两边打开的360度点光源)，默认180度
             this.fadeAngle = 30.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度后的衰减角度(单位为角度0~180)，默认30度
             this.hasShadow = false;//是否需要阴影
         }
@@ -831,14 +831,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < spotLights.length; i++) {
             const element = spotLights[i];
             if (isEmpty(element.lightId) || !element.lightId.length) { logParErr("lightId"); return false; }
+            // 根据亮度自动处理最大影响半径（栋哥推荐以亮度为100，最大影响半径为15的比例进行计算，即亮度为100的X倍对应的最大影响半径为15的X的开平方）
+            let _influenceRange = isEmpty(element.influenceRange) ? 15 : element.influenceRange;
+            if (isEmpty(element.influenceRange)) {
+                _influenceRange = 15 * Math.sqrt((isEmpty(element.brightness) ? 100.0 : element.brightness) / 100);
+            }
             let spot_info = {
                 m_strName: element.lightId,
                 m_qSelfRotate: isEmpty(element.selfRotate) ? [1, 0, 0, 0] : element.selfRotate,
                 m_vSelfOffset: isEmpty(element.selfOffset) ? [0, 0, 0] : element.selfOffset,
                 m_vClr: isEmpty(element.lightClr) ? new REColor(255, 255, 255) : [Math.round(element.lightClr.red) / 255.0, Math.round(element.lightClr.green) / 255.0, Math.round(element.lightClr.blue) / 255.0],
-                m_fLum: isEmpty(element.brightness) ? 1.0 : element.brightness,
-                m_fBodyRadius: isEmpty(element.emissionBodyRadius) ? 0.3 : element.emissionBodyRadius,
-                m_fRange: isEmpty(element.influenceRange) ? -0.01 : element.influenceRange,
+                m_fLum: isEmpty(element.brightness) ? 100.0 : element.brightness,
+                m_fBodyRadius: isEmpty(element.emissionBodyRadius) ? 0.2 : element.emissionBodyRadius,
+                m_fRange: _influenceRange,
                 m_fOpenAngle: isEmpty(element.openAngle) ? 180.0 : element.openAngle,
                 m_fFadeAngle: isEmpty(element.fadeAngle) ? 30.0 : element.fadeAngle,
                 m_uShadowFreq: (isEmpty(element.hasShadow) || !element.hasShadow) ? 0xffffffff : 1,
@@ -869,7 +874,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         spot_info.lightClr = new REColor(Math.round(_cSpotLightInfo.m_vClr[0] * 255), Math.round(_cSpotLightInfo.m_vClr[1] * 255), Math.round(_cSpotLightInfo.m_vClr[2] * 255));
         spot_info.brightness = _cSpotLightInfo.m_fLum;
         spot_info.emissionBodyRadius = _cSpotLightInfo.m_fBodyRadius;
-        spot_info.influenceRange = _cSpotLightInfo.m_fRange;
+        // spot_info.influenceRange = _cSpotLightInfo.m_fRange; // 暂时只让用户设置亮度，最大影响范围自动设置，但用户可以直接填，获取不放出次参数
         spot_info.openAngle = _cSpotLightInfo.m_fOpenAngle;
         spot_info.fadeAngle = _cSpotLightInfo.m_fFadeAngle;
         spot_info.hasShadow = (_cSpotLightInfo.m_uShadowFreq > 0 && _cSpotLightInfo.m_uShadowFreq !== 0xffffffff && _cSpotLightInfo.m_uShadowFreq !== 0x7fffffff) ? true : false;
@@ -1575,12 +1580,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var v01 = skyInfo.sunDir[0]; if (v01 == 0) v01 = 0.00001;
             var v02 = skyInfo.sunDir[1]; if (v02 == 0) v02 = 0.00001;
             var v03 = skyInfo.sunDir[2];
-            //光照方向Z不能为从下向上，故不能为正值
+            // 2596之前 光照方向Z不能为从下向上，故不能为正值
+            // 2596版本之后放开限制，光源方向可以自下而上，作用于球面系统，在此状态下灯光效果最佳
             if (v03 == 0) {
                 v03 = -0.00001;
-            } else if (v03 > 0) {
-                v03 = v03 * -1;
-            }
+            } 
+            // else if (v03 > 0) {
+            //     v03 = v03 * -1;
+            // }
             _sunDir = [v01, v02, v03];
         }
         var _isNight = false; if (!isEmpty(skyInfo.isNight)) _isNight = skyInfo.isNight;
