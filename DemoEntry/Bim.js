@@ -203,7 +203,7 @@ function loadModel() {
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_zhongyidong",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },

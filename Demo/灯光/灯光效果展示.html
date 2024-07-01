@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn">
+                <button onclick="duskTime()">黄昏</button>
+                <button onclick="nightTime()">夜晚</button>
+                <button onclick="morningToNight()">从早到晚</button>
+                <button onclick="visualAngle(1)">视角一</button>
+                <button onclick="visualAngle(2)">视角二</button>
+                <button onclick="visualAngle(3)">视角三</button>
+            </div>
+        </div>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            //初始化完成后，加载项目
+            function loadDataSet() {
+                var forceCamLoc = new BlackHole3D.REForceCamLoc();
+                forceCamLoc.force = true;
+                forceCamLoc.camPos = [-0.25093679850194306, -10.772442634291188, 52.44915339742296];
+                forceCamLoc.camRotate = [0.4960054915781998, -0.14613541092001012, -0.24189879768340775, 0.8210407819827406];
+                BlackHole3D.Camera.setCamForcedInitLoc(forceCamLoc);
+
+                var dataSetList = [
+                    {
+                        dataSetId: '灯光渲染',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_zhongyidong',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+                BlackHole3D.SkyBox.setLightLocate([0.2740470492756192, 0.9138706255340241, 0.2995641743756717]);
+            }
+            function duskTime() {
+                BlackHole3D.SkyBox.setLightLocate([0.4772745704596695, 0.878729102891812, 0.006644405427817107]);
+            }
+            function nightTime() {
+                BlackHole3D.SkyBox.setLightLocate([0.2740470492756192, 0.9138706255340241, 0.2995641743756717]);
+            }
+            function morningToNight() {
+                //模拟日出到日落，太阳从0~180，平均分为12个角度，模拟12个小时,此示例为平均模拟12个小时，可根据实际情况，给不同的时间段不一样的延时时间
+                var suntime = 0;
+                function sunshine() {
+                    if (suntime < 13) {
+                        suntime += 1;
+                        var sunDir = [];
+                        sunDir[0] = -Math.cos((suntime / 12) * Math.PI);
+                        sunDir[1] = 0.6319452524185181;
+                        sunDir[2] = -Math.sin((suntime / 12) * Math.PI);
+                        BlackHole3D.SkyBox.setLightLocate(sunDir);
+                        setTimeout(() => {
+                            sunshine();
+                        }, 1000);
+                    }
+                }
+                sunshine();
+            }
+            function visualAngle(type) {
+                if (type == 1) {
+                    let camLoc = new BlackHole3D.RECamLoc();
+                    camLoc.camPos = [115.14575435722705, 79.02616896852065, 2.744631913281524];
+                    camLoc.camRotate = [-0.1945938858949066, -0.5385796196388213, -0.7710133164845928, -0.27857436832101345];
+                    let locDelay = 0;
+                    let locTime = 0;
+                    BlackHole3D.Camera.setCamLocateTo(camLoc, locDelay, locTime);
+                } else if (type == 2) {
+                    let camLoc = new BlackHole3D.RECamLoc();
+                    camLoc.camPos = [72.32639387053354, 63.111513786291496, 7.163354431064237];
+                    camLoc.camRotate = [-0.5308668464513274, 0.11666139431847487, 0.1801617001968576, -0.8198245374448545];
+                    let locDelay = 0;
+                    let locTime = 0;
+                    BlackHole3D.Camera.setCamLocateTo(camLoc, locDelay, locTime);
+                } else if (type == 3) {
+                    let camLoc = new BlackHole3D.RECamLoc();
+                    camLoc.camPos = [29.572557601517058, 29.015831332532954, 11.642949655052172];
+                    camLoc.camRotate = [0.6030742796950286, 0.17281740733432494, 0.2145220243620635, 0.7486092825741233];
+                    let locDelay = 0;
+                    let locTime = 0;
+                    BlackHole3D.Camera.setCamLocateTo(camLoc, locDelay, locTime);
+                }
+            }
+        </script>
+    </body>
+</html>

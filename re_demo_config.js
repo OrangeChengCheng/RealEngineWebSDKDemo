@@ -1,0 +1,89 @@
+/*
+ * @Author: Lemon C
+ * @Date: 2024-06-28 11:19:39
+ * @LastEditTime: 2024-06-28 11:21:48
+ */
+BlackHole3D = typeof BlackHole3D !== 'undefined' ? BlackHole3D : {};
+BlackHole3D['canvas'] = (function () {
+    var canvas = document.getElementById('canvas');
+    return canvas;
+})();
+window.onresize = function (event) {
+    BlackHole3D['m_re_em_window_width'] = BlackHole3D.canvas.clientWidth;
+    BlackHole3D['m_re_em_window_height'] = BlackHole3D.canvas.clientHeight;
+};
+window.onbeforeunload = function (event) {
+    if (typeof BlackHole3D.releaseEngine != 'undefined') {
+        BlackHole3D.releaseEngine();
+    }
+};
+window.onload = function (event) {
+    if (typeof CreateBlackHoleWebSDK != 'undefined') {
+        BlackHole3D = CreateBlackHoleWebSDK(BlackHole3D);
+    } else {
+        document.addEventListener('RealEngineToBeReady', function () {
+            BlackHole3D = CreateBlackHoleWebSDK(BlackHole3D);
+        });
+    }
+    document.addEventListener('RESystemReady', RESystemReady); //系统初始化监听
+    document.addEventListener('RESystemEngineCreated', RESystemEngineCreated); //场景初始化监听
+    document.addEventListener('REDataSetLoadProgress', REDataSetLoadProgress); //模型加载进度监听
+    document.addEventListener('REDataSetLoadFinish', REDataSetLoadFinish); //模型加载完成状态
+    if (
+        typeof BlackHole3D['m_re_em_window_width'] != 'undefined' &&
+        typeof BlackHole3D['m_re_em_window_height'] != 'undefined' &&
+        typeof BlackHole3D.RealBIMWeb != 'undefined'
+    ) {
+        console.log("(typeof m_re_em_window_width != 'undefined') && (typeof m_re_em_window_height != 'undefined')");
+        RESystemReady();
+    }
+};
+function RESystemReady() {
+    var sysInfo = new BlackHole3D.RESysInfo();
+    sysInfo.workerjsPath = 'https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb_Worker.js';
+    sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
+    sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
+    sysInfo.commonUrl = 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_gol001';
+    sysInfo.userName = '';
+    sysInfo.passWord = '';
+    BlackHole3D.initEngineSys(sysInfo);
+    BlackHole3D.Common.setUseWebCache(true); //是否允许使用浏览器缓存
+}
+function REDataSetLoadProgress(e) {
+    var progBoxCntr = document.querySelector('.custom-loading-container');
+    var progBox = document.querySelector('.progress-bar-inner');
+    var progTxt = document.querySelector('.custom-text');
+    var progInfo = document.querySelector('.process-info-box');
+    var percent = e.detail.progress;
+    var processInfo = e.detail.info;
+    if (percent < 100) {
+        progBox.style.width = `${percent}%`;
+        progBoxCntr.style.display = 'flex';
+        progTxt.innerHTML = `${percent}%`;
+        progInfo.innerHTML = processInfo;
+    } else {
+        progBoxCntr.style.display = 'none';
+    }
+}
+//模型加载完成状态
+function REDataSetLoadFinish(e) {
+    if (e.detail.succeed) {
+        //模型加载完成！！！
+        document.getElementById('canvas').style.display = 'block';
+        BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
+    } else {
+        //模型加载失败！！！
+    }
+}
+
+function RESystemEngineCreated(e) {
+    console.log('当前 WebSDK 运行版本', BlackHole3D.getVersion());
+    console.log('=========================== 场景初始化完成');
+    var isSuccess = e.detail.succeed;
+    if (isSuccess) {
+        console.log('===========================  场景初始化 --> 成功！！！');
+        loadDataSet();
+    } else {
+        console.log('===========================  场景初始化 --> 失败！！！');
+    }
+}
