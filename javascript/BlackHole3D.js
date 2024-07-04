@@ -4587,7 +4587,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(elemAttr.elemClr, "elemClr")) return;
 
         var _attrvalid = true; if (!isEmpty(elemAttr.attrValid)) { _attrvalid = elemAttr.attrValid; }
-        var _probeMask = 1; if (!isEmpty(elemAttr.probeMask)) { _probeMask = elemAttr.probeMask; }
+        var _probeMask = 1; if (!isEmpty(elemAttr.probeMask)) { _probeMask = elemAttr.probeMask > 0 ? 1 : 0; }
         var obj_attr = {
             m_bAttrValid: _attrvalid,
             m_qClrBlend: [(elemAttr.elemClr.red / 255), (elemAttr.elemClr.green / 255), (elemAttr.elemClr.blue / 255), ((isEmpty(elemAttr.clrWeight) ? 255 : elemAttr.clrWeight) / 255)],
@@ -4616,7 +4616,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         blendAttr.elemClr = new REColor(_clr_R, _clr_G, _clr_B, _clr_A);
         blendAttr.clrWeight = _clr_W;
         blendAttr.alphaWeight = _alpha_W;
-        blendAttr.probeMask = curattr.m_uProbeMask / 255;
+        blendAttr.probeMask = curattr.m_uProbeMask > 0 ? 1 : 0;
         blendAttr.attrValid = curattr.m_bAttrValid;
         return blendAttr;
     }
@@ -6525,15 +6525,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 高亮显示部分或全部单体化区域，颜色为单体化选择集设置的统一颜色（临时有效）
-     * @param {String} elemIdList //构件id集合
+     * @param {Array} boxIdList //倾斜摄影单体化对象id集合
      */
-    Module.Grid.addToSelMonomerElemIDs = function (elemIdList) {
-        var _s = elemIdList.length;
+    Module.Grid.addToSelMonomerElemIDs = function (boxIdList) {
+        var _s = boxIdList.length;
         var _s01 = (_s * 4).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_s01);
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _s; ++i) {
-            var eleid = elemIdList[i];
+            var eleid = boxIdList[i];
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.AddUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
@@ -6541,15 +6541,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 将单体化区域从选择集中移除
-     * @param {String} elemIdList //构件id集合
+     * @param {Array} boxIdList //倾斜摄影单体化对象id集合
      */
-    Module.Grid.removeFromSelMonomerElemIDs = function (elemIdList) {
-        var _s = elemIdList.length;
+    Module.Grid.removeFromSelMonomerElemIDs = function (boxIdList) {
+        var _s = boxIdList.length;
         var _s01 = (_s * 4).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_s01);
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _s; ++i) {
-            var eleid = elemIdList[i];
+            var eleid = boxIdList[i];
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.RemoveUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
