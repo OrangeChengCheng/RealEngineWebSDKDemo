@@ -4649,10 +4649,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _curattr = Module.RealBIMWeb.GetSelElemsAttr();
         var _attrvalid = _curattr.m_bAttrValid;
         var _selAlpha = _curattr.m_vAlphaBlend;
-        var _selProbeMask = _curattr.m_uProbeMask
+        var _selProbeMask = _curattr.m_uProbeMask;
+        let _clrWeight = isEmpty(_curattr.m_qClrBlend) ? 1.0 : _curattr.m_qClrBlend[3];
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
+            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), _clrWeight],
             m_vAlphaBlend: _selAlpha,
             m_uProbeMask: _selProbeMask
         }
