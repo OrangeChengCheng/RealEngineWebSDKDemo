@@ -1,4 +1,4 @@
-//版本：v3.1.0.2602
+//版本：v3.1.0.2608
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -4626,15 +4626,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} elemClr //构件颜色（REColor 类型）
      * @param {Number} probeMask //探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
      * @param {Boolean} attrValid //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
+     * @param {Number} clrWeight //颜色权重, 此权重要使用必须配合颜色值存在（选填）
+     * @param {Number} alphaWeight //透明度权重, 此权重要使用必须配合透明度值存在（选填）
      */
-    Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid) {
+    Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid, clrWeight, alphaWeight) {
         if (isEmptyLog(elemClr, "elemClr")) return;
         var _attrvalid = true; if (!isEmpty(attrValid)) { _attrvalid = attrValid; }
         var _probeMask = 1; if (!isEmpty(probeMask)) { _probeMask = probeMask; }
+        let _clrWeight = isEmpty(clrWeight) ? 1.0 : clrWeight;
+        let _alphaWeight = isEmpty(alphaWeight) ? 1.0 : alphaWeight;
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
-            m_vAlphaBlend: [(elemClr.alpha / 255), 1.0],
+            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), _clrWeight],
+            m_vAlphaBlend: [(elemClr.alpha / 255), _alphaWeight],
             m_uProbeMask: _probeMask
         }
         Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
@@ -4650,9 +4654,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _attrvalid = _curattr.m_bAttrValid;
         var _selAlpha = _curattr.m_vAlphaBlend;
         var _selProbeMask = _curattr.m_uProbeMask
+        let _clrWeight = isEmpty(_curattr.m_qClrBlend) ? 1.0 : _curattr.m_qClrBlend[3];
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
+            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), _clrWeight],
             m_vAlphaBlend: _selAlpha,
             m_uProbeMask: _selProbeMask
         }
