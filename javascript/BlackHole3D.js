@@ -6509,38 +6509,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 高亮显示部分或全部单体化区域，颜色为 setMonomerElemData 接口设置的颜色
-     * @param {String} elemIdList //构件id集合
-     */
-    Module.Grid.setShowMonomerElemData = function (elemIdList) {
-        var _s = elemIdList.length;
-        var _s01 = (_s * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_s01);
-        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _s; ++i) {
-            var eleid = elemIdList[i];
-            _elemIds.set([eleid, 0], i * 2);
-        }
-        Module.RealBIMWeb.HighlightUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
-    }
-
-    /**
-     * 隐藏部分或全部单体化区域
-     * @param {String} elemIdList //构件id集合
-     */
-    Module.Grid.setHideMonomerElemData = function (elemIdList) {
-        var _s = elemIdList.length;
-        var _s01 = (_s * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_s01);
-        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _s; ++i) {
-            var eleid = elemIdList[i];
-            _elemIds.set([eleid, 0], i * 2);
-        }
-        Module.RealBIMWeb.CancelHighlightUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
-    }
-
-    /**
      * 高亮显示部分或全部单体化区域，颜色为单体化选择集设置的统一颜色（临时有效）
      * @param {Array} boxIdList //倾斜摄影单体化对象id集合
      */
