@@ -5696,6 +5696,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 获取图纸默认视口（最大值最小值）dMinX,dMinY 视口左下角坐标，dMaxX,dMaxY：视口右上角坐标
+     */
+    Module.CAD.getDefaultViewportRange = function () {
+        let _vector_range = Module.RealBIMWeb.GetCADDefaultViewport();
+        let range_obj = {};
+        if (_vector_range.size()) {
+            let _vMin = _vector_range.get(0);
+            let _vMax = _vector_range.get(1);
+            range_obj = {
+                minPot: _vMin,
+                maxPot: _vMax,
+            }
+        }
+        return range_obj;
+    }
+
+    /**
      * 设置当前视口范围及相机定位
      * @param {Array} minPot //视口左下角坐标
      * @param {Array} maxPot //视口右上角坐标
@@ -6590,6 +6607,56 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _clr = clrToU32(elemClr);
         Module.RealBIMWeb.SetUnverelemHideColor(_clr);
+    }
+
+    /**
+     * 设置单体化矢量是否可以被选中
+     * @param {Array} boxIdList //倾斜摄影单体化对象id集合, 空数组表示全部
+     * @param {Boolean} enable //是否能够选中，true：能选中  false：无法选中
+     */
+    Module.Grid.setMonomerElemSelEnable = function (boxIdList, enable) {
+        var _s = boxIdList.length;
+        var _s01 = (_s * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = boxIdList[i];
+            _elemIds.set([eleid], i);
+        }
+        Module.RealBIMWeb.SetUnverelemProbeMask(_elemIds.byteLength, _elemIds.byteOffset, enable);
+    }
+
+    /**
+     * 设置单体化矢量显示和隐藏
+     * @param {Array} boxIdList //倾斜摄影单体化对象id集合, 空数组表示全部
+     * @param {Boolean} visible //是否显示，true：显示  false：隐藏
+     */
+    Module.Grid.setMonomerElemVisible = function (boxIdList, visible) {
+        var _s = boxIdList.length;
+        var _s01 = (_s * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = boxIdList[i];
+            _elemIds.set([eleid], i);
+        }
+        Module.RealBIMWeb.SetUnverelemVisible(_elemIds.byteLength, _elemIds.byteOffset, visible);
+    }
+
+    /**
+     * 删除单体化矢量
+     * @param {Array} boxIdList //倾斜摄影单体化对象id集合, 空数组表示全部
+     */
+    Module.Grid.delMonomerElem = function (boxIdList) {
+        var _s = boxIdList.length;
+        var _s01 = (_s * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < _s; ++i) {
+            var eleid = boxIdList[i];
+            _elemIds.set([eleid], i);
+        }
+        Module.RealBIMWeb.DelUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
     }
 
 
