@@ -128,6 +128,13 @@ function REDataSetLoadFinish(e) {
 
     } else {
         console.log("===========================  引擎主场景模型加载 --> 部分模型加载失败！！！");
+        let dataSetIdList = BlackHole3D.Model.getAllDataSetId();// 获取所有加载的模型数据集标识
+        dataSetIdList.forEach(dataSetId => {
+            if (BlackHole3D.Model.getDataSetReady(dataSetId)) {
+                // 获取加载失败的数据集标识
+                console.log("模型加载失败：", dataSetId);
+            }
+        });
     }
 }
 
@@ -203,7 +210,7 @@ function loadModel() {
     var dataSetList = [
         {
             "dataSetId": "机房01",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_zhongyidong",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
             "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
             "dataSetCRS": "", "dataSetCRSNorth": 0.0
         },
@@ -216,6 +223,12 @@ function loadModel() {
         // {
         //     "dataSetId": "地形系统",
         //     "resourcesAddress": "http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_terrain_shx_2",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
+        // {
+        //     "dataSetId": "灯光效果",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_zhongyidong",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
