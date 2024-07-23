@@ -83,7 +83,7 @@ function RESystemReady() {
     BlackHole3D.initEngineSys(sysInfo);
     BlackHole3D.Common.setUseWebCache(false);//是否允许使用浏览器缓存
 
-    BlackHole3D.addUrlExtHeader("http://realbim.bjblackhole.cn:8008/*", "aaaa:application/testtype|Content-type:application/testtype02");
+    // BlackHole3D.addUrlExtHeader("http://realbim.bjblackhole.cn:8008/*", "aaaa:application/testtype|Content-type:application/testtype02");
     // window.BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", 'https://www.cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt');
     //   window.BlackHole3D.addPathIndex("RealEngineInitPathIndex", 'https://www.cim.xaxcsz.com/api/ecx-gateway/res/', 'https://www.cim.xaxcsz.com/api/ecx-gateway/pathindex/res/index.xml');
 }

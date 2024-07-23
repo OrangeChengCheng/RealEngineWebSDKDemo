@@ -9106,7 +9106,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory)//分配空间
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (let i = 0; i < dataList.length; i++) {
+            for (let i = 0; i < count; i++) {
                 let _obj = dataList[i];
                 let _list = _obj["elemIdList"];
                 let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj["dataSetId"]);
