@@ -5001,7 +5001,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
      */
     Module.BIM.setAutoLoadDist = function (dataSetId, minLoadDist, maxLoadDist) {
-        var _distinfo = [minLoadDist, maxLoadDist];
+        let _minLoadDist = isEmpty(minLoadDist) ? 1e+30 : minLoadDist;
+        let _maxLoadDist = isEmpty(maxLoadDist) ? 1e+30 : maxLoadDist;
+        if (minLoadDist == 0) _minLoadDist = 1e+30;
+        if (maxLoadDist == 0) _maxLoadDist = 1e+30;
+        var _distinfo = [_minLoadDist, _maxLoadDist];
         Module.RealBIMWeb.SetMainSceAutoLoadDist(dataSetId, _distinfo);
     }
 
