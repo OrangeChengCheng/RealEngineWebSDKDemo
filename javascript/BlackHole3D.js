@@ -1,4 +1,4 @@
-//版本：v3.1.0.2679
+//版本：v3.1.0.2690
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -2173,6 +2173,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ResetUserOperationOnUI();
     }
 
+    /**
+     * 设置 ViewCube 的区域位置
+     * @param {dvec2} areaPos //ViewCube 区域位置，取值范围【-1，1】，在范围内可以按照取值范围内的值进行调整，最大比例数值为9宫格排布方式（-1，1）左上角 （1，1）右上角 （-1，-1）左下角 （1，-1）右下角 （0，1）上 （0，-1）下 （-1，0）左 （1，0）右 （0，0）中   
+     */
+    Module.Graphics.setViewCubeArea = function (areaPos) {
+        let _areaPos = isEmpty(areaPos) ? [1,1] : areaPos;
+        return Module.RealBIMWeb.SetViewCubeCenter(_areaPos);
+    }
+
+    /**
+     * 获取 ViewCube 的区域位置
+     */
+    Module.Graphics.getViewCubeArea = function () {
+        return Module.RealBIMWeb.GetViewCubeCenter();
+    }
+
 
 
 
@@ -4161,21 +4177,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let elemAttrInfo = new REElemAttr();
             // let elemAttrInfo = {};
             elemAttrInfo.elemId = clrinfoarr[i];
-            let red = parseInt((clrinfoarr[i + 4]).toString(16).substring(6, 8), 16);
-            let green = parseInt((clrinfoarr[i + 4]).toString(16).substring(4, 6), 16);
-            let blue = parseInt((clrinfoarr[i + 4]).toString(16).substring(2, 4), 16);
-            let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
+            let red = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(6, 8), 16);
+            let green = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(4, 6), 16);
+            let blue = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(2, 4), 16);
+            let alpha = parseInt(conv32_hex16(clrinfoarr[i + 2]).substring(2, 4), 16);
             elemAttrInfo.elemClr = new REColor(red, green, blue, alpha);
-            elemAttrInfo.alphaWeight = parseInt((clrinfoarr[i + 2]).toString(16).substring(0, 2), 16);
-            elemAttrInfo.clrWeight = parseInt((clrinfoarr[i + 4]).toString(16).substring(0, 2), 16);
-            elemAttrInfo.elemEmis = parseInt((clrinfoarr[i + 5]).toString(16).substring(6, 8), 16);
-            elemAttrInfo.elemEmisPercent = parseInt((clrinfoarr[i + 5]).toString(16).substring(4, 6), 16);
-            let elemSmme = parseInt((clrinfoarr[i + 5]).toString(16).substring(2, 4), 16);
+            elemAttrInfo.alphaWeight = parseInt(conv32_hex16(clrinfoarr[i + 2]).substring(0, 2), 16);
+            elemAttrInfo.clrWeight = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(0, 2), 16);
+            elemAttrInfo.elemEmis = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(6, 8), 16);
+            elemAttrInfo.elemEmisPercent = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(4, 6), 16);
+            let elemSmme = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(2, 4), 16);
             let uElemSmooth = Math.round(((elemSmme & 0x3F) / 63.0) * 255.0);
             let uElemMeta = Math.round(((elemSmme >> 6) / 3.0) * 255.0);
             elemAttrInfo.elemSmooth = uElemSmooth;
             elemAttrInfo.elemMetal = uElemMeta;
-            elemAttrInfo.elemSmmePercent = parseInt((clrinfoarr[i + 5]).toString(16).substring(0, 2), 16);
+            elemAttrInfo.elemSmmePercent = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(0, 2), 16);
             elemAttrList.push(elemAttrInfo);
         }
         return elemAttrList;
@@ -4264,10 +4280,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (var i = 0; i < clrinfoarr.length; i += 4) {
             let elemClrInfo = {};
             elemClrInfo.elemId = clrinfoarr[i];
-            let red = parseInt((clrinfoarr[i + 3]).toString(16).substring(6, 8), 16);
-            let green = parseInt((clrinfoarr[i + 3]).toString(16).substring(4, 6), 16);
-            let blue = parseInt((clrinfoarr[i + 3]).toString(16).substring(2, 4), 16);
-            let alpha = parseInt((clrinfoarr[i + 2]).toString(16).substring(2, 4), 16);
+            let red = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(6, 8), 16);
+            let green = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(4, 6), 16);
+            let blue = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(2, 4), 16);
+            let alpha = parseInt(conv32_hex16(clrinfoarr[i + 2]).substring(2, 4), 16);
             elemClrInfo.elemClr = new REColor(red, green, blue, alpha);
             elemClrList.push(elemClrInfo);
         }
@@ -10749,6 +10765,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var pbrtemp = intemis + intemisratio * 256 + intsmooth * 65536 + intmetal * 4194304 + intsmmeratio * 16777216;
         var pbr = Math.round(pbrtemp);
         return pbr;
+    }
+
+    /**
+     * 32位整数转换位16进制字符串，在前导的零被省略的情况下进行补充
+     * @param {Number} num_32 //32位数值
+     */
+    function conv32_hex16(num_32) {
+        // 将整数转换为十六进制字符串
+        let hex = num_32.toString(16);
+        // 检查转换后的字符串长度，并用'0'填充到8个字符（即32位的一半）
+        // 这是因为每个十六进制位代表4个二进制位，所以32位需要8个十六进制字符
+        while (hex.length < 8) {
+            hex = '0' + hex;
+        }
+        return hex;
     }
 
     /**

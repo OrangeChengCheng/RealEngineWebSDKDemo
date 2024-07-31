@@ -251,6 +251,12 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
         // },
+        // {
+        //     "dataSetId": "小房子",
+        //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a14191abfddb3dd8cbcb87c99d5b614",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // { //天地图
         //     dataSetId: "天地图",
         //     resourcesAddress: "http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a12f4dee4f950d9cd9ba395db4e49a3"
