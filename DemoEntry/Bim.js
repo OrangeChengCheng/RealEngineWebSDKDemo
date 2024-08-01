@@ -206,7 +206,7 @@ function loadModel() {
 
     // BlackHole3D.addUrlExtParam("https://www.cim.xaxcsz.com/api/ecx-gateway/res*", "serviceid=1714135161618042881");
     // BlackHole3D.addUrlExtParam("http://10.218.51.104:9999/api/ecx-gateway/res*", "serviceid=1714135161618042881&token=123123");
-
+    
     var dataSetList = [
         {
             "dataSetId": "机房01",
