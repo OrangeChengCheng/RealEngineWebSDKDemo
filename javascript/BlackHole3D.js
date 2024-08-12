@@ -2711,14 +2711,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             if (!isEmpty(_lineTagCont.elemClr)) {
                 if (_elemType == "text") {
                     _elemClr = clrToU32(_lineTagCont.elemClr);
-                } else {
-                    let _clrT = deepClone(_lineTagCont.elemClr); _clrT.alpha = 0;
-                    _elemClr = clrToU32(_clrT);
                 }
-
             }
             if (_elemType == "tex") {
-                _texRegions.push_back({
+                let obj_t = {
                     m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
                     m_uFrameNumU: 1, m_uFrameNumV: 1,
                     m_uFrameStrideU: 0, m_uFrameStrideV: 0,
@@ -2726,9 +2722,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_strTexPath: _elemPicPath,
                     m_qTexRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 - 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 - 1],
                     m_uTexClrMult: _elemClr,
-                });
+                }
+                _texRegions.push_back(obj_t);
             } else {
-                _textRegions.push_back({
+                let obj_t = {
                     m_strGolFontID: _fontName,
                     m_bTextWeight: false,
                     m_uTextClr: _elemClr,
@@ -2737,7 +2734,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_qTextRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 + 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 + 1],
                     m_uTextFmtFlag: (0x2/*TEXT_FMT_VCENTER*/ | 0x10/*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100/*TEXT_FMT_WORDBREAK*/),
                     m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-                });
+                }
+                _textRegions.push_back(obj_t);
             }
             _cur_x += _elemWidth + _elemBorder * 2;
             if (_max_y < _elemHeight / 2) { _max_y = _elemHeight / 2; }
