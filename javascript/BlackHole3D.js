@@ -1,4 +1,4 @@
-//版本：v3.1.0.2706
+//版本：v3.1.0.2723
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -5701,6 +5701,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.getCurViewportRange = function () {
         let _vector_range = Module.RealBIMWeb.GetCADCurViewport();
+        let _currLayoutId = Module.RealBIMWeb.CADGetCurLayout();
         let range_obj = {};
         if (_vector_range.size()) {
             let _vMin = _vector_range.get(0);
@@ -5708,6 +5709,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             range_obj = {
                 minPot: _vMin,
                 maxPot: _vMax,
+                currLayoutId: _currLayoutId,
             }
         }
         return range_obj;
@@ -5725,6 +5727,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             range_obj = {
                 minPot: _vMin,
                 maxPot: _vMax,
+                currLayoutId: "Model",
             }
         }
         return range_obj;
@@ -5734,9 +5737,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置当前视口范围及相机定位
      * @param {Array} minPot //视口左下角坐标
      * @param {Array} maxPot //视口右上角坐标
+     * @param {String} layoutId //布局标识
      */
-    Module.CAD.setCurViewportRange = function (minPot, maxPot) {
-        Module.RealBIMWeb.FocusToViewport(minPot, maxPot);
+    Module.CAD.setCurViewportRange = function (minPot, maxPot, layoutId) {
+        let _layoutId = isEmpty(layoutId)? "Model" : layoutId;
+        Module.RealBIMWeb.FocusToViewport(_layoutId, minPot, maxPot);
     }
 
 
@@ -5759,6 +5764,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class RECADAnc {
         constructor() {
             this.anchorId = null;//	锚点的名称(字符串，唯一标识)
+            this.layoutId = "Model";// 布局标识(字符串，唯一标识)
             this.pos = [0.0, 0.0];//	锚点的位置，默认值[0, 0]
             this.style = 0;//	锚点的样式，目前CAD锚点仅支持4种默认样式，分别以数字0~3表示
             this.innerClr = new REColor(255, 255, 255, 255);//	内部元素颜色
@@ -5770,6 +5776,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class RECADShpAnc {
         constructor() {
             this.anchorId = null;//	锚点的名称(字符串，唯一标识)
+            this.layoutId = "Model";// 布局标识(字符串，唯一标识)
             this.pos = null;//	锚点的位置，默认值 [0,0,0]
             this.shpPath = null;//	表示使用的矢量文件路径
             this.groupId = null;//	表示锚点所属的组名称ID
@@ -5792,6 +5799,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (i = 0; i < ancList.length; ++i) {
             var _ancInfo = ancList[i];
             let _id = ""; if (!isEmpty(_ancInfo.anchorId)) _id = _ancInfo.anchorId;
+            let _layoutId = "Model"; if (!isEmpty(_ancInfo.layoutId)) _layoutId = _ancInfo.layoutId;
             let _pos = [0.0, 0.0]; if (!isEmpty(_ancInfo.pos)) _pos = _ancInfo.pos;
             let _innerClr = 0xffffffff; if (!isEmpty(_ancInfo.innerClr)) _innerClr = clrToU32(_ancInfo.innerClr);
             let _extClr = 0xff00ff00; if (!isEmpty(_ancInfo.extClr)) _extClr = clrToU32(_ancInfo.extClr);
@@ -5799,6 +5807,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             var tempobj = {
                 m_strID: _id,
+                m_strLayoutName: _layoutId,
                 m_vPos: _pos,
                 m_uClr1: _extClr,
                 m_uClr2: _innerClr,
@@ -5819,6 +5828,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         cadAnc.innerClr = clrU32ToClr(_ancData.m_uClr2);
         cadAnc.extClr = clrU32ToClr(_ancData.m_uClr1);
         cadAnc.anchorId = _ancData.m_strID;
+        cadAnc.layoutId = _ancData.m_strLayoutName;
         cadAnc.pos = _ancData.m_vPos;
         cadAnc.style = _ancData.m_uStyleID;
         return cadAnc;
@@ -5845,6 +5855,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             cadAnc.innerClr = clrU32ToClr(tempobj.m_uClr2);
             cadAnc.extClr = clrU32ToClr(tempobj.m_uClr1);
             cadAnc.anchorId = tempobj.m_strID;
+            cadAnc.layoutId = tempobj.m_strLayoutName;
             cadAnc.pos = tempobj.m_vPos;
             cadAnc.style = tempobj.m_uStyleID;
             arrAncData.push(cadAnc);
@@ -5883,6 +5894,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let shpAnc = shpAncList[i];
 
             var _id = ""; if (!isEmpty(shpAnc.anchorId)) _id = shpAnc.anchorId;
+            let _layoutId = "Model"; if (!isEmpty(shpAnc.layoutId)) _layoutId = shpAnc.layoutId;
             var _pos = [0.0, 0.0]; if (!isEmpty(shpAnc.pos)) _pos = shpAnc.pos;
             var _picPath = ""; if (!isEmpty(shpAnc.shpPath)) _picPath = shpAnc.shpPath;
             var _groupName = ""; if (!isEmpty(shpAnc.groupId)) _groupName = shpAnc.groupId;
@@ -5893,6 +5905,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             var tempobj = {
                 m_strID: _id,
+                m_strLayoutName: _layoutId,
                 m_vPos: _pos,
                 m_strShpPath: _picPath,
                 m_strGroupID: _groupName,
@@ -5920,6 +5933,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         shpAnc.shpPath = _ancData.m_strShpPath;
         shpAnc.groupId = _ancData.m_strGroupID;
         shpAnc.anchorId = _ancData.m_strID;
+        shpAnc.layoutId = _ancData.m_strLayoutName;
         shpAnc.textAlign = _ancData.m_vTextAlign;
         return shpAnc;
     }
@@ -5949,6 +5963,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             shpAnc.shpPath = tempobj.m_strShpPath;
             shpAnc.groupId = tempobj.m_strGroupID;
             shpAnc.anchorId = tempobj.m_strID;
+            shpAnc.layoutId = tempobj.m_strLayoutName;
             shpAnc.textAlign = tempobj.m_vTextAlign;
             arrAncData.push(shpAnc);
         }
@@ -6005,6 +6020,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             shpAnc.shpPath = tempobj.m_strShpPath;
             shpAnc.groupId = tempobj.m_strGroupID;
             shpAnc.anchorId = tempobj.m_strID;
+            shpAnc.layoutId = tempobj.m_strLayoutName;
             shpAnc.textAlign = tempobj.m_vTextAlign;
             arrAncData.push(shpAnc);
         }
@@ -6170,6 +6186,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
+    // MARK 布局
+
+    /**
+     * 获取所有布局标识
+     */
+    Module.CAD.getAllLayoutId = function () {
+        var tempArr = Module.RealBIMWeb.CADGetAllLayout();
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    }
+
+    /**
+     * 获取当前显示布局标识
+     */
+    Module.CAD.getCurLayoutId = function () {
+        return Module.RealBIMWeb.CADGetCurLayout();
+    }
+
+    /**
+     * 获取默认布局标识
+     */
+    Module.CAD.getDefaultLayoutId = function () {
+        return Module.RealBIMWeb.CADGetActiveLayout();
+    }
+
+    /**
+     * 切换当前显示布局
+     * @param {String} layoutId //布局标识
+     */
+    Module.CAD.setCurShowLayout = function (layoutId) {
+        let _layoutId = isEmpty(layoutId) ? "Model" : layoutId;
+        Module.RealBIMWeb.CADSwitchLayout(_layoutId);
+    }
 
 
 
