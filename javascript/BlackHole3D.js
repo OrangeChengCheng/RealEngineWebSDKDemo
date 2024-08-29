@@ -44,12 +44,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             false, 500, "", _commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
             sysInfo.userName, sysInfo.passWord);
         if (isPhoneMode) {
-            Module.SkyBox.setSkyAtmActive(false);
-            Module.Common.setReflState(false);
-            Module.Common.setShadowState(false);
-            Module.Common.setGhostState(false);
-            Module.Common.setAOState(false);
-            Module.Common.setSceOITLev(0);
+            // Module.SkyBox.setSkyAtmActive(false);
+            // Module.Common.setReflState(false);
+            // Module.Common.setShadowState(false);
+            // Module.Common.setGhostState(false);
+            // Module.Common.setAOState(false);
+            // Module.Common.setSceOITLev(0);
             Module.setOperationMode(1);
         }
         return bool;
