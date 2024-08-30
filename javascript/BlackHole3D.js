@@ -824,6 +824,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} spotLights //聚光灯信息集合 （RESpotLightInfo 类型）
      */
     Module.Light.addSpotLights = function (dataSetId, spotLights) {
+    // Module.Light.addSpotLights = function (dataSetId, spotLights, bLocalSpace) {
         if (isEmptyLog(dataSetId, "dataSetId")) return false;
         if (isEmpty(spotLights) || !spotLights.length) { logParErr("spotLights"); return false; }
 
@@ -852,6 +853,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             vector_SPOT_INFO.push_back(spot_info);
         }
         return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, dataSetId === "" ? false : true);
+        // return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, bLocalSpace);
     }
 
     /**
