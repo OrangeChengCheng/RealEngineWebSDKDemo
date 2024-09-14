@@ -1,4 +1,4 @@
-//版本：v3.1.0.2747
+//版本：v3.1.0.2748
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1756,6 +1756,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.delGeoCoord = function (name) {
         return Module.RealBIMWeb.DelGeoCoordInfo(name);
+    }
+
+    /**
+     * 设置当前选中展示的地理信息坐标 
+     * @param {String} name //坐标系的显示名称, 空字符串为默认地理信息坐标
+     */
+    Module.Coordinate.setCurrSelGeoCoord = function (name) {
+        let _name = (isEmpty(name) || name === "") ? "引擎坐标" : name;
+        Module.RealBIMWeb.SetCurrentCoordSystemShapeName(_name);
     }
 
     /**
