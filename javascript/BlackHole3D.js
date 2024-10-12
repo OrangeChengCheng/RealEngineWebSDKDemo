@@ -1,4 +1,4 @@
-//版本：v3.1.0.2763
+﻿//版本：v3.1.0.2769
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1448,7 +1448,40 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+    class REAxisInfo {
+        // 轴信息
+        constructor() {
+            this.up = [1e30, 1e30, 1e30];//上轴向量
+            this.viewLine = [1e30, 1e30, 1e30];//视角方向
+        }
+    }
+    ExtModule.REAxisInfo = REAxisInfo;
 
+    /**
+     * 获取轴信息转换四元数信息
+     * @param {REAxisInfo} axisInfo //轴信息
+     */
+    Module.Camera.getQuatByAxis = function (axisInfo) {
+        let cAxisInfo = {
+            m_vUp: axisInfo.up,
+            m_vViewLine: axisInfo.viewLine,
+            // m_vViewLine: axisInfo.viewLine.map(item => item * -1.0),
+        }
+        let _qRotate = Module.RealBIMWeb.GetQuatByAxis(cAxisInfo);
+        return _qRotate;
+    }
+
+    /**
+     * 获取四元数信息转换轴信息
+     * @param {dvec4} rotate //四元数信息
+     */
+    Module.Camera.getAxisByQuat = function (rotate) {
+        let _cAxisInfo = Module.RealBIMWeb.GetAxisByQuat(rotate);
+        let axisInfo = new REAxisInfo();
+        axisInfo.up = _cAxisInfo.m_vUp;
+        axisInfo.viewLine = _cAxisInfo.m_vViewLine;
+        return axisInfo;
+    }
 
 
 
