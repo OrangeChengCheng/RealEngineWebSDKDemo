@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2769
+﻿//版本：v3.1.0.2786
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
 
@@ -1345,18 +1345,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
      */
     Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
-        if (isEmptyLog(forceCamLoc, "forceCamLoc")) return false;
-        if (isEmptyLog(forceCamLoc.camPos, "camPos")) return false;
-        if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return false;
+        if (isEmptyLog(forceCamLoc, "forceCamLoc")) return;
+        if (isEmptyLog(forceCamLoc.camPos, "camPos")) return;
+        if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return;
 
         var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
 
         if (forceCamLoc.camRotate[0] != 1e30) {
             Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
+            return;
         }
         if (forceCamLoc.camDir[0] != 1e30) {
             var _camLocConv = Module.RealBIMWeb.GetCamLocConvert(forceCamLoc.camPos, forceCamLoc.camDir);
             Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
+            return;
         }
     }
 
@@ -5789,6 +5791,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+    /**
+     * 调整相机定位到一个区域标注
+     * @param {String} areaCommentId //区域标注标识(字符串，唯一标识)
+     * @param {Number} scale //表示相机聚焦后的视口缩放比例，默认为1.0，该值越大，相机距离图元越远
+     */
+    Module.CAD.setCamLocateToAreaComment = function (areaCommentId, scale) {
+        if (isEmptyLog(areaCommentId, "areaCommentId")) return;
+        Module.RealBIMWeb.CADFocusToCustomComment(areaCommentId, scale);
+    }
+
 
 
 
@@ -6168,6 +6180,61 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
 
+
+    class RECADAreaComment {
+        constructor() {
+            this.areaCommentId = null;//区域标注标识(字符串，唯一标识)
+            this.pointList = null;//	二维顶点列表, 最少三个点，自动闭合
+            this.lineWith = 0;//线宽, 0 :默认线宽
+            this.lineClr = new REColor(255, 255, 255, 255);//	线条颜色
+            this.needFill = false;//	是否需要填充
+            this.fillClr = new REColor(255, 255, 255, 255);//	填充颜色，needFill=true 有效
+        }
+    }
+    ExtModule.RECADAreaComment = RECADAreaComment;
+
+    /**
+     * 添加区域标注
+     * @param {RECADAreaComment} areaComentInfo //区域标注对象，（RECADAreaComment 类型）
+     */
+    Module.CAD.addAreaComment = function (areaComentInfo) {
+        if (isEmptyLog(areaComentInfo.areaCommentId, "areaCommentId")) return;
+        if (!checkTypeLog(areaComentInfo.pointList, 'pointList', RE_Enum.RE_Check_Array)) return;
+
+        if (areaComentInfo.pointList.length < 3) {
+            logErr("pointList 点集合, 最少大于等于3个数据");
+            return;
+        }
+        var _vector_CADPoints = new Module.RE_Vector_dvec2();
+        for (let i = 0; i < areaComentInfo.pointList.length; i++) {
+            let point = areaComentInfo.pointList[i];
+            if (!checkArrCountLog(point, 'pointList', 2)) return {};
+            _vector_CADPoints.push_back(point);
+        }
+        let _lineWith = isEmpty(areaComentInfo.lineWith) ? 0 : areaComentInfo.lineWith;
+        let _lineClr = isEmpty(areaComentInfo.lineClr) ? 0xff0000ff : clrToU32(areaComentInfo.lineClr);
+        let _needFill = isEmpty(areaComentInfo.needFill) ? fasle : areaComentInfo.needFill;
+        let _fillClr = isEmpty(areaComentInfo.lineWith) ? 0xff0000ff : clrToU32(areaComentInfo.fillClr);
+
+        Module.RealBIMWeb.CADAddCustomComment(areaComentInfo.areaCommentId, _vector_CADPoints, _lineWith, _lineClr, _needFill, _fillClr);
+    }
+
+
+
+    /**
+     * 删除区域标注
+     * @param {String} areaCommentId //区域标注标识(字符串，唯一标识)
+     */
+    Module.CAD.delAreaComment = function (areaCommentId) {
+        if (isEmptyLog(areaCommentId, "areaCommentId")) return;
+        Module.RealBIMWeb.CADDeleteCustomCommentById(areaCommentId);
+    }
+
+    
+
+    
+
+
     // MARK 测量
     /**
      * 开启测量绘制
@@ -6273,7 +6340,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
 
 
-
+    
 
 
 
