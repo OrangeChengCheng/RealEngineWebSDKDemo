@@ -44,12 +44,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             false, 500, "", _commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
             sysInfo.userName, sysInfo.passWord);
         if (isPhoneMode) {
-            // Module.SkyBox.setSkyAtmActive(false);
-            // Module.Common.setReflState(false);
-            // Module.Common.setShadowState(false);
-            // Module.Common.setGhostState(false);
-            // Module.Common.setAOState(false);
-            // Module.Common.setSceOITLev(0);
+            if (isMobilDevice_ios()) {
+                Module.SkyBox.setSkyAtmActive(false);
+                Module.Common.setReflState(false);
+                Module.Common.setShadowState(false);
+                Module.Common.setGhostState(false);
+                Module.Common.setAOState(false);
+                Module.Common.setSceOITLev(0);
+            }
             Module.setOperationMode(1);
         }
         return bool;
@@ -11009,6 +11011,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return obj
     }
 
+    /**
+     * 判断是否是移动端设备
+     */
+    function isMobilDevice() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const patterns = [
+            /ipad/i,
+            /iphone os/i,
+            /midp/i,
+            /rv:1.2.3.4/i,
+            /ucweb/i,
+            /android/i,
+            /windows ce/i,
+            /windows mobil/i
+        ];
+        return patterns.some(pattern => pattern.test(userAgent));
+    }
+    
+    /**
+     * 判断是否是 ios 移动端设备
+     */
+    function isMobilDevice_ios() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const patterns = [
+            /ipad/i,
+            /iphone os/i,
+        ];
+        return patterns.some(pattern => pattern.test(userAgent));
+    }
 
 
 
