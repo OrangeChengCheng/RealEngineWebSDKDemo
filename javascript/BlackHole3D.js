@@ -1,27 +1,25 @@
-﻿//版本：v3.1.0.2786
+﻿//版本：v3.1.0.2805
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
-
     ExtModule = ExtModule || {};
-    var Module = typeof ExtModule !== "undefined" ? ExtModule : {};
+    var Module = typeof ExtModule !== 'undefined' ? ExtModule : {};
 
-    CreateModuleRE2(ExtModule).then(instance => {
+    CreateModuleRE2(ExtModule).then((instance) => {
         ExtModule = instance;
     }); //创建引擎模块
-
 
     // MOD-- 引擎模块
     // MARK 基础
     class RESysInfo {
         // 引擎参数模型
         constructor() {
-            this.workerjsPath = null;//相对于html页面的RealBIMWeb_Worker.js的路径
-            this.renderWidth = 0;//初始化图形窗口的宽度
-            this.renderHieght = 0;//初始化图形窗口的高度
-            this.commonUrl = null;//引擎调用的公共资源的路径
-            this.userName = "";//引擎资源发布服务配套的用户名
-            this.passWord = "";//引擎资源发布服务配套的密码
-            this.mainWndName = 'BlackHole';//表示主窗口的名称,对应document.title，默认值 "BlackHole"
+            this.workerjsPath = null; //相对于html页面的RealBIMWeb_Worker.js的路径
+            this.renderWidth = 0; //初始化图形窗口的宽度
+            this.renderHieght = 0; //初始化图形窗口的高度
+            this.commonUrl = null; //引擎调用的公共资源的路径
+            this.userName = ''; //引擎资源发布服务配套的用户名
+            this.passWord = ''; //引擎资源发布服务配套的密码
+            this.mainWndName = 'BlackHole'; //表示主窗口的名称,对应document.title，默认值 "BlackHole"
         }
     }
     ExtModule.RESysInfo = RESysInfo;
@@ -34,15 +32,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(sysInfo, 'sysInfo')) return;
         if (isEmptyLog(sysInfo.workerjsPath, 'workerjsPath')) return;
 
-        var _commonUrl = isEmpty(sysInfo.commonUrl) ? "" : sysInfo.commonUrl;
+        var _commonUrl = isEmpty(sysInfo.commonUrl) ? '' : sysInfo.commonUrl;
         // if (!isEmpty(sysInfo.commonUrl)) sessionStorage.setItem("RECommonUrl", sysInfo.commonUrl);//保存资源地址
-        Module['m_re_em_force_threadnum'] = isPhoneMode ? 1 : 8;//移动端强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
-        Module["m_re_em_window_width"] = sysInfo.renderWidth;
-        Module["m_re_em_window_height"] = sysInfo.renderHieght;
-        var _strMainWndName = "BlackHole"; if (!isEmpty(sysInfo.mainWndName)) _strMainWndName = sysInfo.mainWndName;
-        var bool = Module.RealBIMWeb.CreateEmuMgr(sysInfo.workerjsPath, _strMainWndName, sysInfo.renderWidth, sysInfo.renderHieght,
-            false, 500, "", _commonUrl, "/ModuleDir/TempFile/", "/WebCache0001/",
-            sysInfo.userName, sysInfo.passWord);
+        Module['m_re_em_force_threadnum'] = isPhoneMode ? 1 : 8; //移动端强制将CPU核心数设为1，以避免浏览器创建多个WebWorker时造成内存耗尽
+        Module['m_re_em_window_width'] = sysInfo.renderWidth;
+        Module['m_re_em_window_height'] = sysInfo.renderHieght;
+        var _strMainWndName = 'BlackHole';
+        if (!isEmpty(sysInfo.mainWndName)) _strMainWndName = sysInfo.mainWndName;
+        var bool = Module.RealBIMWeb.CreateEmuMgr(
+            sysInfo.workerjsPath,
+            _strMainWndName,
+            sysInfo.renderWidth,
+            sysInfo.renderHieght,
+            false,
+            500,
+            '',
+            _commonUrl,
+            '/ModuleDir/TempFile/',
+            '/WebCache0001/',
+            sysInfo.userName,
+            sysInfo.passWord
+        );
         if (isPhoneMode) {
             if (isMobilDevice_ios()) {
                 Module.SkyBox.setSkyAtmActive(false);
@@ -55,7 +65,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.setOperationMode(1);
         }
         return bool;
-    }
+    };
 
     /**
      * 添加一个HTTP路径授权信息
@@ -66,7 +76,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!checkTypeLog(identifyName, 'identifyName', RE_Enum.RE_Check_String)) return;
         if (!checkTypeLog(filePath, 'filePath', RE_Enum.RE_Check_String)) return;
         return Module.RealBIMWeb.AddAURLPathCtrl_AuthorPath(identifyName, filePath);
-    }
+    };
 
     /**
      * 添加一个HTTP路径索引信息
@@ -79,7 +89,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!checkTypeLog(rootURL, 'rootURL', RE_Enum.RE_Check_String)) return;
         if (!checkTypeLog(filePath, 'filePath', RE_Enum.RE_Check_String)) return;
         return Module.RealBIMWeb.AddAURLPathCtrl_PathIndex(identifyName, rootURL, filePath);
-    }
+    };
 
     /**
      * 添加一个URL自定义参数字段信息
@@ -88,14 +98,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.addUrlExtParam = function (urlWildcard, paramStr) {
         return Module.RealBIMWeb.AddAURLExtParam(urlWildcard, paramStr);
-    }
+    };
 
     /**
      * 删除所有的URL自定义参数字段信息
      */
     Module.delAllURLExtParams = function () {
         Module.RealBIMWeb.DelAllURLExtParams();
-    }
+    };
 
     /**
      * 添加一个URL自定义请求头信息
@@ -104,21 +114,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.addUrlExtHeader = function (urlWildcard, headerStr) {
         return Module.RealBIMWeb.AddAURLExtHeader(urlWildcard, headerStr);
-    }
+    };
 
     /**
      * 删除所有的URL自定义请求头信息
      */
     Module.delAllURLExtHeaders = function () {
         Module.RealBIMWeb.DelAllURLExtHeaders();
-    }
+    };
 
     /**
      * 释放引擎所占用的浏览器资源
      * @param {Boolean} clearWebWorker //是否同步清除已创建的webWorker
      */
     Module.releaseEngine = function (clearWebWorker) {
-        var _bClearWebWorker = false; if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
+        var _bClearWebWorker = false;
+        if (!isEmpty(clearWebWorker)) _bClearWebWorker = clearWebWorker;
         Module.RealBIMWeb.ReleaseEmuMgr(_bClearWebWorker);
         //释放显存
         if (typeof Module.ctx != 'undefined') {
@@ -126,31 +137,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.ctx.getExtension('WEBGL_lose_context').loseContext();
             }
         }
-    }
+    };
 
     /**
      * 获取当前SDK版本
      */
     Module.getVersion = function () {
         return Module.RealBIMWeb.GetRealEngineVersion();
-    }
+    };
 
     /**
      * 暂停渲染主循环
      */
     Module.pauseRenderLoop = function () {
         Module.RealBIMWeb.PauseRenderLoop();
-    }
+    };
 
     /**
      * 恢复渲染主循环
      */
     Module.resumeRenderLoop = function () {
         Module.RealBIMWeb.ResumeRenderLoop();
-    }
-
-
-
+    };
 
     // MARK 效果展示
     /**
@@ -161,7 +169,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.setViewMode = function (viewport0, viewport1, screenMode) {
         Module.RealBIMWeb.SetViewMode(viewport0, viewport1, screenMode);
-    }
+    };
 
     /**
      * 设置360相机与BIM相机是否同步
@@ -169,23 +177,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.setViewSyn = function (isSync) {
         Module.RealBIMWeb.SetViewSyn(isSync);
-    }
+    };
 
     /**
      * 获取当前设置的360相机与BIM相机是否同步状态
      */
     Module.getViewSyn = function () {
         return Module.RealBIMWeb.GetViewSyn();
-    }
+    };
 
     /**
      * 生成屏幕快照
      */
     Module.getScreenSnapshot = function () {
         return Module.canvas.toDataURL();
-    }
-
-
+    };
 
     // MARK 操作
     /**
@@ -193,7 +199,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.getCamRevLR = function () {
         return Module.RealBIMWeb.GetCamRevLR();
-    }
+    };
 
     /**
      * 设置是否翻转鼠标左右相机拖动键操作行为
@@ -201,14 +207,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.setCamRevLR = function (reverseLR) {
         Module.RealBIMWeb.SetCamRevLR(reverseLR);
-    }
+    };
 
     /**
      * 获取是否允许ESC键退出测量/剖切操作
      */
     Module.getEscKeyExitOpEnable = function () {
         return Module.RealBIMWeb.EscKeyExitOpEnable();
-    }
+    };
 
     /**
      * 设置是否允许ESC键退出测量/剖切操作
@@ -216,22 +222,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.setEscKeyExitOpEnable = function (enable) {
         Module.RealBIMWeb.SetEscKeyExitOpEnable(enable);
-    }
+    };
 
     /**
      * 设置当前的操作模式
      * @param {Number} operationMode //模式类型 0:鼠标操作操作 1:触控操作
      */
     Module.setOperationMode = function (operationMode) {
-        var _operationMode = Module.RE_INPUT_TYPE.MOUSE; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH);
+        var _operationMode = Module.RE_INPUT_TYPE.MOUSE;
+        if (!isEmpty(operationMode)) _operationMode = operationMode == 0 ? Module.RE_INPUT_TYPE.MOUSE : Module.RE_INPUT_TYPE.TOUCH;
         Module.RealBIMWeb.SetInputType(_operationMode);
-    }
+    };
 
     //获取当前的操作模式(0:鼠标操作操作 1:触控操作)
     Module.getOperationMode = function () {
         var _type = Module.RealBIMWeb.GetInputType();
-        return (_type == Module.RE_INPUT_TYPE.MOUSE) ? 0 : 1;
-    }
+        return _type == Module.RE_INPUT_TYPE.MOUSE ? 0 : 1;
+    };
 
     /**
      * 设置鼠标中键按下对应的相机操作
@@ -245,7 +252,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
         Module.RealBIMWeb.SetCamModeOnMidBtnDown(_operationMode);
-    }
+    };
 
     //获取鼠标中键按下对应的相机操作
     Module.getCamModeOnMidBtnDown = function () {
@@ -256,7 +263,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
         return numType;
-    }
+    };
 
     /**
      * 设置鼠标左键按下对应的相机操作
@@ -270,7 +277,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
         Module.RealBIMWeb.SetCamModeOnLBtnDown(_operationMode);
-    }
+    };
 
     //获取鼠标左键按下对应的相机操作
     Module.getCamModeOnLeftBtnDown = function () {
@@ -281,7 +288,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
         return numType;
-    }
+    };
 
     /**
      * 设置鼠标右键按下对应的相机操作
@@ -295,7 +302,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
         Module.RealBIMWeb.SetCamModeOnRBtnDown(_operationMode);
-    }
+    };
 
     //获取鼠标右键按下对应的相机操作
     Module.getCamModeOnRightBtnDown = function () {
@@ -306,21 +313,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
         return numType;
-    }
+    };
 
     /**
      * 设置Ctrl+点选已选构件模式
      * @param {Number} operationMode //模式类型 0:反选构件 1:穿透构件
      */
     Module.setCtrlSelectedMode = function (operationMode) {
-        var _operationMode = 0; if (!isEmpty(operationMode)) _operationMode = ((operationMode == 0) ? 0 : 1);
+        var _operationMode = 0;
+        if (!isEmpty(operationMode)) _operationMode = operationMode == 0 ? 0 : 1;
         Module.RealBIMWeb.SetCtrlSelectedMode(_operationMode);
-    }
+    };
 
     //获取Ctrl+点选已选构件模式
     Module.getCtrlSelectedMode = function () {
         return Module.RealBIMWeb.GetCtrlSelectedMode();
-    }
+    };
 
     /**
      * 设置相机操作固定中心点
@@ -330,31 +338,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.setCamFixCenterPos = function (centerPos, enable) {
         let _enable = isEmpty(enable) ? true : enable;
         Module.RealBIMWeb.SetFixCamProbePos(_enable, centerPos);
-    }
+    };
 
     //获取相机操作固定中心点是否生效
     Module.getCamFixCenterPosEnable = function () {
         return Module.RealBIMWeb.GetIsFixCamProbePos();
-    }
-
-
-
-
-
+    };
 
     // MOD-- 公共模块（Common）
-    Module.Common = typeof Module.Common !== "undefined" ? Module.Common : {};//增加 Common 模块
+    Module.Common = typeof Module.Common !== 'undefined' ? Module.Common : {}; //增加 Common 模块
     class REColor {
         //颜色公共模型
         constructor(red, green, blue, alpha) {
-            this.red = !isEmpty(red) ? red : 255;//红色
-            this.green = !isEmpty(green) ? green : 255;//绿色
-            this.blue = !isEmpty(blue) ? blue : 255;//蓝色
-            this.alpha = !isEmpty(alpha) ? alpha : 255;//透明度
+            this.red = !isEmpty(red) ? red : 255; //红色
+            this.green = !isEmpty(green) ? green : 255; //绿色
+            this.blue = !isEmpty(blue) ? blue : 255; //蓝色
+            this.alpha = !isEmpty(alpha) ? alpha : 255; //透明度
         }
     }
     ExtModule.REColor = REColor;
-
 
     // MARK 性能
     /**
@@ -363,14 +365,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setMaxResMemMB = function (size) {
         Module.RealBIMWeb.SetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK, size);
-    }
+    };
 
     /**
      * 获取渲染时引擎最大允许的内存占用空间(以MB为单位)
      */
     Module.Common.getMaxResMemMB = function () {
         return Module.RealBIMWeb.GetMaxResMemMB(Module.RE_ResourceMgr_MEM.HUGEMBLOCK);
-    }
+    };
 
     /**
      * 设置渲染时引擎建议分配的内存空间(以MB为单位)
@@ -378,14 +380,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setExpectMaxInstMemMB = function (size) {
         Module.RealBIMWeb.SetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, size);
-    }
+    };
 
     /**
      * 获取渲染时引擎建议分配的内存空间(以MB为单位)
      */
     Module.Common.getExpectMaxInstMemMB = function () {
         return Module.RealBIMWeb.GetExpectMaxInstMemMB(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-    }
+    };
 
     /**
      * 设置模型每帧最大渲染面数
@@ -393,14 +395,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setExpectMaxInstDrawFaceNum = function (size) {
         Module.RealBIMWeb.SetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL, size);
-    }
+    };
 
     /**
      * 获取模型每帧最大渲染面数
      */
     Module.Common.getExpectMaxInstDrawFaceNum = function () {
         return Module.RealBIMWeb.GetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
-    }
+    };
 
     /**
      * 设置页面调度等级
@@ -408,14 +410,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setPageLoadLev = function (level) {
         Module.RealBIMWeb.SetPageLoadLev(level);
-    }
+    };
 
     /**
      * 获取页面调度等级
      */
     Module.Common.getPageLoadLev = function () {
         return Module.RealBIMWeb.GetPageLoadLev();
-    }
+    };
 
     /**
      * 设置每帧允许的最大资源加载总数
@@ -427,14 +429,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else if (count == 1) {
             Module.RealBIMWeb.SetTotalResMaxLoadNumPerFrame(0xffffffff);
         }
-    }
+    };
 
     /**
      * 获取每帧允许的最大资源加载总数
      */
     Module.Common.getTotalResMaxLoadNum = function () {
         return Module.RealBIMWeb.GetTotalResMaxLoadNumPerFrame();
-    }
+    };
 
     /**
      * 设置网络资源加载是否使用缓存
@@ -442,18 +444,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setUseWebCache = function (isUse) {
         Module.RealBIMWeb.SetUseWebCache(isUse);
-    }
+    };
 
     /**
      * 获取网络资源加载是否使用缓存
      */
     Module.Common.getUseWebCache = function () {
         return Module.RealBIMWeb.GetUseWebCache();
-    }
-
+    };
 
     // MARK 渲染效果
-
 
     /**
      * 设置边缘高光效果的启用状态
@@ -461,14 +461,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setBorderEmisEnable = function (enable) {
         Module.RealBIMWeb.SetHugeModelBorderEmisEnable(enable);
-    }
+    };
 
     /**
      * 获取边缘高光效果的启用状态
      */
     Module.Common.getBorderEmisEnable = function () {
         return Module.RealBIMWeb.GetHugeModelBorderEmisEnable();
-    }
+    };
 
     /**
      * 设置阴影开关状态
@@ -478,7 +478,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var sinfo = Module.RealBIMWeb.GetSceShadowInfo();
         sinfo.m_bShadowEnable = enable;
         Module.RealBIMWeb.SetSceShadowInfo(sinfo);
-    }
+    };
 
     /**
      * 获取当前阴影开关状态
@@ -486,7 +486,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Common.getShadowState = function () {
         var shadowinfo = Module.RealBIMWeb.GetSceShadowInfo();
         return shadowinfo.m_bShadowEnable;
-    }
+    };
 
     /**
      * 设置场景光晕开关状态
@@ -494,18 +494,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setGhostState = function (enable) {
         var sinfo = Module.RealBIMWeb.GetSceLightInfo();
-        if (enable) { sinfo.m_fGhostAmp = 0.5; } else { sinfo.m_fGhostAmp = 0; }
+        if (enable) {
+            sinfo.m_fGhostAmp = 0.5;
+        } else {
+            sinfo.m_fGhostAmp = 0;
+        }
         Module.RealBIMWeb.SetSceLightInfo(sinfo);
-    }
+    };
 
     /**
      * 获取当前场景光晕开关状态
      */
     Module.Common.getGhostState = function () {
         var ghostinfo = Module.RealBIMWeb.GetSceLightInfo();
-        var _info = (ghostinfo.m_fGhostAmp == 0) ? 0 : 1;
+        var _info = ghostinfo.m_fGhostAmp == 0 ? 0 : 1;
         return _info;
-    }
+    };
 
     /**
      * 设置场景环境遮蔽开关状态
@@ -513,17 +517,63 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setAOState = function (enable) {
         var _info = Module.RealBIMWeb.GetSceAOInfo();
-        if (enable) { _info.m_fMinLum = 0.1; } else { _info.m_fMinLum = 1.0; }
+        if (enable) {
+            _info.m_fMinLum = 0.1;
+        } else {
+            _info.m_fMinLum = 1.0;
+        }
         Module.RealBIMWeb.SetSceAOInfo(_info);
-    }
+    };
 
     /**
      * 获取当前场景环境遮蔽开关状态
      */
     Module.Common.getAOState = function () {
         var _info = Module.RealBIMWeb.GetSceAOInfo();
-        return (_info.m_fMinLum < 0.999) ? true : false;
+        return _info.m_fMinLum < 0.999 ? true : false;
+    };
+
+    class RESceAOInfo {
+        //场景环境遮蔽信息
+        constructor() {
+            this.quality = 1; //表示环境遮蔽的质量等级(0->残影多，效率高；1->残影少，效率低)
+            this.minLum = 0.1; //表示环境遮挡后的最小环境亮度系数(0~1)，若大于等于1则表示关闭环境遮挡效果
+            this.cornerExpectAO = 0.9; //表示在模型直角褶皱处的期望被遮挡强度(0~1)
+            this.sampRadius = 1.0; //表示环境遮挡的随机采样点在世界空间下的基准半径
+            this.sampRadiusTrans = [0.0, 0.144337565]; //表示环境遮挡的随机采样点基准半径随相机距离的自动缩放系数
+        }
     }
+    ExtModule.RESceAOInfo = RESceAOInfo;
+
+    /**
+     * 设置场景环境遮蔽信息
+     * @param {RESceAOInfo} sceAOInfo //场景环境遮蔽信息 (RESceAOInfo 类型)
+     */
+    Module.Common.setSceAOInfo = function (sceAOInfo) {
+        if (isEmptyLog(sceAOInfo, 'sceAOInfo')) return;
+        let _cInfo = {
+            m_uQuality: isEmpty(sceAOInfo.quality) ? 1 : sceAOInfo.quality,
+            m_fMinLum: isEmpty(sceAOInfo.minLum) ? 0.1 : sceAOInfo.minLum,
+            m_fCornerExpectAO: isEmpty(sceAOInfo.cornerExpectAO) ? 0.9 : sceAOInfo.cornerExpectAO,
+            m_fSampRadius: isEmpty(sceAOInfo.sampRadius) ? 1.0 : sceAOInfo.sampRadius,
+            m_vSampRadiusTrans: isEmpty(sceAOInfo.sampRadiusTrans) ? [0.0, 0.144337565] : sceAOInfo.sampRadiusTrans,
+        };
+        Module.RealBIMWeb.SetSceAOInfo(_cInfo);
+    };
+
+    /**
+     * 获取场景环境遮蔽信息
+     */
+    Module.Common.getSceAOInfo = function () {
+        var _info = Module.RealBIMWeb.GetSceAOInfo();
+        let _sceAOInfo = new Module.RESceAOInfo();
+        _sceAOInfo.quality = _info.m_uQuality;
+        _sceAOInfo.minLum = _info.m_fMinLum;
+        _sceAOInfo.cornerExpectAO = _info.m_fCornerExpectAO;
+        _sceAOInfo.sampRadius = _info.m_fSampRadius;
+        _sceAOInfo.sampRadiusTrans = _info.m_vSampRadiusTrans;
+        return _sceAOInfo;
+    };
 
     /**
      * 设置场景实时反射开关状态
@@ -531,17 +581,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setReflState = function (enable) {
         var _info = Module.RealBIMWeb.GetSceReflInfo();
-        if (enable) { _info.m_uQuality = 1; } else { _info.m_uQuality = 0; }
+        if (enable) {
+            _info.m_uQuality = 1;
+        } else {
+            _info.m_uQuality = 0;
+        }
         Module.RealBIMWeb.SetSceReflInfo(_info);
-    }
+    };
 
     /**
      * 获取当前场景实时反射开关状态
      */
     Module.Common.getReflState = function () {
         var _info = Module.RealBIMWeb.GetSceReflInfo();
-        return (_info.m_uQuality > 0) ? true : false;
-    }
+        return _info.m_uQuality > 0 ? true : false;
+    };
 
     /**
      * 设置场景OIT渲染等级
@@ -549,21 +603,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setSceOITLev = function (level) {
         Module.RealBIMWeb.SetSceOITLev(level);
-    }
+    };
 
     /**
      * 获取场景OIT渲染等级
      */
     Module.Common.getSceOITLev = function () {
         return Module.RealBIMWeb.GetSceOITLev();
-    }
+    };
 
     /**
      * 获取当前的渲染元素属性状态数据
      */
     Module.Common.getCurRenderStateData = function () {
         return new Uint8Array(Module.RealBIMWeb.GetSysRenderState());
-    }
+    };
 
     /**
      * 根据元素属性状态数据设置当前渲染的属性状态
@@ -571,25 +625,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setCurRenderStateData = function (renderData) {
         var strrenderdata = renderData.byteLength.toString();
-        Module.RealBIMWeb.ReAllocHeapViews(strrenderdata); data = Module.RealBIMWeb.GetHeapView_U8(0);
+        Module.RealBIMWeb.ReAllocHeapViews(strrenderdata);
+        data = Module.RealBIMWeb.GetHeapView_U8(0);
         data.set(renderData, 0);
         Module.RealBIMWeb.SetSysRenderState(data.byteLength, data.byteOffset);
-    }
-
+    };
 
     class REShadowInfo {
         constructor() {
-            this.enable = null;//表示是否启用阴影效果
-            this.quality = null;//表示阴影质量等级(0~5)
-            this.dynSMSize = null;//表示动态阴影图的尺寸
-            this.staticSMSize = null;//表示静态阴影图的尺寸
-            this.maxDynSMNum = null;//表示动态阴影图的最大个数
-            this.maxStaticSMNum = null;//表示静态阴影图的最大个数
-            this.minDynSMUpdateLen = null;//表示动态阴影图的最小更新帧间隔
-            this.minStaticSMUpdateLen = null;//表示静态阴影图的最小更新帧间隔
-            this.hiResoDist = null;//表示最高精度阴影的作用距离
-            this.filterKernelSize = null;//表示软阴影的过滤半径相对于阴影图一个纹素尺寸的倍数
-            this.depthBiasRatio = null;//表示阴影深度的偏移比例(用以消除自阴影)
+            this.enable = null; //表示是否启用阴影效果
+            this.quality = null; //表示阴影质量等级(0~5)
+            this.dynSMSize = null; //表示动态阴影图的尺寸
+            this.staticSMSize = null; //表示静态阴影图的尺寸
+            this.maxDynSMNum = null; //表示动态阴影图的最大个数
+            this.maxStaticSMNum = null; //表示静态阴影图的最大个数
+            this.minDynSMUpdateLen = null; //表示动态阴影图的最小更新帧间隔
+            this.minStaticSMUpdateLen = null; //表示静态阴影图的最小更新帧间隔
+            this.hiResoDist = null; //表示最高精度阴影的作用距离
+            this.filterKernelSize = null; //表示软阴影的过滤半径相对于阴影图一个纹素尺寸的倍数
+            this.depthBiasRatio = null; //表示阴影深度的偏移比例(用以消除自阴影)
         }
     }
     ExtModule.REShadowInfo = REShadowInfo;
@@ -599,7 +653,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REShadowInfo} shadowInfo //阴影信息 (REShadowInfo 类型)
      */
     Module.Common.setShadowInfo = function (shadowInfo) {
-        if (isEmptyLog(shadowInfo)) return
+        if (isEmptyLog(shadowInfo)) return;
         var _shadowInfoTemp = {
             m_bShadowEnable: isEmpty(shadowInfo.enable) ? true : shadowInfo.enable,
             m_uShadowQuality: isEmpty(shadowInfo.quality) ? 3 : shadowInfo.quality,
@@ -614,7 +668,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_dDepthBiasRatio: isEmpty(shadowInfo.depthBiasRatio) ? 0.001 : shadowInfo.depthBiasRatio,
         };
         Module.RealBIMWeb.SetSceShadowInfo(_shadowInfoTemp);
-    }
+    };
 
     /**
      * 获取当前阴影详细信息
@@ -634,14 +688,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         shadowInfo.filterKernelSize = _shadowInfoTemp.m_dShadowFilterKernelSize;
         shadowInfo.depthBiasRatio = _shadowInfoTemp.m_dDepthBiasRatio;
         return shadowInfo;
-    }
+    };
 
     /**
      * 获取整个场景的包围盒（BIM + Grid）
      */
     Module.Common.getSceBV = function () {
-        var gridBV = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox("", "");
-        var bimBV = Module.RealBIMWeb.GetHugeObjBoundingBox("", "");
+        var gridBV = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox('', '');
+        var bimBV = Module.RealBIMWeb.GetHugeObjBoundingBox('', '');
 
         var newBV = [];
         //栅格和bim 求总包围盒合集 如果类型不存在，引擎会返回无效包围盒，即最小值填在最大值位置上，求和集不影响
@@ -653,7 +707,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var newMaxZ = Math.max(gridBV[1][2], bimBV[1][2]);
         newBV = [newMinX, newMaxX, newMinY, newMaxY, newMinZ, newMaxZ];
         return newBV;
-    }
+    };
 
     /**
      * 设置自定义场景包围盒 注：影响右侧viewcube作用范围
@@ -662,12 +716,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.setSceCustomBV = function (arrBound, enable) {
         let _enable = isEmpty(enable) ? true : enable;
-        let _arrBound = [[0, 0, 0], [0, 0, 0]];
+        let _arrBound = [
+            [0, 0, 0],
+            [0, 0, 0],
+        ];
         if (_enable) {
-            _arrBound = [[arrBound[0], arrBound[2], arrBound[4]], [arrBound[1], arrBound[3], arrBound[5]]];
+            _arrBound = [
+                [arrBound[0], arrBound[2], arrBound[4]],
+                [arrBound[1], arrBound[3], arrBound[5]],
+            ];
         }
         Module.RealBIMWeb.SetSceCustomBV(_arrBound);
-    }
+    };
 
     /**
      * 获取自定义场景包围盒
@@ -675,45 +735,56 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Common.getSceCustomBV = function () {
         let _bvTemp = Module.RealBIMWeb.GetSceCustomBV();
         var aabbList = [];
-        aabbList.push(_bvTemp[0][0]);  //Xmin
-        aabbList.push(_bvTemp[1][0]);  //Xmax
-        aabbList.push(_bvTemp[0][1]);  //Ymin
-        aabbList.push(_bvTemp[1][1]);  //Ymax
-        aabbList.push(_bvTemp[0][2]);  //Zmin
-        aabbList.push(_bvTemp[1][2]);  //Zmax
+        aabbList.push(_bvTemp[0][0]); //Xmin
+        aabbList.push(_bvTemp[1][0]); //Xmax
+        aabbList.push(_bvTemp[0][1]); //Ymin
+        aabbList.push(_bvTemp[1][1]); //Ymax
+        aabbList.push(_bvTemp[0][2]); //Zmin
+        aabbList.push(_bvTemp[1][2]); //Zmax
         return aabbList;
-    }
+    };
 
     /**
      * 设置场景是否进入伪球面模式
      * @param {Boolean} enable //是否开启
      */
     Module.Common.setFakeSphMode = function (enable) {
-        if (enable) Module.Coordinate.setEngineWorldCRS('EPSG:3857');//球面模式目前只支持EPSG:3857
+        if (enable) Module.Coordinate.setEngineWorldCRS('EPSG:3857'); //球面模式目前只支持EPSG:3857
         Module.RealBIMWeb.SetFakeSphMode(enable);
         Module.RealBIMWeb.SetSkyAtmFogAmp(enable ? 1.0 : 0.0);
-    }
+    };
 
     /**
      * 获取场景是否进入伪球面模式
      */
     Module.Common.getFakeSphMode = function () {
         return Module.RealBIMWeb.GetFakeSphMode();
-    }
+    };
 
+    /**
+     * 设置场景(环境光/方向光)光强的调节系数
+     * @param {dvec2} coefficientRange //系数范围，二维数组 【背光面的强度，向光面的强度】，默认值【1, 1】
+     */
+    Module.Common.setSceLightAttenu = function (coefficientRange) {
+        Module.RealBIMWeb.SetSceLightAttenu(coefficientRange);
+    };
 
-
-
+    /**
+     * 获取置场景(环境光/方向光)光强的调节系数
+     */
+    Module.Common.getSceLightAttenu = function () {
+        return Module.RealBIMWeb.GetSceLightAttenu();
+    };
 
     // MARK 字体
 
     class REFontInfo {
         constructor() {
-            this.fontId = null;//自定义的全局字体的id，不可重复
-            this.fontType = null;//字体的逻辑类型名,系统目前支持的类型名为："宋体"
-            this.width = null;//字体的宽
-            this.height = null;//字体的高
-            this.weight = null;//字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
+            this.fontId = null; //自定义的全局字体的id，不可重复
+            this.fontType = null; //字体的逻辑类型名,系统目前支持的类型名为："宋体"
+            this.width = null; //字体的宽
+            this.height = null; //字体的高
+            this.weight = null; //字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
         }
     }
     ExtModule.REFontInfo = REFontInfo;
@@ -733,12 +804,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_sWeightAmp: fontInfo.weight * 64,
             m_uHeight: fontInfo.height,
             m_uWidth: fontInfo.width,
-            m_strFontType: "宋体",
+            m_strFontType: '宋体',
             m_strGolFontID: fontInfo.fontId.toString(),
-            m_strTexAtlasName: ""
+            m_strTexAtlasName: '',
         };
         return Module.RealBIMWeb.AddAGolFont(_fontinfo);
-    }
+    };
 
     /**
      * 获取一种全局字体信息
@@ -754,7 +825,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         fontInfo.height = _golfontInfo.m_uHeight;
         fontInfo.weight = _golfontInfo.m_sWeightAmp / 64;
         return fontInfo;
-    }
+    };
 
     /**
      * 删除一种全局字体
@@ -763,14 +834,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Common.delGolFont = function (fontId) {
         if (isEmptyLog(fontId, 'fontId')) return;
         return Module.RealBIMWeb.DelAGolFont(fontId.toString());
-    }
+    };
 
     /**
      * 获取全局字体数量
      */
     Module.Common.getGolFontNum = function () {
         return Module.RealBIMWeb.GetGolFontNum();
-    }
+    };
 
     /**
      * 获取全部全局字体信息
@@ -794,31 +865,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             fontInfoList.push(fontInfo);
         }
         return fontInfoList;
-    }
-
-
-
+    };
 
     // MOD-- 灯光（Light）
-    Module.Light = typeof Module.Light !== "undefined" ? Module.Light : {};//增加 Light 模块
+    Module.Light = typeof Module.Light !== 'undefined' ? Module.Light : {}; //增加 Light 模块
 
     // MARK 聚光灯
     class RESpotLightInfo {
         constructor() {
-            this.lightId = null;//表示光源的唯一标识名
-            this.selfRotate = [1, 0, 0, 0];//表示光源的自身旋转分量
-            this.selfOffset = [0, 0, 0];//表示光源的坐标点
-            this.lightClr = new REColor(255, 255, 255);//表示光源的颜色 （REColor 类型）, 无法修改透明度
-            this.brightness = 100.0;//表示光源的亮度
-            this.emissionBodyRadius = 0.2;//表示光源的发光体半径，相同亮度在反射效果下发光体半径越大，反射光效果越发散，反之越聚集
-            this.influenceRange = 15;//表示光源的最大影响半径（影响半径会受亮度影响衰减效果，暂不暴露给用户，以公式方式自动填入）
-            this.openAngle = 180.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180，以-z轴向两边分别打开的角度，180即为两边打开的360度点光源)，默认180度
-            this.fadeAngle = 30.0;//表示聚光灯相对于自身局部空间下-Z轴的开合角度后的衰减角度(单位为角度0~180)，默认30度
-            this.hasShadow = false;//是否需要阴影
+            this.lightId = null; //表示光源的唯一标识名
+            this.selfRotate = [1, 0, 0, 0]; //表示光源的自身旋转分量
+            this.selfOffset = [0, 0, 0]; //表示光源的坐标点
+            this.lightClr = new REColor(255, 255, 255); //表示光源的颜色 （REColor 类型）, 无法修改透明度
+            this.brightness = 100.0; //表示光源的亮度
+            this.emissionBodyRadius = 0.2; //表示光源的发光体半径，相同亮度在反射效果下发光体半径越大，反射光效果越发散，反之越聚集
+            this.influenceRange = 15; //表示光源的最大影响半径（影响半径会受亮度影响衰减效果，暂不暴露给用户，以公式方式自动填入）
+            this.openAngle = 180.0; //表示聚光灯相对于自身局部空间下-Z轴的开合角度(单位为角度0~180，以-z轴向两边分别打开的角度，180即为两边打开的360度点光源)，默认180度
+            this.fadeAngle = 30.0; //表示聚光灯相对于自身局部空间下-Z轴的开合角度后的衰减角度(单位为角度0~180)，默认30度
+            this.hasShadow = false; //是否需要阴影
         }
     }
     ExtModule.RESpotLightInfo = RESpotLightInfo;
-
 
     /**
      * 添加一组聚光灯
@@ -826,14 +893,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} spotLights //聚光灯信息集合 （RESpotLightInfo 类型）
      */
     Module.Light.addSpotLights = function (dataSetId, spotLights) {
-    // Module.Light.addSpotLights = function (dataSetId, spotLights, bLocalSpace) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return false;
-        if (isEmpty(spotLights) || !spotLights.length) { logParErr("spotLights"); return false; }
+        // Module.Light.addSpotLights = function (dataSetId, spotLights, bLocalSpace) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
+        if (isEmpty(spotLights) || !spotLights.length) {
+            logParErr('spotLights');
+            return false;
+        }
 
         let vector_SPOT_INFO = new Module.RE_Vector_SPOT_INFO();
         for (let i = 0; i < spotLights.length; i++) {
             const element = spotLights[i];
-            if (isEmpty(element.lightId) || !element.lightId.length) { logParErr("lightId"); return false; }
+            if (isEmpty(element.lightId) || !element.lightId.length) {
+                logParErr('lightId');
+                return false;
+            }
             // 根据亮度自动处理最大影响半径（栋哥推荐以亮度为100，最大影响半径为15的比例进行计算，即亮度为100的X倍对应的最大影响半径为15的X的开平方）
             let _influenceRange = isEmpty(element.influenceRange) ? 15 : element.influenceRange;
             if (isEmpty(element.influenceRange)) {
@@ -843,20 +916,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_strName: element.lightId,
                 m_qSelfRotate: isEmpty(element.selfRotate) ? [1, 0, 0, 0] : element.selfRotate,
                 m_vSelfOffset: isEmpty(element.selfOffset) ? [0, 0, 0] : element.selfOffset,
-                m_vClr: isEmpty(element.lightClr) ? new REColor(255, 255, 255) : [Math.round(element.lightClr.red) / 255.0, Math.round(element.lightClr.green) / 255.0, Math.round(element.lightClr.blue) / 255.0],
+                m_vClr: isEmpty(element.lightClr)
+                    ? new REColor(255, 255, 255)
+                    : [
+                          Math.round(element.lightClr.red) / 255.0,
+                          Math.round(element.lightClr.green) / 255.0,
+                          Math.round(element.lightClr.blue) / 255.0,
+                      ],
                 m_fLum: isEmpty(element.brightness) ? 100.0 : element.brightness,
                 m_fBodyRadius: isEmpty(element.emissionBodyRadius) ? 0.2 : element.emissionBodyRadius,
                 m_fRange: _influenceRange,
                 m_fOpenAngle: isEmpty(element.openAngle) ? 180.0 : element.openAngle,
                 m_fFadeAngle: isEmpty(element.fadeAngle) ? 30.0 : element.fadeAngle,
-                m_uShadowFreq: (isEmpty(element.hasShadow) || !element.hasShadow) ? 0xffffffff : 1,
+                m_uShadowFreq: isEmpty(element.hasShadow) || !element.hasShadow ? 0xffffffff : 1,
                 m_uShadowMask: 0x00ffffff,
             };
             vector_SPOT_INFO.push_back(spot_info);
         }
-        return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, dataSetId === "" ? false : true);
+        return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, dataSetId === '' ? false : true);
         // return Module.RealBIMWeb.AddSpotLights(dataSetId, vector_SPOT_INFO, bLocalSpace);
-    }
+    };
 
     /**
      * 获取聚光灯信息
@@ -864,41 +943,56 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} lightId //表示光源的标识名
      */
     Module.Light.getSpotLightInfo = function (dataSetId, lightId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return false;
-        if (isEmpty(lightId) || !lightId.length) { logParErr("lightId"); return false; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
+        if (isEmpty(lightId) || !lightId.length) {
+            logParErr('lightId');
+            return false;
+        }
 
-        let _cSpotLightInfo = Module.RealBIMWeb.GetSpotLightInfo(dataSetId, lightId, dataSetId === "" ? false : true);
-        if (_cSpotLightInfo.m_qSelfRotate[0] === 0 && _cSpotLightInfo.m_qSelfRotate[1] === 0 && _cSpotLightInfo.m_qSelfRotate[2] === 0 && _cSpotLightInfo.m_qSelfRotate[3] === 0) {
+        let _cSpotLightInfo = Module.RealBIMWeb.GetSpotLightInfo(dataSetId, lightId, dataSetId === '' ? false : true);
+        if (
+            _cSpotLightInfo.m_qSelfRotate[0] === 0 &&
+            _cSpotLightInfo.m_qSelfRotate[1] === 0 &&
+            _cSpotLightInfo.m_qSelfRotate[2] === 0 &&
+            _cSpotLightInfo.m_qSelfRotate[3] === 0
+        ) {
             return null;
         }
         let spot_info = new RESpotLightInfo();
         spot_info.lightId = _cSpotLightInfo.m_strName;
         spot_info.selfRotate = _cSpotLightInfo.m_qSelfRotate;
         spot_info.selfOffset = _cSpotLightInfo.m_vSelfOffset;
-        spot_info.lightClr = new REColor(Math.round(_cSpotLightInfo.m_vClr[0] * 255), Math.round(_cSpotLightInfo.m_vClr[1] * 255), Math.round(_cSpotLightInfo.m_vClr[2] * 255));
+        spot_info.lightClr = new REColor(
+            Math.round(_cSpotLightInfo.m_vClr[0] * 255),
+            Math.round(_cSpotLightInfo.m_vClr[1] * 255),
+            Math.round(_cSpotLightInfo.m_vClr[2] * 255)
+        );
         spot_info.brightness = _cSpotLightInfo.m_fLum;
         spot_info.emissionBodyRadius = _cSpotLightInfo.m_fBodyRadius;
         // spot_info.influenceRange = _cSpotLightInfo.m_fRange; // 暂时只让用户设置亮度，最大影响范围自动设置，但用户可以直接填，获取不放出次参数
         spot_info.openAngle = _cSpotLightInfo.m_fOpenAngle;
         spot_info.fadeAngle = _cSpotLightInfo.m_fFadeAngle;
-        spot_info.hasShadow = (_cSpotLightInfo.m_uShadowFreq > 0 && _cSpotLightInfo.m_uShadowFreq !== 0xffffffff && _cSpotLightInfo.m_uShadowFreq !== 0x7fffffff) ? true : false;
+        spot_info.hasShadow =
+            _cSpotLightInfo.m_uShadowFreq > 0 && _cSpotLightInfo.m_uShadowFreq !== 0xffffffff && _cSpotLightInfo.m_uShadowFreq !== 0x7fffffff
+                ? true
+                : false;
 
         return spot_info;
-    }
+    };
 
     /**
      * 获取所有的聚光灯标识
      * @param {String} dataSetId //聚光灯所属的数据集标识，为空串则表示为全局聚光灯
      */
     Module.Light.getAllSpotLightIds = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
         var tempArr = Module.RealBIMWeb.GetAllSpotLightNames(dataSetId);
         var nameArr = [];
         for (i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 删除一组聚光灯
@@ -906,14 +1000,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} lightIds //聚光灯标识集合
      */
     Module.Light.delSpotLights = function (dataSetId, lightIds) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return false;
-        if (isEmpty(lightIds) || !lightIds.length) { logParErr("lightIds"); return false; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
+        if (isEmpty(lightIds) || !lightIds.length) {
+            logParErr('lightIds');
+            return false;
+        }
         let vector_Str_lightids = new Module.RE_Vector_Str();
         for (let i = 0; i < lightIds.length; i++) {
             vector_Str_lightids.push_back(lightIds[i]);
         }
         return Module.RealBIMWeb.DelSpotLights(dataSetId, vector_Str_lightids);
-    }
+    };
 
     /**
      * 删除所有的聚光灯
@@ -921,21 +1018,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} isAll //表示是否删除系统中所有的全局和局部聚光灯
      */
     Module.Light.delAllSpotLights = function (dataSetId, isAll) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return false;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
         let _isAll = isEmpty(isAll) ? false : isAll;
         return Module.RealBIMWeb.DelAllSpotLights(_isAll, dataSetId);
-    }
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 模型加载（Model）
-    Module.Model = typeof Module.Model !== "undefined" ? Module.Model : {};//增加 Model 模块
+    Module.Model = typeof Module.Model !== 'undefined' ? Module.Model : {}; //增加 Model 模块
 
     /**
      * 加载数据集资源
@@ -956,7 +1045,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} dividePrior //项目内模型的细分优先级(值越小优先级越高)
      * @param {dvec3} engineOrigin //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
      * @param {Boolean} preciseCRS //表示在进行地理信息坐标系定位时是否采用精确计算模式
-     * @param {Boolean} groundDisplay //表示项目中的地形矢量是否需要贴地显示(将禁用影像图片显示) 
+     * @param {Boolean} groundDisplay //表示项目中的地形矢量是否需要贴地显示(将禁用影像图片显示)
      * @param {String} terrSuffix //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示（如果地形矢量为不贴地，那么这个参数不能为空，如果地形矢量允许可以独立编辑则此参数需要唯一，允许多个地形矢量同时编辑则此参数相同。如果地形矢量为贴地，那么这参数传空字符串）
      * @param {Boolean} terrSph //表示项目中的地形系统数据是否允许适配到球面地形
      * @param {String} dataSetSGContent //表示项目对应的主场景组文件内容字符串
@@ -969,21 +1058,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let count = dataSetList.length;
         for (let i = 0; i < count; i++) {
             let dataSetModel = dataSetList[i];
-            var _deftransinfo = [[1, 1, 1], [0, 0, 0, 1], [0, 0, 0]]; if (dataSetModel.useTransInfo) _deftransinfo = dataSetModel.transInfo;
+            var _deftransinfo = [
+                [1, 1, 1],
+                [0, 0, 0, 1],
+                [0, 0, 0],
+            ];
+            if (dataSetModel.useTransInfo) _deftransinfo = dataSetModel.transInfo;
             var _useCamPost = false;
-            var _minLoadDist = 1e30; if (!isEmpty(dataSetModel.minLoadDist)) _minLoadDist = dataSetModel.minLoadDist;
-            var _maxLoadDist = 1e30; if (!isEmpty(dataSetModel.maxLoadDist)) _maxLoadDist = dataSetModel.maxLoadDist;
-            var _projCRS = ""; if (!isEmpty(dataSetModel.dataSetCRS)) _projCRS = dataSetModel.dataSetCRS;
-            var _projNorth = 0.0; if (!isEmpty(dataSetModel.dataSetCRSNorth)) _projNorth = dataSetModel.dataSetCRSNorth;
-            var _defMainProjCamFile = "";
+            var _minLoadDist = 1e30;
+            if (!isEmpty(dataSetModel.minLoadDist)) _minLoadDist = dataSetModel.minLoadDist;
+            var _maxLoadDist = 1e30;
+            if (!isEmpty(dataSetModel.maxLoadDist)) _maxLoadDist = dataSetModel.maxLoadDist;
+            var _projCRS = '';
+            if (!isEmpty(dataSetModel.dataSetCRS)) _projCRS = dataSetModel.dataSetCRS;
+            var _projNorth = 0.0;
+            if (!isEmpty(dataSetModel.dataSetCRSNorth)) _projNorth = dataSetModel.dataSetCRSNorth;
+            var _defMainProjCamFile = '';
             var _dividePrior = isEmpty(dataSetModel.dividePrior) ? 1.0 : dataSetModel.dividePrior;
             var _originCRS = isEmpty(dataSetModel.engineOrigin) ? [0.0, 0.0, 0.0] : dataSetModel.engineOrigin;
             var _preciseCRS = isEmpty(dataSetModel.preciseCRS) ? true : dataSetModel.preciseCRS;
             var _terrImgShpAlone = isEmpty(dataSetModel.groundDisplay) ? false : !dataSetModel.groundDisplay;
             var _terrSuffix = isEmpty(dataSetModel.terrSuffix) ? '' : dataSetModel.terrSuffix;
             var _terrSph = isEmpty(dataSetModel.terrSph) ? true : dataSetModel.terrSph;
-            let _dataSetSGContent = isEmpty(dataSetModel.dataSetSGContent) ? "" : dataSetModel.dataSetSGContent;
-            var _isMainProj = ((((typeof clearLoaded == 'undefined') || clearLoaded) && (i == 0)) ? true : false);
+            let _dataSetSGContent = isEmpty(dataSetModel.dataSetSGContent) ? '' : dataSetModel.dataSetSGContent;
+            var _isMainProj = (typeof clearLoaded == 'undefined' || clearLoaded) && i == 0 ? true : false;
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
                 m_sVer0: -1,
@@ -991,13 +1089,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_uVer0GolIDBias_L32: 0,
                 m_uVer0GolIDBias_H32: 0,
                 m_uVer1GolIDBias_L32: 0,
-                m_uVer1GolIDBias_H32: 0
+                m_uVer1GolIDBias_H32: 0,
             };
             if (dataSetModel.useAssginVer) {
-                _ver.m_sVer0 = dataSetModel.assginVer; _ver.m_uVer0GolIDBias_H32 = intprojid;
+                _ver.m_sVer0 = dataSetModel.assginVer;
+                _ver.m_uVer0GolIDBias_H32 = intprojid;
             }
             if (dataSetModel.useAssginVer2) {
-                _ver.m_sVer1 = dataSetModel.assginVer2; _ver.m_uVer1GolIDBias_H32 = intprojid;
+                _ver.m_sVer1 = dataSetModel.assginVer2;
+                _ver.m_uVer1GolIDBias_H32 = intprojid;
             }
             if (!dataSetModel.useAssginVer && !dataSetModel.useAssginVer2) {
                 // 没有使用版本默认第一个版本为最新
@@ -1007,36 +1107,51 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.LoadMainSceExt2(
                     dataSetModel.dataSetId,
                     _isMainProj,
-                    _projCRS, _projNorth,
-                    dataSetModel.resourcesAddress + "/total.xml",
+                    _projCRS,
+                    _projNorth,
+                    dataSetModel.resourcesAddress + '/total.xml',
                     _dataSetSGContent,
-                    _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
-                    _minLoadDist, _maxLoadDist,
-                    "",
-                    _defMainProjCamFile, _useCamPost,
-                    _dividePrior, _originCRS,
-                    _preciseCRS, _terrImgShpAlone,
-                    _terrSuffix, _terrSph
+                    _deftransinfo[0],
+                    _deftransinfo[1],
+                    _deftransinfo[2],
+                    _minLoadDist,
+                    _maxLoadDist,
+                    '',
+                    _defMainProjCamFile,
+                    _useCamPost,
+                    _dividePrior,
+                    _originCRS,
+                    _preciseCRS,
+                    _terrImgShpAlone,
+                    _terrSuffix,
+                    _terrSph
                 );
             } else {
                 Module.RealBIMWeb.LoadMainSceExt(
                     dataSetModel.dataSetId,
                     _isMainProj,
-                    _projCRS, _projNorth,
-                    dataSetModel.resourcesAddress + "/total.xml",
-                    _deftransinfo[0], _deftransinfo[1], _deftransinfo[2],
-                    _minLoadDist, _maxLoadDist,
-                    "",
-                    _defMainProjCamFile, _useCamPost,
-                    _dividePrior, _originCRS,
-                    _preciseCRS, _terrImgShpAlone,
-                    _terrSuffix, _terrSph
+                    _projCRS,
+                    _projNorth,
+                    dataSetModel.resourcesAddress + '/total.xml',
+                    _deftransinfo[0],
+                    _deftransinfo[1],
+                    _deftransinfo[2],
+                    _minLoadDist,
+                    _maxLoadDist,
+                    '',
+                    _defMainProjCamFile,
+                    _useCamPost,
+                    _dividePrior,
+                    _originCRS,
+                    _preciseCRS,
+                    _terrImgShpAlone,
+                    _terrSuffix,
+                    _terrSph
                 );
             }
             Module.RealBIMWeb.SetSceVersionInfoExt(dataSetModel.dataSetId, _ver);
         }
-
-    }
+    };
 
     /**
      * 获取当前加载的所有数据集id
@@ -1048,8 +1163,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
-
+    };
 
     /**
      * 卸载一个数据集
@@ -1057,7 +1171,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Model.unloadDataSet = function (dataSetId) {
         Module.RealBIMWeb.UnLoadMainSce(dataSetId);
-    }
+    };
 
     /**
      * 卸载所有数据集
@@ -1068,7 +1182,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var tempProjName = tempArr.get(i);
             Module.RealBIMWeb.UnLoadMainSce(tempProjName);
         }
-    }
+    };
 
     /**
      * 刷新所有数据集模型
@@ -1076,14 +1190,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Model.refreshAllDataSet = function (loadNewData) {
         Module.RealBIMWeb.RefreshMainData(loadNewData);
-    }
+    };
 
     /**
      * 获取项目所有数据集加载状态
      */
     Module.Model.getAllDataSetReady = function () {
         return Module.RealBIMWeb.IsMainSceReady();
-    }
+    };
 
     /**
      * 获取指定数据集加载状态
@@ -1091,23 +1205,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Model.getDataSetReady = function (dataSetId) {
         return Module.RealBIMWeb.IsMainSceAllResLoaded(dataSetId);
-    }
-
-
-
-
-
-
-
+    };
 
     // MOD-- 相机（Camera）
-    Module.Camera = typeof Module.Camera !== "undefined" ? Module.Camera : {};//增加 Camera 模块
+    Module.Camera = typeof Module.Camera !== 'undefined' ? Module.Camera : {}; //增加 Camera 模块
     class RECamLoc {
         // 相机方位信息
         constructor() {
-            this.camPos = null;//相机位置
-            this.camRotate = [1e30, 1e30, 1e30, 1e30];//相机的朝向
-            this.camDir = [1e30, 1e30, 1e30];//相机的朝向（欧拉角）
+            this.camPos = null; //相机位置
+            this.camRotate = [1e30, 1e30, 1e30, 1e30]; //相机的朝向
+            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向（欧拉角）
         }
     }
     ExtModule.RECamLoc = RECamLoc;
@@ -1115,10 +1222,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REForceCamLoc {
         // 相机方位信息
         constructor() {
-            this.camPos = null;//相机位置
-            this.camRotate = [1e30, 1e30, 1e30, 1e30];//相机的朝向
-            this.camDir = [1e30, 1e30, 1e30];//相机的朝向（欧拉角）
-            this.force = false;//是否强制相机初始方位
+            this.camPos = null; //相机位置
+            this.camRotate = [1e30, 1e30, 1e30, 1e30]; //相机的朝向
+            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向（欧拉角）
+            this.force = false; //是否强制相机初始方位
         }
     }
     ExtModule.REForceCamLoc = REForceCamLoc;
@@ -1134,7 +1241,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         camLoc.camRotate = _camLoc01.m_qCamRotate;
         camLoc.camDir = _camLoc02.m_qCamDir;
         return camLoc;
-    }
+    };
 
     // MARK 设置
     /**
@@ -1144,11 +1251,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} locTime //相机的运动速度（秒） 默认1.0
      */
     Module.Camera.setCamLocateTo = function (camLoc, locDelay, locTime) {
-        if (isEmptyLog(camLoc, "camLoc")) return;
-        if (isEmptyLog(camLoc.camPos, "camPos")) return;
+        if (isEmptyLog(camLoc, 'camLoc')) return;
+        if (isEmptyLog(camLoc.camPos, 'camPos')) return;
 
-        var _delay = 0; if (!isEmpty(locDelay)) _delay = locDelay;
-        var _time = 1.0; if (!isEmpty(locTime)) _time = locTime;
+        var _delay = 0;
+        if (!isEmpty(locDelay)) _delay = locDelay;
+        var _time = 1.0;
+        if (!isEmpty(locTime)) _time = locTime;
         if (camLoc.camRotate[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
             return;
@@ -1156,14 +1265,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (camLoc.camDir[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo_Dir(camLoc.camPos, camLoc.camDir, _delay, _time);
         }
-    }
+    };
 
     /**
      * 设置固定当前的相机方位（BIM相机）
      */
     Module.Camera.setFixCurCam = function () {
         Module.RealBIMWeb.IsFixMainCam(true);
-    }
+    };
 
     /**
      * 调整相机到默认视角方位
@@ -1171,15 +1280,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} scanAllDataSet //是否定位到整个数据集，默认true，true表示定位到整个场景，false表示相机原地调整方向
      */
     Module.Camera.setCamLocateDefault = function (locType, scanAllDataSet) {
-        if (isEmptyLog(locType, "locType")) return;
-        var _bScanAllSce = true; if (!isEmpty(scanAllDataSet)) _bScanAllSce = scanAllDataSet;
+        if (isEmptyLog(locType, 'locType')) return;
+        var _bScanAllSce = true;
+        if (!isEmpty(scanAllDataSet)) _bScanAllSce = scanAllDataSet;
         if (locType === RECamDirEm.CAM_DIR_DEFAULT) {
             Module.RealBIMWeb.RestoreCamLocation();
         } else {
             var enumEval = eval(locType);
             Module.RealBIMWeb.ResetCamToTotalSce(enumEval, _bScanAllSce);
         }
-    }
+    };
 
     /**
      * 调整相机方位到对准构件集合
@@ -1190,14 +1300,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件的标识名 集合
      */
     Module.Camera.setCamLocateToElem = function (locIDList, backDepth, locType) {
-        if (isEmptyLog(locIDList, "locIDList")) return;
+        if (isEmptyLog(locIDList, 'locIDList')) return;
         var obj_s = 0;
         var _offset = 0;
         for (var i = 0; i < locIDList.length; ++i) {
             obj_s += locIDList[i].elemIdList.length;
         }
         var _s01 = (obj_s * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_s01); _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (var i = 0; i < locIDList.length; ++i) {
             var dataSetId = locIDList[i].dataSetId;
             var projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
@@ -1210,8 +1321,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems("", "", _elemIds.byteLength, _elemIds.byteOffset, backDepth, _useCustomDir, _locType);
-    }
+        Module.RealBIMWeb.FocusCamToSubElems('', '', _elemIds.byteLength, _elemIds.byteOffset, backDepth, _useCustomDir, _locType);
+    };
 
     /**
      * 调整相机定位到数据集
@@ -1220,18 +1331,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
      */
     Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth, locType) {
-        var _projname = ""; if (!isEmpty(dataSetId)) { _projname = dataSetId; }
+        var _projname = '';
+        if (!isEmpty(dataSetId)) {
+            _projname = dataSetId;
+        }
         let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems(_projname, "", 0, 0, backDepth, _useCustomDir, _locType);
-    }
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, '', 0, 0, backDepth, _useCustomDir, _locType);
+    };
 
     /**
      * 获取相机自动动画启用状态
      */
     Module.Camera.getAutoCamAnimEnable = function () {
         return Module.RealBIMWeb.GetAutoCamAnimEnable();
-    }
+    };
 
     /**
      * 设置相机自动动画参数
@@ -1240,17 +1354,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} rotateEnable //是否开启自动旋转
      */
     Module.Camera.setAutoCamAnimParams = function (point, speed, rotateEnable) {
-        var _dRotSpeed = 2 * 3.1415 / speed;
+        var _dRotSpeed = (2 * 3.1415) / speed;
         Module.RealBIMWeb.SetAutoCamAnimParams(point, _dRotSpeed);
         Module.RealBIMWeb.SetAutoCamAnimEnable(rotateEnable);
-    }
+    };
 
     /**
      * 重置相机方位
      */
     Module.Camera.resetCamLocate = function () {
         Module.RealBIMWeb.RestoreCamLocation();
-    }
+    };
 
     /**
      * 调整相机定位到包围盒
@@ -1258,7 +1372,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamLocateToBound = function (arrBound) {
         Module.RealBIMWeb.TargetToAABB(arrBound);
-    }
+    };
 
     /**
      * 设置相机位置的世界空间范围
@@ -1266,21 +1380,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamBound = function (arrCamBound) {
         Module.RealBIMWeb.SetCamBound(arrCamBound);
-    }
+    };
 
     /**
      * 获取相机位置的世界空间范围
      */
     Module.Camera.getCamBound = function () {
         return Module.RealBIMWeb.GetCamBound();
-    }
+    };
 
     /**
      * 重置相机位置的默认世界空间范围
      */
     Module.Camera.resetCamBound = function () {
-        Module.RealBIMWeb.SetCamBound([[-1e30, -1e30, -1e30], [1e30, 1e30, 1e30]]);
-    }
+        Module.RealBIMWeb.SetCamBound([
+            [-1e30, -1e30, -1e30],
+            [1e30, 1e30, 1e30],
+        ]);
+    };
 
     /**
      * 设置相机的强制近裁面/远裁面
@@ -1288,14 +1405,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamForcedNearFar = function (arrNearFar) {
         Module.RealBIMWeb.SetCamForcedZNearFar(arrNearFar);
-    }
+    };
 
     /**
      * 获取相机的强制近裁面/远裁面
      */
     Module.Camera.getCamForcedNearFar = function () {
         return Module.RealBIMWeb.GetCamForcedZNearFar();
-    }
+    };
 
     /**
      * 设置相机朝向是否允许头朝下
@@ -1303,14 +1420,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamUpsideDown = function (enable) {
         Module.RealBIMWeb.SetCamUpsideDown(enable);
-    }
+    };
 
     /**
      * 获取相机朝向是否允许头朝下
      */
     Module.Camera.getCamUpsideDown = function () {
         return Module.RealBIMWeb.GetCamUpsideDown();
-    }
+    };
 
     /**
      * 设置当相机运动或模型运动时是否偏向于渲染流畅性
@@ -1318,14 +1435,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamPreferFPS = function (prefer) {
         Module.RealBIMWeb.SetPreferFPS(prefer);
-    }
+    };
 
     /**
      * 获取当相机运动或模型运动时是否偏向于渲染流畅性
      */
     Module.Camera.getCamPreferFPS = function () {
         return Module.RealBIMWeb.GetPreferFPS();
-    }
+    };
 
     /**
      * 设置主场景相机的投影类型
@@ -1333,22 +1450,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamType = function (type) {
         Module.RealBIMWeb.SetCamProjType(type);
-    }
+    };
 
     /**
      * 获取主场景相机的投影类型
      */
     Module.Camera.getCamType = function () {
         return Module.RealBIMWeb.GetCamProjType();
-    }
+    };
 
     /**
      * 设置相机的强制初始方位 （可以在加载模型之前设置）
      * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
      */
     Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
-        if (isEmptyLog(forceCamLoc, "forceCamLoc")) return;
-        if (isEmptyLog(forceCamLoc.camPos, "camPos")) return;
+        if (isEmptyLog(forceCamLoc, 'forceCamLoc')) return;
+        if (isEmptyLog(forceCamLoc.camPos, 'camPos')) return;
         if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return;
 
         var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
@@ -1362,7 +1479,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
             return;
         }
-    }
+    };
 
     /**
      * 获取相机的强制初始方位信息
@@ -1376,14 +1493,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         forceCamLoc.camRotate = _forceInitLoc.m_qCamRotate;
         forceCamLoc.camDir = _camLocConv.m_qCamDir;
         return forceCamLoc;
-    }
+    };
 
     /**
      * 获取相机在自由移动模式下的速度
      */
     Module.Camera.getFreeCamMoveSpeed = function () {
         return Module.RealBIMWeb.GetFreeCamMoveSpeed();
-    }
+    };
 
     /**
      * 设置相机在自由移动模式下的速度
@@ -1391,17 +1508,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setFreeCamMoveSpeed = function (speed) {
         Module.RealBIMWeb.SetFreeCamMoveSpeed(speed);
-    }
+    };
 
     class REGisCamLoc {
         // gis相机方位信息
         constructor() {
-            this.lon = 0;//经度
-            this.lat = 0;//纬度
-            this.height = 0;//高程
-            this.heading = 0;//
-            this.pitch = 0;//
-            this.roll = 0;//
+            this.lon = 0; //经度
+            this.lat = 0; //纬度
+            this.height = 0; //高程
+            this.heading = 0; //
+            this.pitch = 0; //
+            this.roll = 0; //
         }
     }
     ExtModule.REGisCamLoc = REGisCamLoc;
@@ -1423,7 +1540,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         camLoc.camRotate = _camLoc.m_qCamRotate;
         camLoc.camDir = _camLocConv.m_qCamDir;
         return camLoc;
-    }
+    };
 
     /**
      * 获取引擎相机在目标坐标下转换的gis相机数据
@@ -1442,21 +1559,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         gisCamLoc.pitch = _camLoc.m_qCamDir[0];
         gisCamLoc.roll = _camLoc.m_qCamDir[1];
         return gisCamLoc;
-    }
+    };
 
     /**
      * 获取当前相机的控制模式
      */
     Module.Camera.getCamMode = function () {
         return Module.RealBIMWeb.GetCamMode();
-    }
-
+    };
 
     class REAxisInfo {
         // 轴信息
         constructor() {
-            this.up = [1e30, 1e30, 1e30];//上轴向量
-            this.viewLine = [1e30, 1e30, 1e30];//视角方向
+            this.up = [1e30, 1e30, 1e30]; //上轴向量
+            this.viewLine = [1e30, 1e30, 1e30]; //视角方向
         }
     }
     ExtModule.REAxisInfo = REAxisInfo;
@@ -1470,10 +1586,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vUp: axisInfo.up,
             m_vViewLine: axisInfo.viewLine,
             // m_vViewLine: axisInfo.viewLine.map(item => item * -1.0),
-        }
+        };
         let _qRotate = Module.RealBIMWeb.GetQuatByAxis(cAxisInfo);
         return _qRotate;
-    }
+    };
 
     /**
      * 获取四元数信息转换轴信息
@@ -1485,9 +1601,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         axisInfo.up = _cAxisInfo.m_vUp;
         axisInfo.viewLine = _cAxisInfo.m_vViewLine;
         return axisInfo;
-    }
-
-
+    };
 
     // MARK 碰撞检测
     /**
@@ -1495,7 +1609,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getCamCollideState = function () {
         return Module.RealBIMWeb.GetCamCollideState();
-    }
+    };
 
     /**
      * 设置碰撞检测的开启状态
@@ -1503,9 +1617,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamCollideState = function (enable) {
         Module.RealBIMWeb.SetCamCollideState(enable);
-    }
-
-
+    };
 
     // MARK 重力模拟
     /**
@@ -1513,7 +1625,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getCamGravityState = function () {
         return Module.RealBIMWeb.GetCamGravityState();
-    }
+    };
 
     /**
      * 设置重力模拟的开启状态
@@ -1521,14 +1633,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamGravityState = function (enable) {
         Module.RealBIMWeb.SetCamGravityState(enable);
-    }
+    };
 
     /**
      * 获取重力模拟时的相机高度
      */
     Module.Camera.getCamGravityHeight = function () {
         return Module.RealBIMWeb.GetCamHeightOnGravOpen();
-    }
+    };
 
     /**
      * 设置重力模拟时的相机高度
@@ -1536,35 +1648,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamGravityHeight = function (height) {
         Module.RealBIMWeb.SetCamHeightOnGravOpen(height);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 天空盒（SkyBox）
-    Module.SkyBox = typeof Module.SkyBox !== "undefined" ? Module.SkyBox : {};//增加 SkyBox 模块
+    Module.SkyBox = typeof Module.SkyBox !== 'undefined' ? Module.SkyBox : {}; //增加 SkyBox 模块
 
     class RESkyInfo {
         //天空信息
         constructor() {
-            this.skyTexPaths = null;//天空盒图片路径，字符串数组，顺序分别为X+、X-、Z+、Z-、Y+、Y-，
-            this.sunMode = 1;//光照模式 0：表示默认没有太阳 1：使用天空盒自带的太阳/月亮 2：根据光照方向arrSunDir自动生成太阳
-            this.sunDir = null;//光源方向，设置方法为，将太阳放置屏幕空间中心位置，通过REgetCamLocationDir接口获取当前的相机方向m_qCamDir，取反即可，例如：获取到的方向m_qCamDir为[-0.59, -0.62, 0.5]，则此参数填[0.59, 0.62, -0.5]即可
-            this.isNight = false;//表示是否晚上，true表示晚上，false表示白天
-            this.exposeScale = 1.0;//曝光度，大于0，默认设为1即可，值越大，场景越亮
+            this.skyTexPaths = null; //天空盒图片路径，字符串数组，顺序分别为X+、X-、Z+、Z-、Y+、Y-，
+            this.sunMode = 1; //光照模式 0：表示默认没有太阳 1：使用天空盒自带的太阳/月亮 2：根据光照方向arrSunDir自动生成太阳
+            this.sunDir = null; //光源方向，设置方法为，将太阳放置屏幕空间中心位置，通过REgetCamLocationDir接口获取当前的相机方向m_qCamDir，取反即可，例如：获取到的方向m_qCamDir为[-0.59, -0.62, 0.5]，则此参数填[0.59, 0.62, -0.5]即可
+            this.isNight = false; //表示是否晚上，true表示晚上，false表示白天
+            this.exposeScale = 1.0; //曝光度，大于0，默认设为1即可，值越大，场景越亮
         }
     }
     ExtModule.RESkyInfo = RESkyInfo;
-
 
     /**
      * 设置天空的启用状态
@@ -1572,27 +1671,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.SkyBox.setEnable = function (enable) {
         Module.RealBIMWeb.SetSkyEnable(enable);
-    }
+    };
 
     /**
      * 获取天空的启用状态
      */
     Module.SkyBox.getEnable = function () {
         return Module.RealBIMWeb.GetSkyEnable();
-    }
+    };
 
     /**
      * 设置天空盒的背景颜色
      * @param {REColor} color //颜色
      */
     Module.SkyBox.setBackClr = function (color) {
-        if (isEmptyLog(color, "color")) return;
+        if (isEmptyLog(color, 'color')) return;
         var _red = color.red / 255.0;
         var _green = color.green / 255.0;
         var _blue = color.blue / 255.0;
         var clrarr = [_red, _green, _blue];
         Module.RealBIMWeb.SetBackColor(clrarr);
-    }
+    };
 
     /**
      * 获取天空盒的背景颜色
@@ -1604,33 +1703,38 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         color.green = Math.round(_clrarr[1] * 255);
         color.blue = Math.round(_clrarr[2] * 255);
         return color;
-    }
+    };
 
     /**
      * 设置天空盒的相关信息
      * @param {RESkyInfo} skyInfo //天空信息
      */
     Module.SkyBox.setSkyInfo = function (skyInfo) {
-        if (isEmptyLog(skyInfo, "skyInfo")) return;
-        if (isEmptyLog(skyInfo.skyTexPaths, "skyTexPaths")) return;
-        var _sunMode = 1; if (!isEmpty(skyInfo.sunMode)) _sunMode = skyInfo.sunMode;
+        if (isEmptyLog(skyInfo, 'skyInfo')) return;
+        if (isEmptyLog(skyInfo.skyTexPaths, 'skyTexPaths')) return;
+        var _sunMode = 1;
+        if (!isEmpty(skyInfo.sunMode)) _sunMode = skyInfo.sunMode;
         var _sunDir = [0.59215283, 0.63194525, -0.50000012];
         if (!isEmpty(skyInfo.sunDir)) {
-            var v01 = skyInfo.sunDir[0]; if (v01 == 0) v01 = 0.00001;
-            var v02 = skyInfo.sunDir[1]; if (v02 == 0) v02 = 0.00001;
+            var v01 = skyInfo.sunDir[0];
+            if (v01 == 0) v01 = 0.00001;
+            var v02 = skyInfo.sunDir[1];
+            if (v02 == 0) v02 = 0.00001;
             var v03 = skyInfo.sunDir[2];
             // 2596之前 光照方向Z不能为从下向上，故不能为正值
             // 2596版本之后放开限制，光源方向可以自下而上，作用于球面系统，在此状态下灯光效果最佳
             if (v03 == 0) {
                 v03 = -0.00001;
-            } 
+            }
             // else if (v03 > 0) {
             //     v03 = v03 * -1;
             // }
             _sunDir = [v01, v02, v03];
         }
-        var _isNight = false; if (!isEmpty(skyInfo.isNight)) _isNight = skyInfo.isNight;
-        var _exposeScale = 1.0; if (!isEmpty(skyInfo.exposeScale)) _exposeScale = skyInfo.exposeScale;
+        var _isNight = false;
+        if (!isEmpty(skyInfo.isNight)) _isNight = skyInfo.isNight;
+        var _exposeScale = 1.0;
+        if (!isEmpty(skyInfo.exposeScale)) _exposeScale = skyInfo.exposeScale;
 
         var pathTemps = new Module.RE_Vector_Str();
         for (let i = 0; i < skyInfo.skyTexPaths.length; i++) {
@@ -1639,27 +1743,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _SkyInfo = {
             m_arrSkyTexPaths: pathTemps,
             m_bRightHand: true,
-            m_bAutoSun: (_sunMode > 1) ? true : false,
+            m_bAutoSun: _sunMode > 1 ? true : false,
             m_vDirectLDir: _sunDir,
             m_vAmbLightClr: [2.0, 2.0, 2.0],
-            m_vDirLightClr: ((_sunMode > 0) ? (_isNight ? [1.0, 1.0, 1.0] : [8.0, 8.0, 8.0]) : [0.0, 0.0, 0.0]),
+            m_vDirLightClr: _sunMode > 0 ? (_isNight ? [1.0, 1.0, 1.0] : [8.0, 8.0, 8.0]) : [0.0, 0.0, 0.0],
             m_fDynExposeAmp: _isNight ? _exposeScale * 0.1 : _exposeScale * 1.0,
-            m_fDynExposeRange: 10.0
+            m_fDynExposeRange: 10.0,
         };
         Module.RealBIMWeb.SetSkyInfo(_SkyInfo);
-    }
+    };
 
     /**
      * 重置天空盒设置
      */
     Module.SkyBox.resetSkyInfo = function () {
         var _skyTexPaths = [
-            "!(RealBIMAppFileCache)/skypics/oasisday_front.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_back.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_right.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_left.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_top.jpg.dds",
-            "!(RealBIMAppFileCache)/skypics/oasisday_bottom.jpg.dds",
+            '!(RealBIMAppFileCache)/skypics/oasisday_front.jpg.dds',
+            '!(RealBIMAppFileCache)/skypics/oasisday_back.jpg.dds',
+            '!(RealBIMAppFileCache)/skypics/oasisday_right.jpg.dds',
+            '!(RealBIMAppFileCache)/skypics/oasisday_left.jpg.dds',
+            '!(RealBIMAppFileCache)/skypics/oasisday_top.jpg.dds',
+            '!(RealBIMAppFileCache)/skypics/oasisday_bottom.jpg.dds',
         ];
         var pathTemps = new Module.RE_Vector_Str();
         for (let i = 0; i < _skyTexPaths.length; i++) {
@@ -1673,10 +1777,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vAmbLightClr: [2.0, 2.0, 2.0],
             m_vDirLightClr: [8.0, 8.0, 8.0],
             m_fDynExposeAmp: 1.0,
-            m_fDynExposeRange: 10.0
+            m_fDynExposeRange: 10.0,
         };
         Module.RealBIMWeb.SetSkyInfo(_SkyInfo);
-    }
+    };
 
     /**
      * 获取天空盒的相关信息
@@ -1688,8 +1792,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < _skyInfo.m_arrSkyTexPaths.size(); i++) {
             pathTemps.push(_skyInfo.m_arrSkyTexPaths.get(i));
         }
-        var _sunMode = _skyInfo.m_bAutoSun ? 2 : ((_skyInfo.m_vDirLightClr.toString() === [0, 0, 0].toString()) ? 0 : 1);
-        var _isNight = (_skyInfo.m_vDirLightClr.toString() === [1, 1, 1].toString()) ? true : false;
+        var _sunMode = _skyInfo.m_bAutoSun ? 2 : _skyInfo.m_vDirLightClr.toString() === [0, 0, 0].toString() ? 0 : 1;
+        var _isNight = _skyInfo.m_vDirLightClr.toString() === [1, 1, 1].toString() ? true : false;
         var _exposeScale = _isNight ? _skyInfo.m_fDynExposeAmp * 10 : _skyInfo.m_fDynExposeAmp;
         skyInfo.skyTexPaths = pathTemps;
         skyInfo.sunMode = _sunMode;
@@ -1697,25 +1801,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         skyInfo.isNight = _isNight;
         skyInfo.exposeScale = _exposeScale;
         return skyInfo;
-    }
+    };
 
     /**
      * 设置场景光源方向
      * @param {dvec3} sunDir //光源方向
      */
     Module.SkyBox.setLightLocate = function (sunDir) {
-        if (isEmptyLog(sunDir, "sunDir")) return;
+        if (isEmptyLog(sunDir, 'sunDir')) return;
         var _lightInfo = Module.RealBIMWeb.GetSceLightInfo();
         _lightInfo.m_vDirectLDir = sunDir;
         Module.RealBIMWeb.SetSceLightInfo(_lightInfo);
-    }
+    };
 
     /**
      * 获取当前场景光源方向
      */
     Module.SkyBox.getLightLocate = function () {
         return Module.RealBIMWeb.GetSceLightInfo().m_vDirectLDir;
-    }
+    };
 
     /**
      * 设置天空大气散射激活状态
@@ -1723,42 +1827,40 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.SkyBox.setSkyAtmActive = function (active) {
         Module.RealBIMWeb.SetSkyAtmActive(active);
-    }
+    };
 
     /**
      * 获取天空大气散射激活状态
      */
     Module.SkyBox.getSkyAtmActive = function () {
         return Module.RealBIMWeb.GetSkyAtmActive();
-    }
+    };
 
     /**
      * 设置天空大气散射的雾效强度
      * @param {Number} amp //强度，默认值为1，取值范围0~10
      */
     Module.SkyBox.setSkyAtmFogAmp = function (amp) {
-        var _fAmp = 1.0; if (!isEmpty(amp)) _fAmp = Math.max(0, Math.min(amp, 10));
+        var _fAmp = 1.0;
+        if (!isEmpty(amp)) _fAmp = Math.max(0, Math.min(amp, 10));
         Module.RealBIMWeb.SetSkyAtmFogAmp(_fAmp);
-    }
+    };
 
     /**
      * 获取天空大气散射的雾效强度
      */
     Module.SkyBox.getSkyAtmFogAmp = function () {
         return Module.RealBIMWeb.GetSkyAtmFogAmp();
-    }
-
-
-
+    };
 
     // MOD-- 坐标（Coordinate）
-    Module.Coordinate = typeof Module.Coordinate !== "undefined" ? Module.Coordinate : {};//增加 Coordinate 模块
+    Module.Coordinate = typeof Module.Coordinate !== 'undefined' ? Module.Coordinate : {}; //增加 Coordinate 模块
 
     class RELocInfo {
         constructor() {
-            this.scale = null;//缩放
-            this.rotate = null;//旋转
-            this.offset = null;//平移
+            this.scale = null; //缩放
+            this.rotate = null; //旋转
+            this.offset = null; //平移
         }
     }
     ExtModule.RELocInfo = RELocInfo;
@@ -1770,7 +1872,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.addGeoCoord = function (name, displayCRS) {
         return Module.RealBIMWeb.AddGeoCoord(name, displayCRS);
-    }
+    };
 
     /**
      * 增加一套自定义坐标系
@@ -1779,13 +1881,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} targetPotList //表示与引擎世界空间4个标记点一一对应的自定义坐标系中的4个点
      */
     Module.Coordinate.addCustomCoord = function (name, refPotList, targetPotList) {
-        if (isEmptyLog(name, "name")) return;
-        if (isEmptyLog(refPotList, "refPotList")) return;
-        if (isEmptyLog(targetPotList, "targetPotList")) return;
-        var ref01 = refPotList[0]; var ref02 = refPotList[1]; var ref03 = refPotList[2]; var ref04 = refPotList[3];
-        var target01 = targetPotList[0]; var target02 = targetPotList[1]; var target03 = targetPotList[2]; var target04 = targetPotList[3];
+        if (isEmptyLog(name, 'name')) return;
+        if (isEmptyLog(refPotList, 'refPotList')) return;
+        if (isEmptyLog(targetPotList, 'targetPotList')) return;
+        var ref01 = refPotList[0];
+        var ref02 = refPotList[1];
+        var ref03 = refPotList[2];
+        var ref04 = refPotList[3];
+        var target01 = targetPotList[0];
+        var target02 = targetPotList[1];
+        var target03 = targetPotList[2];
+        var target04 = targetPotList[3];
         return Module.RealBIMWeb.AddCustomCoord(name, ref01, ref02, ref03, ref04, target01, target02, target03, target04);
-    }
+    };
 
     /**
      * 删除一套地理信息坐标
@@ -1793,16 +1901,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.delGeoCoord = function (name) {
         return Module.RealBIMWeb.DelGeoCoordInfo(name);
-    }
+    };
 
     /**
-     * 设置当前选中展示的地理信息坐标 
+     * 设置当前选中展示的地理信息坐标
      * @param {String} name //坐标系的显示名称, 空字符串为默认地理信息坐标
      */
     Module.Coordinate.setCurrSelGeoCoord = function (name) {
-        let _name = (isEmpty(name) || name === "") ? "引擎坐标" : name;
+        let _name = isEmpty(name) || name === '' ? '引擎坐标' : name;
         Module.RealBIMWeb.SetCurrentCoordSystemShapeName(_name);
-    }
+    };
 
     /**
      * 设置某个项目的整体坐标偏移
@@ -1810,31 +1918,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RELocInfo} locInfo //表示偏移信息（RELocInfo 类型）
      */
     Module.Coordinate.setDataSetTransform = function (dataSetId, locInfo) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(locInfo, "locInfo")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(locInfo, 'locInfo')) return;
 
-        var _scale = [1, 1, 1]; if (!isEmpty(locInfo.scale)) _scale = locInfo.scale;
-        var _rotate = [0, 0, 0, 1]; if (!isEmpty(locInfo.rotate)) _rotate = locInfo.rotate;
-        var _offset = [0, 0, 0,]; if (!isEmpty(locInfo.offset)) _offset = locInfo.offset;
+        var _scale = [1, 1, 1];
+        if (!isEmpty(locInfo.scale)) _scale = locInfo.scale;
+        var _rotate = [0, 0, 0, 1];
+        if (!isEmpty(locInfo.rotate)) _rotate = locInfo.rotate;
+        var _offset = [0, 0, 0];
+        if (!isEmpty(locInfo.offset)) _offset = locInfo.offset;
         var _transinfo = {
-            m_vScale: _scale, m_qRotate: _rotate, m_vOffset: _offset
-        }
+            m_vScale: _scale,
+            m_qRotate: _rotate,
+            m_vOffset: _offset,
+        };
         return Module.RealBIMWeb.SetMainSceTransform(dataSetId, _transinfo);
-    }
+    };
 
     /**
      * 获取某个项目的整体坐标偏移信息
      * @param {String} dataSetId //数据集标识
      */
     Module.Coordinate.getDataSetTransform = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var _tranform = Module.RealBIMWeb.GetMainSceTransform(dataSetId);
         var locInfo = new RELocInfo();
         locInfo.scale = _tranform.m_vScale;
         locInfo.rotate = _tranform.m_qRotate;
         locInfo.offset = _tranform.m_vOffset;
         return locInfo;
-    }
+    };
 
     /**
      * 设置引擎世界空间对应的坐标参考系信息
@@ -1842,7 +1955,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.setEngineWorldCRS = function (worldCRS) {
         return Module.RealBIMWeb.SetEngineWorldCRS(worldCRS);
-    }
+    };
 
     /**
      * 获取引擎世界空间坐标系描述符
@@ -1850,7 +1963,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Coordinate.getEngineWorldCRS = function () {
         var _info = Module.RealBIMWeb.GetEngineWorldCRS();
         return _info.m_strCRS;
-    }
+    };
 
     /**
      * 在引擎世界空间坐标与目标地理信息坐标间进行转换
@@ -1859,10 +1972,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} coordList //输入待转换的坐标数组
      */
     Module.Coordinate.getTransEngineCoords = function (forward, destCRS, coordList) {
-        var _s = coordList.length; var _s01 = (_s * 24).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_s01); var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
+        var _s = coordList.length;
+        var _s01 = (_s * 24).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
         for (i = 0; i < _s; ++i) {
-            temparr1[i * 3 + 0] = coordList[i][0]; temparr1[i * 3 + 1] = coordList[i][1]; temparr1[i * 3 + 2] = coordList[i][2];
+            temparr1[i * 3 + 0] = coordList[i][0];
+            temparr1[i * 3 + 1] = coordList[i][1];
+            temparr1[i * 3 + 2] = coordList[i][2];
         }
         var temparr2 = [];
         var bool = Module.RealBIMWeb.TransEngineCoords(forward, destCRS, temparr1.byteLength, temparr1.byteOffset);
@@ -1873,7 +1990,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         return temparr2;
-    }
+    };
 
     /**
      * 进行任意两个标准地理信息坐标转换
@@ -1882,10 +1999,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} coordList //输入待转换的坐标数组
      */
     Module.Coordinate.getTransGeoCoords = function (srcCRS, destCRS, coordList) {
-        var _s = coordList.length; var _s01 = (_s * 32).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_s01); var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
+        var _s = coordList.length;
+        var _s01 = (_s * 32).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
         for (i = 0; i < _s; ++i) {
-            temparr1[i * 4 + 0] = coordList[i][0]; temparr1[i * 4 + 1] = coordList[i][1]; temparr1[i * 4 + 2] = coordList[i][2]; temparr1[i * 4 + 3] = coordList[i][3];
+            temparr1[i * 4 + 0] = coordList[i][0];
+            temparr1[i * 4 + 1] = coordList[i][1];
+            temparr1[i * 4 + 2] = coordList[i][2];
+            temparr1[i * 4 + 3] = coordList[i][3];
         }
         var temparr2 = [];
         var bool = Module.RealBIMWeb.TransGeoCoords(srcCRS, destCRS, temparr1.byteLength, temparr1.byteOffset);
@@ -1896,7 +2018,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         return temparr2;
-    }
+    };
 
     /**
      * 由世界空间坐标转换到屏幕空间坐标
@@ -1904,16 +2026,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} scaleDist //表示与worldPos关联的某对象在世界空间中的最小缩放距离
      */
     Module.Coordinate.getWorldPosToScreenPos = function (worldPos, scaleDist) {
-        var _dScaleDist = 1e20; if (!isEmpty(scaleDist)) _dScaleDist = scaleDist;
+        var _dScaleDist = 1e20;
+        if (!isEmpty(scaleDist)) _dScaleDist = scaleDist;
         return Module.RealBIMWeb.WorldPosToScreenPos(worldPos, _dScaleDist);
-    }
+    };
 
     /**
      * 获取坐标显示的精度
      */
     Module.Coordinate.getValueDispPrecision = function () {
         return Module.RealBIMWeb.GetFloatValueDispPrecision();
-    }
+    };
 
     /**
      * 设置坐标显示的精度
@@ -1921,42 +2044,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.setValueDispPrecision = function (precision) {
         Module.RealBIMWeb.SetFloatValueDispPrecision(precision);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 鼠标探测（Probe）
-    Module.Probe = typeof Module.Probe !== "undefined" ? Module.Probe : {};//增加 Probe 模块
+    Module.Probe = typeof Module.Probe !== 'undefined' ? Module.Probe : {}; //增加 Probe 模块
 
     class REProbeInfo {
         constructor() {
-            this.dataSetId = null;//数据集唯一标识
-            this.elemId = null;//构件标识
-            this.elemPos = null;//选择构件坐标
-            this.elemCenter = null;//选择构件几何中心点
-            this.elemBV = null;//选择构件包围盒信息
-            this.elemScrPos = null;//选择构件相对屏幕二维坐标（原点为屏幕左下角）
+            this.dataSetId = null; //数据集唯一标识
+            this.elemId = null; //构件标识
+            this.elemPos = null; //选择构件坐标
+            this.elemCenter = null; //选择构件几何中心点
+            this.elemBV = null; //选择构件包围盒信息
+            this.elemScrPos = null; //选择构件相对屏幕二维坐标（原点为屏幕左下角）
         }
     }
     ExtModule.REProbeInfo = REProbeInfo;
 
     class REProbeShpInfo {
         constructor() {
-            this.elemId = null;//构件标识
-            this.elemPos = null;//选择构件坐标
-            this.elemScrPos = null;//选择构件相对屏幕二维坐标（原点为屏幕左下角）
+            this.elemId = null; //构件标识
+            this.elemPos = null; //选择构件坐标
+            this.elemScrPos = null; //选择构件相对屏幕二维坐标（原点为屏幕左下角）
         }
     }
     ExtModule.REProbeShpInfo = REProbeShpInfo;
@@ -1967,14 +2076,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Probe.setMouseHoverEventTime = function (waitTime) {
         Module.RealBIMWeb.SetMouseHoverEventParam(waitTime);
-    }
+    };
 
     /**
      * 获取鼠标悬停事件的参数
      */
     Module.Probe.getMouseHoverEventTime = function () {
         return Module.RealBIMWeb.GetMouseHoverEventParam();
-    }
+    };
 
     /**
      * 设置鼠标移动事件的参数
@@ -1982,14 +2091,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Probe.setMouseMoveEventEnable = function (enable) {
         Module.RealBIMWeb.SetMouseMoveEventParam(enable);
-    }
+    };
 
     /**
      * 获取鼠标移动事件的参数
      */
     Module.Probe.getMouseMoveEventEnable = function () {
         return Module.RealBIMWeb.GetMouseMoveEventParam();
-    }
+    };
 
     /**
      * 设置构件是否可探测
@@ -1999,15 +2108,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.Probe.setElemsCanProbe = function (dataSetId, elemIdList, probeEnable, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
         // var _projName = "DefaultProj"; if (typeof projName != 'undefined') { _projName = projName; }
-        var _elemScope = 0; if (!isEmpty(elemScope)) _elemScope = elemScope;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) _elemScope = elemScope;
         var projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
-        if (_count == 0) {  //如果构件ID集合为空，则默认为设置所有构件
-            Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, "", 0xffffffff, 0, probeEnable, _elemScope);
+        if (_count == 0) {
+            //如果构件ID集合为空，则默认为设置所有构件
+            Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, '', 0xffffffff, 0, probeEnable, _elemScope);
         } else {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
@@ -2016,9 +2127,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var eleid = elemIdList[i];
                 _elemIds.set([eleid, projid], i * 2);
             }
-            Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, probeEnable, _elemScope);
+            Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, probeEnable, _elemScope);
         }
-    }
+    };
 
     /**
      * 获取当前选中点相关参数
@@ -2033,7 +2144,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         probeInfo.elemCenter = _proberet.m_vSelCenter;
         probeInfo.elemBV = _proberet.m_bbSelBV;
         return probeInfo;
-    }
+    };
 
     /**
      * 获取当前拾取到的矢量(锚点、标签)相关信息
@@ -2045,8 +2156,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         probeShpInfo.elemPos = _shpProbeRet.m_vSelPos;
         probeShpInfo.elemScrPos = _shpProbeRet.m_vSelScrPos;
         return probeShpInfo;
-    }
-
+    };
 
     /**
      * 获取当前拾取到的复合数据集信息
@@ -2058,21 +2168,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _probeShpRet = Module.RealBIMWeb.GetCurShpProbeRet(Module.RE_SHP_PROBE_TYPE.NORM);
         // console.log("_probeRet",_probeRet);
         // console.log("_probeShpRet",_probeShpRet);
-        if (_probeShpRet.m_strSelShpObjName != "") {
+        if (_probeShpRet.m_strSelShpObjName != '') {
             //矢量元素
-            probeShpInfo.elemType = "ShapeElem";
+            probeShpInfo.elemType = 'ShapeElem';
             probeShpInfo.elemId = _probeShpRet.m_strSelShpObjName;
             probeShpInfo.elemPos = _probeShpRet.m_vSelPos;
             probeShpInfo.elemScrPos = _probeShpRet.m_vSelScrPos;
             return probeShpInfo;
-        }
-        else if (_probeRet.m_strSelActorName != "") {
+        } else if (_probeRet.m_strSelActorName != '') {
             if (_probeRet.m_uSelActorSubID_L32 >= 0xfffffffe) {
                 //栅格元素
-                probeInfo.elemType = "GridElem";
+                probeInfo.elemType = 'GridElem';
             } else {
                 //BIM元素
-                probeInfo.elemType = "BIMElem";
+                probeInfo.elemType = 'BIMElem';
             }
             probeInfo.dataSetId = _probeRet.m_strProjName;
             probeInfo.elemId = _probeRet.m_uSelActorSubID_L32;
@@ -2081,21 +2190,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             probeInfo.elemCenter = _probeRet.m_vSelCenter;
             probeInfo.elemBV = _probeRet.m_bbSelBV;
             return probeInfo;
-        }
-        else {
+        } else {
             //没有拾取到任何对象
-            return { elemType: "", selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos }
+            return { elemType: '', selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos };
         }
-    }
+    };
 
     /**
      * 设置鼠标的拾取模式
      * @param {Number} type //拾取模式
      */
     Module.Probe.setProbeMode = function (type) {
-        var _type = isEmpty(type) ? Module.RE_PROBE_TYPE.NORM : (type == 1 ? Module.RE_PROBE_TYPE.POT : Module.RE_PROBE_TYPE.NORM)
+        var _type = isEmpty(type) ? Module.RE_PROBE_TYPE.NORM : type == 1 ? Module.RE_PROBE_TYPE.POT : Module.RE_PROBE_TYPE.NORM;
         Module.RealBIMWeb.SetExpectProbeMode(_type);
-    }
+    };
 
     /**
      * 获取鼠标的拾取模式
@@ -2103,7 +2211,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Probe.getProbeMode = function () {
         var _type = Module.RealBIMWeb.GetExpectProbeMode();
         return _type.value;
-    }
+    };
 
     /**
      * 设置一个自定义场景探测的指令 注：探测结果在 RECustomProbeFinish 监听事件中返回
@@ -2116,12 +2224,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(rayDir, 'rayDir')) return;
         let _index = isEmpty(index) ? 0 : index;
         return Module.RealBIMWeb.PerformACustomProbe(rayPos, rayDir, _index);
-    }
-
-
+    };
 
     // MOD-- 图形显示（Graphics）
-    Module.Graphics = typeof Module.Graphics !== "undefined" ? Module.Graphics : {};//增加 Graphics 模块
+    Module.Graphics = typeof Module.Graphics !== 'undefined' ? Module.Graphics : {}; //增加 Graphics 模块
 
     // MARK 渲染设置
     /**
@@ -2130,7 +2236,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.setSysUIPanelVisible = function (enable) {
         Module.RealBIMWeb.SetBuiltInUIVisible(enable);
-    }
+    };
 
     /**
      * 设置引擎右上方ViewCube是否可见
@@ -2138,7 +2244,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.setViewCubeVisible = function (enable) {
         Module.RealBIMWeb.SetViewCubeVisibility(enable);
-    }
+    };
 
     /**
      * 设置UI工具条的颜色风格
@@ -2146,14 +2252,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.setSysUIColorStyle = function (useDark) {
         Module.RealBIMWeb.SetBuiltInUIColorStyle(useDark);
-    }
+    };
 
     /**
      * 获取UI工具条的颜色风格
      */
     Module.Graphics.getSysUIColorStyle = function () {
         return Module.RealBIMWeb.GetBuiltInUIColorStyle();
-    }
+    };
 
     /**
      * 设置地理坐标系UI是否允许显示
@@ -2161,14 +2267,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.setGeoCoordVisible = function (enable) {
         Module.RealBIMWeb.SetGeoCoordDisplayable(enable);
-    }
+    };
 
     /**
      * 获取地理坐标系UI显示状态
      */
     Module.Graphics.getGeoCoordVisible = function () {
         return Module.RealBIMWeb.GetGeoCoordDisplayable();
-    }
+    };
 
     /**
      * 设置对应系统UI的可见性
@@ -2178,7 +2284,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.setSysUIWgtVisible = function (uiType, enable) {
         if (isEmptyLog(uiType, 'uiType')) return;
         return Module.RealBIMWeb.UIWgtSetVisible(uiType, enable);
-    }
+    };
 
     /**
      * 获取对应系统UI的可见性
@@ -2187,23 +2293,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.getSysUIWgtVisible = function (uiType) {
         if (isEmptyLog(uiType, 'uiType')) return;
         return Module.RealBIMWeb.UIWgtGetVisible(uiType);
-    }
+    };
 
     /**
      * 恢复图形界面的模型、地形、按钮等为初始加载完成状态
      */
     Module.Graphics.resetInitialState = function () {
         Module.RealBIMWeb.ResetUserOperation(0);
-    }
+    };
 
     /**
      * 设置系统UI面板的停靠方式
      * @param {Number} dockArea //停靠方式  0：下方停靠 1：左侧停靠  2：顶侧停靠  3：右侧停靠
      */
     Module.Graphics.setSysPanelUIDockArea = function (dockArea) {
-        var _dockArea = 0; if (!isEmpty(dockArea)) _dockArea = dockArea;
+        var _dockArea = 0;
+        if (!isEmpty(dockArea)) _dockArea = dockArea;
         Module.RealBIMWeb.SetBuiltInUIDockArea(_dockArea);
-    }
+    };
 
     /**
      * 预先载入一个指定的UI纹理
@@ -2212,34 +2319,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.setPreLoadPicPath = function (picPath) {
         if (isEmptyLog(picPath, 'picPath')) return;
         return Module.RealBIMWeb.PreLoadGUIImgs(picPath);
-    }
+    };
 
     /**
      * 全部重置系统面板UI按钮和关联的状态
      */
     Module.Graphics.resetSysOptStateAndUI = function () {
         Module.RealBIMWeb.ResetUserOperationOnUI();
-    }
+    };
 
     /**
      * 设置 ViewCube 的区域位置
-     * @param {dvec2} areaPos //ViewCube 区域位置，取值范围【-1，1】，在范围内可以按照取值范围内的值进行调整，最大比例数值为9宫格排布方式（-1，1）左上角 （1，1）右上角 （-1，-1）左下角 （1，-1）右下角 （0，1）上 （0，-1）下 （-1，0）左 （1，0）右 （0，0）中   
+     * @param {dvec2} areaPos //ViewCube 区域位置，取值范围【-1，1】，在范围内可以按照取值范围内的值进行调整，最大比例数值为9宫格排布方式（-1，1）左上角 （1，1）右上角 （-1，-1）左下角 （1，-1）右下角 （0，1）上 （0，-1）下 （-1，0）左 （1，0）右 （0，0）中
      */
     Module.Graphics.setViewCubeArea = function (areaPos) {
-        let _areaPos = isEmpty(areaPos) ? [1,1] : areaPos;
+        let _areaPos = isEmpty(areaPos) ? [1, 1] : areaPos;
         return Module.RealBIMWeb.SetViewCubeCenter(_areaPos);
-    }
+    };
 
     /**
      * 获取 ViewCube 的区域位置
      */
     Module.Graphics.getViewCubeArea = function () {
         return Module.RealBIMWeb.GetViewCubeCenter();
-    }
-
-
-
-
+    };
 
     // MARK 窗口（Wnd）
     /**
@@ -2249,7 +2352,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.getWndClrStyle = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtGetWndColorStyle(uiID);
-    }
+    };
 
     /**
      * 设置窗口的颜色风格
@@ -2260,32 +2363,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiID, 'uiID')) return;
         if (isEmptyLog(clrStyleName, 'clrStyleName')) return;
         return Module.RealBIMWeb.UIWgtSetWndColorStyle(uiID, clrStyleName);
-    }
-
-
-
-
-
+    };
 
     // MARK 按钮（Button）
     class REUIBtnInfo {
         constructor() {
-            this.uiID = null;//组件唯一标识，重复使用创建失败
-            this.stateParList = null;//按钮各个子状态的状态相关参数集合（ REUIBtnStateInfo 类型）
-            this.size = null;//按钮的期望尺寸, 二元数组
-            this.activeStateId = 0;//按钮的初始子状态id, stateParList 对象列表 index 下标
-            this.visible = true;//是否可见，默认可见
+            this.uiID = null; //组件唯一标识，重复使用创建失败
+            this.stateParList = null; //按钮各个子状态的状态相关参数集合（ REUIBtnStateInfo 类型）
+            this.size = null; //按钮的期望尺寸, 二元数组
+            this.activeStateId = 0; //按钮的初始子状态id, stateParList 对象列表 index 下标
+            this.visible = true; //是否可见，默认可见
         }
     }
     ExtModule.REUIBtnInfo = REUIBtnInfo;
 
     class REUIBtnStateInfo {
         constructor() {
-            this.text = null;//按钮部件的文字
-            this.hintText = null;//鼠标悬浮提示
-            this.texPath = null;//按钮图像路径
-            this.clrStyle = null;//颜色风格名称
-            this.sizeStyle = null;//尺寸风格名称
+            this.text = null; //按钮部件的文字
+            this.hintText = null; //鼠标悬浮提示
+            this.texPath = null; //按钮图像路径
+            this.clrStyle = null; //颜色风格名称
+            this.sizeStyle = null; //尺寸风格名称
         }
     }
     ExtModule.REUIBtnStateInfo = REUIBtnStateInfo;
@@ -2299,24 +2397,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _strUIID = btnInfo.uiID;
         var _vExpectSize = btnInfo.size;
-        var _uActiveStateID = 0; if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
-        var _bVisible = true; if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
+        var _uActiveStateID = 0;
+        if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
+        var _bVisible = true;
+        if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
         var _bClickable = true;
 
         var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
         for (let i = 0; i < btnInfo.stateParList.length; i++) {
             let statePar = btnInfo.stateParList[i];
             let _par = {
-                m_strText: isEmpty(statePar.text) ? "" : statePar.text,
-                m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
-                m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
-                m_vecClrStates: isEmpty(statePar.clrStyle) ? Module.RealBIMWeb.UIWgtGetClrStyle("CS_BTN_GRAYTEXT_NOBG") : Module.RealBIMWeb.UIWgtGetClrStyle(statePar.clrStyle),
-                m_vecSizeStates: isEmpty(statePar.sizeStyle) ? Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER") : Module.RealBIMWeb.UIWgtGetSizeStyle(statePar.sizeStyle),
+                m_strText: isEmpty(statePar.text) ? '' : statePar.text,
+                m_strHint: isEmpty(statePar.hintText) ? '' : statePar.hintText,
+                m_strTextureURL: isEmpty(statePar.texPath) ? '' : statePar.texPath,
+                m_vecClrStates: isEmpty(statePar.clrStyle)
+                    ? Module.RealBIMWeb.UIWgtGetClrStyle('CS_BTN_GRAYTEXT_NOBG')
+                    : Module.RealBIMWeb.UIWgtGetClrStyle(statePar.clrStyle),
+                m_vecSizeStates: isEmpty(statePar.sizeStyle)
+                    ? Module.RealBIMWeb.UIWgtGetSizeStyle('SS_WND_HAVE_THIN_BORDER')
+                    : Module.RealBIMWeb.UIWgtGetSizeStyle(statePar.sizeStyle),
             };
             _arrStateParams.push_back(_par);
         }
         return Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
-    }
+    };
 
     /**
      * 获取按钮当前的子状态
@@ -2325,7 +2429,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.getBtnActiveState = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtGetBtnActiveSubState(uiID);
-    }
+    };
 
     /**
      * 设置按钮当前的子状态
@@ -2336,10 +2440,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiID, 'uiID')) return;
         if (isEmptyLog(activeStateId, 'activeStateId')) return;
         return Module.RealBIMWeb.UIWgtSetBtnActiveSubState(uiID, activeStateId);
-    }
+    };
 
     /**
-     * 在系统的UI面板中添加按钮（统一样式, 只支持两种子按钮状态） 
+     * 在系统的UI面板中添加按钮（统一样式, 只支持两种子按钮状态）
      * @param {REUIBtnInfo} btnInfo //按钮信息 （REUIBtnInfo 类型）
      */
     Module.Graphics.createSysPanelBtn = function (btnInfo) {
@@ -2347,28 +2451,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _strUIID = btnInfo.uiID;
         var _vExpectSize = [48, 48];
-        var _uActiveStateID = 0; if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
-        var _bVisible = true; if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
+        var _uActiveStateID = 0;
+        if (!isEmpty(btnInfo.activeStateId)) _uActiveStateID = btnInfo.activeStateId;
+        var _bVisible = true;
+        if (!isEmpty(btnInfo.visible)) _bVisible = btnInfo.visible;
         var _bClickable = true;
-        var _wndClrStyle = Module.Graphics.getWndClrStyle == "CS_WND_DARK" ? 1 : 0;
+        var _wndClrStyle = Module.Graphics.getWndClrStyle == 'CS_WND_DARK' ? 1 : 0;
 
         var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
         for (let i = 0; i < btnInfo.stateParList.length; i++) {
-            _btnClrStyle = (_wndClrStyle == 1) ? ((i == 1) ? "CS_BTN_WHITETEXT_NOBG" : "CS_WND_DARK") : ((i == 1) ? "CS_BTN_GRAYTEXT_BLUEBG" : "CS_BTN_GRAYTEXT_NOBG");
+            _btnClrStyle =
+                _wndClrStyle == 1 ? (i == 1 ? 'CS_BTN_WHITETEXT_NOBG' : 'CS_WND_DARK') : i == 1 ? 'CS_BTN_GRAYTEXT_BLUEBG' : 'CS_BTN_GRAYTEXT_NOBG';
             let statePar = btnInfo.stateParList[i];
             let _par = {
-                m_strText: "",
-                m_strHint: isEmpty(statePar.hintText) ? "" : statePar.hintText,
-                m_strTextureURL: isEmpty(statePar.texPath) ? "" : statePar.texPath,
+                m_strText: '',
+                m_strHint: isEmpty(statePar.hintText) ? '' : statePar.hintText,
+                m_strTextureURL: isEmpty(statePar.texPath) ? '' : statePar.texPath,
                 m_vecClrStates: Module.RealBIMWeb.UIWgtGetClrStyle(_btnClrStyle),
-                m_vecSizeStates: Module.RealBIMWeb.UIWgtGetSizeStyle("SS_WND_HAVE_THIN_BORDER"),
+                m_vecSizeStates: Module.RealBIMWeb.UIWgtGetSizeStyle('SS_WND_HAVE_THIN_BORDER'),
             };
             _arrStateParams.push_back(_par);
         }
         var createState = Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
         var addState = Module.Graphics.addSysPanelChildWidget(btnInfo.uiID);
         return createState && addState;
-    }
+    };
 
     /**
      * 获取按钮的某子状态使用的纹理路径
@@ -2379,7 +2486,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiID, 'uiID')) return;
         var curStateId = isEmpty(stateId) ? Module.RealBIMWeb.UIWgtGetBtnActiveSubState(uiID) : stateId;
         return Module.RealBIMWeb.UIWgtGetBtnSubStateImgURL(uiID, curStateId);
-    }
+    };
 
     /**
      * 设置按钮的某子状态使用的纹理路径
@@ -2392,7 +2499,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(stateId, 'stateId')) return;
         if (isEmptyLog(picPath, 'picPath')) return;
         return Module.RealBIMWeb.UIWgtSetBtnSubStateImgURL(uiID, stateId, picPath);
-    }
+    };
 
     /**
      * 设置按钮的某子状态使用的颜色配置
@@ -2405,7 +2512,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(stateId, 'stateId')) return false;
         if (isEmptyLog(clrStyleName, 'clrStyleName')) return false;
         return Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, stateId, clrStyleName);
-    }
+    };
 
     /**
      * 获取按钮的某子状态使用的颜色配置
@@ -2413,10 +2520,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} stateId //按钮的状态id, stateParList 对象列表 index 下标
      */
     Module.Graphics.getBtnClrStyle = function (uiID, stateId) {
-        if (isEmptyLog(uiID, 'uiID')) return "";
-        if (isEmptyLog(stateId, 'stateId')) return "";
+        if (isEmptyLog(uiID, 'uiID')) return '';
+        if (isEmptyLog(stateId, 'stateId')) return '';
         return Module.RealBIMWeb.UIWgtGetBtnColorStyle(uiID, stateId);
-    }
+    };
 
     /**
      * 设置系统的UI面板按钮的主题颜色（只支持系统浅色和深色、只支持只有两种按钮子状态类型）
@@ -2428,31 +2535,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(clrStyle, 'clrStyle')) return false;
 
         if (clrStyle == 1) {
-            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_WND_DARK");
-            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_WHITETEXT_NOBG");
+            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, 'CS_WND_DARK');
+            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, 'CS_BTN_WHITETEXT_NOBG');
             return state;
         } else {
-            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, "CS_BTN_GRAYTEXT_NOBG");
-            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, "CS_BTN_GRAYTEXT_BLUEBG");
+            var state = Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 0, 'CS_BTN_GRAYTEXT_NOBG');
+            Module.RealBIMWeb.UIWgtSetBtnColorStyle(uiID, 1, 'CS_BTN_GRAYTEXT_BLUEBG');
             return state;
         }
-    }
-
-
-
-
+    };
 
     // MARK 图片（Image）
     class REUIImageInfo {
         constructor() {
-            this.uiID = null;//组件唯一标识，重复使用创建失败
-            this.picPath = null;//图片地址
-            this.size = null;//按钮的期望尺寸, 二元数组
-            this.visible = true;//是否可见，默认可见
+            this.uiID = null; //组件唯一标识，重复使用创建失败
+            this.picPath = null; //图片地址
+            this.size = null; //按钮的期望尺寸, 二元数组
+            this.visible = true; //是否可见，默认可见
         }
     }
     ExtModule.REUIImageInfo = REUIImageInfo;
-
 
     /**
      * 创建一个Image控件
@@ -2466,7 +2568,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _visible = isEmpty(imageInfo.visible) ? true : imageInfo.visible;
         return Module.RealBIMWeb.UIWgtCreateImage(imageInfo.uiID, _visible, imageInfo.size, imageInfo.picPath);
-    }
+    };
 
     /**
      * 获取图像UI控件所使用的图片资源的路径
@@ -2475,7 +2577,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.getImagePicPath = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtGetImageImgURL(uiID);
-    }
+    };
 
     /**
      * 设置图像UI控件所使用的图片资源的路径
@@ -2486,7 +2588,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiID, 'uiID')) return;
         if (isEmptyLog(picPath, 'picPath')) return;
         return Module.RealBIMWeb.UIWgtSetImageImgURL(uiID, picPath);
-    }
+    };
 
     /**
      * 创建一个系统UI面板上的Image控件
@@ -2502,11 +2604,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var createState = Module.RealBIMWeb.UIWgtCreateImage(uiID, _visible, _size, picPath);
         var addState = Module.Graphics.addSysPanelChildWidget(uiID);
         return createState && addState;
-    }
-
-
-
-
+    };
 
     // MARK 通用
 
@@ -2522,19 +2620,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _childIDList.push(_idList.get(i));
         }
         return _childIDList;
-    }
+    };
 
     /**
      * 获取系统UI面板所有子组件的ID
      */
     Module.Graphics.getSysPanelAllChildIds = function () {
-        var _idList = Module.RealBIMWeb.UIWgtGetAllChildrensID("BuiltIn_Wnd_Panel");
+        var _idList = Module.RealBIMWeb.UIWgtGetAllChildrensID('BuiltIn_Wnd_Panel');
         var _childIDList = [];
         for (let i = 0; i < _idList.size(); i++) {
             _childIDList.push(_idList.get(i));
         }
         return _childIDList;
-    }
+    };
 
     /**
      * 添加组件到指定父组件上
@@ -2545,7 +2643,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(superUIID, 'superUIID')) return;
         if (isEmptyLog(childUIID, 'childUIID')) return;
         return Module.RealBIMWeb.UIWgtAddChildWidget(superUIID, childUIID);
-    }
+    };
 
     /**
      * 移除组件的某个子组件 （不删除子组件）
@@ -2556,7 +2654,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(superUIID, 'superUIID')) return;
         if (isEmptyLog(childUIID, 'childUIID')) return;
         return Module.RealBIMWeb.UIWgtRemoveChildWidget(superUIID, childUIID);
-    }
+    };
 
     /**
      * 删除一个控件
@@ -2565,7 +2663,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.delWidget = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtDeleteWidget(uiID);
-    }
+    };
 
     /**
      * 移除系统UI面板的某个子组件 （不删除子组件）
@@ -2573,96 +2671,65 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.removeSysPanelWidget = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
-        return Module.RealBIMWeb.UIWgtRemoveChildWidget("BuiltIn_Wnd_Panel", uiID);
-    }
+        return Module.RealBIMWeb.UIWgtRemoveChildWidget('BuiltIn_Wnd_Panel', uiID);
+    };
 
     /**
-     * 将已经创建好的组件到系统UI面板 
+     * 将已经创建好的组件到系统UI面板
      * @param {String} uiID //组件唯一标识
      */
     Module.Graphics.addSysPanelChildWidget = function (uiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
-        return Module.RealBIMWeb.UIWgtAddChildWidget("BuiltIn_Wnd_Panel", uiID);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return Module.RealBIMWeb.UIWgtAddChildWidget('BuiltIn_Wnd_Panel', uiID);
+    };
 
     // MOD-- 标签（Tag）
-    Module.Tag = typeof Module.Tag !== "undefined" ? Module.Tag : {};//增加 Tag 模块
+    Module.Tag = typeof Module.Tag !== 'undefined' ? Module.Tag : {}; //增加 Tag 模块
 
     class RETagInfo {
         constructor() {
-            this.tagName = null;//标签的名称(唯一标识)
-            this.pos = null;//标签的位置
-            this.infoList = null;//标签的内容（包含 RETagContent 类型）
+            this.tagName = null; //标签的名称(唯一标识)
+            this.pos = null; //标签的位置
+            this.infoList = null; //标签的内容（包含 RETagContent 类型）
         }
     }
     ExtModule.RETagInfo = RETagInfo;
 
     class RETagContent {
         constructor() {
-            this.picPath = null;//标签每一行的纹理路径(要求32 * 32像素，png格式)
-            this.text = null;//标签每一行的文字信息
-            this.onlyText = false;//是否只有文字， 不设置表示默认都有
+            this.picPath = null; //标签每一行的纹理路径(要求32 * 32像素，png格式)
+            this.text = null; //标签每一行的文字信息
+            this.onlyText = false; //是否只有文字， 不设置表示默认都有
         }
     }
     ExtModule.RETagContent = RETagContent;
 
     class RELineTagInfo {
         constructor() {
-            this.tagName = null;//标签的名称(唯一标识)
-            this.pos = null;//标签的位置
-            this.contents = null;//标签的内容（包含 RELineTagCont 类型）
-            this.tagMinWidth = null;//表示要添加的标签最小宽度
-            this.tagMinHeight = null;//表示要添加的标签最小高度
-            this.fontName = null;//表示要添加的标签内容字体样式
-            this.backClr = null;//表示要添加的标签背景颜色（REColor 类型）
-            this.frameClr = null;//表示要添加的标签边框颜色（REColor 类型）
+            this.tagName = null; //标签的名称(唯一标识)
+            this.pos = null; //标签的位置
+            this.contents = null; //标签的内容（包含 RELineTagCont 类型）
+            this.tagMinWidth = null; //表示要添加的标签最小宽度
+            this.tagMinHeight = null; //表示要添加的标签最小高度
+            this.fontName = null; //表示要添加的标签内容字体样式
+            this.backClr = null; //表示要添加的标签背景颜色（REColor 类型）
+            this.frameClr = null; //表示要添加的标签边框颜色（REColor 类型）
         }
     }
     ExtModule.RELineTagInfo = RELineTagInfo;
 
     class RELineTagCont {
         constructor() {
-            this.type = null;//元素类型，"text":文字，"tex":图片
-            this.width = null;//元素宽度
-            this.height = null;//元素高度
-            this.border = null;//元素边框大小
-            this.elemClr = null;//元素颜色（REColor 类型）type="text"代表文字颜色，type="tex"代表图片纹理颜色
-            this.text = null;//文字内容，只有在 type="text"时才生效
-            this.picPath = null;//图片路径，只有在 type="tex"时才生效
+            this.type = null; //元素类型，"text":文字，"tex":图片
+            this.width = null; //元素宽度
+            this.height = null; //元素高度
+            this.border = null; //元素边框大小
+            this.elemClr = null; //元素颜色（REColor 类型）type="text"代表文字颜色，type="tex"代表图片纹理颜色
+            this.text = null; //文字内容，只有在 type="text"时才生效
+            this.picPath = null; //图片路径，只有在 type="tex"时才生效
         }
     }
     ExtModule.RELineTagCont = RELineTagCont;
-
 
     /**
      * 添加标签
@@ -2676,7 +2743,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _texRegions = new Module.RE_Vector_SHP_TEX();
             let _textRegions = new Module.RE_Vector_SHP_TEXT();
             let _lineCount = _tagInfo.infoList.length;
-            let _lineHeight = 26; let _lineSpace = 3;
+            let _lineHeight = 26;
+            let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
                 let _needPic = !isEmpty(_tagInfo.infoList[i].onlyText) ? !_tagInfo.infoList[i].onlyText : false;
                 let _picDefClr = _needPic ? 0xffffffff : 0x00ffffff;
@@ -2685,15 +2753,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _right = _needPic ? -30 : 0;
                 let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
-                    m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? "" : _tagInfo.infoList[i].picPath,
+                    m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? '' : _tagInfo.infoList[i].picPath,
                     m_qTexRect: [_left, _bottom, _right, _top],
                     m_uTexClrMult: _picDefClr,
-                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
-                    m_uFrameNumU: 1, m_uFrameNumV: 1,
-                    m_uFrameStrideU: 0, m_uFrameStrideV: 0,
+                    m_vMinTexUV: [0.0, 0.0],
+                    m_vMaxTexUV: [1.0, 1.0],
+                    m_uFrameNumU: 1,
+                    m_uFrameNumV: 1,
+                    m_uFrameStrideU: 0,
+                    m_uFrameStrideV: 0,
                     m_fFrameFreq: 0.0,
                 };
-                _texRegions.push_back(obj_t);  //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
+                _texRegions.push_back(obj_t); //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
             }
             for (let i = 0; i < _lineCount; ++i) {
                 let _left = 0;
@@ -2701,23 +2772,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _right = 30;
                 let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
-                    m_strGolFontID: "RealBIMFont001",
+                    m_strGolFontID: 'RealBIMFont001',
                     m_bTextWeight: false,
-                    m_strText: isEmpty(_tagInfo.infoList[i].text) ? "" : _tagInfo.infoList[i].text,
+                    m_strText: isEmpty(_tagInfo.infoList[i].text) ? '' : _tagInfo.infoList[i].text,
                     m_uTextClr: 0xffffffff,
                     m_uTextBorderClr: 0x80000000,
                     m_qTextRect: [_left, _bottom, _right, _top],
-                    m_uTextFmtFlag: ((1 << 1)/*TEXT_FMT_VCENTER*/ | (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 6)/*TEXT_FMT_NOCLIP*/),
-                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
+                    m_uTextFmtFlag: (1 << 1) /*TEXT_FMT_VCENTER*/ | (1 << 3) /*TEXT_FMT_LEFT*/ | (1 << 6) /*TEXT_FMT_NOCLIP*/,
+                    m_uTextBackMode: 0,
+                    m_sTextBackBorder: 0,
+                    m_uTextBackClr: 0x00000000,
                 };
                 _textRegions.push_back(obj_t);
             }
             let _tempobj = {
-                m_strName: isEmpty(_tagInfo.tagName) ? "" : _tagInfo.tagName,
+                m_strName: isEmpty(_tagInfo.tagName) ? '' : _tagInfo.tagName,
                 m_vPos: _tagInfo.pos,
                 m_vBgMinSize: [150, 10],
                 m_vBgPadding: [5, 5],
-                m_uBgAlignX: 1, m_uBgAlignY: 1,
+                m_uBgAlignX: 1,
+                m_uBgAlignY: 1,
                 m_vArrowOrigin: [0, 10],
                 m_uBgColor: 0x80000000,
                 m_arrTexContents: _texRegions,
@@ -2726,7 +2800,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _temptags.push_back(_tempobj);
         }
         return Module.RealBIMWeb.AddTags(_temptags);
-    }
+    };
 
     /**
      * 添加行标签
@@ -2740,37 +2814,49 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _texRegions = new Module.RE_Vector_SHP_TEX();
         var _textRegions = new Module.RE_Vector_SHP_TEXT();
 
-        var _cur_x = 0;//当前计算x
-        var _cur_y = 0;//当前计算y
-        var _max_y = lineTagInfo.tagMinHeight / 2;//当前最大y
-        var _backClr = 0x00000000; if (!isEmpty(lineTagInfo.backClr)) _backClr = clrToU32(lineTagInfo.backClr);
-        var _frameClr = 0x00000000; if (!isEmpty(lineTagInfo.frameClr)) _frameClr = clrToU32(lineTagInfo.frameClr);
-        var _fontName = "RealBIMFont001"; if (!isEmpty(lineTagInfo.fontName) && lineTagInfo.fontName != "") _fontName = lineTagInfo.fontName;
+        var _cur_x = 0; //当前计算x
+        var _cur_y = 0; //当前计算y
+        var _max_y = lineTagInfo.tagMinHeight / 2; //当前最大y
+        var _backClr = 0x00000000;
+        if (!isEmpty(lineTagInfo.backClr)) _backClr = clrToU32(lineTagInfo.backClr);
+        var _frameClr = 0x00000000;
+        if (!isEmpty(lineTagInfo.frameClr)) _frameClr = clrToU32(lineTagInfo.frameClr);
+        var _fontName = 'RealBIMFont001';
+        if (!isEmpty(lineTagInfo.fontName) && lineTagInfo.fontName != '') _fontName = lineTagInfo.fontName;
 
         for (let i = 0; i < lineTagInfo.contents.length; i++) {
             let _lineTagCont = lineTagInfo.contents[i];
-            let _elemType = "tex"; if (!isEmpty(_lineTagCont.type)) _elemType = _lineTagCont.type;
-            let _elemText = ""; if (!isEmpty(_lineTagCont.text) && _elemType != "tex") _elemText = _lineTagCont.text;
-            let _elemPicPath = ""; if (!isEmpty(_lineTagCont.picPath) && _elemType != "text") _elemPicPath = _lineTagCont.picPath;
-            let _elemWidth = 1; if (!isEmpty(_lineTagCont.width)) _elemWidth = _lineTagCont.width;
-            let _elemHeight = 1; if (!isEmpty(_lineTagCont.height)) _elemHeight = _lineTagCont.height;
-            let _elemBorder = 1; if (!isEmpty(_lineTagCont.border)) _elemBorder = _lineTagCont.border;
+            let _elemType = 'tex';
+            if (!isEmpty(_lineTagCont.type)) _elemType = _lineTagCont.type;
+            let _elemText = '';
+            if (!isEmpty(_lineTagCont.text) && _elemType != 'tex') _elemText = _lineTagCont.text;
+            let _elemPicPath = '';
+            if (!isEmpty(_lineTagCont.picPath) && _elemType != 'text') _elemPicPath = _lineTagCont.picPath;
+            let _elemWidth = 1;
+            if (!isEmpty(_lineTagCont.width)) _elemWidth = _lineTagCont.width;
+            let _elemHeight = 1;
+            if (!isEmpty(_lineTagCont.height)) _elemHeight = _lineTagCont.height;
+            let _elemBorder = 1;
+            if (!isEmpty(_lineTagCont.border)) _elemBorder = _lineTagCont.border;
             let _elemClr = 0xffffffff;
             if (!isEmpty(_lineTagCont.elemClr)) {
-                if (_elemType == "text") {
+                if (_elemType == 'text') {
                     _elemClr = clrToU32(_lineTagCont.elemClr);
                 }
             }
-            if (_elemType == "tex") {
+            if (_elemType == 'tex') {
                 let obj_t = {
-                    m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
-                    m_uFrameNumU: 1, m_uFrameNumV: 1,
-                    m_uFrameStrideU: 0, m_uFrameStrideV: 0,
+                    m_vMinTexUV: [0.0, 0.0],
+                    m_vMaxTexUV: [1.0, 1.0],
+                    m_uFrameNumU: 1,
+                    m_uFrameNumV: 1,
+                    m_uFrameStrideU: 0,
+                    m_uFrameStrideV: 0,
                     m_fFrameFreq: 0.0,
                     m_strTexPath: _elemPicPath,
                     m_qTexRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 - 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 - 1],
                     m_uTexClrMult: _elemClr,
-                }
+                };
                 _texRegions.push_back(obj_t);
             } else {
                 let obj_t = {
@@ -2779,57 +2865,86 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextClr: _elemClr,
                     m_uTextBorderClr: 0x00000000,
                     m_strText: _elemText,
-                    m_qTextRect: [_cur_x + _elemBorder, _cur_y - _elemHeight / 2 + 1, _cur_x + _elemBorder + _elemWidth, _cur_y + _elemHeight / 2 + 1],
-                    m_uTextFmtFlag: (0x2/*TEXT_FMT_VCENTER*/ | 0x10/*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100/*TEXT_FMT_WORDBREAK*/),
-                    m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-                }
+                    m_qTextRect: [
+                        _cur_x + _elemBorder,
+                        _cur_y - _elemHeight / 2 + 1,
+                        _cur_x + _elemBorder + _elemWidth,
+                        _cur_y + _elemHeight / 2 + 1,
+                    ],
+                    m_uTextFmtFlag: 0x2 /*TEXT_FMT_VCENTER*/ | 0x10 /*TEXT_FMT_HCENTER*/ /*| 0x40TEXT_FMT_NOCLIP*/ | 0x100 /*TEXT_FMT_WORDBREAK*/,
+                    m_uTextBackMode: 0,
+                    m_sTextBackBorder: 0,
+                    m_uTextBackClr: 0x00000000,
+                };
                 _textRegions.push_back(obj_t);
             }
             _cur_x += _elemWidth + _elemBorder * 2;
-            if (_max_y < _elemHeight / 2) { _max_y = _elemHeight / 2; }
+            if (_max_y < _elemHeight / 2) {
+                _max_y = _elemHeight / 2;
+            }
         }
 
-        var _frameRange_xMin = 0; var _frameRange_xMax = _cur_x;
+        var _frameRange_xMin = 0;
+        var _frameRange_xMax = _cur_x;
         if (_cur_x < lineTagInfo.tagMinWidth) {
-            _frameRange_xMin -= (lineTagInfo.tagMinWidth - _cur_x) / 2; _frameRange_xMax += (lineTagInfo.tagMinWidth - _cur_x) / 2;
+            _frameRange_xMin -= (lineTagInfo.tagMinWidth - _cur_x) / 2;
+            _frameRange_xMax += (lineTagInfo.tagMinWidth - _cur_x) / 2;
         }
         var _frameLine = {
-            m_vMinTexUV: [0.0, 0.0], m_vMaxTexUV: [1.0, 1.0],
-            m_uFrameNumU: 1, m_uFrameNumV: 1,
-            m_uFrameStrideU: 0, m_uFrameStrideV: 0, m_fFrameFreq: 0.0,
-            m_strTexPath: "",
+            m_vMinTexUV: [0.0, 0.0],
+            m_vMaxTexUV: [1.0, 1.0],
+            m_uFrameNumU: 1,
+            m_uFrameNumV: 1,
+            m_uFrameStrideU: 0,
+            m_uFrameStrideV: 0,
+            m_fFrameFreq: 0.0,
+            m_strTexPath: '',
             m_qTexRect: [0, 0, 0, 0],
             m_uTexClrMult: _frameClr,
         };
         //边框
-        var _frameLineWidth = 2; var _frameGap = 6;
+        var _frameLineWidth = 2;
+        var _frameGap = 6;
         //边框-上
-        _frameLine["m_qTexRect"] = [
-            _frameRange_xMin - _frameGap, _max_y + _frameGap,
-            _frameRange_xMax + _frameGap, _max_y + _frameGap + _frameLineWidth
-        ]; _texRegions.push_back(_frameLine);
+        _frameLine['m_qTexRect'] = [
+            _frameRange_xMin - _frameGap,
+            _max_y + _frameGap,
+            _frameRange_xMax + _frameGap,
+            _max_y + _frameGap + _frameLineWidth,
+        ];
+        _texRegions.push_back(_frameLine);
         //边框-下
-        _frameLine["m_qTexRect"] = [
-            _frameRange_xMin - _frameGap, -_max_y - _frameGap - _frameLineWidth,
-            _frameRange_xMax + _frameGap, -_max_y - _frameGap
-        ]; _texRegions.push_back(_frameLine);
+        _frameLine['m_qTexRect'] = [
+            _frameRange_xMin - _frameGap,
+            -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMax + _frameGap,
+            -_max_y - _frameGap,
+        ];
+        _texRegions.push_back(_frameLine);
         //边框-左
-        _frameLine["m_qTexRect"] = [
-            _frameRange_xMin - _frameGap, -_max_y - _frameGap - _frameLineWidth,
-            _frameRange_xMin - _frameGap + _frameLineWidth, _max_y + _frameGap + _frameLineWidth
-        ]; _texRegions.push_back(_frameLine);
+        _frameLine['m_qTexRect'] = [
+            _frameRange_xMin - _frameGap,
+            -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMin - _frameGap + _frameLineWidth,
+            _max_y + _frameGap + _frameLineWidth,
+        ];
+        _texRegions.push_back(_frameLine);
         //边框-右
-        _frameLine["m_qTexRect"] = [
-            _frameRange_xMax + _frameGap - _frameLineWidth, -_max_y - _frameGap - _frameLineWidth,
-            _frameRange_xMax + _frameGap, _max_y + _frameGap + _frameLineWidth
-        ]; _texRegions.push_back(_frameLine);
+        _frameLine['m_qTexRect'] = [
+            _frameRange_xMax + _frameGap - _frameLineWidth,
+            -_max_y - _frameGap - _frameLineWidth,
+            _frameRange_xMax + _frameGap,
+            _max_y + _frameGap + _frameLineWidth,
+        ];
+        _texRegions.push_back(_frameLine);
 
         var _tempObj = {
             m_strName: lineTagInfo.tagName,
             m_vPos: lineTagInfo.pos,
             m_vBgMinSize: [lineTagInfo.tagMinWidth, lineTagInfo.tagMinHeight],
             m_vBgPadding: [3, 3],
-            m_uBgAlignX: 1, m_uBgAlignY: 1,
+            m_uBgAlignX: 1,
+            m_uBgAlignY: 1,
             m_vArrowOrigin: [-5, 20],
             m_uBgColor: _backClr,
             m_arrTexContents: _texRegions,
@@ -2837,7 +2952,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
         _tagList.push_back(_tempObj);
         return Module.RealBIMWeb.AddTags(_tagList);
-    }
+    };
 
     /**
      * 获取某个标签的信息
@@ -2848,7 +2963,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _tagData = Module.RealBIMWeb.GetTag(tagName);
         // 多行标签和单行标签都是按照坐标添加的，在一个画布上，返回无法区分是单行还是多行，也无法确定添加的顺序，不返回图片和文字内容
         return { tagName: _tagData.m_strName, pos: _tagData.m_vPos };
-    }
+    };
 
     /**
      * 获取系统中所有标签信息
@@ -2861,34 +2976,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tagInfoList.push({ tagName: _tagData.m_strName, pos: _tagData.m_vPos });
         }
         return tagInfoList;
-    }
+    };
 
     /**
      * 删除标签
      * @param {Array} tagNameList //标签的名称集合
      */
     Module.Tag.delTags = function (tagNameList) {
-        if (!checkTypeLog(tagNameList, "tagNameList", RE_Enum.RE_Check_Array)) return false;
+        if (!checkTypeLog(tagNameList, 'tagNameList', RE_Enum.RE_Check_Array)) return false;
         var temptags = new Module.RE_Vector_WStr();
         for (i = 0; i < tagNameList.length; ++i) {
             temptags.push_back(tagNameList[i]);
         }
         return Module.RealBIMWeb.DelTags(temptags);
-    }
+    };
 
     /**
      * 删除全部标签
      */
     Module.Tag.delAllTag = function () {
         return Module.RealBIMWeb.DelAllTags();
-    }
+    };
 
     /**
      * 获取系统中所有标签总数
      */
     Module.Tag.getTagNum = function () {
         return Module.RealBIMWeb.GetTagNum();
-    }
+    };
 
     /**
      * 设置系统中标签是否允许被场景遮挡
@@ -2896,14 +3011,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Tag.setTagCanOverlap = function (enable) {
         Module.RealBIMWeb.SetTagContactSce(enable);
-    }
+    };
 
     /**
      * 获取系统中标签是否允许被场景遮挡
      */
     Module.Tag.getTagCanOverlap = function () {
         return Module.RealBIMWeb.GetTagContactSce();
-    }
+    };
 
     /**
      * 设置系统中标签的自动缩放距离
@@ -2911,14 +3026,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Tag.setTagAutoScaleDist = function (dist) {
         Module.RealBIMWeb.SetTagAutoScaleDist(dist);
-    }
+    };
 
     /**
      * 获取系统中标签的自动缩放距离
      */
     Module.Tag.getTagAutoScaleDist = function () {
         return Module.RealBIMWeb.GetTagAutoScaleDist();
-    }
+    };
 
     /**
      * 设置系统中标签的最远可视距离
@@ -2926,29 +3041,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Tag.setTagVisDist = function (dist) {
         Module.RealBIMWeb.SetTagVisDist(dist);
-    }
+    };
 
     /**
      * 获取系统中标签的最远可视距离
      */
     Module.Tag.getTagVisDist = function () {
         return Module.RealBIMWeb.GetTagVisDist();
-    }
-
-
-
-
+    };
 
     // MOD-- 标注（Mark）
-    Module.Mark = typeof Module.Mark !== "undefined" ? Module.Mark : {};//增加 Mark 模块
-
+    Module.Mark = typeof Module.Mark !== 'undefined' ? Module.Mark : {}; //增加 Mark 模块
 
     /**
      * 开始添加标注
      */
     Module.Mark.startAdd = function () {
         return Module.RealBIMWeb.BeginAddMark();
-    }
+    };
 
     /**
      * 添加标注文字
@@ -2956,21 +3066,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Mark.setText = function (markText) {
         Module.RealBIMWeb.SetMarkText(markText);
-    }
+    };
 
     /**
      * 获取当前标注信息，包括添加标注时的相机方位、标注框、标注文字等
      */
     Module.Mark.getCurData = function () {
         return new Uint8Array(Module.RealBIMWeb.GetMarkInfo());
-    }
+    };
 
     /**
      * 退出添加标注状态
      */
     Module.Mark.endAdd = function () {
         return Module.RealBIMWeb.EndAddMark();
-    }
+    };
 
     /**
      * 查看之前保存的标注信息数据
@@ -2982,41 +3092,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _data = Module.RealBIMWeb.GetHeapView_U8(0);
         _data.set(markData, 0);
         Module.RealBIMWeb.ShowMarkInfo(_data.byteLength, _data.byteOffset);
-    }
-
-
-
-
+    };
 
     // MOD-- 锚点（Anchor）
-    Module.Anchor = typeof Module.Anchor !== "undefined" ? Module.Anchor : {};//增加 Anchor 模块
+    Module.Anchor = typeof Module.Anchor !== 'undefined' ? Module.Anchor : {}; //增加 Anchor 模块
 
     class REAncInfo {
         constructor() {
-            this.groupName = null;//锚点组的标识，默认值 "DefaultGroup"
-            this.ancName = null;//锚点的名称(唯一标识)
-            this.pos = null;//锚点的位置
-            this.picPath = null;//锚点的纹理路径
-            this.textInfo = null;//锚点的文字
-            this.picWidth = null;//锚点图片的宽度
-            this.picHeight = null;//锚点图片的高度
-            this.linePos = null;//锚点指引线的终点坐标(2维像素裁剪空间下相对于定位点的坐标) (Y轴向上递增)
-            this.lineClr = null;//指引线的颜色
-            this.ancSize = null;//锚点的覆盖范围参考值，大于等于0，可设为锚点图片的最大尺寸，该值越大，则相机定位到锚点时后退距离越大
-            this.selfAutoScaleDist = null;//锚点自身自动缩放距离(<0.0f表示使用全局自动缩放距离)
-            this.selfVisDist = null;//锚点自身可视距离(<0.0f表示使用全局可视距离)
-            this.texBias = null;//锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
-            this.texFocus = null;//牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
-            this.fontName = null;//锚点的字体样式
-            this.textClr = null;//锚点的字体颜
-            this.textBorderClr = null;//锚点的字体边框颜色
-            this.textBackClr = null;//锚点的字体背景颜色
-            this.textBackMode = null;//表示文字背景的处理模式 0：禁用文字背景 1：文字背景对应文字排版后返回的最终矩形区域 2：文字背景对应整体文字实际覆盖的矩形区域
-            this.useLod = null;//是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
-            this.animObjName = null;//锚点关联的动画对象名称(仅当 useLod==false时有效)
-            this.animBoneID = null;//锚点关联的骨骼在动画对象内的ID(仅当 useLod==false时有效)
-            this.picNum = null;//闪烁时循环播放的图片个数
-            this.playFrame = null;//闪烁的帧率，即1秒钟闪几下
+            this.groupName = null; //锚点组的标识，默认值 "DefaultGroup"
+            this.ancName = null; //锚点的名称(唯一标识)
+            this.pos = null; //锚点的位置
+            this.picPath = null; //锚点的纹理路径
+            this.textInfo = null; //锚点的文字
+            this.picWidth = null; //锚点图片的宽度
+            this.picHeight = null; //锚点图片的高度
+            this.linePos = null; //锚点指引线的终点坐标(2维像素裁剪空间下相对于定位点的坐标) (Y轴向上递增)
+            this.lineClr = null; //指引线的颜色
+            this.ancSize = null; //锚点的覆盖范围参考值，大于等于0，可设为锚点图片的最大尺寸，该值越大，则相机定位到锚点时后退距离越大
+            this.selfAutoScaleDist = null; //锚点自身自动缩放距离(<0.0f表示使用全局自动缩放距离)
+            this.selfVisDist = null; //锚点自身可视距离(<0.0f表示使用全局可视距离)
+            this.texBias = null; //锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
+            this.texFocus = null; //牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
+            this.fontName = null; //锚点的字体样式
+            this.textClr = null; //锚点的字体颜
+            this.textBorderClr = null; //锚点的字体边框颜色
+            this.textBackClr = null; //锚点的字体背景颜色
+            this.textBackMode = null; //表示文字背景的处理模式 0：禁用文字背景 1：文字背景对应文字排版后返回的最终矩形区域 2：文字背景对应整体文字实际覆盖的矩形区域
+            this.useLod = null; //是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
+            this.animObjName = null; //锚点关联的动画对象名称(仅当 useLod==false时有效)
+            this.animBoneID = null; //锚点关联的骨骼在动画对象内的ID(仅当 useLod==false时有效)
+            this.picNum = null; //闪烁时循环播放的图片个数
+            this.playFrame = null; //闪烁的帧率，即1秒钟闪几下
             // this.textOffset = null;//文字偏移像素 [x,y] x:左右偏移，正数向右，负数向左， y:上下偏移，正数向上，负数向下
         }
     }
@@ -3028,48 +3134,115 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} ancList //锚点信息集合（REAncInfo 类型）
      */
     Module.Anchor.addAnc = function (ancList) {
-        if (isEmptyLog(ancList, "ancList")) return false;
+        if (isEmptyLog(ancList, 'ancList')) return false;
         var _tempAnchors = new Module.RE_Vector_ANCHOR();
         for (let i = 0; i < ancList.length; i++) {
             let ancInfo = ancList[i];
 
-            var _groupname = "DefaultGroup"; if (!isEmpty(ancInfo.groupName)) { _groupname = ancInfo.groupName; }
-            var _textInfo = isEmpty(ancInfo.textInfo) ? "" : ancInfo.textInfo;
-            var _uselod = false; if (!isEmpty(ancInfo.useLod)) { _uselod = ancInfo.useLod; }
-            var _animobjname = ""; if (!isEmpty(ancInfo.animObjName)) { _animobjname = ancInfo.animObjName; }
-            var _animboneid = 0; if (!isEmpty(ancInfo.animBoneID)) { _animboneid = ancInfo.animBoneID; }
-            var _linepos = [0, 0]; if (!isEmpty(ancInfo.linePos)) { _linepos = ancInfo.linePos; }
-            var _lineclr = 0x00000000; if (!isEmpty(ancInfo.lineClr)) { _lineclr = clrToU32(ancInfo.lineClr); }
-            var _size = 0; if (!isEmpty(ancInfo.ancSize)) { _size = ancInfo.ancSize; }
-            var _selfASDist = -1; if (!isEmpty(ancInfo.selfAutoScaleDist)) { _selfASDist = ancInfo.selfAutoScaleDist; }
-            var _selfVisDist = -1; if (!isEmpty(ancInfo.selfVisDist)) { _selfVisDist = ancInfo.selfVisDist; }
-            var _textbias = [1, 0]; if (!isEmpty(ancInfo.texBias)) { _textbias = ancInfo.texBias; }
-            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
-            var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
-            var _textcolor = 0xffffffff; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
-            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderClr)) { _textbordercolor = clrToU32(ancInfo.textBorderClr); }
-            var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
-            var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
-            var _textBackClr = 0x00000000; if (!isEmpty(ancInfo.textBackClr)) { _textBackClr = clrToU32(ancInfo.textBackClr); }
-            var _textOffset = [0, 0]; let _textOffsetReg = new RegExp("[\\u4E00-\\u9FFF]+", "g"); if (!_textOffsetReg.test(_textInfo)) { _textOffset = [0, 2]; }
+            var _groupname = 'DefaultGroup';
+            if (!isEmpty(ancInfo.groupName)) {
+                _groupname = ancInfo.groupName;
+            }
+            var _textInfo = isEmpty(ancInfo.textInfo) ? '' : ancInfo.textInfo;
+            var _uselod = false;
+            if (!isEmpty(ancInfo.useLod)) {
+                _uselod = ancInfo.useLod;
+            }
+            var _animobjname = '';
+            if (!isEmpty(ancInfo.animObjName)) {
+                _animobjname = ancInfo.animObjName;
+            }
+            var _animboneid = 0;
+            if (!isEmpty(ancInfo.animBoneID)) {
+                _animboneid = ancInfo.animBoneID;
+            }
+            var _linepos = [0, 0];
+            if (!isEmpty(ancInfo.linePos)) {
+                _linepos = ancInfo.linePos;
+            }
+            var _lineclr = 0x00000000;
+            if (!isEmpty(ancInfo.lineClr)) {
+                _lineclr = clrToU32(ancInfo.lineClr);
+            }
+            var _size = 0;
+            if (!isEmpty(ancInfo.ancSize)) {
+                _size = ancInfo.ancSize;
+            }
+            var _selfASDist = -1;
+            if (!isEmpty(ancInfo.selfAutoScaleDist)) {
+                _selfASDist = ancInfo.selfAutoScaleDist;
+            }
+            var _selfVisDist = -1;
+            if (!isEmpty(ancInfo.selfVisDist)) {
+                _selfVisDist = ancInfo.selfVisDist;
+            }
+            var _textbias = [1, 0];
+            if (!isEmpty(ancInfo.texBias)) {
+                _textbias = ancInfo.texBias;
+            }
+            var _texfocus = [0, 0];
+            if (!isEmpty(ancInfo.texFocus)) {
+                _texfocus = ancInfo.texFocus;
+            }
+            var _GolFontID = 'RealBIMFont001';
+            if (!isEmpty(ancInfo.fontName)) {
+                _GolFontID = ancInfo.fontName;
+            }
+            var _textcolor = 0xffffffff;
+            if (!isEmpty(ancInfo.textClr)) {
+                _textcolor = clrToU32(ancInfo.textClr);
+            }
+            var _textbordercolor = 0xff000000;
+            if (!isEmpty(ancInfo.textBorderClr)) {
+                _textbordercolor = clrToU32(ancInfo.textBorderClr);
+            }
+            var _textBackMode = 0;
+            if (!isEmpty(ancInfo.textBackMode)) {
+                _textBackMode = ancInfo.textBackMode;
+            }
+            var _textBackBorder = 0;
+            if (!isEmpty(ancInfo.textBackBorder)) {
+                _textBackBorder = ancInfo.textBackBorder;
+            }
+            var _textBackClr = 0x00000000;
+            if (!isEmpty(ancInfo.textBackClr)) {
+                _textBackClr = clrToU32(ancInfo.textBackClr);
+            }
+            var _textOffset = [0, 0];
+            let _textOffsetReg = new RegExp('[\\u4E00-\\u9FFF]+', 'g');
+            if (!_textOffsetReg.test(_textInfo)) {
+                _textOffset = [0, 2];
+            }
 
-
-            var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+            var TempTextRect = [0, 0, 1, 1];
+            var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
             if (_textbias[0] < 0) {
-                TempTextRect[0] = _linepos[0] - 1 - _texfocus[0]; TempTextRect[2] = _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+                TempTextRect[0] = _linepos[0] - 1 - _texfocus[0];
+                TempTextRect[2] = _linepos[0] - _texfocus[0];
+                TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
             } else if (_textbias[0] == 0) {
                 //TempTextRect[0] =_linepos[0]-_texfocus[0]; TempTextRect[2] =_linepos[0]+1-_texfocus[0]; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
-                TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = ancInfo.picWidth + _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
+                TempTextRect[0] = _linepos[0] - _texfocus[0];
+                TempTextRect[2] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
+                TempTextFmtFlag |= 0x10 /*TEXT_FMT_HCENTER*/;
             } else {
-                TempTextRect[0] = ancInfo.picWidth + _linepos[0] - _texfocus[0]; TempTextRect[2] = ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+                TempTextRect[0] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
+                TempTextRect[2] = ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0];
+                TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
             }
             if (_textbias[1] < 0) {
-                TempTextRect[1] = _linepos[1] - 1 - _texfocus[1]; TempTextRect[3] = _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+                TempTextRect[1] = _linepos[1] - 1 - _texfocus[1];
+                TempTextRect[3] = _linepos[1] - _texfocus[1];
+                TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
             } else if (_textbias[1] == 0) {
                 //TempTextRect[1] =_linepos[1]-_texfocus[1]; TempTextRect[3] =_linepos[1]+1-_texfocus[1]; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
-                TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = ancInfo.picHeight + _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
+                TempTextRect[1] = _linepos[1] - _texfocus[1];
+                TempTextRect[3] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
+                TempTextFmtFlag |= 0x2 /*TEXT_FMT_VCENTER*/;
             } else {
-                TempTextRect[1] = ancInfo.picHeight + _linepos[1] - _texfocus[1]; TempTextRect[3] = ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+                TempTextRect[1] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
+                TempTextRect[3] = ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1];
+                TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
             }
 
             var tempobj = {
@@ -3086,7 +3259,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_fSelfVisDist: _selfVisDist,
                 m_cTexRegion: {
                     m_strTexPath: ancInfo.picPath,
-                    m_qTexRect: [_linepos[0] - _texfocus[0], _linepos[1] - _texfocus[1], ancInfo.picWidth + _linepos[0] - _texfocus[0], ancInfo.picHeight + _linepos[1] - _texfocus[1]],
+                    m_qTexRect: [
+                        _linepos[0] - _texfocus[0],
+                        _linepos[1] - _texfocus[1],
+                        ancInfo.picWidth + _linepos[0] - _texfocus[0],
+                        ancInfo.picHeight + _linepos[1] - _texfocus[1],
+                    ],
                     m_uTexClrMult: 0xffffffff,
                     m_vMinTexUV: [0.0, 0.0],
                     m_vMaxTexUV: [1.0, 1.0],
@@ -3102,15 +3280,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_strText: _textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
-                    m_qTextRect: [(TempTextRect[0] + _textOffset[0]), (TempTextRect[1] + _textOffset[1]), (TempTextRect[2] + _textOffset[0]), (TempTextRect[3] + _textOffset[1])],
+                    m_qTextRect: [
+                        TempTextRect[0] + _textOffset[0],
+                        TempTextRect[1] + _textOffset[1],
+                        TempTextRect[2] + _textOffset[0],
+                        TempTextRect[3] + _textOffset[1],
+                    ],
                     m_uTextFmtFlag: TempTextFmtFlag,
-                    m_uTextBackMode: _textBackMode, m_sTextBackBorder: _textBackBorder, m_uTextBackClr: _textBackClr
-                }
+                    m_uTextBackMode: _textBackMode,
+                    m_sTextBackBorder: _textBackBorder,
+                    m_uTextBackClr: _textBackClr,
+                },
             };
             _tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddAnchors(_tempAnchors);
-    }
+    };
 
     /**
      * 删除锚点
@@ -3122,7 +3307,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempAnchors.push_back(ancNameList[i]);
         }
         return Module.RealBIMWeb.DelAnchors(tempAnchors);
-    }
+    };
 
     /**
      * 按组删除锚点
@@ -3130,21 +3315,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.delGroupAnc = function (ancGroupName) {
         return Module.RealBIMWeb.DelGroupAnchors(ancGroupName);
-    }
+    };
 
     /**
      * 删除全部锚点
      */
     Module.Anchor.delAllAnc = function () {
         Module.RealBIMWeb.DelAllAnchors();
-    }
+    };
 
     /**
      * 获取锚点总数
      */
     Module.Anchor.getAncNum = function () {
         return Module.RealBIMWeb.GetAnchorNum();
-    }
+    };
 
     /**
      * c++锚点模型转换
@@ -3159,17 +3344,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ancInfo.textInfo = ancData.m_cTextRegion.m_strText;
         ancInfo.linePos = ancData.m_vLineEnd;
         if (!isEmpty(ancData.m_uLineClr) && ancData.m_uLineClr != 0) ancInfo.lineClr = clrU32ToClr(ancData.m_uLineClr);
-        if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0) ancInfo.textClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
+        if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0)
+            ancInfo.textClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
         ancInfo.textBorderClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBorderClr);
-        if (!isEmpty(ancData.m_cTextRegion.m_uTextBackClr) && ancData.m_cTextRegion.m_uTextBackClr != 0) ancInfo.textBackClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBackClr);
+        if (!isEmpty(ancData.m_cTextRegion.m_uTextBackClr) && ancData.m_cTextRegion.m_uTextBackClr != 0)
+            ancInfo.textBackClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBackClr);
         ancInfo.selfAutoScaleDist = ancData.m_fSelfASDist;
         ancInfo.selfVisDist = ancData.m_fSelfVisDist;
         ancInfo.useLod = ancData.m_bUseLOD;
-        if (ancData.m_cTextRegion.m_strGolFontID != "RealBIMFont001") ancInfo.fontName = ancData.m_cTextRegion.m_strGolFontID;
-        if (!isEmpty(ancData.m_strAnimObjName) && ancData.m_strAnimObjName != "") ancInfo.animObjName = ancData.m_strAnimObjName;
+        if (ancData.m_cTextRegion.m_strGolFontID != 'RealBIMFont001') ancInfo.fontName = ancData.m_cTextRegion.m_strGolFontID;
+        if (!isEmpty(ancData.m_strAnimObjName) && ancData.m_strAnimObjName != '') ancInfo.animObjName = ancData.m_strAnimObjName;
         if (!isEmpty(ancData.m_uAnimBoneID) && ancData.m_uAnimBoneID != 0) ancInfo.animBoneID = ancData.m_uAnimBoneID;
         if (!isEmpty(ancData.m_cTexRegion.m_uFrameNumU) && ancData.m_cTexRegion.m_fFrameFreq != 0) ancInfo.picNum = ancData.m_cTexRegion.m_uFrameNumU;
-        if (!isEmpty(ancData.m_cTexRegion.m_fFrameFreq) && ancData.m_cTexRegion.m_fFrameFreq != 0) ancInfo.playFrame = ancData.m_cTexRegion.m_fFrameFreq;
+        if (!isEmpty(ancData.m_cTexRegion.m_fFrameFreq) && ancData.m_cTexRegion.m_fFrameFreq != 0)
+            ancInfo.playFrame = ancData.m_cTexRegion.m_fFrameFreq;
 
         return removeEmptyProperty(ancInfo);
     }
@@ -3181,7 +3369,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Anchor.getAnc = function (ancName) {
         var _ancData = Module.RealBIMWeb.GetAnchor(ancName);
         return convertAncInfo(_ancData);
-    }
+    };
 
     /**
      * 获取某个锚点组包含的所有锚点信息
@@ -3194,7 +3382,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             ancInfoList.push(convertAncInfo(_allAncData.get(i)));
         }
         return ancInfoList;
-    }
+    };
 
     /**
      * 获取系统中所有锚点信息
@@ -3206,54 +3394,124 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             ancInfoList.push(convertAncInfo(_allAncData.get(i)));
         }
         return ancInfoList;
-    }
+    };
 
     /**
      * 添加闪烁锚点
      * @param {Array} ancList //锚点信息集合（REAncInfo 类型）
      */
     Module.Anchor.addAnimAnc = function (ancList) {
-        if (isEmptyLog(ancList, "ancList")) return false;
+        if (isEmptyLog(ancList, 'ancList')) return false;
         var _tempAnchors = new Module.RE_Vector_ANCHOR();
         for (let i = 0; i < ancList.length; i++) {
             let ancInfo = ancList[i];
 
-            var _groupname = "DefaultGroup"; if (!isEmpty(ancInfo.groupName)) { _groupname = ancInfo.groupName; }
-            var _uselod = false; if (!isEmpty(ancInfo.useLod)) { _uselod = ancInfo.useLod; }
-            var _animobjname = ""; if (!isEmpty(ancInfo.animObjName)) { _animobjname = ancInfo.animObjName; }
-            var _animboneid = 0; if (!isEmpty(ancInfo.animBoneID)) { _animboneid = ancInfo.animBoneID; }
-            var _linepos = [0, 0]; if (!isEmpty(ancInfo.linePos)) { _linepos = ancInfo.linePos; }
-            var _lineclr = 0x00000000; if (!isEmpty(ancInfo.lineClr)) { _lineclr = clrToU32(ancInfo.lineClr); }
-            var _size = 0; if (!isEmpty(ancInfo.ancSize)) { _size = ancInfo.ancSize; }
-            var _selfASDist = -1; if (!isEmpty(ancInfo.selfAutoScaleDist)) { _selfASDist = ancInfo.selfAutoScaleDist; }
-            var _selfVisDist = -1; if (!isEmpty(ancInfo.selfVisDist)) { _selfVisDist = ancInfo.selfVisDist; }
-            var _textbias = [1, 0]; if (!isEmpty(ancInfo.texBias)) { _textbias = ancInfo.texBias; }
-            var _texfocus = [0, 0]; if (!isEmpty(ancInfo.texFocus)) { _texfocus = ancInfo.texFocus; }
-            var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancInfo.fontName)) { _GolFontID = ancInfo.fontName; }
-            var _textcolor = 0xff000000; if (!isEmpty(ancInfo.textClr)) { _textcolor = clrToU32(ancInfo.textClr); }
-            var _textbordercolor = 0xff000000; if (!isEmpty(ancInfo.textBorderClr)) { _textbordercolor = clrToU32(ancInfo.textBorderClr); }
-            var _textBackMode = 0; if (!isEmpty(ancInfo.textBackMode)) { _textBackMode = ancInfo.textBackMode; }
-            var _textBackBorder = 0; if (!isEmpty(ancInfo.textBackBorder)) { _textBackBorder = ancInfo.textBackBorder; }
-            var _textBackClr = 0x00000000; if (!isEmpty(ancInfo.textBackClr)) { _textBackClr = clrToU32(ancInfo.textBackClr); }
-            var _picNum = 1; if (!isEmpty(ancInfo.picNum)) { _picNum = ancInfo.picNum; }
-            var _playFrame = 0; if (!isEmpty(ancInfo.playFrame)) { _playFrame = ancInfo.playFrame; }
+            var _groupname = 'DefaultGroup';
+            if (!isEmpty(ancInfo.groupName)) {
+                _groupname = ancInfo.groupName;
+            }
+            var _uselod = false;
+            if (!isEmpty(ancInfo.useLod)) {
+                _uselod = ancInfo.useLod;
+            }
+            var _animobjname = '';
+            if (!isEmpty(ancInfo.animObjName)) {
+                _animobjname = ancInfo.animObjName;
+            }
+            var _animboneid = 0;
+            if (!isEmpty(ancInfo.animBoneID)) {
+                _animboneid = ancInfo.animBoneID;
+            }
+            var _linepos = [0, 0];
+            if (!isEmpty(ancInfo.linePos)) {
+                _linepos = ancInfo.linePos;
+            }
+            var _lineclr = 0x00000000;
+            if (!isEmpty(ancInfo.lineClr)) {
+                _lineclr = clrToU32(ancInfo.lineClr);
+            }
+            var _size = 0;
+            if (!isEmpty(ancInfo.ancSize)) {
+                _size = ancInfo.ancSize;
+            }
+            var _selfASDist = -1;
+            if (!isEmpty(ancInfo.selfAutoScaleDist)) {
+                _selfASDist = ancInfo.selfAutoScaleDist;
+            }
+            var _selfVisDist = -1;
+            if (!isEmpty(ancInfo.selfVisDist)) {
+                _selfVisDist = ancInfo.selfVisDist;
+            }
+            var _textbias = [1, 0];
+            if (!isEmpty(ancInfo.texBias)) {
+                _textbias = ancInfo.texBias;
+            }
+            var _texfocus = [0, 0];
+            if (!isEmpty(ancInfo.texFocus)) {
+                _texfocus = ancInfo.texFocus;
+            }
+            var _GolFontID = 'RealBIMFont001';
+            if (!isEmpty(ancInfo.fontName)) {
+                _GolFontID = ancInfo.fontName;
+            }
+            var _textcolor = 0xff000000;
+            if (!isEmpty(ancInfo.textClr)) {
+                _textcolor = clrToU32(ancInfo.textClr);
+            }
+            var _textbordercolor = 0xff000000;
+            if (!isEmpty(ancInfo.textBorderClr)) {
+                _textbordercolor = clrToU32(ancInfo.textBorderClr);
+            }
+            var _textBackMode = 0;
+            if (!isEmpty(ancInfo.textBackMode)) {
+                _textBackMode = ancInfo.textBackMode;
+            }
+            var _textBackBorder = 0;
+            if (!isEmpty(ancInfo.textBackBorder)) {
+                _textBackBorder = ancInfo.textBackBorder;
+            }
+            var _textBackClr = 0x00000000;
+            if (!isEmpty(ancInfo.textBackClr)) {
+                _textBackClr = clrToU32(ancInfo.textBackClr);
+            }
+            var _picNum = 1;
+            if (!isEmpty(ancInfo.picNum)) {
+                _picNum = ancInfo.picNum;
+            }
+            var _playFrame = 0;
+            if (!isEmpty(ancInfo.playFrame)) {
+                _playFrame = ancInfo.playFrame;
+            }
 
-            var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+            var TempTextRect = [0, 0, 1, 1];
+            var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
             if (_textbias[0] < 0) {
-                TempTextRect[0] = _linepos[0] - 1 - _texfocus[0]; TempTextRect[2] = _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+                TempTextRect[0] = _linepos[0] - 1 - _texfocus[0];
+                TempTextRect[2] = _linepos[0] - _texfocus[0];
+                TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
             } else if (_textbias[0] == 0) {
                 //TempTextRect[0] =_linepos[0]-_texfocus[0]; TempTextRect[2] =_linepos[0]+1-_texfocus[0]; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
-                TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = ancInfo.picWidth + _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
+                TempTextRect[0] = _linepos[0] - _texfocus[0];
+                TempTextRect[2] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
+                TempTextFmtFlag |= 0x10 /*TEXT_FMT_HCENTER*/;
             } else {
-                TempTextRect[0] = ancInfo.picWidth + _linepos[0] - _texfocus[0]; TempTextRect[2] = ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+                TempTextRect[0] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
+                TempTextRect[2] = ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0];
+                TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
             }
             if (_textbias[1] < 0) {
-                TempTextRect[1] = _linepos[1] - 1 - _texfocus[1]; TempTextRect[3] = _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+                TempTextRect[1] = _linepos[1] - 1 - _texfocus[1];
+                TempTextRect[3] = _linepos[1] - _texfocus[1];
+                TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
             } else if (_textbias[1] == 0) {
                 //TempTextRect[1] =_linepos[1]-_texfocus[1]; TempTextRect[3] =_linepos[1]+1-_texfocus[1]; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
-                TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = ancInfo.picHeight + _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
+                TempTextRect[1] = _linepos[1] - _texfocus[1];
+                TempTextRect[3] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
+                TempTextFmtFlag |= 0x2 /*TEXT_FMT_VCENTER*/;
             } else {
-                TempTextRect[1] = ancInfo.picHeight + _linepos[1] - _texfocus[1]; TempTextRect[3] = ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+                TempTextRect[1] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
+                TempTextRect[3] = ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1];
+                TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
             }
 
             var tempobj = {
@@ -3270,7 +3528,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_fSelfVisDist: _selfVisDist,
                 m_cTexRegion: {
                     m_strTexPath: ancInfo.picPath,
-                    m_qTexRect: [_linepos[0] - _texfocus[0], _linepos[1] - _texfocus[1], ancInfo.picWidth + _linepos[0] - _texfocus[0], ancInfo.picHeight + _linepos[1] - _texfocus[1]],
+                    m_qTexRect: [
+                        _linepos[0] - _texfocus[0],
+                        _linepos[1] - _texfocus[1],
+                        ancInfo.picWidth + _linepos[0] - _texfocus[0],
+                        ancInfo.picHeight + _linepos[1] - _texfocus[1],
+                    ],
                     m_uTexClrMult: 0xffffffff,
                     m_vMinTexUV: [0.0, 0.0],
                     m_vMaxTexUV: [1.0 / _picNum, 1.0],
@@ -3288,13 +3551,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextBorderClr: _textbordercolor,
                     m_qTextRect: TempTextRect,
                     m_uTextFmtFlag: TempTextFmtFlag,
-                    m_uTextBackMode: _textBackMode, m_sTextBackBorder: _textBackBorder, m_uTextBackClr: _textBackClr
-                }
+                    m_uTextBackMode: _textBackMode,
+                    m_sTextBackBorder: _textBackBorder,
+                    m_uTextBackClr: _textBackClr,
+                },
             };
             _tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddAnchors(_tempAnchors);
-    }
+    };
 
     /**
      * 停止闪烁
@@ -3306,10 +3571,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uAlpha: 0,
             m_uAlphaAmp: 0,
             m_uForceAnimFrame: 0,
-            m_uProbeMask: 1
-        }
+            m_uProbeMask: 1,
+        };
         return Module.RealBIMWeb.SetShpObjInfo(ancName, _shpObjInfo);
-    }
+    };
 
     /**
      * 获取所有的锚点分组名称
@@ -3321,17 +3586,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             groupNameList.push(_ancGroupName.get(i));
         }
         return groupNameList;
-    }
+    };
 
     class REAncLODInfo {
         constructor() {
-            this.groupName = null;//要聚合的锚点组的标识名，为空则表示所有的锚点对象
-            this.lodLevel = null;//聚合层级，范围1~10,默认为1，表示不聚合
-            this.useCustomBV = null;//是否用锚点的预估总包围盒，默认为false
-            this.customBV = null;//锚点的预估总包围盒,默认为当前场景的总包围盒，二维数组[[Xmin,Ymin,Zmin],[Xmax,Ymax,Zmax]]，当useCustomBV为false时，此参数无效，填空数组即可;
-            this.lodMergePxl = null;//锚点所在单元格进行LOD合并时的投影到屏幕的像素尺寸阈值
-            this.lodMergeCap = null;//锚点所在单元格进行LOD合并时的单元格容积阈值
-            this.mergeStyle = null;//点聚合后的样式 (REAncInfo 类型 参数选填)
+            this.groupName = null; //要聚合的锚点组的标识名，为空则表示所有的锚点对象
+            this.lodLevel = null; //聚合层级，范围1~10,默认为1，表示不聚合
+            this.useCustomBV = null; //是否用锚点的预估总包围盒，默认为false
+            this.customBV = null; //锚点的预估总包围盒,默认为当前场景的总包围盒，二维数组[[Xmin,Ymin,Zmin],[Xmax,Ymax,Zmax]]，当useCustomBV为false时，此参数无效，填空数组即可;
+            this.lodMergePxl = null; //锚点所在单元格进行LOD合并时的投影到屏幕的像素尺寸阈值
+            this.lodMergeCap = null; //锚点所在单元格进行LOD合并时的单元格容积阈值
+            this.mergeStyle = null; //点聚合后的样式 (REAncInfo 类型 参数选填)
         }
     }
     ExtModule.REAncLODInfo = REAncLODInfo;
@@ -3341,45 +3606,89 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAncLODInfo} ancLODInfo //聚合锚点信息
      */
     Module.Anchor.setAncLODInfo = function (ancLODInfo) {
-        if (isEmptyLog(ancLODInfo, "ancLODInfo")) return;
-        if (isEmptyLog(ancLODInfo.mergeStyle, "mergeStyle")) return;
+        if (isEmptyLog(ancLODInfo, 'ancLODInfo')) return;
+        if (isEmptyLog(ancLODInfo.mergeStyle, 'mergeStyle')) return;
 
-        var _groupName = ""; if (!isEmpty(ancLODInfo.groupName)) { _groupName = ancLODInfo.groupName; }
-        var _lodLevel = 1; if (!isEmpty(ancLODInfo.lodLevel)) { _lodLevel = ancLODInfo.lodLevel; }
-        var _lodMergePxl = 100; if (!isEmpty(ancLODInfo.lodMergePxl)) { _lodMergePxl = ancLODInfo.lodMergePxl; }
-        var _lodMergeCap = 2; if (!isEmpty(ancLODInfo.lodMergeCap)) { _lodMergeCap = ancLODInfo.lodMergeCap; }
-        var _customBV = [[0, 0, 0], [0, 0, 0]]; if (ancLODInfo.useCustomBV) { _customBV = ancLODInfo.customBV; }
-        var _linepos = [0, 0]; var _texfocus = [0, 0];
-        var _textbias = [1, 0]; if (!isEmpty(ancLODInfo.mergeStyle.texBias)) { _textbias = ancLODInfo.mergeStyle.texBias; }
-        var _GolFontID = "RealBIMFont001"; if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != "") { _GolFontID = ancLODInfo.mergeStyle.fontName; }
-        var _textcolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textClr)) { _textcolor = clrToU32(ancLODInfo.mergeStyle.textClr); }
-        var _textbordercolor = 0xff000000; if (!isEmpty(ancLODInfo.mergeStyle.textBorderClr)) { _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderClr); }
+        var _groupName = '';
+        if (!isEmpty(ancLODInfo.groupName)) {
+            _groupName = ancLODInfo.groupName;
+        }
+        var _lodLevel = 1;
+        if (!isEmpty(ancLODInfo.lodLevel)) {
+            _lodLevel = ancLODInfo.lodLevel;
+        }
+        var _lodMergePxl = 100;
+        if (!isEmpty(ancLODInfo.lodMergePxl)) {
+            _lodMergePxl = ancLODInfo.lodMergePxl;
+        }
+        var _lodMergeCap = 2;
+        if (!isEmpty(ancLODInfo.lodMergeCap)) {
+            _lodMergeCap = ancLODInfo.lodMergeCap;
+        }
+        var _customBV = [
+            [0, 0, 0],
+            [0, 0, 0],
+        ];
+        if (ancLODInfo.useCustomBV) {
+            _customBV = ancLODInfo.customBV;
+        }
+        var _linepos = [0, 0];
+        var _texfocus = [0, 0];
+        var _textbias = [1, 0];
+        if (!isEmpty(ancLODInfo.mergeStyle.texBias)) {
+            _textbias = ancLODInfo.mergeStyle.texBias;
+        }
+        var _GolFontID = 'RealBIMFont001';
+        if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != '') {
+            _GolFontID = ancLODInfo.mergeStyle.fontName;
+        }
+        var _textcolor = 0xff000000;
+        if (!isEmpty(ancLODInfo.mergeStyle.textClr)) {
+            _textcolor = clrToU32(ancLODInfo.mergeStyle.textClr);
+        }
+        var _textbordercolor = 0xff000000;
+        if (!isEmpty(ancLODInfo.mergeStyle.textBorderClr)) {
+            _textbordercolor = clrToU32(ancLODInfo.mergeStyle.textBorderClr);
+        }
         //设置文字和图片的对齐方式
-        var TempTextRect = [0, 0, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+        var TempTextRect = [0, 0, 1, 1];
+        var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
         if (_textbias[0] < 0) {
-            TempTextRect[0] = _linepos[0] - 1 - _texfocus[0]; TempTextRect[2] = _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+            TempTextRect[0] = _linepos[0] - 1 - _texfocus[0];
+            TempTextRect[2] = _linepos[0] - _texfocus[0];
+            TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
         } else if (_textbias[0] == 0) {
             // TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
-            TempTextRect[0] = _linepos[0] - _texfocus[0]; TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0]; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
+            TempTextRect[0] = _linepos[0] - _texfocus[0];
+            TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0];
+            TempTextFmtFlag |= 0x10 /*TEXT_FMT_HCENTER*/;
         } else {
-            TempTextRect[0] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0]; TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] + 1 - _texfocus[0]; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+            TempTextRect[0] = ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0];
+            TempTextRect[2] = ancLODInfo.mergeStyle.picWidth + _linepos[0] + 1 - _texfocus[0];
+            TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
         }
         if (_textbias[1] < 0) {
-            TempTextRect[1] = _linepos[1] - 1 - _texfocus[1]; TempTextRect[3] = _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+            TempTextRect[1] = _linepos[1] - 1 - _texfocus[1];
+            TempTextRect[3] = _linepos[1] - _texfocus[1];
+            TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
         } else if (_textbias[1] == 0) {
             // TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
-            TempTextRect[1] = _linepos[1] - _texfocus[1]; TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1]; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
+            TempTextRect[1] = _linepos[1] - _texfocus[1];
+            TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1];
+            TempTextFmtFlag |= 0x2 /*TEXT_FMT_VCENTER*/;
         } else {
-            TempTextRect[1] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1]; TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] + 1 - _texfocus[1]; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+            TempTextRect[1] = ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1];
+            TempTextRect[3] = ancLODInfo.mergeStyle.picHeight + _linepos[1] + 1 - _texfocus[1];
+            TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
         }
 
         //创建一个锚点对象样式
         var tempobj = {
             m_strGroupName: _groupName,
-            m_strName: "",
+            m_strName: '',
             m_vPos: [0, 0, 0],
             m_bUseLOD: false,
-            m_strAnimObjName: "",
+            m_strAnimObjName: '',
             m_uAnimBoneID: 0,
             m_vLineEnd: _linepos,
             m_uLineClr: 0x00000000,
@@ -3388,7 +3697,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_fSelfVisDist: -1,
             m_cTexRegion: {
                 m_strTexPath: ancLODInfo.mergeStyle.picPath,
-                m_qTexRect: [_linepos[0] - _texfocus[0], _linepos[1] - _texfocus[1], ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0], ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1]],
+                m_qTexRect: [
+                    _linepos[0] - _texfocus[0],
+                    _linepos[1] - _texfocus[1],
+                    ancLODInfo.mergeStyle.picWidth + _linepos[0] - _texfocus[0],
+                    ancLODInfo.mergeStyle.picHeight + _linepos[1] - _texfocus[1],
+                ],
                 m_uTexClrMult: 0xffffffff,
                 m_vMinTexUV: [0.0, 0.0],
                 m_vMaxTexUV: [1.0, 1.0],
@@ -3401,29 +3715,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_cTextRegion: {
                 m_strGolFontID: _GolFontID,
                 m_bTextWeight: false,
-                m_strText: "",
+                m_strText: '',
                 m_uTextClr: _textcolor,
                 m_uTextBorderClr: _textbordercolor,
                 m_qTextRect: TempTextRect,
                 m_uTextFmtFlag: TempTextFmtFlag,
-                m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-            }
+                m_uTextBackMode: 0,
+                m_sTextBackBorder: 0,
+                m_uTextBackClr: 0x00000000,
+            },
         };
         Module.RealBIMWeb.SetAnchorLODInfo(_groupName, _lodLevel, ancLODInfo.useCustomBV, _customBV, _lodMergePxl, _lodMergeCap, tempobj);
-    }
+    };
 
     /**
      * 取消锚点聚合
      * @param {String} groupName //锚点的组标识
      */
     Module.Anchor.resetAncLODInfo = function (groupName) {
-        var _groupName = ""; if (!isEmpty(groupName)) { _groupName = groupName; }
+        var _groupName = '';
+        if (!isEmpty(groupName)) {
+            _groupName = groupName;
+        }
         var mergestyle = {
-            m_strGroupName: "",
-            m_strName: "",
+            m_strGroupName: '',
+            m_strName: '',
             m_vPos: [0, 0, 0],
             m_bUseLOD: false,
-            m_strAnimObjName: "",
+            m_strAnimObjName: '',
             m_uAnimBoneID: 0,
             m_vLineEnd: [0, 0],
             m_uLineClr: 0x00000000,
@@ -3431,7 +3750,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_fSelfASDist: -1,
             m_fSelfVisDist: -1,
             m_cTexRegion: {
-                m_strTexPath: "",
+                m_strTexPath: '',
                 m_qTexRect: [0, 0, 0, 0],
                 m_uTexClrMult: 0xffffffff,
                 m_vMinTexUV: [0.0, 0.0],
@@ -3443,19 +3762,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_fFrameFreq: 0.0,
             },
             m_cTextRegion: {
-                m_strGolFontID: "RealBIMFont001",
+                m_strGolFontID: 'RealBIMFont001',
                 m_bTextWeight: false,
-                m_strText: "",
+                m_strText: '',
                 m_uTextClr: 0x00000000,
                 m_uTextBorderClr: 0x00000000,
                 m_qTextRect: [0, 0, 0, 0],
                 m_uTextFmtFlag: 0,
-                m_uTextBackMode: 0, m_sTextBackBorder: 0, m_uTextBackClr: 0x00000000
-            }
+                m_uTextBackMode: 0,
+                m_sTextBackBorder: 0,
+                m_uTextBackClr: 0x00000000,
+            },
         };
-        Module.RealBIMWeb.SetAnchorLODInfo(_groupName, 1, false, [[0, 0, 0], [0, 0, 0]], 100, 1, mergestyle);
-    }
-
+        Module.RealBIMWeb.SetAnchorLODInfo(
+            _groupName,
+            1,
+            false,
+            [
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
+            100,
+            1,
+            mergestyle
+        );
+    };
 
     // MARK 相机
     /**
@@ -3465,7 +3796,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.setCamToAnc = function (ancName, backwardAmp) {
         Module.RealBIMWeb.FocusCamToAnchor(ancName, backwardAmp);
-    }
+    };
 
     /**
      * 相机定位到组锚点
@@ -3474,11 +3805,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.setCamToGroupAnc = function (groupName, backwardAmp) {
         Module.RealBIMWeb.FocusCamToAnchorGroup(groupName, backwardAmp);
-    }
-
-
-
-
+    };
 
     // MARK 渲染设置
     /**
@@ -3488,7 +3815,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.setAncCanOverlap = function (groupName, enable) {
         Module.RealBIMWeb.SetAnchorContactSce(groupName, enable);
-    }
+    };
 
     /**
      * 获取系统中锚点是否允许被场景遮挡
@@ -3496,7 +3823,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.getAncCanOverlap = function (groupName) {
         return Module.RealBIMWeb.GetAnchorContactSce(groupName);
-    }
+    };
 
     /**
      * 设置系统中锚点的自动缩放距离
@@ -3505,7 +3832,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.setAncAutoScaleDist = function (groupName, dist) {
         Module.RealBIMWeb.SetAnchorAutoScaleDist(groupName, dist);
-    }
+    };
 
     /**
      * 获取系统中锚点的自动缩放距离
@@ -3513,7 +3840,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.getAncAutoScaleDist = function (groupName) {
         return Module.RealBIMWeb.GetAnchorAutoScaleDist(groupName);
-    }
+    };
 
     /**
      * 设置系统中锚点的最远可视距离
@@ -3522,7 +3849,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.setAncVisDist = function (groupName, dist) {
         Module.RealBIMWeb.SetAnchorVisDist(groupName, dist);
-    }
+    };
 
     /**
      * 获取系统中锚点的最远可视距离
@@ -3530,40 +3857,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.getAncVisDist = function (groupName) {
         return Module.RealBIMWeb.GetAnchorVisDist(groupName);
-    }
-
-
+    };
 
     // MOD-- 几何图形（Geometry）
-    Module.Geometry = typeof Module.Geometry !== "undefined" ? Module.Geometry : {};//增加 Geometry 模块
-
+    Module.Geometry = typeof Module.Geometry !== 'undefined' ? Module.Geometry : {}; //增加 Geometry 模块
 
     // MARK 加载
     class REShpTextInfo {
         constructor() {
-            this.text = null;//表示文字的内容
-            this.texBias = null;//表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
-            this.fontName = null;//表示锚点的字体样式
-            this.textClr = null;//文字颜色（REColor 类型）
-            this.textBorderClr = null;//文字边框颜色（REColor 类型）
-            this.textBackMode = null;//表示文字背景的处理模式： 0：表示禁用文字背景 1：表示启用文字背景，文字背景是文字所占的矩形区域
-            this.textBackBorder = null;//表示文字背景的边界带的像素宽度
-            this.textBackClr = null;//表示文本背景色（REColor 类型）
+            this.text = null; //表示文字的内容
+            this.texBias = null; //表示锚点文字与图片的相对位置，二维数组： 第一维-1、0、1分别表示文字在点的左侧、中间、右侧； 第二维-1、0、1分别表示文字在点的下侧、中间、上侧
+            this.fontName = null; //表示锚点的字体样式
+            this.textClr = null; //文字颜色（REColor 类型）
+            this.textBorderClr = null; //文字边框颜色（REColor 类型）
+            this.textBackMode = null; //表示文字背景的处理模式： 0：表示禁用文字背景 1：表示启用文字背景，文字背景是文字所占的矩形区域
+            this.textBackBorder = null; //表示文字背景的边界带的像素宽度
+            this.textBackClr = null; //表示文本背景色（REColor 类型）
         }
     }
     ExtModule.REShpTextInfo = REShpTextInfo;
 
     class REPotShpInfo {
         constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.groupName = null;//矢量组名称
-            this.pos = null;//表示顶点位置
-            this.potSize = null;//示顶点的像素大小
-            this.potClr = null;//顶点的颜色（REColor 类型）
-            this.textInfo = null;//表示顶点的文字标注信息（REShpTextInfo 类型）
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.pos = null; //表示顶点位置
+            this.potSize = null; //示顶点的像素大小
+            this.potClr = null; //顶点的颜色（REColor 类型）
+            this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
+            this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null; //表示屏幕空间矢量的可视距离
+            this.contactSce = null; //表示矢量是否与场景发生深度遮挡
         }
     }
     ExtModule.REPotShpInfo = REPotShpInfo;
@@ -3573,36 +3897,71 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REPotShpInfo} potShpInfo //矢量点信息（REPotShpInfo 类型）
      */
     Module.Geometry.addPotShp = function (potShpInfo) {
-        if (isEmptyLog(potShpInfo, "potShpInfo")) return;
-        if (isEmptyLog(potShpInfo.shpName, "shpName")) return;
-        if (isEmptyLog(potShpInfo.textInfo, "textInfo")) return;
+        if (isEmptyLog(potShpInfo, 'potShpInfo')) return;
+        if (isEmptyLog(potShpInfo.shpName, 'shpName')) return;
+        if (isEmptyLog(potShpInfo.textInfo, 'textInfo')) return;
 
         var _textInfo = potShpInfo.textInfo;
 
-        var _groupName = isEmpty(potShpInfo.groupName) ? "" : potShpInfo.groupName;
-        var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
-        var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
-        var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
-        var _textbordercolor = 0xff000000; if (!isEmpty(_textInfo.textBorderClr)) { _textbordercolor = clrToU32(_textInfo.textBorderClr); }
-        var _textBackMode = 0; if (!isEmpty(_textInfo.textBackMode)) { _textBackMode = _textInfo.textBackMode; }
-        var _textBackBorder = 0; if (!isEmpty(_textInfo.textBackBorder)) { _textBackBorder = _textInfo.textBackBorder; }
-        var _textBackClr = 0x00000000; if (!isEmpty(_textInfo.textBackClr)) { _textBackClr = clrToU32(_textInfo.textBackClr); }
+        var _groupName = isEmpty(potShpInfo.groupName) ? '' : potShpInfo.groupName;
+        var _texBias = [0, 0];
+        if (!isEmpty(_textInfo.texBias)) {
+            _texBias = _textInfo.texBias;
+        }
+        var _GolFontID = 'RealBIMFont001';
+        if (!isEmpty(_textInfo.fontName)) {
+            _GolFontID = _textInfo.fontName;
+        }
+        var _textcolor = 0xffffffff;
+        if (!isEmpty(_textInfo.textClr)) {
+            _textcolor = clrToU32(_textInfo.textClr);
+        }
+        var _textbordercolor = 0xff000000;
+        if (!isEmpty(_textInfo.textBorderClr)) {
+            _textbordercolor = clrToU32(_textInfo.textBorderClr);
+        }
+        var _textBackMode = 0;
+        if (!isEmpty(_textInfo.textBackMode)) {
+            _textBackMode = _textInfo.textBackMode;
+        }
+        var _textBackBorder = 0;
+        if (!isEmpty(_textInfo.textBackBorder)) {
+            _textBackBorder = _textInfo.textBackBorder;
+        }
+        var _textBackClr = 0x00000000;
+        if (!isEmpty(_textInfo.textBackClr)) {
+            _textBackClr = clrToU32(_textInfo.textBackClr);
+        }
 
-        var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
-        var uPotSize = 0; if (!isEmpty(potShpInfo.potSize)) uPotSize = potShpInfo.potSize;
+        var TempTextRect = [-1, -1, 1, 1];
+        var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
+        var uPotSize = 0;
+        if (!isEmpty(potShpInfo.potSize)) uPotSize = potShpInfo.potSize;
         if (_texBias[0] < 0) {
-            TempTextRect[0] = -uPotSize - 2; TempTextRect[2] = -uPotSize - 1; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+            TempTextRect[0] = -uPotSize - 2;
+            TempTextRect[2] = -uPotSize - 1;
+            TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
         } else if (_texBias[0] == 0) {
-            TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_HCENTER*/;
+            TempTextRect[0] = -1;
+            TempTextRect[2] = 1;
+            TempTextFmtFlag |= 0x10 /*TEXT_FMT_HCENTER*/;
         } else {
-            TempTextRect[0] = uPotSize + 1; TempTextRect[2] = uPotSize + 2; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+            TempTextRect[0] = uPotSize + 1;
+            TempTextRect[2] = uPotSize + 2;
+            TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
         }
         if (_texBias[1] < 0) {
-            TempTextRect[1] = -uPotSize - 2; TempTextRect[3] = -uPotSize - 1; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+            TempTextRect[1] = -uPotSize - 2;
+            TempTextRect[3] = -uPotSize - 1;
+            TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
         } else if (_texBias[1] == 0) {
-            TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_VCENTER*/;
+            TempTextRect[1] = -1;
+            TempTextRect[3] = 1;
+            TempTextFmtFlag |= 0x2 /*TEXT_FMT_VCENTER*/;
         } else {
-            TempTextRect[1] = uPotSize + 1; TempTextRect[3] = uPotSize + 2; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+            TempTextRect[1] = uPotSize + 1;
+            TempTextRect[3] = uPotSize + 2;
+            TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
         }
 
         var textobj = {
@@ -3613,31 +3972,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uTextBorderClr: _textbordercolor,
             m_qTextRect: TempTextRect,
             m_uTextFmtFlag: TempTextFmtFlag,
-            m_uTextBackMode: _textBackMode, m_sTextBackBorder: _textBackBorder, m_uTextBackClr: _textBackClr
+            m_uTextBackMode: _textBackMode,
+            m_sTextBackBorder: _textBackBorder,
+            m_uTextBackClr: _textBackClr,
         };
 
-        var _bContactSce = false; if (!isEmpty(potShpInfo.contactSce)) _bContactSce = potShpInfo.contactSce;
-        var _uClr = 0xFFFFFFFF; if (!isEmpty(potShpInfo.potClr)) _uClr = clrToU32(potShpInfo.potClr);
+        var _bContactSce = false;
+        if (!isEmpty(potShpInfo.contactSce)) _bContactSce = potShpInfo.contactSce;
+        var _uClr = 0xffffffff;
+        if (!isEmpty(potShpInfo.potClr)) _uClr = clrToU32(potShpInfo.potClr);
 
-        return Module.RealBIMWeb.AddCustomPotShp(potShpInfo.shpName, _groupName, potShpInfo.pos, uPotSize, _uClr, textobj, potShpInfo.scrASDist, potShpInfo.scrVisDist, _bContactSce);
-    }
-
-
+        return Module.RealBIMWeb.AddCustomPotShp(
+            potShpInfo.shpName,
+            _groupName,
+            potShpInfo.pos,
+            uPotSize,
+            _uClr,
+            textobj,
+            potShpInfo.scrASDist,
+            potShpInfo.scrVisDist,
+            _bContactSce
+        );
+    };
 
     class RELineShpInfo {
         constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.groupName = null;//矢量组名称
-            this.potList = null;//表示多边形折线序列
-            this.fillState = null;//表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
-            this.lineClr = null;//表示多边形的颜色（REColor 类型）
-            this.fillClr = null;//表示多边形的填充颜色（REColor 类型）
-            this.textPos = null;//表示多边形的文字标注的位置： >=0时，整数部分i/小数部分j：表示文字定位点在线段<i,i+1>上的偏移了长度百分比j [-1,0)表示文字定位在折线上并从首端点偏移折线总长度的百分比 -2表示文字定位在多边形所有顶点的中心位置处
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
-            this.lineWidth = null;//选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
-            this.textInfo = null;//表示顶点的文字标注信息（REShpTextInfo 类型）
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.potList = null; //表示多边形折线序列
+            this.fillState = null; //表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充； 2->多边形首尾相连构成封闭区域进行填充(顶点高度自动修改为同一高度，默认为第一个顶点的高度)
+            this.lineClr = null; //表示多边形的颜色（REColor 类型）
+            this.fillClr = null; //表示多边形的填充颜色（REColor 类型）
+            this.textPos = null; //表示多边形的文字标注的位置： >=0时，整数部分i/小数部分j：表示文字定位点在线段<i,i+1>上的偏移了长度百分比j [-1,0)表示文字定位在折线上并从首端点偏移折线总长度的百分比 -2表示文字定位在多边形所有顶点的中心位置处
+            this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null; //表示屏幕空间矢量的可视距离
+            this.contactSce = null; //表示矢量是否与场景发生深度遮挡
+            this.lineWidth = null; //选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
+            this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
         }
     }
     ExtModule.RELineShpInfo = RELineShpInfo;
@@ -3647,73 +4018,128 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RELineShpInfo} lineShpInfo //矢量线信息（RELineShpInfo 类型）
      */
     Module.Geometry.addPolylineShp = function (lineShpInfo) {
-        if (isEmptyLog(lineShpInfo, "lineShpInfo")) return;
-        if (isEmptyLog(lineShpInfo.shpName, "shpName")) return;
-        if (!checkTypeLog(lineShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
-        if (isEmptyLog(lineShpInfo.textInfo, "textInfo")) return;
+        if (isEmptyLog(lineShpInfo, 'lineShpInfo')) return;
+        if (isEmptyLog(lineShpInfo.shpName, 'shpName')) return;
+        if (!checkTypeLog(lineShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(lineShpInfo.textInfo, 'textInfo')) return;
 
         var _textInfo = lineShpInfo.textInfo;
-        var _groupName = isEmpty(lineShpInfo.groupName) ? "" : lineShpInfo.groupName;
-        var _texBias = [0, 0]; if (!isEmpty(_textInfo.texBias)) { _texBias = _textInfo.texBias; }
-        var _GolFontID = "RealBIMFont001"; if (!isEmpty(_textInfo.fontName)) { _GolFontID = _textInfo.fontName; }
-        var _textcolor = 0xffffffff; if (!isEmpty(_textInfo.textClr)) { _textcolor = clrToU32(_textInfo.textClr); }
-        var _textbordercolor = 0xff000000; if (!isEmpty(_textInfo.textBorderClr)) { _textbordercolor = clrToU32(_textInfo.textBorderClr); }
-        var _textBackMode = 0; if (!isEmpty(_textInfo.textBackMode)) { _textBackMode = _textInfo.textBackMode; }
-        var _textBackBorder = 0; if (!isEmpty(_textInfo.textBackBorder)) { _textBackBorder = _textInfo.textBackBorder; }
-        var _textBackClr = 0x00000000; if (!isEmpty(_textInfo.textBackClr)) { _textBackClr = clrToU32(_textInfo.textBackClr); }
+        var _groupName = isEmpty(lineShpInfo.groupName) ? '' : lineShpInfo.groupName;
+        var _texBias = [0, 0];
+        if (!isEmpty(_textInfo.texBias)) {
+            _texBias = _textInfo.texBias;
+        }
+        var _GolFontID = 'RealBIMFont001';
+        if (!isEmpty(_textInfo.fontName)) {
+            _GolFontID = _textInfo.fontName;
+        }
+        var _textcolor = 0xffffffff;
+        if (!isEmpty(_textInfo.textClr)) {
+            _textcolor = clrToU32(_textInfo.textClr);
+        }
+        var _textbordercolor = 0xff000000;
+        if (!isEmpty(_textInfo.textBorderClr)) {
+            _textbordercolor = clrToU32(_textInfo.textBorderClr);
+        }
+        var _textBackMode = 0;
+        if (!isEmpty(_textInfo.textBackMode)) {
+            _textBackMode = _textInfo.textBackMode;
+        }
+        var _textBackBorder = 0;
+        if (!isEmpty(_textInfo.textBackBorder)) {
+            _textBackBorder = _textInfo.textBackBorder;
+        }
+        var _textBackClr = 0x00000000;
+        if (!isEmpty(_textInfo.textBackClr)) {
+            _textBackClr = clrToU32(_textInfo.textBackClr);
+        }
 
         var _temparrpos = new Module.RE_Vector_dvec3();
         for (var i = 0; i < lineShpInfo.potList.length; ++i) {
             _temparrpos.push_back(lineShpInfo.potList[i]);
         }
 
-        var TempTextRect = [-1, -1, 1, 1]; var TempTextFmtFlag = 0x40/*TEXT_FMT_NOCLIP*/;
+        var TempTextRect = [-1, -1, 1, 1];
+        var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
         if (_texBias[0] < 0) {
-            TempTextRect[0] = -1; TempTextRect[2] = 0; TempTextFmtFlag |= 0x20/*TEXT_FMT_RIGHT*/;
+            TempTextRect[0] = -1;
+            TempTextRect[2] = 0;
+            TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
         } else if (_texBias[0] == 0) {
-            TempTextRect[0] = -1; TempTextRect[2] = 1; TempTextFmtFlag |= 0x10/*TEXT_FMT_LEFT*/;
+            TempTextRect[0] = -1;
+            TempTextRect[2] = 1;
+            TempTextFmtFlag |= 0x10 /*TEXT_FMT_LEFT*/;
         } else {
-            TempTextRect[0] = 0; TempTextRect[2] = 1; TempTextFmtFlag |= 0x8/*TEXT_FMT_LEFT*/;
+            TempTextRect[0] = 0;
+            TempTextRect[2] = 1;
+            TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
         }
         if (_texBias[1] < 0) {
-            TempTextRect[1] = -1; TempTextRect[3] = 0; TempTextFmtFlag |= 0x4/*TEXT_FMT_TOP*/;
+            TempTextRect[1] = -1;
+            TempTextRect[3] = 0;
+            TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
         } else if (_texBias[1] == 0) {
-            TempTextRect[1] = -1; TempTextRect[3] = 1; TempTextFmtFlag |= 0x2/*TEXT_FMT_BOTTOM*/;
+            TempTextRect[1] = -1;
+            TempTextRect[3] = 1;
+            TempTextFmtFlag |= 0x2 /*TEXT_FMT_BOTTOM*/;
         } else {
-            TempTextRect[1] = 0; TempTextRect[3] = 1; TempTextFmtFlag |= 0x1/*TEXT_FMT_BOTTOM*/;
+            TempTextRect[1] = 0;
+            TempTextRect[3] = 1;
+            TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
         }
 
         var textobj = {
             m_strGolFontID: _GolFontID,
             m_bTextWeight: false,
-            m_strText: isEmpty(_textInfo.text) ? "" : _textInfo.text,
+            m_strText: isEmpty(_textInfo.text) ? '' : _textInfo.text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
             m_qTextRect: TempTextRect,
             m_uTextFmtFlag: TempTextFmtFlag,
-            m_uTextBackMode: _textBackMode, m_sTextBackBorder: _textBackBorder, m_uTextBackClr: _textBackClr
+            m_uTextBackMode: _textBackMode,
+            m_sTextBackBorder: _textBackBorder,
+            m_uTextBackClr: _textBackClr,
         };
 
-        var _bContactSce = false; if (!isEmpty(lineShpInfo.contactSce)) _bContactSce = lineShpInfo.contactSce;
-        var _uClr = 0xFFFFFFFF; if (!isEmpty(lineShpInfo.lineClr)) _uClr = clrToU32(lineShpInfo.lineClr);
-        var _uFillClr = 0xFFFFFFFF; if (!isEmpty(lineShpInfo.fillClr)) _uFillClr = clrToU32(lineShpInfo.fillClr);
-        var _fillState = 0; if (!isEmpty(lineShpInfo.fillState)) _fillState = lineShpInfo.fillState;
-        var _linewidth = 1; if (!isEmpty(lineShpInfo.lineWidth)) _linewidth = lineShpInfo.lineWidth;
-        var _fTextPos = -2; if (!isEmpty(lineShpInfo.textPos)) _fTextPos = lineShpInfo.textPos;
+        var _bContactSce = false;
+        if (!isEmpty(lineShpInfo.contactSce)) _bContactSce = lineShpInfo.contactSce;
+        var _uClr = 0xffffffff;
+        if (!isEmpty(lineShpInfo.lineClr)) _uClr = clrToU32(lineShpInfo.lineClr);
+        var _uFillClr = 0xffffffff;
+        if (!isEmpty(lineShpInfo.fillClr)) _uFillClr = clrToU32(lineShpInfo.fillClr);
+        var _fillState = 0;
+        if (!isEmpty(lineShpInfo.fillState)) _fillState = lineShpInfo.fillState;
+        var _linewidth = 1;
+        if (!isEmpty(lineShpInfo.lineWidth)) _linewidth = lineShpInfo.lineWidth;
+        var _fTextPos = -2;
+        if (!isEmpty(lineShpInfo.textPos)) _fTextPos = lineShpInfo.textPos;
 
-        return Module.RealBIMWeb.AddCustomPolylineShp(lineShpInfo.shpName, _groupName, _temparrpos, _fillState, _uClr, _uFillClr, _fTextPos, textobj, lineShpInfo.scrASDist, lineShpInfo.scrVisDist, _bContactSce, _linewidth);
-    }
+        return Module.RealBIMWeb.AddCustomPolylineShp(
+            lineShpInfo.shpName,
+            _groupName,
+            _temparrpos,
+            _fillState,
+            _uClr,
+            _uFillClr,
+            _fTextPos,
+            textobj,
+            lineShpInfo.scrASDist,
+            lineShpInfo.scrVisDist,
+            _bContactSce,
+            _linewidth
+        );
+    };
 
     class REFenceShpInfo {
         constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.groupName = null;//矢量组名称
-            this.potList = null;//表示多边形折线序列 xyzw, w分量表示端点处的围栏高度
-            this.isClose = null;//表示是否闭合
-            this.fenceClr = null;//表示多边形围栏的颜色（REColor 类型）
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.potList = null; //表示多边形折线序列 xyzw, w分量表示端点处的围栏高度
+            this.isClose = null; //表示是否闭合
+            this.fenceClr = null; //表示多边形围栏的颜色（REColor 类型）
+            this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null; //表示屏幕空间矢量的可视距离
+            this.contactSce = null; //表示矢量是否与场景发生深度遮挡
         }
     }
     ExtModule.REFenceShpInfo = REFenceShpInfo;
@@ -3723,34 +4149,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REFenceShpInfo} fenceShpInfo //矢量围栏信息（REFenceShpInfo 类型）
      */
     Module.Geometry.addPolyFenceShp = function (fenceShpInfo) {
-        if (isEmptyLog(fenceShpInfo, "fenceShpInfo")) return;
-        if (isEmptyLog(fenceShpInfo.shpName, "shpName")) return;
-        if (!checkTypeLog(fenceShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(fenceShpInfo, 'fenceShpInfo')) return;
+        if (isEmptyLog(fenceShpInfo.shpName, 'shpName')) return;
+        if (!checkTypeLog(fenceShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(fenceShpInfo.groupName) ? "" : fenceShpInfo.groupName;
+        var _groupName = isEmpty(fenceShpInfo.groupName) ? '' : fenceShpInfo.groupName;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < fenceShpInfo.potList.length; ++i) {
             _temparrpos.push_back(fenceShpInfo.potList[i]);
         }
 
-        var _bContactSce = false; if (!isEmpty(fenceShpInfo.contactSce)) _bContactSce = fenceShpInfo.contactSce;
-        var _uClr = 0xFFFFFFFF; if (!isEmpty(fenceShpInfo.fenceClr)) _uClr = clrToU32(fenceShpInfo.fenceClr);
+        var _bContactSce = false;
+        if (!isEmpty(fenceShpInfo.contactSce)) _bContactSce = fenceShpInfo.contactSce;
+        var _uClr = 0xffffffff;
+        if (!isEmpty(fenceShpInfo.fenceClr)) _uClr = clrToU32(fenceShpInfo.fenceClr);
 
-        return Module.RealBIMWeb.AddCustomPolyFenceShp(fenceShpInfo.shpName, _groupName, _temparrpos, fenceShpInfo.isClose, _uClr, fenceShpInfo.scrASDist, fenceShpInfo.scrVisDist, _bContactSce);
-    }
+        return Module.RealBIMWeb.AddCustomPolyFenceShp(
+            fenceShpInfo.shpName,
+            _groupName,
+            _temparrpos,
+            fenceShpInfo.isClose,
+            _uClr,
+            fenceShpInfo.scrASDist,
+            fenceShpInfo.scrVisDist,
+            _bContactSce
+        );
+    };
 
     class REVolumeShpInfo {
         constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.groupName = null;//矢量组名称
-            this.potList = null;//表示多边形折线序列 xyzw, w分量表示端点处的高度
-            this.fenceClr = null;//表示多边形体积面的颜色（REColor 类型）
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
-            this.genLine = null;//表示是否生成线矢量
-            this.lineClr = null;//表示线矢量颜色
-            this.lineWidth = null;//表示线矢量宽度
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.potList = null; //表示多边形折线序列 xyzw, w分量表示端点处的高度
+            this.fenceClr = null; //表示多边形体积面的颜色（REColor 类型）
+            this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null; //表示屏幕空间矢量的可视距离
+            this.contactSce = null; //表示矢量是否与场景发生深度遮挡
+            this.genLine = null; //表示是否生成线矢量
+            this.lineClr = null; //表示线矢量颜色
+            this.lineWidth = null; //表示线矢量宽度
         }
     }
     ExtModule.REVolumeShpInfo = REVolumeShpInfo;
@@ -3760,39 +4197,52 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REVolumeShpInfo} volumeShpInfo //体积矢量信息（REVolumeShpInfo 类型）
      */
     Module.Geometry.addPolyVolumeShp = function (volumeShpInfo) {
-        if (isEmptyLog(volumeShpInfo, "volumeShpInfo")) return;
-        if (isEmptyLog(volumeShpInfo.shpName, "shpName")) return;
-        if (!checkTypeLog(volumeShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(volumeShpInfo, 'volumeShpInfo')) return;
+        if (isEmptyLog(volumeShpInfo.shpName, 'shpName')) return;
+        if (!checkTypeLog(volumeShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(volumeShpInfo.groupName) ? "" : volumeShpInfo.groupName;
+        var _groupName = isEmpty(volumeShpInfo.groupName) ? '' : volumeShpInfo.groupName;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < volumeShpInfo.potList.length; ++i) {
             _temparrpos.push_back(volumeShpInfo.potList[i]);
         }
 
-        var _bContactSce = false; if (!isEmpty(volumeShpInfo.contactSce)) _bContactSce = volumeShpInfo.contactSce;
-        var _uClr = 0xFFFFFFFF; if (!isEmpty(volumeShpInfo.fenceClr)) _uClr = clrToU32(volumeShpInfo.fenceClr);
+        var _bContactSce = false;
+        if (!isEmpty(volumeShpInfo.contactSce)) _bContactSce = volumeShpInfo.contactSce;
+        var _uClr = 0xffffffff;
+        if (!isEmpty(volumeShpInfo.fenceClr)) _uClr = clrToU32(volumeShpInfo.fenceClr);
         var _bGenLine = isEmpty(volumeShpInfo.genLine) ? false : volumeShpInfo.genLine;
         var _uLineClr = isEmpty(volumeShpInfo.lineClr) ? 0xff0000ff : clrToU32(volumeShpInfo.lineClr);
         var _uLineWidth = isEmpty(volumeShpInfo.lineWidth) ? 2 : volumeShpInfo.lineWidth;
 
-        return Module.RealBIMWeb.AddCustomBVShp(volumeShpInfo.shpName, _groupName, _temparrpos, _uClr, volumeShpInfo.scrASDist, volumeShpInfo.scrVisDist, _bContactSce, _bGenLine, _uLineClr, _uLineWidth);
-    }
+        return Module.RealBIMWeb.AddCustomBVShp(
+            volumeShpInfo.shpName,
+            _groupName,
+            _temparrpos,
+            _uClr,
+            volumeShpInfo.scrASDist,
+            volumeShpInfo.scrVisDist,
+            _bContactSce,
+            _bGenLine,
+            _uLineClr,
+            _uLineWidth
+        );
+    };
 
     class REVolumeShpHorInfo {
         constructor() {
-            this.shpName = null;//矢量标识名，若已有同名的矢量则覆盖之
-            this.groupName = null;//矢量组名称
-            this.potList = null;//表示多边形折线序列点（必须为多边形首尾端点构成闭合区域）
-            this.minHeight = null;//表示Z轴上多边形体积的最小高度
-            this.maxHeight = null;//表示Z轴上多边形体积的最大高度
-            this.fenceClr = null;//表示多边形体积面的颜色（REColor 类型）
-            this.scrASDist = null;//表示屏幕空间矢量的自动缩放起始距离
-            this.scrVisDist = null;//表示屏幕空间矢量的可视距离
-            this.contactSce = null;//表示矢量是否与场景发生深度遮挡
-            this.genLine = null;//表示是否生成线矢量
-            this.lineClr = null;//表示线矢量颜色
-            this.lineWidth = null;//表示线矢量宽度
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.potList = null; //表示多边形折线序列点（必须为多边形首尾端点构成闭合区域）
+            this.minHeight = null; //表示Z轴上多边形体积的最小高度
+            this.maxHeight = null; //表示Z轴上多边形体积的最大高度
+            this.fenceClr = null; //表示多边形体积面的颜色（REColor 类型）
+            this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
+            this.scrVisDist = null; //表示屏幕空间矢量的可视距离
+            this.contactSce = null; //表示矢量是否与场景发生深度遮挡
+            this.genLine = null; //表示是否生成线矢量
+            this.lineClr = null; //表示线矢量颜色
+            this.lineWidth = null; //表示线矢量宽度
         }
     }
     ExtModule.REVolumeShpHorInfo = REVolumeShpHorInfo;
@@ -3802,29 +4252,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REVolumeShpHorInfo} volumeShpInfo //体积矢量信息（REVolumeShpHorInfo 类型）
      */
     Module.Geometry.addPolyVolumeShpHor = function (volumeShpInfo) {
-        if (isEmptyLog(volumeShpInfo, "volumeShpInfo")) return;
-        if (isEmptyLog(volumeShpInfo.shpName, "shpName")) return;
-        if (!checkTypeLog(volumeShpInfo.potList, "potList", RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(volumeShpInfo, 'volumeShpInfo')) return;
+        if (isEmptyLog(volumeShpInfo.shpName, 'shpName')) return;
+        if (!checkTypeLog(volumeShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(volumeShpInfo.groupName) ? "" : volumeShpInfo.groupName;
+        var _groupName = isEmpty(volumeShpInfo.groupName) ? '' : volumeShpInfo.groupName;
         var _minHeight = isEmpty(volumeShpInfo.minHeight) ? 0 : volumeShpInfo.minHeight;
         var _maxHeight = isEmpty(volumeShpInfo.maxHeight) ? 0 : volumeShpInfo.maxHeight;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < volumeShpInfo.potList.length; ++i) {
             let _point = volumeShpInfo.potList[i];
-            _point[2] = _minHeight; _point[3] = (_maxHeight - _minHeight);
+            _point[2] = _minHeight;
+            _point[3] = _maxHeight - _minHeight;
             _temparrpos.push_back(_point);
         }
 
-        var _bContactSce = false; if (!isEmpty(volumeShpInfo.contactSce)) _bContactSce = volumeShpInfo.contactSce;
-        var _uClr = 0xFFFFFFFF; if (!isEmpty(volumeShpInfo.fenceClr)) _uClr = clrToU32(volumeShpInfo.fenceClr);
+        var _bContactSce = false;
+        if (!isEmpty(volumeShpInfo.contactSce)) _bContactSce = volumeShpInfo.contactSce;
+        var _uClr = 0xffffffff;
+        if (!isEmpty(volumeShpInfo.fenceClr)) _uClr = clrToU32(volumeShpInfo.fenceClr);
         var _bGenLine = isEmpty(volumeShpInfo.genLine) ? false : volumeShpInfo.genLine;
         var _uLineClr = isEmpty(volumeShpInfo.lineClr) ? 0xff0000ff : clrToU32(volumeShpInfo.lineClr);
         var _uLineWidth = isEmpty(volumeShpInfo.lineWidth) ? 2 : volumeShpInfo.lineWidth;
 
-        return Module.RealBIMWeb.AddCustomBVShp(volumeShpInfo.shpName, _groupName, _temparrpos, _uClr, volumeShpInfo.scrASDist, volumeShpInfo.scrVisDist, _bContactSce, _bGenLine, _uLineClr, _uLineWidth);
-    }
-
+        return Module.RealBIMWeb.AddCustomBVShp(
+            volumeShpInfo.shpName,
+            _groupName,
+            _temparrpos,
+            _uClr,
+            volumeShpInfo.scrASDist,
+            volumeShpInfo.scrVisDist,
+            _bContactSce,
+            _bGenLine,
+            _uLineClr,
+            _uLineWidth
+        );
+    };
 
     /**
      * 删除某个自定义矢量对象
@@ -3832,16 +4295,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.delShp = function (shpName) {
         return Module.RealBIMWeb.DelCustomShp(shpName);
-    }
+    };
 
     /**
      * 清空所有的自定义矢量对象
      */
     Module.Geometry.delAllShps = function () {
         Module.RealBIMWeb.DelAllCustomShps();
-    }
-
-
+    };
 
     /**
      * 判断顶点集合是否在指定的构件集合内，并返还不在指定构件集合内的顶点集合
@@ -3861,11 +4322,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_ObjCount == 0) {
             //如果构件ID集合为空，则默认为所有构件
             Module.RealBIMWeb.GetPotsNotInHugeObjSubElems(dataSetId, 0xffffffff, 0, _temparrpos);
-        }
-        else {
-            var _obgCountByte8 = (_ObjCount * 8).toString();//创建的观察窗口的字节大小
-            Module.RealBIMWeb.ReAllocHeapViews(_obgCountByte8);//分配一系列堆内存块的观察窗口
-            var elemIds = Module.RealBIMWeb.GetHeapView_U32(0);//获取一个堆内存块的观察窗口
+        } else {
+            var _obgCountByte8 = (_ObjCount * 8).toString(); //创建的观察窗口的字节大小
+            Module.RealBIMWeb.ReAllocHeapViews(_obgCountByte8); //分配一系列堆内存块的观察窗口
+            var elemIds = Module.RealBIMWeb.GetHeapView_U32(0); //获取一个堆内存块的观察窗口
             for (let i = 0; i < _ObjCount; i++) {
                 var eleid = elemIdList[i];
                 elemIds.set([eleid, projid], i * 2);
@@ -3880,7 +4340,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
 
         return potsNotInElems;
-    }
+    };
 
     /**
      * 删除某个组的所有自定义矢量对象
@@ -3888,7 +4348,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.delGroupShp = function (groupName) {
         return Module.RealBIMWeb.DelCustomShpByGroup(groupName);
-    }
+    };
 
     /**
      * 获取所有的组名
@@ -3900,8 +4360,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _groupNameList.push(arrGroupName.get(i));
         }
         return _groupNameList;
-    }
-
+    };
 
     // MARK 相机
     /**
@@ -3912,7 +4371,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setCamToShp = function (shpName, backwardAmp) {
         if (isEmptyLog(shpName, 'shpName')) return;
         Module.RealBIMWeb.FocusCamToCustomShp(shpName, backwardAmp);
-    }
+    };
 
     /**
      * 聚焦相机到指定的矢量组
@@ -3922,8 +4381,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setCamToGroupShp = function (groupName, backwardAmp) {
         if (isEmptyLog(groupName, 'groupName')) return;
         Module.RealBIMWeb.FocusCamToCustomShpGroup(groupName, backwardAmp);
-    }
-
+    };
 
     // MARK 渲染设置
     /**
@@ -3932,7 +4390,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.setShpPotCapture = function (enable) {
         Module.RealBIMWeb.SetShpPotCapture(enable);
-    }
+    };
 
     /**
      * 设置自定义矢量对象的颜色
@@ -3943,14 +4401,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(shpName, 'shpName')) return;
         if (isEmptyLog(shpClr, 'shpClr')) return;
         Module.RealBIMWeb.SetCustomShpColor(shpName, clrToU32(shpClr));
-    }
+    };
 
     /**
      * 获取矢量是否允许顶点捕捉
      */
     Module.Geometry.getShpPotCapture = function () {
         return Module.RealBIMWeb.GetShpPotCapture();
-    }
+    };
 
     /**
      * 设置某个组的自定义矢量的可见性
@@ -3960,9 +4418,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setGroupShpVisible = function (groupName, enable) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         Module.RealBIMWeb.SetCustomShpVisible(groupName, enable);
-    }
+    };
 
     /**
      * 获取某个组的自定义矢量的可见性
@@ -3971,9 +4432,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.getGroupShpVisible = function (groupName) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         return Module.RealBIMWeb.GetCustomShpVisible(groupName);
-    }
+    };
 
     /**
      * 设置某个组矢量元素是否与主场景产生深度遮挡
@@ -3983,9 +4447,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setGroupShpCanOverlap = function (groupName, enable) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         Module.RealBIMWeb.SetCustomShpContactSce(groupName, enable);
-    }
+    };
 
     /**
      * 获取某个组矢量元素是否与主场景产生深度遮挡
@@ -3994,9 +4461,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.getGroupShpCanOverlap = function (groupName) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         return Module.RealBIMWeb.GetCustomShpContactSce(groupName);
-    }
+    };
 
     /**
      * 设置某个组矢量元素的全局最大可视距离，超过该距离矢量会消失
@@ -4006,9 +4476,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setGroupShpVisDist = function (groupName, dist) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         Module.RealBIMWeb.SetCustomShpVisDist(groupName, dist);
-    }
+    };
 
     /**
      * 获取某个组矢量元素的全局最大可视距离
@@ -4017,9 +4490,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.getGroupShpVisDist = function (groupName) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         return Module.RealBIMWeb.GetCustomShpVisDist(groupName);
-    }
+    };
 
     /**
      * 设置某个组矢量元素的全局最小自动缩放距离，超过该距离矢量会自动缩小
@@ -4029,9 +4505,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setGroupShpAutoScaleDist = function (groupName, dist) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         Module.RealBIMWeb.SetCustomShpAutoScaleDist(groupName, dist);
-    }
+    };
 
     /**
      * 获取某个组矢量元素的全局最小自动缩放距离
@@ -4040,31 +4519,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.getGroupShpAutoScaleDist = function (groupName) {
         if (isEmptyLog(groupName, 'groupName')) return;
         let groupNameList = Module.Geometry.getAllGroupName();
-        if (!groupNameList.includes(groupName)) { logErr('没有此矢量组'); return; }
+        if (!groupNameList.includes(groupName)) {
+            logErr('没有此矢量组');
+            return;
+        }
         return Module.RealBIMWeb.GetCustomShpAutoScaleDist(groupName);
-    }
-
-
-
-
+    };
 
     // MOD-- 填挖方（Earthwork）
-    Module.Earthwork = typeof Module.Earthwork !== "undefined" ? Module.Earthwork : {};//增加 Earthwork 模块
-
+    Module.Earthwork = typeof Module.Earthwork !== 'undefined' ? Module.Earthwork : {}; //增加 Earthwork 模块
 
     /**
      * 进入土方测量区域绘制状态
      */
     Module.Earthwork.startCreate = function () {
         Module.RealBIMWeb.EnterEarthworkCreateMode();
-    }
+    };
 
     /**
      * 退出土方测量区域绘制状态
      */
     Module.Earthwork.endCreate = function () {
         Module.RealBIMWeb.ExitEarthworkCreateMode();
-    }
+    };
 
     /**
      * 获取土方测量绘制区域的顶点数组, 监听到 REEarthworkRgnFinish 时间后即可获取，获取一次后系统会将顶点信息清除
@@ -4076,7 +4553,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _cnrCoords.push(_pos.get(i));
         }
         return _cnrCoords;
-    }
+    };
 
     /**
      * 进行指定区域的填挖方计算
@@ -4093,47 +4570,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (var i = 0; i < potList.length; ++i) {
             temparrpos.push_back(potList[i]);
         }
-        Module.RealBIMWeb.CalcEarthworkValues(temparrpos, elevation, dataSetId, "", 9);
-    }
-
-
+        Module.RealBIMWeb.CalcEarthworkValues(temparrpos, elevation, dataSetId, '', 9);
+    };
 
     // MOD-- BIM（BIM）
-    Module.BIM = typeof Module.BIM !== "undefined" ? Module.BIM : {};//增加 BIM 模块
+    Module.BIM = typeof Module.BIM !== 'undefined' ? Module.BIM : {}; //增加 BIM 模块
 
     class REElemBlendAttr {
         constructor() {
-            this.dataSetId = null;//数据集标识
-            this.elemIdList = null;//构件id集合
-            this.elemClr = null;//构件颜色（REColor 类型）
-            this.clrWeight = null;//颜色权重
-            this.alphaWeight = null;//透明度权重
-            this.elemEmis = null;//	表示构件的自发光强度，0~255
-            this.elemEmisPercent = null;//	表示构件自发光强度所占的权重，0~255
-            this.elemSmooth = null;//	表示构件的光泽度，0~255
-            this.elemMetal = null;//	表示构件的金属质感，0~255
-            this.elemSmmePercent = null;//	表示光泽度和金属质感的权重，0~255
+            this.dataSetId = null; //数据集标识
+            this.elemIdList = null; //构件id集合
+            this.elemClr = null; //构件颜色（REColor 类型）
+            this.clrWeight = null; //颜色权重
+            this.alphaWeight = null; //透明度权重
+            this.elemEmis = null; //	表示构件的自发光强度，0~255
+            this.elemEmisPercent = null; //	表示构件自发光强度所占的权重，0~255
+            this.elemSmooth = null; //	表示构件的光泽度，0~255
+            this.elemMetal = null; //	表示构件的金属质感，0~255
+            this.elemSmmePercent = null; //	表示光泽度和金属质感的权重，0~255
         }
     }
     ExtModule.REElemBlendAttr = REElemBlendAttr;
 
     class REElemAttr {
         constructor() {
-            this.dataSetId = null;//数据集标识
-            this.elemIdList = null;//构件id集合 
-            this.elemClr = new REColor(-1, -1, -1, -1);//构件颜色（REColor 类型）alpha==-1代表只改变颜色不改变透明度
-            this.clrWeight = 255;//颜色权重, 此权重要使用必须配合颜色值存在
-            this.alphaWeight = 255;//透明度权重, 此权重要使用必须配合透明度值存在
-            this.elemEmis = 0;//	表示构件的自发光强度，0~255
-            this.elemEmisPercent = 0;//	表示构件自发光强度所占的权重，0~255
-            this.elemSmooth = 0;//	表示构件的光泽度，0~255
-            this.elemMetal = 0;//	表示构件的金属质感，0~255
-            this.elemSmmePercent = 0;//	表示光泽度和金属质感的权重，0~255
+            this.dataSetId = null; //数据集标识
+            this.elemIdList = null; //构件id集合
+            this.elemClr = new REColor(-1, -1, -1, -1); //构件颜色（REColor 类型）alpha==-1代表只改变颜色不改变透明度
+            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
+            this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在
+            this.elemEmis = 0; //	表示构件的自发光强度，0~255
+            this.elemEmisPercent = 0; //	表示构件自发光强度所占的权重，0~255
+            this.elemSmooth = 0; //	表示构件的光泽度，0~255
+            this.elemMetal = 0; //	表示构件的金属质感，0~255
+            this.elemSmmePercent = 0; //	表示光泽度和金属质感的权重，0~255
         }
     }
     ExtModule.REElemAttr = REElemAttr;
-
-
 
     // MARK 构件属性
     /**
@@ -4141,11 +4614,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REElemAttr} elemAttr //构件的属性
      */
     Module.BIM.setElemAttr = function (elemAttr) {
-        if (isEmptyLog(elemAttr, "elemAttr")) return;
-        if (isEmptyLog(elemAttr.dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemAttr.elemIdList, "elemIdList")) return;
+        if (isEmptyLog(elemAttr, 'elemAttr')) return;
+        if (isEmptyLog(elemAttr.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemAttr.elemIdList, 'elemIdList')) return;
 
-        var _elemScope = 0; if (!isEmpty(elemAttr.elemScope)) { _elemScope = elemAttr.elemScope; }
+        var _elemScope = 0;
+        if (!isEmpty(elemAttr.elemScope)) {
+            _elemScope = elemAttr.elemScope;
+        }
 
         var _clr = 0x000000ff;
         var _alpha = 0x0080ffff;
@@ -4166,15 +4642,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _pbr = convPBR(elemAttr);
 
-        if (elemAttr.dataSetId == "") {
+        if (elemAttr.dataSetId == '') {
             //多数据集设置
             var _moemory = (24).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemAttr.dataSetId);
             var _count = elemAttr.elemIdList.length;
@@ -4184,19 +4659,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _clrs.set([elemAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 获取当前构件设置的混合属性
@@ -4204,11 +4678,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件id集合
      */
     Module.BIM.getElemAttr = function (dataSetId, elemIdList) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
         if (isEmptyLog(elemIdList)) return;
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
+        var _elemIdListTemp = elemIdList.length == 0 ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
         var _count = _elemIdListTemp.length;
         var _moemory = (_count * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
@@ -4217,7 +4694,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var eleid = _elemIdListTemp[i];
             _clrs.set([eleid, _projid, 0x00000000, 0, 0x00000000, 0x00000000], i * 6);
         }
-        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset);
         var elemAttrList = [];
         for (var i = 0; i < clrinfoarr.length; i += 6) {
             let elemAttrInfo = new REElemAttr();
@@ -4233,7 +4710,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemAttrInfo.elemEmis = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(6, 8), 16);
             elemAttrInfo.elemEmisPercent = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(4, 6), 16);
             let elemSmme = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(2, 4), 16);
-            let uElemSmooth = Math.round(((elemSmme & 0x3F) / 63.0) * 255.0);
+            let uElemSmooth = Math.round(((elemSmme & 0x3f) / 63.0) * 255.0);
             let uElemMeta = Math.round(((elemSmme >> 6) / 3.0) * 255.0);
             elemAttrInfo.elemSmooth = uElemSmooth;
             elemAttrInfo.elemMetal = uElemMeta;
@@ -4241,9 +4718,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemAttrList.push(elemAttrInfo);
         }
         return elemAttrList;
-    }
-
-
+    };
 
     /**
      * 设置构件颜色 ------------(新接口代替废弃)
@@ -4253,37 +4728,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemClr = function (dataSetId, elemIdList, elemClr, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        if (isEmptyLog(elemClr, "elemClr")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+        if (isEmptyLog(elemClr, 'elemClr')) return;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
         var _clr = clrToU32_WBGR(elemClr);
 
-        if (dataSetId == "") {
+        if (dataSetId == '') {
             //多数据集设置
-            if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) { logErr("设置所有数据集的构件颜色需要包含透明度！"); return; }
+            if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
+                logErr('设置所有数据集的构件颜色需要包含透明度！');
+                return;
+            }
             var _alpha = alphaToU32_WA(elemClr.alpha);
             var _moemory = (16).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, _clr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfos('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
             if (_count == 0) {
                 //如果构件ID集合为空，则默认为改变所有构件的信息
-                if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) { logErr("设置数据集内所有构件颜色需要包含透明度！"); return; }
+                if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
+                    logErr('设置数据集内所有构件颜色需要包含透明度！');
+                    return;
+                }
                 var _alpha = alphaToU32_WA(elemClr.alpha);
                 var _moemory = (16).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 _clrs.set([0, _projid, _alpha, _clr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
                 var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
                 var _moemory = (_count * 16).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
@@ -4298,10 +4780,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     }
                     _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 获取当前构件设置的颜色 ------------(新接口代替废弃)
@@ -4309,8 +4791,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件id集合
      */
     Module.BIM.getElemClr = function (dataSetId, elemIdList) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(elemIdList) || elemIdList.length == 0) { logParErr("elemIdList"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(elemIdList) || elemIdList.length == 0) {
+            logParErr('elemIdList');
+            return;
+        }
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
@@ -4321,7 +4809,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var eleid = elemIdList[i];
             _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
         }
-        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, '', _clrs.byteLength, _clrs.byteOffset);
         var elemClrList = [];
         for (var i = 0; i < clrinfoarr.length; i += 4) {
             let elemClrInfo = {};
@@ -4334,7 +4822,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemClrList.push(elemClrInfo);
         }
         return elemClrList;
-    }
+    };
 
     /**
      * 单独改变构件集合透明度信息，颜色保持不变
@@ -4345,26 +4833,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemAlpha = function (dataSetId, elemIdList, elemAlpha, alphaWeight, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
-        var _alphaWeight = 255; if (!isEmpty(alphaWeight)) _alphaWeight = alphaWeight;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _alphaWeight = 255;
+        if (!isEmpty(alphaWeight)) _alphaWeight = alphaWeight;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
         var _alpha = alphaToU32_WA_UseCA(elemAlpha, _alphaWeight, false, true);
         var _clr = 0x000000ff;
         var _pbr = 0x00000000;
 
-        if (dataSetId == "") {
+        if (dataSetId == '') {
             //多数据集设置
             var _moemory = (24).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfos('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
-            var _elemIdListTemp = (elemIdList.length == 0) ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
+            var _elemIdListTemp = elemIdList.length == 0 ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = _elemIdListTemp.length;
             var _moemory = (_count * 24).toString();
@@ -4373,9 +4864,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             for (i = 0; i < _count; ++i) {
                 _clrs.set([_elemIdListTemp[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
             }
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", (_elemIdListTemp.length) ? _clrs.byteLength : 0xffffffff, _clrs.byteOffset, _elemScope);
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(
+                dataSetId,
+                '',
+                _elemIdListTemp.length ? _clrs.byteLength : 0xffffffff,
+                _clrs.byteOffset,
+                _elemScope
+            );
         }
-    }
+    };
 
     /**
      * 恢复构件的默认属性
@@ -4384,23 +4881,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.resetElemAttr = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
         var _clr = 0x000000ff;
         var _alpha = 0x0080ffff;
         var _pbr = 0x00000000;
 
-        if (dataSetId == "") {
+        if (dataSetId == '') {
             //多数据集设置
             var _moemory = (24).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);  //分配空间
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
@@ -4410,44 +4909,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 设置构件混合属性 ------------(新接口代替废弃)
      * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
      */
     Module.BIM.setElemBlendAttr = function (elemBlendAttr) {
-        if (isEmptyLog(elemBlendAttr, "elemBlendAttr")) return;
-        if (isEmptyLog(elemBlendAttr.dataSetId, "dataSetId")) return;
+        if (isEmptyLog(elemBlendAttr, 'elemBlendAttr')) return;
+        if (isEmptyLog(elemBlendAttr.dataSetId, 'dataSetId')) return;
         // if (isEmptyLog(elemBlendAttr.elemClr, "elemClr")) return;
 
-        var _elemScope = 0; if (!isEmpty(elemBlendAttr.elemScope)) { _elemScope = elemBlendAttr.elemScope; }
+        var _elemScope = 0;
+        if (!isEmpty(elemBlendAttr.elemScope)) {
+            _elemScope = elemBlendAttr.elemScope;
+        }
 
         var _clr = clrToU32_W_WBGR(elemBlendAttr.elemClr, elemBlendAttr.clrWeight);
         var _alpha = alphaToU32_WA(elemBlendAttr.elemClr.alpha, elemBlendAttr.alphaWeight);
         var _pbr = convPBR(elemBlendAttr);
 
-        if (elemBlendAttr.dataSetId == "") {
+        if (elemBlendAttr.dataSetId == '') {
             //多数据集设置
             var _moemory = (24).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemBlendAttr.dataSetId);
             var _count = elemBlendAttr.elemIdList.length;
@@ -4457,19 +4957,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _clrs.set([elemBlendAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 恢复构件的默认属性 ------------(新接口代替废弃)
@@ -4478,23 +4977,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.resetElemBlendAttr = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
         var _clr = 0x000000ff;
         var _alpha = 0x0080ffff;
         var _pbr = 0x00000000;
 
-        if (dataSetId == "") {
+        if (dataSetId == '') {
             //多数据集设置
             var _moemory = (24).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);  //分配空间
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
             _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt("", "", 0xffffffff, _clrs.byteOffset, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
@@ -4504,19 +5005,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", 0xffffffff, _clrs.byteOffset, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, "", _clrs.byteLength, _clrs.byteOffset, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 根据id判断一个构件是否被设为透明
@@ -4524,26 +5024,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemId //构件id
      */
     Module.BIM.getElemHideState = function (dataSetId, elemId) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmptyLog(elemId, "elemId")) return;
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmptyLog(elemId, 'elemId')) return;
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        Module.RealBIMWeb.ReAllocHeapViews("16"); //分配空间
+        Module.RealBIMWeb.ReAllocHeapViews('16'); //分配空间
         _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
         _clrs.set([elemId, _projid, 0x00000000, 0x00000000], 0);
-        var retarray = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, "", _clrs.byteLength, _clrs.byteOffset);
+        var retarray = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, '', _clrs.byteLength, _clrs.byteOffset);
         var alphainfo = retarray[2].toString(16);
         var isusenewalpha = alphainfo.substring(6, 8);
         var newalpha = alphainfo.substring(2, 4);
         var newalphapercent = alphainfo.substring(0, 2);
         var temp01 = parseInt(isusenewalpha, 16);
-        var temp02 = parseInt(newalpha, 16)
-        var temp03 = parseInt(newalphapercent, 16)
+        var temp02 = parseInt(newalpha, 16);
+        var temp03 = parseInt(newalphapercent, 16);
         if (temp01 > 0 && temp02 == 0 && temp03 == 255) {
             return true;
         } else {
             return false;
         }
-    }
+    };
 
     /**
      * 获取元素集合的总包围盒信息
@@ -4552,22 +5055,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.getElemTotalBV = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
-        var _bvTemp;
-        if (dataSetId == "") {
-            //多数据集设置
-            _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV("", "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
         }
-        else {
+        var _bvTemp;
+        if (dataSetId == '') {
+            //多数据集设置
+            _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV('', '', 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
             if (_count == 0) {
-                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
-            }
-            else {
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, '', 0xffffffff, 0, _elemScope); //获取所有构件的包围盒信息
+            } else {
                 var _temparr = [];
                 for (var i = 0; i < _count; ++i) {
                     _temparr.push(elemIdList[i]);
@@ -4577,34 +5081,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());
                 var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
                 _tempids.set(_selids, 0);
-                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, _elemScope);
+                _bvTemp = Module.RealBIMWeb.GetHugeObjSubElemsTotalBV(dataSetId, '', _tempids.byteLength, _tempids.byteOffset, _elemScope);
             }
         }
         var aabbList = [];
-        aabbList.push(_bvTemp[0][0]);  //Xmin
-        aabbList.push(_bvTemp[1][0]);  //Xmax
-        aabbList.push(_bvTemp[0][1]);  //Ymin
-        aabbList.push(_bvTemp[1][1]);  //Ymax
-        aabbList.push(_bvTemp[0][2]);  //Zmin
-        aabbList.push(_bvTemp[1][2]);  //Zmax
+        aabbList.push(_bvTemp[0][0]); //Xmin
+        aabbList.push(_bvTemp[1][0]); //Xmax
+        aabbList.push(_bvTemp[0][1]); //Ymin
+        aabbList.push(_bvTemp[1][1]); //Ymax
+        aabbList.push(_bvTemp[0][2]); //Zmin
+        aabbList.push(_bvTemp[1][2]); //Zmax
         return aabbList;
-    }
+    };
 
     /**
      * 获取模型的包围盒信息
      * @param {String} dataSetId //数据集标识
      */
     Module.BIM.getTotalBV = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        var _tempbv = Module.RealBIMWeb.GetHugeObjBoundingBox(dataSetId, "");
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        var _tempbv = Module.RealBIMWeb.GetHugeObjBoundingBox(dataSetId, '');
         var aabbList = [];
-        aabbList.push(_tempbv[0][0]); aabbList.push(_tempbv[1][0]);  //Xmin、Xmax
-        aabbList.push(_tempbv[0][1]); aabbList.push(_tempbv[1][1]);  //Ymin、Ymax
-        aabbList.push(_tempbv[0][2]); aabbList.push(_tempbv[1][2]);  //Zmin、Zmax
+        aabbList.push(_tempbv[0][0]);
+        aabbList.push(_tempbv[1][0]); //Xmin、Xmax
+        aabbList.push(_tempbv[0][1]);
+        aabbList.push(_tempbv[1][1]); //Ymin、Ymax
+        aabbList.push(_tempbv[0][2]);
+        aabbList.push(_tempbv[1][2]); //Zmin、Zmax
         return aabbList;
-    }
-
-
+    };
 
     // MARK 选择集
     /**
@@ -4617,7 +5122,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else if (mode == 1) {
             Module.RealBIMWeb.SetCtrlLevel(Module.RE_CTRL_LEVEL.ELEM);
         }
-    }
+    };
 
     /**
      * 获取当前的选择类型
@@ -4626,16 +5131,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let cureditlevel = Module.RealBIMWeb.GetCtrlLevel();
         let mode = cureditlevel.value != 0 ? 1 : 0; // 当前对外只有数据集和构件类型，单构件和构件都返回一个类型
         return mode;
-    }
-
+    };
 
     class RESelElemsBlendAttr {
         constructor() {
-            this.elemClr = new REColor(255, 0, 0, 255);//元素颜色（REColor 类型）
-            this.clrWeight = 255;//颜色权重, 此权重要使用必须配合颜色值存在
-            this.alphaWeight = 255;//透明度权重, 此权重要使用必须配合透明度值存在
-            this.probeMask = 1;//探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
-            this.attrValid = true;//表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
+            this.elemClr = new REColor(255, 0, 0, 255); //元素颜色（REColor 类型）
+            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
+            this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在
+            this.probeMask = 1; //探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
+            this.attrValid = true; //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
         }
     }
     ExtModule.RESelElemsBlendAttr = RESelElemsBlendAttr;
@@ -4645,19 +5149,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RESelElemsBlendAttr} elemAttr //混合信息
      */
     Module.BIM.setSelElemsBlendAttr = function (elemAttr) {
-        if (isEmptyLog(elemAttr, "elemAttr")) return;
-        if (isEmptyLog(elemAttr.elemClr, "elemClr")) return;
+        if (isEmptyLog(elemAttr, 'elemAttr')) return;
+        if (isEmptyLog(elemAttr.elemClr, 'elemClr')) return;
 
-        var _attrvalid = true; if (!isEmpty(elemAttr.attrValid)) { _attrvalid = elemAttr.attrValid; }
-        var _probeMask = 1; if (!isEmpty(elemAttr.probeMask)) { _probeMask = elemAttr.probeMask > 0 ? 1 : 0; }
+        var _attrvalid = true;
+        if (!isEmpty(elemAttr.attrValid)) {
+            _attrvalid = elemAttr.attrValid;
+        }
+        var _probeMask = 1;
+        if (!isEmpty(elemAttr.probeMask)) {
+            _probeMask = elemAttr.probeMask > 0 ? 1 : 0;
+        }
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemAttr.elemClr.red / 255), (elemAttr.elemClr.green / 255), (elemAttr.elemClr.blue / 255), ((isEmpty(elemAttr.clrWeight) ? 255 : elemAttr.clrWeight) / 255)],
-            m_vAlphaBlend: [(elemAttr.elemClr.alpha / 255), ((isEmpty(elemAttr.alphaWeight) ? 255 : elemAttr.alphaWeight) / 255)],
-            m_uProbeMask: _probeMask
-        }
+            m_qClrBlend: [
+                elemAttr.elemClr.red / 255,
+                elemAttr.elemClr.green / 255,
+                elemAttr.elemClr.blue / 255,
+                (isEmpty(elemAttr.clrWeight) ? 255 : elemAttr.clrWeight) / 255,
+            ],
+            m_vAlphaBlend: [elemAttr.elemClr.alpha / 255, (isEmpty(elemAttr.alphaWeight) ? 255 : elemAttr.alphaWeight) / 255],
+            m_uProbeMask: _probeMask,
+        };
         Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
-    }
+    };
 
     /**
      *  获取当前选择集的混合信息
@@ -4681,7 +5196,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         blendAttr.probeMask = curattr.m_uProbeMask > 0 ? 1 : 0;
         blendAttr.attrValid = curattr.m_bAttrValid;
         return blendAttr;
-    }
+    };
 
     /**
      * 设置选择集的颜色、透明度、探测掩码（即是否可以被选中）
@@ -4690,24 +5205,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} attrValid //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
      */
     Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid) {
-        if (isEmptyLog(elemClr, "elemClr")) return;
-        var _attrvalid = true; if (!isEmpty(attrValid)) { _attrvalid = attrValid; }
-        var _probeMask = 1; if (!isEmpty(probeMask)) { _probeMask = probeMask; }
+        if (isEmptyLog(elemClr, 'elemClr')) return;
+        var _attrvalid = true;
+        if (!isEmpty(attrValid)) {
+            _attrvalid = attrValid;
+        }
+        var _probeMask = 1;
+        if (!isEmpty(probeMask)) {
+            _probeMask = probeMask;
+        }
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), 1.0],
-            m_vAlphaBlend: [(elemClr.alpha / 255), 1.0],
-            m_uProbeMask: _probeMask
-        }
+            m_qClrBlend: [elemClr.red / 255, elemClr.green / 255, elemClr.blue / 255, 1.0],
+            m_vAlphaBlend: [elemClr.alpha / 255, 1.0],
+            m_uProbeMask: _probeMask,
+        };
         Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
-    }
+    };
 
     /**
      * 单独设置选择集的颜色
      * @param {REColor} setSelElemsClr //构件颜色（REColor 类型）
      */
     Module.BIM.setSelElemsClr = function (elemClr) {
-        if (isEmptyLog(elemClr, "elemClr")) return;
+        if (isEmptyLog(elemClr, 'elemClr')) return;
         var _curattr = Module.RealBIMWeb.GetSelElemsAttr();
         var _attrvalid = _curattr.m_bAttrValid;
         var _selAlpha = _curattr.m_vAlphaBlend;
@@ -4715,12 +5236,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _clrWeight = isEmpty(_curattr.m_qClrBlend) ? 1.0 : _curattr.m_qClrBlend[3];
         var obj_attr = {
             m_bAttrValid: _attrvalid,
-            m_qClrBlend: [(elemClr.red / 255), (elemClr.green / 255), (elemClr.blue / 255), _clrWeight],
+            m_qClrBlend: [elemClr.red / 255, elemClr.green / 255, elemClr.blue / 255, _clrWeight],
             m_vAlphaBlend: _selAlpha,
-            m_uProbeMask: _selProbeMask
-        }
+            m_uProbeMask: _selProbeMask,
+        };
         return Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
-    }
+    };
 
     /**
      * 单独设置选择集的透明度
@@ -4730,15 +5251,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _curattr = Module.RealBIMWeb.GetSelElemsAttr();
         var _attrvalid = _curattr.m_bAttrValid;
         var _selClr = _curattr.m_qClrBlend;
-        var _selProbeMask = _curattr.m_uProbeMask
+        var _selProbeMask = _curattr.m_uProbeMask;
         var obj_attr = {
             m_bAttrValid: _attrvalid,
             m_qClrBlend: _selClr,
-            m_vAlphaBlend: [(elemAlpha / 255), 1.0],
-            m_uProbeMask: _selProbeMask
-        }
+            m_vAlphaBlend: [elemAlpha / 255, 1.0],
+            m_uProbeMask: _selProbeMask,
+        };
         return Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
-    }
+    };
 
     /**
      *  获取当前选择集的属性信息
@@ -4756,16 +5277,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemClr: new REColor(_clr_R, _clr_G, _clr_B, _clr_A),
             probeMask: curattr.m_uProbeMask / 255,
             attrValid: curattr.m_bAttrValid,
-        }
+        };
         return objAttr;
-    }
+    };
 
     /**
      *  重置选择集的属性信息为默认值
      */
     Module.BIM.resetSelElemsAttr = function () {
         return Module.RealBIMWeb.SetSelElemsAttr({ m_bAttrValid: true, m_qClrBlend: [1, 0, 0, 0.8], m_vAlphaBlend: [0.29, 1], m_uProbeMask: 1 });
-    }
+    };
 
     /**
      *  获取当前选择集的构件ID集合
@@ -4788,8 +5309,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 if (curprojelemarr.length > 0) {
                     var curprojinfo = {};
-                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-                    curprojinfo["elemIdList"] = curprojelemarr;
+                    curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo['elemIdList'] = curprojelemarr;
                     projidarr.push(curprojinfo);
                     curprojelemarr = [];
                 }
@@ -4799,13 +5320,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         if (curprojelemarr.length > 0) {
             var curprojinfo = {};
-            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-            curprojinfo["elemIdList"] = curprojelemarr;
+            curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo['elemIdList'] = curprojelemarr;
             projidarr.push(curprojinfo);
             curprojelemarr = [];
         }
         return projidarr;
-    }
+    };
 
     /**
      * 往当前选择集合添加构件
@@ -4813,8 +5334,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件id集合
      */
     Module.BIM.addToSelElems = function (dataSetId, elemIdList) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(elemIdList) || !elemIdList.length) { logParErr("elemIdList"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(elemIdList) || !elemIdList.length) {
+            logParErr('elemIdList');
+            return;
+        }
 
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         var _count = elemIdList.length;
@@ -4830,7 +5357,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         //     Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         // } else {
         var _moemory = (_count * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < _count; ++i) {
             var eleid = elemIdList[i];
@@ -4838,8 +5365,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         // }
-
-    }
+    };
 
     /**
      * 从当前选择集合删除构件
@@ -4847,11 +5373,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件id集合
      */
     Module.BIM.delFromSelElems = function (dataSetId, elemIdList) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
         var _count = elemIdList.length;
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        if (_count == 0 || dataSetId == "") {
+        if (_count == 0 || dataSetId == '') {
             Module.RealBIMWeb.RemoveFromSelElemIDs(0xffffffff, 0); //删除全部构件
         } else {
             var _moemory = (_count * 8).toString();
@@ -4863,14 +5389,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
             Module.RealBIMWeb.RemoveFromSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         }
-    }
+    };
 
     /**
      * 清空选择集中的所有构件
      */
     Module.BIM.delAllSelElems = function () {
         Module.RealBIMWeb.RemoveFromSelElemIDs(0xffffffff, 0);
-    }
+    };
 
     /**
      * 获取当前选择集中所有的数据集id
@@ -4882,7 +5408,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 往当前选择集合添加数据集
@@ -4891,8 +5417,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.addToSelDataSet = function (dataSetId) {
         var _projvec = new Module.RE_Vector_WStr();
         _projvec.push_back(dataSetId);
-        Module.RealBIMWeb.AddToCurSelProjIDs(_projvec);     //把1个数据集加入选择集
-    }
+        Module.RealBIMWeb.AddToCurSelProjIDs(_projvec); //把1个数据集加入选择集
+    };
 
     /**
      * 从当前选择集合删除数据集
@@ -4904,7 +5430,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _projvec.push_back(dataSetIdList[i]);
         }
         Module.RealBIMWeb.RemoveFromCurSelProjIDs(_projvec);
-    }
+    };
 
     /**
      * 清空当前选择集中的所有数据集
@@ -4912,7 +5438,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.delAllSelDateSets = function () {
         var _projvec = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.RemoveFromCurSelProjIDs(_projvec);
-    }
+    };
 
     /**
      * 获取当前场景的所有可见元素id
@@ -4920,8 +5446,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} visibalOnly //是否去除当前设置透明度为0的构件id
      */
     Module.BIM.getDataSetAllElemIDs = function (dataSetId, visibalOnly) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, "", visibalOnly));
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, '', visibalOnly));
         var elemIds = [];
         for (i = 0; i < tempelemids.length; i += 2) {
             if (tempelemids[i] == 4294967280) {
@@ -4931,8 +5460,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemIds.push(tempelemids[i]);
         }
         return elemIds;
-    }
-
+    };
 
     /**
      * 获取指定数据集内的子元素双版本比对的差异ID列表
@@ -4953,19 +5481,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         return elemIds;
-    }
-
+    };
 
     class RESelAxisGridRegInfo {
         constructor() {
-            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
-            this.gridGroupName = null;//表示轴网所属组的唯一标识
-            this.gridNameList = null;//表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
-            this.offset = null;//表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
-            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
-            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
-            this.onlyVisible = null;//表示是否仅包含可见元素
-            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
+            this.dataSetId = null; //数据集标识，为空串则表示处理所有数据集
+            this.gridGroupName = null; //表示轴网所属组的唯一标识
+            this.gridNameList = null; //表示轴网的集合，要求轴网等于四个，并能够形成闭合多边形
+            this.offset = null; //表示四个轴网的偏移量，默认向多边形内部为负，多边形外部为正
+            this.minHeight = null; //表示Z轴上多边形裁剪区域的最小高度
+            this.maxHeight = null; //表示Z轴上多边形裁剪区域的最大高度
+            this.onlyVisible = null; //表示是否仅包含可见元素
+            this.includeInter = null; //表示是否包含与多边形区域边界相交的元素
         }
     }
     ExtModule.RESelAxisGridRegInfo = RESelAxisGridRegInfo;
@@ -4983,19 +5510,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < regInfo.gridNameList.length; i++) {
             _tempArrGridName.push_back(regInfo.gridNameList[i]);
         }
-        Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(regInfo.dataSetId, regInfo.gridGroupName, _tempArrGridName,
-            regInfo.offset, regInfo.minHeight, regInfo.maxHeight,
-            regInfo.onlyVisible, regInfo.includeInter);
-    }
+        Module.RealBIMWeb.ClipHugeObjSubElemsByGrid(
+            regInfo.dataSetId,
+            regInfo.gridGroupName,
+            _tempArrGridName,
+            regInfo.offset,
+            regInfo.minHeight,
+            regInfo.maxHeight,
+            regInfo.onlyVisible,
+            regInfo.includeInter
+        );
+    };
 
     class RESelPolyFenceRegInfo {
         constructor() {
-            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
-            this.pointList = null;//多边形点集合（必须为多边形首尾端点构成闭合区域）
-            this.minHeight = null;//表示Z轴上多边形裁剪区域的最小高度
-            this.maxHeight = null;//表示Z轴上多边形裁剪区域的最大高度
-            this.onlyVisible = null;//表示是否仅包含可见元素
-            this.includeInter = null;//表示是否包含与多边形区域边界相交的元素
+            this.dataSetId = null; //数据集标识，为空串则表示处理所有数据集
+            this.pointList = null; //多边形点集合（必须为多边形首尾端点构成闭合区域）
+            this.minHeight = null; //表示Z轴上多边形裁剪区域的最小高度
+            this.maxHeight = null; //表示Z轴上多边形裁剪区域的最大高度
+            this.onlyVisible = null; //表示是否仅包含可见元素
+            this.includeInter = null; //表示是否包含与多边形区域边界相交的元素
         }
     }
     ExtModule.RESelPolyFenceRegInfo = RESelPolyFenceRegInfo;
@@ -5019,11 +5553,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //只取xy的值z不需要，有限制的顶高和低高
             _polypots.set([pot[0], pot[1]], i * 2);
         }
-        Module.RealBIMWeb.PolyClipHugeObjSubElems(regInfo.dataSetId, "", _polypots.byteLength, _polypots.byteOffset, regInfo.minHeight, regInfo.maxHeight, regInfo.onlyVisible, regInfo.includeInter);
-    }
-
-
-
+        Module.RealBIMWeb.PolyClipHugeObjSubElems(
+            regInfo.dataSetId,
+            '',
+            _polypots.byteLength,
+            _polypots.byteOffset,
+            regInfo.minHeight,
+            regInfo.maxHeight,
+            regInfo.onlyVisible,
+            regInfo.includeInter
+        );
+    };
 
     // MARK 渲染设置
 
@@ -5035,15 +5575,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemsValidState = function (dataSetId, elemIdList, enable, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
         var _count = elemIdList.length;
         var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
         if (_count == 0) {
             //如果构件ID集合为空，则默认为设置所有构件
-            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, "", 0xffffffff, 0, enable, _elemScope);
+            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, '', 0xffffffff, 0, enable, _elemScope);
         } else {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
@@ -5052,9 +5595,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var eleid = elemIdList[i];
                 _elemIds.set([eleid, _projid], i * 2);
             }
-            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, enable, _elemScope);
+            Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, enable, _elemScope);
         }
-    }
+    };
 
     /**
      * 设置项目的自动加载/卸载距离阈值
@@ -5063,13 +5606,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
      */
     Module.BIM.setAutoLoadDist = function (dataSetId, minLoadDist, maxLoadDist) {
-        let _minLoadDist = isEmpty(minLoadDist) ? 1e+30 : minLoadDist;
-        let _maxLoadDist = isEmpty(maxLoadDist) ? 1e+30 : maxLoadDist;
-        if (minLoadDist == 0) _minLoadDist = 1e+30;
-        if (maxLoadDist == 0) _maxLoadDist = 1e+30;
+        let _minLoadDist = isEmpty(minLoadDist) ? 1e30 : minLoadDist;
+        let _maxLoadDist = isEmpty(maxLoadDist) ? 1e30 : maxLoadDist;
+        if (minLoadDist == 0) _minLoadDist = 1e30;
+        if (maxLoadDist == 0) _maxLoadDist = 1e30;
         var _distinfo = [_minLoadDist, _maxLoadDist];
         Module.RealBIMWeb.SetMainSceAutoLoadDist(dataSetId, _distinfo);
-    }
+    };
 
     /**
      * 获取单项目的最大/最小加载距离阈值
@@ -5077,7 +5620,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.BIM.getAutoLoadDist = function (dataSetId) {
         return Module.RealBIMWeb.GetMainSceAutoLoadDist(dataSetId);
-    }
+    };
 
     /**
      * 设置复杂模型内子元素的深度偏移
@@ -5087,17 +5630,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemDepthBias = function (dataSetId, elemIdList, depthBias, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
 
-        if (dataSetId == "") {
-            Module.RealBIMWeb.SetHugeObjSubElemDepthBias("", "", 0xffffffff, 0, depthBias, _elemScope);
+        if (dataSetId == '') {
+            Module.RealBIMWeb.SetHugeObjSubElemDepthBias('', '', 0xffffffff, 0, depthBias, _elemScope);
         } else {
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
             if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, "", 0xffffffff, 0, depthBias, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, '', 0xffffffff, 0, depthBias, _elemScope);
             } else {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory);
@@ -5105,10 +5651,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 for (var i = 0; i < _count; ++i) {
                     _elemIds.set([elemIdList[i], _projid], i * 2);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, depthBias, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemDepthBias(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, depthBias, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 设置模型场景节点的仿射变换信息
@@ -5118,22 +5664,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {dvec3} offset //模型的平移系数，默认为[0,0,0]
      */
     Module.BIM.setElemTransform = function (dataSetId, scale, rotate, offset) {
-        return Module.RealBIMWeb.SetHugeObjTransform(dataSetId, "", scale, rotate, offset);
-    }
+        return Module.RealBIMWeb.SetHugeObjTransform(dataSetId, '', scale, rotate, offset);
+    };
 
     /**
      * 获取模型场景节点的仿射变换信息
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
      */
     Module.BIM.getElemTransform = function (dataSetId) {
-        var _COMMON_LOC = Module.RealBIMWeb.GetHugeObjTransform(dataSetId, "");
+        var _COMMON_LOC = Module.RealBIMWeb.GetHugeObjTransform(dataSetId, '');
         let transFormInfo = {
             scale: _COMMON_LOC.m_vScale,
             rotate: _COMMON_LOC.m_qRotate,
             offset: _COMMON_LOC.m_vOffset,
         };
         return transFormInfo;
-    }
+    };
 
     /**
      * 刷新数据集模型
@@ -5141,8 +5687,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
      */
     Module.BIM.refreshDataSet = function (dataSetId, loadNewData) {
-        Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, "", loadNewData);
-    }
+        Module.RealBIMWeb.RefreshHugeObjMainData(dataSetId, '', loadNewData);
+    };
 
     /**
      * 设置模型边缘高光属性
@@ -5151,19 +5697,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} range //表示边缘区域范围，（0~n），建议设为0.5~1左右即可
      */
     Module.BIM.setBorderEmis = function (dataSetId, amp, range) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var emis = [amp, range];
-        return Module.RealBIMWeb.SetHugeObjBorderEmis(dataSetId, "", emis);
-    }
+        return Module.RealBIMWeb.SetHugeObjBorderEmis(dataSetId, '', emis);
+    };
 
     /**
      * 获取模型边缘高光属性
      * @param {String} dataSetId //数据集标识
      */
     Module.BIM.getBorderEmis = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        return Module.RealBIMWeb.GetHugeObjBorderEmis(dataSetId, "");
-    }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.GetHugeObjBorderEmis(dataSetId, '');
+    };
 
     /**
      * 设置模型的最大光泽度
@@ -5171,18 +5717,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} smooth //最大光泽度 取值范围[0,1]
      */
     Module.BIM.setMaxSmooth = function (dataSetId, smooth) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        return Module.RealBIMWeb.SetHugeObjMaxSmooth(dataSetId, "", smooth);
-    }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.SetHugeObjMaxSmooth(dataSetId, '', smooth);
+    };
 
     /**
      * 获取模型的最大光泽度
      * @param {String} dataSetId //数据集标识
      */
     Module.BIM.getMaxSmooth = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        return Module.RealBIMWeb.GetHugeObjMaxSmooth(dataSetId, "");
-    }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.GetHugeObjMaxSmooth(dataSetId, '');
+    };
 
     /**
      * 设置模型边界线是否启用法线光照的明暗效果
@@ -5190,25 +5736,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否允许
      */
     Module.BIM.setBorderLineNorLight = function (dataSetId, enable) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        return Module.RealBIMWeb.SetHugeObjBorderLineNor(dataSetId, "", enable);
-    }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.SetHugeObjBorderLineNor(dataSetId, '', enable);
+    };
 
     /**
      * 获取模型边界线是否启用法线光照的明暗效果
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
      */
     Module.BIM.getBorderLineNorLight = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        return Module.RealBIMWeb.GetHugeObjBorderLineNor(dataSetId, "");
-    }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.GetHugeObjBorderLineNor(dataSetId, '');
+    };
 
     class REElemUVAnim {
         constructor() {
-            this.dataSetId = null;//数据集标识，为空串则表示处理所有数据集
-            this.elemIdList = null;//构件id集合,为空数组则表示处理所有构件
-            this.scale = null;//UV缩放比例
-            this.speed = null;//UV移动速度
+            this.dataSetId = null; //数据集标识，为空串则表示处理所有数据集
+            this.elemIdList = null; //构件id集合,为空数组则表示处理所有构件
+            this.scale = null; //UV缩放比例
+            this.speed = null; //UV移动速度
         }
     }
     ExtModule.REElemUVAnim = REElemUVAnim;
@@ -5218,35 +5764,40 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REElemUVAnim} elemUVAnim //构件UV动画信息
      */
     Module.BIM.setElemUVAnimAttr = function (elemUVAnim) {
-        if (isEmptyLog(elemUVAnim, "elemUVAnim")) return;
+        if (isEmptyLog(elemUVAnim, 'elemUVAnim')) return;
 
         var _elemScope = isEmpty(elemUVAnim.elemScope) ? 0 : elemUVAnim.elemScope;
         var _scale = isEmpty(elemUVAnim.scale) ? [1.0, 1.0] : elemUVAnim.scale;
         var _speed = isEmpty(elemUVAnim.speed) ? [0.0, 0.0] : elemUVAnim.speed;
-        var _lpUVAnimAttr = [_scale[0], _scale[1], (-1.0) * _speed[0], (-1.0) * _speed[1]];
+        var _lpUVAnimAttr = [_scale[0], _scale[1], -1.0 * _speed[0], -1.0 * _speed[1]];
 
-        if (elemUVAnim.dataSetId == "") {
+        if (elemUVAnim.dataSetId == '') {
             //多数据集设置
-            Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr("", "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr('', '', 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemUVAnim.dataSetId);
             var _count = elemUVAnim.elemIdList.length;
             if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, '', 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+            } else {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _elemIds.set([elemUVAnim.elemIdList[i], _projid], i * 2);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(elemUVAnim.dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(
+                    elemUVAnim.dataSetId,
+                    '',
+                    _elemIds.byteLength,
+                    _elemIds.byteOffset,
+                    _lpUVAnimAttr,
+                    _elemScope
+                );
             }
         }
-    }
+    };
 
     /**
      * 设置构件UV的显示和隐藏
@@ -5255,71 +5806,60 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} visible //显示类型
      */
     Module.BIM.setElemUVVisible = function (dataSetId, elemIdList, visible, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
 
         var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
         var _scale = visible ? [1.0, 1.0] : [0, 0];
         var _speed = [0.0, 0.0];
         var _lpUVAnimAttr = [_scale[0], _scale[1], _speed[0], _speed[1]];
 
-        if (dataSetId == "") {
+        if (dataSetId == '') {
             //多数据集设置
-            Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr("", "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
-        }
-        else {
+            Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr('', '', 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+        } else {
             //指定数据集设置
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
             if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, "", 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
-            }
-            else {
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, '', 0xffffffff, 0, _lpUVAnimAttr, _elemScope);
+            } else {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < _count; ++i) {
                     _elemIds.set([elemIdList[i], _projid], i * 2);
                 }
-                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, "", _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
             }
         }
-    }
-
-
-
-
-
-
-
-
+    };
 
     // MARK 骨骼动画
 
     class REGolBoneLocInfo {
         constructor() {
-            this.boneId = null;//表示骨骼全局ID
-            this.interval = null;//表示骨骼从当前方位过渡到目标方位所需的时长
-            this.procBatch = null;//表示骨骼的方位过渡批次
-            this.sendPostEvent = null;//表示骨骼方位过渡完毕后是否发送事件消息
-            this.destLoc = null;//表示骨骼的目标方位 (REBoneLoc 类型)
+            this.boneId = null; //表示骨骼全局ID
+            this.interval = null; //表示骨骼从当前方位过渡到目标方位所需的时长
+            this.procBatch = null; //表示骨骼的方位过渡批次
+            this.sendPostEvent = null; //表示骨骼方位过渡完毕后是否发送事件消息
+            this.destLoc = null; //表示骨骼的目标方位 (REBoneLoc 类型)
         }
     }
     ExtModule.REGolBoneLocInfo = REGolBoneLocInfo;
 
     class REBoneLoc {
         constructor() {
-            this.autoScale = null;//表示元素的自动缩放系数
-            this.localScale = null;//表示元素在以自身中心点为原点的局部世界空间中的缩放分量
-            this.localRotate = null;//表示元素在以自身中心点为原点的局部世界空间中的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
-            this.centerVirOrig = null;//表示元素中心点的缩放/旋转/平移变换所在的虚拟坐标系坐标原点的世界空间位置
-            this.centerVirScale = null;//表示元素中心点在虚拟坐标系下的缩放分量
-            this.centerVirRotate = null;//表示元素中心点在虚拟坐标系下的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
-            this.centerVirOffset = null;//表示元素中心点在虚拟坐标系下的平移分量
+            this.autoScale = null; //表示元素的自动缩放系数
+            this.localScale = null; //表示元素在以自身中心点为原点的局部世界空间中的缩放分量
+            this.localRotate = null; //表示元素在以自身中心点为原点的局部世界空间中的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
+            this.centerVirOrig = null; //表示元素中心点的缩放/旋转/平移变换所在的虚拟坐标系坐标原点的世界空间位置
+            this.centerVirScale = null; //表示元素中心点在虚拟坐标系下的缩放分量
+            this.centerVirRotate = null; //表示元素中心点在虚拟坐标系下的旋转分量(欧拉角：绕X/Y/Z轴的旋转角度-360.0*k~360.0*j)
+            this.centerVirOffset = null; //表示元素中心点在虚拟坐标系下的平移分量
         }
     }
     ExtModule.REBoneLoc = REBoneLoc;
-
 
     /**
      * 绑定一批构件到一个骨骼上
@@ -5329,18 +5869,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.BIM.setElemToBone = function (dataSetId, elemIdList, boneId, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        if (isEmptyLog(boneId, "boneId")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+        if (isEmptyLog(boneId, 'boneId')) return;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
 
-        if (dataSetId == "") {
-            Module.RealBIMWeb.SetHugeObjSubElemBoneIDs("", "", 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
+        if (dataSetId == '') {
+            Module.RealBIMWeb.SetHugeObjSubElemBoneIDs('', '', 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
         } else {
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
             if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, "", 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
+                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, '', 0xffffffff, 0, boneId, _elemScope); //绑定全部构件
             } else {
                 var _temparr = [];
                 for (var i = 0; i < _count; ++i) {
@@ -5348,28 +5891,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     _temparr.push(_projid);
                 }
                 var _selids = new Uint32Array(_temparr);
-                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString());//分配空间
+                Module.RealBIMWeb.ReAllocHeapViews(_selids.byteLength.toString()); //分配空间
                 var _tempids = Module.RealBIMWeb.GetHeapView_U32(0);
                 _tempids.set(_selids, 0);
-                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, "", _tempids.byteLength, _tempids.byteOffset, boneId, _elemScope);
+                Module.RealBIMWeb.SetHugeObjSubElemBoneIDs(dataSetId, '', _tempids.byteLength, _tempids.byteOffset, boneId, _elemScope);
             }
         }
-    }
+    };
 
     /**
      * 获取系统中的全局元素骨骼总数
      */
     Module.BIM.getGolElemBoneNum = function () {
         return Module.RealBIMWeb.GetGolElemBoneNum();
-    }
+    };
 
     /**
      * 设置全局元素骨骼的目标方位
      * @param {REGolBoneLocInfo} boneLocInfo //骨骼方位信息
      */
     Module.BIM.setGolElemBoneDestLoc = function (boneLocInfo) {
-        if (isEmptyLog(boneLocInfo, "boneLocInfo")) return;
-        if (isEmptyLog(boneLocInfo.destLoc, "destLoc")) return;
+        if (isEmptyLog(boneLocInfo, 'boneLocInfo')) return;
+        if (isEmptyLog(boneLocInfo.destLoc, 'destLoc')) return;
         var _destLoc = {
             m_vAutoScale: boneLocInfo.destLoc.autoScale,
             m_vLocalScale: boneLocInfo.destLoc.localScale,
@@ -5378,20 +5921,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vCenterVirScale: boneLocInfo.destLoc.centerVirScale,
             m_vCenterVirRotate: boneLocInfo.destLoc.centerVirRotate,
             m_vCenterVirOffset: boneLocInfo.destLoc.centerVirOffset,
-        }
-        return Module.RealBIMWeb.SetGolElemBoneDestLocExt(boneLocInfo.boneId, _destLoc, boneLocInfo.interval, boneLocInfo.procBatch, boneLocInfo.sendPostEvent);
-    }
+        };
+        return Module.RealBIMWeb.SetGolElemBoneDestLocExt(
+            boneLocInfo.boneId,
+            _destLoc,
+            boneLocInfo.interval,
+            boneLocInfo.procBatch,
+            boneLocInfo.sendPostEvent
+        );
+    };
 
     /**
      * 重置所有全局元素骨骼为默认方位
      */
     Module.BIM.resetAllGolElemBoneDestLoc = function () {
         Module.RealBIMWeb.ResetAllGolElemBones();
-    }
-
-
-
-
+    };
 
     // MARK 轮廓线
 
@@ -5401,35 +5946,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} lineClr //模型边界线颜色（REColor 类型）(Alpha==-1表示禁用边界线；Alpha为[0,255]表示边界线颜色的权重系数)
      */
     Module.BIM.setContourLineClr = function (dataSetId, lineClr) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(lineClr, "lineClr")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(lineClr, 'lineClr')) return;
         var tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.alpha < 0 ? -1 : lineClr.alpha / 255];
-        return Module.RealBIMWeb.SetHugeObjBorderLineClr(dataSetId, "", tempclr);
-    }
+        return Module.RealBIMWeb.SetHugeObjBorderLineClr(dataSetId, '', tempclr);
+    };
 
     /**
      * 获取模型边界线颜色混合信息
      * @param {String} dataSetId //数据集标识
      */
     Module.BIM.getContourLineClr = function (dataSetId) {
-        var _tempclr = Module.RealBIMWeb.GetHugeObjBorderLineClr(dataSetId, "");
+        var _tempclr = Module.RealBIMWeb.GetHugeObjBorderLineClr(dataSetId, '');
         var lineClr = new REColor();
         lineClr.red = _tempclr[0] * 255;
         lineClr.green = _tempclr[1] * 255;
         lineClr.blue = _tempclr[2] * 255;
         lineClr.alpha = _tempclr[3] < 0 ? -1 : _tempclr[3] * 255;
         return lineClr;
-    }
+    };
 
     /**
      * 设置世界空间下的全局裁剪面的裁剪边界处的颜色信息
      * @param {REColor} lineClr //轮廓线颜色（REColor 类型）
      */
     Module.BIM.setClipPlanesContourLineClr = function (lineClr) {
-        if (isEmptyLog(lineClr, "lineClr")) return;
+        if (isEmptyLog(lineClr, 'lineClr')) return;
         var _tempclr = [lineClr.red / 255, lineClr.green / 255, lineClr.blue / 255, lineClr.alpha / 255];
         Module.RealBIMWeb.SetGolClipPlanesBorderClrBlendInfo(_tempclr);
-    }
+    };
 
     /**
      * 获取世界空间下的全局裁剪面的裁剪边界处的颜色信息
@@ -5442,25 +5987,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         lineClr.blue = _tempclr[2] * 255;
         lineClr.alpha = _tempclr[3] * 255;
         return lineClr;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- CAD（CAD）
-    Module.CAD = typeof Module.CAD !== "undefined" ? Module.CAD : {};//增加 CAD 模块
-
+    Module.CAD = typeof Module.CAD !== 'undefined' ? Module.CAD : {}; //增加 CAD 模块
 
     // MARK 加载
 
@@ -5471,18 +6001,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} scale //图纸的比例尺信息
      */
     Module.CAD.loadCAD = function (filePath, unit, scale) {
-        if (isEmptyLog(filePath, "filePath")) return;
-        var _unit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : unit == "" ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
-        var _scale = 1.0; if (!isEmpty(scale)) _scale = scale;
+        if (isEmptyLog(filePath, 'filePath')) return;
+        var _unit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : unit == '' ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
+        var _scale = 1.0;
+        if (!isEmpty(scale)) _scale = scale;
         Module.RealBIMWeb.LoadCAD(filePath, _unit, _scale);
-    }
+    };
 
     /**
      * 卸载所有CAD文件
      */
     Module.CAD.unloadCAD = function () {
         Module.RealBIMWeb.UnLoadCAD();
-    }
+    };
 
     // /**
     //  * 加载一个cad矢量资源
@@ -5563,7 +6094,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //     Module.RealBIMWeb.SetSceVersionInfoExt(dataSetCadShp.dataSetId, _ver);
     // }
 
-
     /**
      * 添加颜色填充元素
      * @param {String} fillElemId //填充元素标识
@@ -5571,8 +6101,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REColor} fillClr //填充颜色（REColor 类型）
      */
     Module.CAD.addFillElem = function (fillElemId, pointList, fillClr) {
-        if (isEmptyLog(fillElemId, "fillElemId")) return;
-        if (isEmptyLog(pointList, "pointList")) return;
+        if (isEmptyLog(fillElemId, 'fillElemId')) return;
+        if (isEmptyLog(pointList, 'pointList')) return;
 
         var _vector_Points = new Module.RE_Vector_dvec2();
         for (let i = 0; i < pointList.length; i++) {
@@ -5581,21 +6111,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _fillClr = isEmpty(fillClr) ? 0xff0000ff : clrToU32(fillClr);
         Module.RealBIMWeb.AddCADColorHatch(fillElemId, _vector_Points, _fillClr);
-    }
+    };
 
     /**
      * 删除颜色填充元素
      * @param {String} fillElemId //填充元素标识
      */
     Module.CAD.delFillElem = function (fillElemId) {
-        if (isEmptyLog(fillElemId, "fillElemId")) return;
+        if (isEmptyLog(fillElemId, 'fillElemId')) return;
         Module.RealBIMWeb.DeleteCADColorHatchById(fillElemId);
-    }
+    };
 
     class RECADAttr {
         constructor() {
-            this.tag = "";//表示属性名称
-            this.value = "";//表示属性值
+            this.tag = ''; //表示属性名称
+            this.value = ''; //表示属性值
         }
     }
     ExtModule.RECADAttr = RECADAttr;
@@ -5605,7 +6135,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} elemId //元素标识
      */
     Module.CAD.getElemAttrs = function (elemId) {
-        if (isEmptyLog(elemId, "elemId")) return;
+        if (isEmptyLog(elemId, 'elemId')) return;
         let arrAttris = Module.RealBIMWeb.GetCADAttributesByHandle(elemId);
         let _attrList = [];
         for (let i = 0; i < arrAttris.size(); i++) {
@@ -5616,18 +6146,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _attrList.push(_attr);
         }
         return _attrList;
-    }
+    };
 
     /**
      * 根据cad属性查询cad图元标识
      * @param {RECADAttr} attr //属性
      */
     Module.CAD.getAttrElemIds = function (attr) {
-        if (isEmptyLog(attr, "attr")) return;
+        if (isEmptyLog(attr, 'attr')) return;
         let _cad_attrs = {
             m_strTag: attr.tag,
-            m_strValue: attr.value
-        }
+            m_strValue: attr.value,
+        };
 
         let arrElemIds = Module.RealBIMWeb.GetCADHandlesByAttribute(_cad_attrs);
         let _elemIds = [];
@@ -5635,15 +6165,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.push(arrElemIds.get(i));
         }
         return _elemIds;
-    }
-
+    };
 
     class RECADLayer {
         constructor() {
-            this.layerName = null;//表示图层名称
-            this.color = null;//表示图层颜色
-            this.layerId = null;//图层标识
-            this.layerHide = false;//表示图层是否隐藏
+            this.layerName = null; //表示图层名称
+            this.color = null; //表示图层颜色
+            this.layerId = null; //图层标识
+            this.layerHide = false; //表示图层是否隐藏
         }
     }
     ExtModule.RECADLayer = RECADLayer;
@@ -5664,7 +6193,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _layerList.push(_layer);
         }
         return _layerList;
-    }
+    };
 
     /**
      * 设置显示隐藏图层
@@ -5672,13 +6201,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} visible //显示隐藏 true：显示 false：隐藏
      */
     Module.CAD.setLayerVisible = function (layerId, visible) {
-        if (isEmptyLog(layerId, "layerId")) return;
+        if (isEmptyLog(layerId, 'layerId')) return;
         if (visible) {
             Module.RealBIMWeb.CADShowLayer(layerId);
         } else {
             Module.RealBIMWeb.CADHideLayer(layerId);
         }
-    }
+    };
 
     /**
      * 设置cad背景颜色
@@ -5686,12 +6215,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.setBgClr = function (color) {
         Module.RealBIMWeb.CADSetBakClr([color.red / 255.0, color.green / 255.0, color.blue / 255.0]);
-    }
+    };
 
     class RECADTextInfo {
         constructor() {
-            this.elemId = null;//二维图元的id
-            this.text = null;//文字信息
+            this.elemId = null; //二维图元的id
+            this.text = null; //文字信息
         }
     }
     ExtModule.RECADTextInfo = RECADTextInfo;
@@ -5701,7 +6230,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} searchText //搜索文字
      */
     Module.CAD.getElemsSearchText = function (searchText) {
-        if (isEmpty(searchText) || searchText == "") { logParErr("searchText"); return; }
+        if (isEmpty(searchText) || searchText == '') {
+            logParErr('searchText');
+            return;
+        }
         var _arrIds = new Module.RE_Vector_WStr();
         var _arrTextInfos = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.CADSearchText(searchText, _arrIds, _arrTextInfos);
@@ -5713,9 +6245,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             search_arr.push(textInfo);
         }
         return search_arr;
-    }
-
-
+    };
 
     // MARK 相机
     /**
@@ -5725,14 +6255,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.setCamLocateToElem = function (elemId, scale) {
         Module.RealBIMWeb.FocusToCADElem(elemId, scale);
-    }
+    };
 
     /**
      * 相机定位所有元素到当前屏幕
      */
     Module.CAD.setCamLocateToAllElem = function () {
         Module.RealBIMWeb.FocusToAllCADElem();
-    }
+    };
 
     /**
      * 设置CAD矢量锚点的相机缩放边界值
@@ -5742,7 +6272,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.setGroupShpAncScale = function (groupId, minScale, maxScale) {
         Module.RealBIMWeb.SetCADShpAnchorScale(groupId, minScale, maxScale);
-    }
+    };
 
     /**
      * 获取当前视口范围（最大值最小值）dMinX,dMinY 视口左下角坐标，dMaxX,dMaxY：视口右上角坐标
@@ -5758,10 +6288,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 minPot: _vMin,
                 maxPot: _vMax,
                 currLayoutId: _currLayoutId,
-            }
+            };
         }
         return range_obj;
-    }
+    };
 
     /**
      * 获取图纸默认视口（最大值最小值）dMinX,dMinY 视口左下角坐标，dMaxX,dMaxY：视口右上角坐标
@@ -5775,11 +6305,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             range_obj = {
                 minPot: _vMin,
                 maxPot: _vMax,
-                currLayoutId: "Model",
-            }
+                currLayoutId: 'Model',
+            };
         }
         return range_obj;
-    }
+    };
 
     /**
      * 设置当前视口范围及相机定位
@@ -5788,10 +6318,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} layoutId //布局标识
      */
     Module.CAD.setCurViewportRange = function (minPot, maxPot, layoutId) {
-        let _layoutId = isEmpty(layoutId)? "Model" : layoutId;
+        let _layoutId = isEmpty(layoutId) ? 'Model' : layoutId;
         Module.RealBIMWeb.FocusToViewport(_layoutId, minPot, maxPot);
-    }
-
+    };
 
     /**
      * 调整相机定位到一个区域标注
@@ -5799,13 +6328,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} scale //表示相机聚焦后的视口缩放比例，默认为1.0，该值越大，相机距离图元越远
      */
     Module.CAD.setCamLocateToAreaComment = function (areaCommentId, scale) {
-        if (isEmptyLog(areaCommentId, "areaCommentId")) return;
+        if (isEmptyLog(areaCommentId, 'areaCommentId')) return;
         Module.RealBIMWeb.CADFocusToCustomComment(areaCommentId, scale);
-    }
-
-
-
-
+    };
 
     // MARK 选择集
     /**
@@ -5814,54 +6339,57 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.selElem = function (elemId) {
         Module.RealBIMWeb.SelCADElem(elemId);
-    }
-
-
+    };
 
     // MARK 锚点
     class RECADAnc {
         constructor() {
-            this.anchorId = null;//	锚点的名称(字符串，唯一标识)
-            this.layoutId = "Model";// 布局标识(字符串，唯一标识)
-            this.pos = [0.0, 0.0];//	锚点的位置，默认值[0, 0]
-            this.style = 0;//	锚点的样式，目前CAD锚点仅支持4种默认样式，分别以数字0~3表示
-            this.innerClr = new REColor(255, 255, 255, 255);//	内部元素颜色
-            this.extClr = new REColor(255, 255, 255, 255);//	外部部元素颜色
+            this.anchorId = null; //	锚点的名称(字符串，唯一标识)
+            this.layoutId = 'Model'; // 布局标识(字符串，唯一标识)
+            this.pos = [0.0, 0.0]; //	锚点的位置，默认值[0, 0]
+            this.style = 0; //	锚点的样式，目前CAD锚点仅支持4种默认样式，分别以数字0~3表示
+            this.innerClr = new REColor(255, 255, 255, 255); //	内部元素颜色
+            this.extClr = new REColor(255, 255, 255, 255); //	外部部元素颜色
         }
     }
     ExtModule.RECADAnc = RECADAnc;
 
     class RECADShpAnc {
         constructor() {
-            this.anchorId = null;//	锚点的名称(字符串，唯一标识)
-            this.layoutId = "Model";// 布局标识(字符串，唯一标识)
-            this.pos = null;//	锚点的位置，默认值 [0,0,0]
-            this.shpPath = null;//	表示使用的矢量文件路径
-            this.groupId = null;//	表示锚点所属的组名称ID
-            this.text = null;//	表示锚点的文字内容
-            this.textClr = null;//	表示锚点文字的颜色
-            this.textSize = null;//	文字的高度
-            this.textAlign = null;//	表示锚点文字相对矢量图标的对齐方式（九宫格：以图片为中心[0,0]）
+            this.anchorId = null; //	锚点的名称(字符串，唯一标识)
+            this.layoutId = 'Model'; // 布局标识(字符串，唯一标识)
+            this.pos = null; //	锚点的位置，默认值 [0,0,0]
+            this.shpPath = null; //	表示使用的矢量文件路径
+            this.groupId = null; //	表示锚点所属的组名称ID
+            this.text = null; //	表示锚点的文字内容
+            this.textClr = null; //	表示锚点文字的颜色
+            this.textSize = null; //	文字的高度
+            this.textAlign = null; //	表示锚点文字相对矢量图标的对齐方式（九宫格：以图片为中心[0,0]）
         }
     }
     ExtModule.RECADShpAnc = RECADShpAnc;
-
 
     /**
      * 添加锚点
      * @param {RECADAnc} ancList //锚点信息集合（RECADAnc类型）
      */
     Module.CAD.addAnc = function (ancList) {
-        if (isEmptyLog(ancList, "ancList")) return;
+        if (isEmptyLog(ancList, 'ancList')) return;
         var tempAnchors = new Module.RE_Vector_CAD_ANCHOR();
         for (i = 0; i < ancList.length; ++i) {
             var _ancInfo = ancList[i];
-            let _id = ""; if (!isEmpty(_ancInfo.anchorId)) _id = _ancInfo.anchorId;
-            let _layoutId = "Model"; if (!isEmpty(_ancInfo.layoutId)) _layoutId = _ancInfo.layoutId;
-            let _pos = [0.0, 0.0]; if (!isEmpty(_ancInfo.pos)) _pos = _ancInfo.pos;
-            let _innerClr = 0xffffffff; if (!isEmpty(_ancInfo.innerClr)) _innerClr = clrToU32(_ancInfo.innerClr);
-            let _extClr = 0xff00ff00; if (!isEmpty(_ancInfo.extClr)) _extClr = clrToU32(_ancInfo.extClr);
-            let _style = 0; if (!isEmpty(_ancInfo.style)) _style = _ancInfo.style;
+            let _id = '';
+            if (!isEmpty(_ancInfo.anchorId)) _id = _ancInfo.anchorId;
+            let _layoutId = 'Model';
+            if (!isEmpty(_ancInfo.layoutId)) _layoutId = _ancInfo.layoutId;
+            let _pos = [0.0, 0.0];
+            if (!isEmpty(_ancInfo.pos)) _pos = _ancInfo.pos;
+            let _innerClr = 0xffffffff;
+            if (!isEmpty(_ancInfo.innerClr)) _innerClr = clrToU32(_ancInfo.innerClr);
+            let _extClr = 0xff00ff00;
+            if (!isEmpty(_ancInfo.extClr)) _extClr = clrToU32(_ancInfo.extClr);
+            let _style = 0;
+            if (!isEmpty(_ancInfo.style)) _style = _ancInfo.style;
 
             var tempobj = {
                 m_strID: _id,
@@ -5869,12 +6397,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_vPos: _pos,
                 m_uClr1: _extClr,
                 m_uClr2: _innerClr,
-                m_uStyleID: _style
+                m_uStyleID: _style,
             };
             tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddCADAnchors(tempAnchors);
-    }
+    };
 
     /**
      * 根据锚点id获取当前锚点的信息
@@ -5890,14 +6418,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         cadAnc.pos = _ancData.m_vPos;
         cadAnc.style = _ancData.m_uStyleID;
         return cadAnc;
-    }
+    };
 
     /**
      * 获取当前添加的锚点总数
      */
     Module.CAD.getAncNum = function () {
         return Module.RealBIMWeb.GetCADAnchorNum();
-    }
+    };
 
     /**
      * 获取当前添加的全部锚点信息
@@ -5919,7 +6447,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             arrAncData.push(cadAnc);
         }
         return arrAncData;
-    }
+    };
 
     /**
      * 删除锚点
@@ -5931,35 +6459,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempAnchors.push_back(anchorIdList[i]);
         }
         return Module.RealBIMWeb.DelCADAnchors(tempAnchors);
-    }
+    };
 
     /**
      * 删除所有锚点
      */
     Module.CAD.delAllAnc = function () {
         Module.RealBIMWeb.DelAllCADAnchors();
-    }
+    };
 
     /**
      * 添加一系列CAD矢量锚点
      * @param {RECADShpAnc} shpAncList //矢量锚点信息集合（RECADShpAnc类型）
      */
     Module.CAD.addShpAnc = function (shpAncList) {
-        if (isEmptyLog(shpAncList, "shpAncList")) return;
+        if (isEmptyLog(shpAncList, 'shpAncList')) return;
 
         var tempAnchors = new Module.RE_Vector_CAD_SHP_ANCHOR();
         for (i = 0; i < shpAncList.length; ++i) {
             let shpAnc = shpAncList[i];
 
-            var _id = ""; if (!isEmpty(shpAnc.anchorId)) _id = shpAnc.anchorId;
-            let _layoutId = "Model"; if (!isEmpty(shpAnc.layoutId)) _layoutId = shpAnc.layoutId;
-            var _pos = [0.0, 0.0]; if (!isEmpty(shpAnc.pos)) _pos = shpAnc.pos;
-            var _picPath = ""; if (!isEmpty(shpAnc.shpPath)) _picPath = shpAnc.shpPath;
-            var _groupName = ""; if (!isEmpty(shpAnc.groupId)) _groupName = shpAnc.groupId;
-            var _strText = ""; if (!isEmpty(shpAnc.text)) _strText = shpAnc.text;
-            var _textClr = 0xffffffff; if (!isEmpty(shpAnc.textClr)) _textClr = clrToU32(shpAnc.textClr);
-            var _textSize = 16; if (!isEmpty(shpAnc.textSize)) _textSize = shpAnc.textSize;
-            var _textBias = [0, 0]; if (!isEmpty(shpAnc.textAlign)) _textBias = shpAnc.textAlign;
+            var _id = '';
+            if (!isEmpty(shpAnc.anchorId)) _id = shpAnc.anchorId;
+            let _layoutId = 'Model';
+            if (!isEmpty(shpAnc.layoutId)) _layoutId = shpAnc.layoutId;
+            var _pos = [0.0, 0.0];
+            if (!isEmpty(shpAnc.pos)) _pos = shpAnc.pos;
+            var _picPath = '';
+            if (!isEmpty(shpAnc.shpPath)) _picPath = shpAnc.shpPath;
+            var _groupName = '';
+            if (!isEmpty(shpAnc.groupId)) _groupName = shpAnc.groupId;
+            var _strText = '';
+            if (!isEmpty(shpAnc.text)) _strText = shpAnc.text;
+            var _textClr = 0xffffffff;
+            if (!isEmpty(shpAnc.textClr)) _textClr = clrToU32(shpAnc.textClr);
+            var _textSize = 16;
+            if (!isEmpty(shpAnc.textSize)) _textSize = shpAnc.textSize;
+            var _textBias = [0, 0];
+            if (!isEmpty(shpAnc.textAlign)) _textBias = shpAnc.textAlign;
 
             var tempobj = {
                 m_strID: _id,
@@ -5970,12 +6507,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_strText: _strText,
                 m_uTextClr: _textClr,
                 m_dTextSize: _textSize,
-                m_vTextAlign: _textBias
+                m_vTextAlign: _textBias,
             };
             tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddCADShpAnchors(tempAnchors);
-    }
+    };
 
     /**
      * 获取矢量锚点信息
@@ -5994,14 +6531,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         shpAnc.layoutId = _ancData.m_strLayoutName;
         shpAnc.textAlign = _ancData.m_vTextAlign;
         return shpAnc;
-    }
+    };
 
     /**
      * 获取当前添加的矢量锚点总数
      */
     Module.CAD.getShpAncNum = function () {
         return Module.RealBIMWeb.GetCADShpAnchorNum();
-    }
+    };
 
     /**
      * 获取当前添加的全部矢量锚点信息
@@ -6026,7 +6563,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             arrAncData.push(shpAnc);
         }
         return arrAncData;
-    }
+    };
 
     /**
      * 删除矢量锚点
@@ -6038,14 +6575,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempAnchors.push_back(anchorIdList[i]);
         }
         return Module.RealBIMWeb.DelCADShpAnchors(tempAnchors);
-    }
+    };
 
     /**
      * 删除系统所有的CAD矢量锚点
      */
     Module.CAD.delAllShpAnc = function () {
         Module.RealBIMWeb.DelAllCADShpAnchors();
-    }
+    };
 
     /**
      * 获取所有矢量锚点组名
@@ -6058,7 +6595,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             arrgroupname.push(tempobj);
         }
         return arrgroupname;
-    }
+    };
 
     /**
      * 根据组名获取一系列矢量锚点
@@ -6083,7 +6620,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             arrAncData.push(shpAnc);
         }
         return arrAncData;
-    }
+    };
 
     /**
      * 根据组名删除一系列矢量锚点
@@ -6091,8 +6628,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.delGroupShpAnc = function (groupId) {
         Module.RealBIMWeb.DelGroupCADShpAnchors(groupId);
-    }
-
+    };
 
     // MARK 标注
     /**
@@ -6100,28 +6636,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.startCommentDraw = function () {
         Module.RealBIMWeb.StartCADCommentDraw();
-    }
+    };
 
     /**
      * 结束标注绘制
      */
     Module.CAD.endCommentDraw = function () {
         Module.RealBIMWeb.EndCADCommentDraw();
-    }
+    };
 
     /**
      * 保存当前绘制标注
      */
     Module.CAD.saveCurCommentDraw = function () {
         Module.RealBIMWeb.CADSaveCurCommentDraw();
-    }
+    };
 
     /**
      * 取消当前绘制标注
      */
     Module.CAD.cancelCurCommentDraw = function () {
         Module.RealBIMWeb.CADCancekCurCommentDraw();
-    }
+    };
 
     /**
      * 设置当前标注绘制样式
@@ -6143,16 +6679,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         Module.RealBIMWeb.SetCADCurDrawingCommentStyle(_uCommentStyle);
-    }
+    };
 
     /**
      * 设置文字标注内容
      * @param {String} text //文字内容 (换行请用\n表示)
      */
     Module.CAD.setTextCommentText = function (text) {
-        let _text = isEmpty(text) ? "" : text;
+        let _text = isEmpty(text) ? '' : text;
         Module.RealBIMWeb.SetCADCurTextCommentText(_text);
-    }
+    };
 
     /**
      * 设置标注线宽
@@ -6161,7 +6697,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setCommentLineWidth = function (width) {
         let _width = isEmpty(width) ? 1.0 : width;
         Module.RealBIMWeb.SetCADCommentLinewidth(_width);
-    }
+    };
 
     /**
      * 设置标注颜色
@@ -6170,7 +6706,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setCommentColor = function (color) {
         let _color_u32 = clrToU32_WBGR(color);
         Module.RealBIMWeb.SetCADCommentColor(_color_u32);
-    }
+    };
 
     /**
      * 设置标注文字尺寸
@@ -6179,18 +6715,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setCommentTextSize = function (size) {
         let _size = isEmpty(size) ? 1.0 : size;
         Module.RealBIMWeb.SetCADCommentTextSize(_size);
-    }
-
-
+    };
 
     class RECADAreaComment {
         constructor() {
-            this.areaCommentId = null;//区域标注标识(字符串，唯一标识)
-            this.pointList = null;//	二维顶点列表, 最少三个点，自动闭合
-            this.lineWith = 0;//线宽, 0 :默认线宽
-            this.lineClr = new REColor(255, 255, 255, 255);//	线条颜色
-            this.needFill = false;//	是否需要填充
-            this.fillClr = new REColor(255, 255, 255, 255);//	填充颜色，needFill=true 有效
+            this.areaCommentId = null; //区域标注标识(字符串，唯一标识)
+            this.pointList = null; //	二维顶点列表, 最少三个点，自动闭合
+            this.lineWith = 0; //线宽, 0 :默认线宽
+            this.lineClr = new REColor(255, 255, 255, 255); //	线条颜色
+            this.needFill = false; //	是否需要填充
+            this.fillClr = new REColor(255, 255, 255, 255); //	填充颜色，needFill=true 有效
         }
     }
     ExtModule.RECADAreaComment = RECADAreaComment;
@@ -6200,11 +6734,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RECADAreaComment} areaComentInfo //区域标注对象，（RECADAreaComment 类型）
      */
     Module.CAD.addAreaComment = function (areaComentInfo) {
-        if (isEmptyLog(areaComentInfo.areaCommentId, "areaCommentId")) return;
+        if (isEmptyLog(areaComentInfo.areaCommentId, 'areaCommentId')) return;
         if (!checkTypeLog(areaComentInfo.pointList, 'pointList', RE_Enum.RE_Check_Array)) return;
 
         if (areaComentInfo.pointList.length < 3) {
-            logErr("pointList 点集合, 最少大于等于3个数据");
+            logErr('pointList 点集合, 最少大于等于3个数据');
             return;
         }
         var _vector_CADPoints = new Module.RE_Vector_dvec2();
@@ -6219,23 +6753,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _fillClr = isEmpty(areaComentInfo.lineWith) ? 0xff0000ff : clrToU32(areaComentInfo.fillClr);
 
         Module.RealBIMWeb.CADAddCustomComment(areaComentInfo.areaCommentId, _vector_CADPoints, _lineWith, _lineClr, _needFill, _fillClr);
-    }
-
-
+    };
 
     /**
      * 删除区域标注
      * @param {String} areaCommentId //区域标注标识(字符串，唯一标识)
      */
     Module.CAD.delAreaComment = function (areaCommentId) {
-        if (isEmptyLog(areaCommentId, "areaCommentId")) return;
+        if (isEmptyLog(areaCommentId, 'areaCommentId')) return;
         Module.RealBIMWeb.CADDeleteCustomCommentById(areaCommentId);
-    }
-
-    
-
-    
-
+    };
 
     // MARK 测量
     /**
@@ -6243,35 +6770,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.startMeasurementDraw = function () {
         Module.RealBIMWeb.StartCADMeasurementDraw();
-    }
+    };
 
     /**
      * 结束测量绘制
      */
     Module.CAD.endMeasurementDraw = function () {
         Module.RealBIMWeb.EndCADMeasurementDraw();
-    }
+    };
 
     /**
      * 保存当前测量绘制
      */
     Module.CAD.saveCurMeasurementDraw = function () {
         Module.RealBIMWeb.CADSaveCurMeasurementDraw();
-    }
+    };
 
     /**
      * 取消当前测量绘制
      */
     Module.CAD.cancelCurMeasurementDraw = function () {
         Module.RealBIMWeb.CADCancelCurMeasurementDraw();
-    }
+    };
 
     /**
      * 删除所有测量
      */
     Module.CAD.delAllMeasurementDraw = function () {
         Module.RealBIMWeb.CADDeleteAllMeasurement();
-    }
+    };
 
     /**
      * 设置测量样式
@@ -6280,24 +6807,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setMeasurementStyle = function (style) {
         let _style = isEmpty(style) ? 0 : style;
         Module.RealBIMWeb.SetCADMeasurementStyle(_style);
-    }
+    };
 
     /**
      * 获取长度测量信息
      * @param {String} measureId //测量标识 通过绘制测量完成监听事件事件获取(RECADMeasurementDrawFinish) 只能返回单次测量，连续测量不支持返回
      */
     Module.CAD.getLengthMeasurementInfo = function (measureId) {
-        if (isEmptyLog(measureId, "measureId")) return;
+        if (isEmptyLog(measureId, 'measureId')) return;
         let _info = Module.RealBIMWeb.CADGetLengthMeasurementInfo(measureId);
         let info_obj = {
-            totalLength: _info[2],//总长度
-            differX: _info[0],//x轴差值
-            differY: _info[1],//y轴差值
+            totalLength: _info[2], //总长度
+            differX: _info[0], //x轴差值
+            differY: _info[1], //y轴差值
         };
         return info_obj;
-    }
-
-
+    };
 
     // MARK 布局
 
@@ -6311,51 +6836,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 获取当前显示布局标识
      */
     Module.CAD.getCurLayoutId = function () {
         return Module.RealBIMWeb.CADGetCurLayout();
-    }
+    };
 
     /**
      * 获取默认布局标识
      */
     Module.CAD.getDefaultLayoutId = function () {
         return Module.RealBIMWeb.CADGetActiveLayout();
-    }
+    };
 
     /**
      * 切换当前显示布局
      * @param {String} layoutId //布局标识
      */
     Module.CAD.setCurShowLayout = function (layoutId) {
-        let _layoutId = isEmpty(layoutId) ? "Model" : layoutId;
+        let _layoutId = isEmpty(layoutId) ? 'Model' : layoutId;
         Module.RealBIMWeb.CADSwitchLayout(_layoutId);
-    }
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 栅格（Grid）
-    Module.Grid = typeof Module.Grid !== "undefined" ? Module.Grid : {};//增加 Grid 模块
-
+    Module.Grid = typeof Module.Grid !== 'undefined' ? Module.Grid : {}; //增加 Grid 模块
 
     // MARK 渲染设置
 
@@ -6365,22 +6872,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} alpha //透明度
      */
     Module.Grid.setDataSetAlpha = function (dataSetId, alpha) {
-        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
+        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
         } else {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _info.m_uDestRGBBlendInfo });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uDestAlpha: alpha,
+                m_uDestAlphaAmp: 255,
+                m_uDestRGBBlendInfo: _info.m_uDestRGBBlendInfo,
+            });
         }
-    }
+    };
 
     /**
      * 获取当前设置的某一块或全部的栅格模型的透明度
      * @param {String} dataSetId //数据集标识
      */
     Module.Grid.getDataSetAlpha = function (dataSetId) {
-        var alpha = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
+        var alpha = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         return alpha.m_uDestAlpha;
-    }
+    };
 
     /**
      * 设置地形场景节点的深度偏移
@@ -6388,8 +6899,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} depthBias //深度偏移范围(-0.00001~0.00001,默认为0,小于0表示优先渲染，绝对值越大，偏移量越大)
      */
     Module.Grid.setDataSetDepthBias = function (dataSetId, depthBias) {
-        Module.RealBIMWeb.SetUnVerHugeGroupDepthBias(dataSetId, "", depthBias);
-    }
+        Module.RealBIMWeb.SetUnVerHugeGroupDepthBias(dataSetId, '', depthBias);
+    };
 
     /**
      * 刷新数据集栅格模型
@@ -6397,8 +6908,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} loadNewData //表示刷新后是否重新加载数据
      */
     Module.Grid.refreshDataSet = function (dataSetId, loadNewData) {
-        Module.RealBIMWeb.RefreshUnVerHugeGroupMainData(dataSetId, "", loadNewData);
-    }
+        Module.RealBIMWeb.RefreshUnVerHugeGroupMainData(dataSetId, '', loadNewData);
+    };
 
     /**
      * 设置某一块或全部的栅格模型的颜色
@@ -6407,23 +6918,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Grid.setDataSetClr = function (dataSetId, clr) {
         var _clr = clrToU32_WBGR(clr);
-        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, "");
+        var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: 255, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', { m_uDestAlpha: 255, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
         } else {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, "", { m_uDestAlpha: _info.m_uDestAlpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uDestAlpha: _info.m_uDestAlpha,
+                m_uDestAlphaAmp: 255,
+                m_uDestRGBBlendInfo: _clr,
+            });
         }
-    }
+    };
 
     /**
      * 重置某一块或全部的栅格模型的颜色
      * @param {String} dataSetId //数据集标识
      */
     Module.Grid.resetDataSetClr = function (dataSetId) {
-        var _dataSetId = ""; if (!isEmpty(dataSetId)) _dataSetId = dataSetId;
-        Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, "", { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
-    }
-
+        var _dataSetId = '';
+        if (!isEmpty(dataSetId)) _dataSetId = dataSetId;
+        Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, '', { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
+    };
 
     /**
      * 设置栅格模型的仿射变换信息
@@ -6433,46 +6948,49 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {dvec3} offset //平移
      */
     Module.Grid.setDataSetTrans = function (dataSetId, scale, rotate, offset) {
-        Module.RealBIMWeb.SetUnVerHugeGroupTransform(dataSetId, "", scale, rotate, offset);
-    }
+        Module.RealBIMWeb.SetUnVerHugeGroupTransform(dataSetId, '', scale, rotate, offset);
+    };
 
     /**
      * 获取栅格模型的仿射变换信息
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
      */
     Module.Grid.getDataSetTrans = function (dataSetId) {
-        var _COMMON_LOC = Module.RealBIMWeb.GetUnVerHugeGroupTransform(dataSetId, "");
+        var _COMMON_LOC = Module.RealBIMWeb.GetUnVerHugeGroupTransform(dataSetId, '');
         let transFormInfo = {
             scale: _COMMON_LOC.m_vScale,
             rotate: _COMMON_LOC.m_qRotate,
             offset: _COMMON_LOC.m_vOffset,
         };
         return transFormInfo;
-    }
+    };
 
     /**
      * 根据数据集id获取总包围盒信息
      * @param {String} dataSetId //数据集标识
      */
     Module.Grid.getDataSetBV = function (dataSetId) {
-        var tempbv = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox(dataSetId, "");
+        var tempbv = Module.RealBIMWeb.GetUnVerHugeGroupBoundingBox(dataSetId, '');
         var aabbarr = [];
-        aabbarr.push(tempbv[0][0]); aabbarr.push(tempbv[1][0]);  //Xmin、Xmax
-        aabbarr.push(tempbv[0][1]); aabbarr.push(tempbv[1][1]);  //Ymin、Ymax
-        aabbarr.push(tempbv[0][2]); aabbarr.push(tempbv[1][2]);  //Zmin、Zmax
+        aabbarr.push(tempbv[0][0]);
+        aabbarr.push(tempbv[1][0]); //Xmin、Xmax
+        aabbarr.push(tempbv[0][1]);
+        aabbarr.push(tempbv[1][1]); //Ymin、Ymax
+        aabbarr.push(tempbv[0][2]);
+        aabbarr.push(tempbv[1][2]); //Zmin、Zmax
         return aabbarr;
-    }
+    };
 
     /**
      * 将栅格投影到指定高度
      * @param {String} dataSetId //数据集标识
      * @param {Number} type //表示投影类型
      * @param {Number} height //type==0：表示地形组禁止投射到固定高度;  type==1：height表示世界空间绝对高度; type==2：height表示当前地形节点自身包围盒的相对高度范围(0~1); type==3：height表示整个场景的地形节点总包围盒的相对高度范围(0~1)
-     * @param {Number} amp //表示将地形投射到指定高度的投射强度(0~1) 
+     * @param {Number} amp //表示将地形投射到指定高度的投射强度(0~1)
      */
     Module.Grid.setDataSetToHeight = function (dataSetId, type, height, amp) {
-        Module.RealBIMWeb.ProjUnVerHugeGroupToHeight(dataSetId, "", type, height, amp);
-    }
+        Module.RealBIMWeb.ProjUnVerHugeGroupToHeight(dataSetId, '', type, height, amp);
+    };
 
     /**
      * 设置栅格的有效性
@@ -6480,33 +6998,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否有效
      */
     Module.Grid.setValidState = function (dataSetId, enable) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
 
-        Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, "", (enable ? 1 : 0));
-    }
+        Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, '', enable ? 1 : 0);
+    };
 
     /**
      * 设置栅格的裙带强度
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
-     * @param {Boolean} amp //表示将地形裙带强度(0~1) 
+     * @param {Boolean} amp //表示将地形裙带强度(0~1)
      */
     Module.Grid.setTerrSkirtAmp = function (dataSetId, amp) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         let _amp = isEmpty(amp) ? 1 : amp;
         Module.RealBIMWeb.SetTerrSkirtAmp(dataSetId, _amp);
-    }
+    };
 
     /**
      * 获取栅格的裙带强度
      * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
      */
     Module.Grid.getTerrSkirtAmp = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.GetTerrSkirtAmp(dataSetId);
-    }
-
-
-
+    };
 
     // MARK 剖切
 
@@ -6516,21 +7031,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Grid.setClipEnable = function (enable) {
         return Module.RealBIMWeb.SetUnVerInstsClippable(enable);
-    }
+    };
 
     /**
      * 获取非版本管理模型的可剖切性
      */
     Module.Grid.getClipEnable = function () {
         return Module.RealBIMWeb.GetUnVerInstsClippable();
-    }
-
-
-
-
+    };
 
     // MARK 倾斜摄影拍平
-
 
     /**
      * 设根据项目名称设置局部拍平区域，仅针对当前项目有效，且拍平位置为当前项目的原始位置，如果项目有发生偏移，则拍平区域应重设为当前拾取位置减去项目偏移值，包括拍平投影目标坐标也需要减去项目偏移值
@@ -6539,9 +7049,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} regionID //当前拍平区域的id，此ID用作每个拍平区域的唯一标识
      * @param {Number} projectionHeight //拍平投影到目标z轴坐标
      * @param {Array} regionVertex //不规则闭合区域的顶点信息
-    */
+     */
     Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
         // 因为局部拍平如果项目进行了偏移，那么需要对拍平区域的数据进行处理，需要使用偏移之前得数据
         var dataSetTrans = Module.Coordinate.getDataSetTransform(dataSetId);
         var dataSetTrans_offset = dataSetTrans.offset;
@@ -6557,7 +7070,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var jsonStr = JSON.stringify(rgnInfoList);
         return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, jsonStr);
-    }
+    };
 
     /**
      * 设置当前场景下的全局拍平区域，拍平区域默认对当前场景内的所有倾斜摄影数据均有效。
@@ -6571,7 +7084,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _append = !isEmpty(append) ? append : false;
         var jsonStr = JSON.stringify(rgnInfoList);
         Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr, _append);
-    }
+    };
 
     /**
      * 清除一组拍平区域
@@ -6587,7 +7100,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid, 0], i * 2);
         }
         Module.RealBIMWeb.RemoveUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
-    }
+    };
 
     /**
      * 重置一组拍平区域
@@ -6603,7 +7116,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid, 0], i * 2);
         }
         Module.RealBIMWeb.AddUnverprojectToSelection(_elemIds.byteLength, _elemIds.byteOffset);
-    }
+    };
 
     /**
      * 设置通过 setFlatGolRegion 接口设置的拍平数据是否有效
@@ -6611,24 +7124,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} effective //表示通过 setFlatGolRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
      */
     Module.Grid.setFlatRegionEffective = function (dataSetId, effective) {
-        return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, "", effective);
-    }
+        return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, '', effective);
+    };
 
     /**
      * 获取通过 setFlatGolRegion 接口设置的拍平数据是否有效
      * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
      */
     Module.Grid.getFlatRegionEffective = function (dataSetId) {
-        return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, "");
-    }
+        return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, '');
+    };
 
     /**
      * 清空 setDataSetFlatRegion 接口设置的局部拍平区域
      * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
      */
     Module.Grid.clearLocalFlatRegion = function (dataSetId) {
-        return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, "");
-    }
+        return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, '');
+    };
 
     /**
      * 设置通过 setDataSetFlatRegion 接口设置的拍平数据是否有效
@@ -6636,27 +7149,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} effective //表示通过 setDataSetFlatRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
      */
     Module.Grid.setLocalFlatRegionEffective = function (dataSetId, effective) {
-        return Module.RealBIMWeb.SetUnVerHugeGroupProjToLocalShp(dataSetId, "", effective);
-    }
+        return Module.RealBIMWeb.SetUnVerHugeGroupProjToLocalShp(dataSetId, '', effective);
+    };
 
     /**
      * 获取通过 setDataSetFlatRegion 接口设置的拍平数据是否有效
      * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
      */
     Module.Grid.getLocalFlatRegionEffective = function (dataSetId) {
-        return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(dataSetId, "");
-    }
-
-
+        return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(dataSetId, '');
+    };
 
     // MARK 倾斜摄影单体化
     class REMonomerInfo {
         constructor() {
-            this.boxID = null;//倾斜摄影编辑对象的ID
-            this.heightMin = null;//最小高度
-            this.heightMax = null;//最大高度
-            this.boxClr = null;//颜色（REColor类型）
-            this.pos = null;//角点的位置
+            this.boxID = null; //倾斜摄影编辑对象的ID
+            this.heightMin = null; //最小高度
+            this.heightMax = null; //最大高度
+            this.boxClr = null; //颜色（REColor类型）
+            this.pos = null; //角点的位置
         }
     }
     ExtModule.REMonomerInfo = REMonomerInfo;
@@ -6667,15 +7178,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} append //表示是否拼接到原来的数据上，（默认false 替换原始的数据）
      */
     Module.Grid.setMonomerElemData = function (elemDataList, append) {
-        if (isEmptyLog(elemDataList, "elemDataList")) return;
-        var _append = false; if (!isEmpty(append)) _append = append;
+        if (isEmptyLog(elemDataList, 'elemDataList')) return;
+        var _append = false;
+        if (!isEmpty(append)) _append = append;
 
         var _elemDataListTemp = [];
         for (let i = 0; i < elemDataList.length; i++) {
             let elemData = elemDataList[i];
-            let int_R = Math.round(elemData.boxClr.red); let clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
-            let int_G = Math.round(elemData.boxClr.green); let clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
-            let int_B = Math.round(elemData.boxClr.blue); let clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
+            let int_R = Math.round(elemData.boxClr.red);
+            let clrHEX_R = int_R > 15 ? int_R.toString(16) : '0' + int_R.toString(16);
+            let int_G = Math.round(elemData.boxClr.green);
+            let clrHEX_G = int_G > 15 ? int_G.toString(16) : '0' + int_G.toString(16);
+            let int_B = Math.round(elemData.boxClr.blue);
+            let clrHEX_B = int_B > 15 ? int_B.toString(16) : '0' + int_B.toString(16);
             let _clrHEX = clrHEX_R + clrHEX_G + clrHEX_B;
             let elemDataTemp = {
                 boxID: elemData.boxID,
@@ -6689,7 +7204,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var jsonStr = JSON.stringify(_elemDataListTemp);
         Module.RealBIMWeb.ParseUnverelemInfo(jsonStr, _append);
-    }
+    };
 
     /**
      * 高亮显示部分或全部单体化区域，颜色为单体化选择集设置的统一颜色（临时有效）
@@ -6705,7 +7220,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.AddUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
-    }
+    };
 
     /**
      * 将单体化区域从选择集中移除
@@ -6721,7 +7236,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.RemoveUnverelemsToSelection(_elemIds.byteLength, _elemIds.byteOffset);
-    }
+    };
 
     /**
      * 获取当前单体化选择集的ID集合
@@ -6737,7 +7252,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             arrunverelemid.push(selids[i]);
         }
         return arrunverelemid;
-    }
+    };
 
     /**
      * 设置单体化选择集的颜色和透明度
@@ -6746,7 +7261,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Grid.setSelMonomerElemClr = function (elemClr) {
         var _clr = clrToU32_WBGR(elemClr);
         Module.RealBIMWeb.SetUnverelemSelectionColor(_clr, elemClr.alpha, 0xff);
-    }
+    };
 
     /**
      * 设置单体化区域隐藏状态下的颜色
@@ -6758,7 +7273,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _clr = clrToU32(elemClr);
         Module.RealBIMWeb.SetUnverelemHideColor(_clr);
-    }
+    };
 
     /**
      * 设置单体化矢量是否可以被选中
@@ -6775,7 +7290,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.SetUnverelemProbeMask(_elemIds.byteLength, _elemIds.byteOffset, enable);
-    }
+    };
 
     /**
      * 设置单体化矢量显示和隐藏
@@ -6792,7 +7307,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.SetUnverelemVisible(_elemIds.byteLength, _elemIds.byteOffset, visible);
-    }
+    };
 
     /**
      * 删除单体化矢量
@@ -6808,12 +7323,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemIds.set([eleid], i);
         }
         Module.RealBIMWeb.DelUnverelem(_elemIds.byteLength, _elemIds.byteOffset);
-    }
-
-
+    };
 
     // MOD-- 地形（Terrain）
-    Module.Terrain = typeof Module.Terrain !== "undefined" ? Module.Terrain : {};//增加 Terrain 模块
+    Module.Terrain = typeof Module.Terrain !== 'undefined' ? Module.Terrain : {}; //增加 Terrain 模块
 
     // MARK 渲染设置
     /**
@@ -6821,9 +7334,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Terrain.getUnitImgShpAlone = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.GetTerrUnitImgShpAlone(dataSetId);
-    }
+    };
 
     /**
      * 设置地形数据层单元的层级别
@@ -6833,13 +7346,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} layerLev //层级别（默认为1，作用于遮挡关系，建议级别不要过多，级别越多消耗资源越大）
      */
     Module.Terrain.setUnitLayerlev = function (dataSetId, unitId, resType, layerLev) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         let _layerLev = isEmpty(layerLev) ? 1 : layerLev;
-        if (_layerLev < 1) { logParErr("layerLev"); return; }
+        if (_layerLev < 1) {
+            logParErr('layerLev');
+            return;
+        }
         return Module.RealBIMWeb.SetTerrUnitLayerID(dataSetId, unitId, _resType, _layerLev);
-    }
+    };
 
     /**
      * 获取地形数据层单元的层级别
@@ -6848,11 +7364,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitLayerlev = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitLayerID(dataSetId, unitId, _resType);
-    }
+    };
 
     /**
      * 设置地形数据层单元的激活状态
@@ -6862,12 +7384,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} active //是否激活
      */
     Module.Terrain.setUnitActive = function (dataSetId, unitId, resType, active) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         let _active = isEmpty(active) ? ture : active;
         return Module.RealBIMWeb.SetTerrUnitActive(dataSetId, unitId, _resType, _active);
-    }
+    };
 
     /**
      * 获取地形数据层单元的激活状态
@@ -6876,11 +7398,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitActive = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitActive(dataSetId, unitId, _resType);
-    }
+    };
 
     /**
      * 设置地形数据层单元的矢量样式标识名
@@ -6890,12 +7418,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} shpStyleName //矢量样式标识名
      */
     Module.Terrain.setUnitShpStyleName = function (dataSetId, unitId, resType, shpStyleName) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
-        let _shpStyleName = isEmpty(shpStyleName) ? "" : shpStyleName;
+        let _shpStyleName = isEmpty(shpStyleName) ? '' : shpStyleName;
         return Module.RealBIMWeb.SetTerrUnitShpStyleName(dataSetId, unitId, _resType, _shpStyleName);
-    }
+    };
 
     /**
      * 获取地形数据层单元的矢量样式标识名
@@ -6904,11 +7432,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitShpStyleName = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitShpStyleName(dataSetId, unitId, _resType);
-    }
+    };
 
     /**
      * 设置地形数据层单元的父级资源是否忽略重用
@@ -6918,12 +7452,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} omitParent //忽略父级重用
      */
     Module.Terrain.setUnitOmitParent = function (dataSetId, unitId, resType, omitParent) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         let _omitParent = isEmpty(omitParent) ? false : omitParent;
         return Module.RealBIMWeb.SetTerrUnitOmitParent(dataSetId, unitId, _resType, _omitParent);
-    }
+    };
 
     /**
      * 获取地形数据层单元的父级资源是否忽略重用
@@ -6932,11 +7466,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitOmitParent = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitOmitParent(dataSetId, unitId, _resType);
-    }
+    };
 
     /**
      * 设置地形数据层单元的矢量是否用于生成影像图片的孔洞
@@ -6946,12 +7486,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否作用
      */
     Module.Terrain.setUnitShpHole = function (dataSetId, unitId, resType, enable) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         let _enable = isEmpty(enable) ? false : enable;
         return Module.RealBIMWeb.SetTerrUnitShpHole(dataSetId, unitId, _resType, _enable);
-    }
+    };
 
     /**
      * 获取地形数据层单元的矢量是否用于生成影像图片的孔洞
@@ -6960,26 +7500,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitShpHole = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitShpHole(dataSetId, unitId, _resType);
-    }
+    };
 
     /**
      * 设置地形数据层单元的显示范围
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {String} unitId //层单元标识
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
-     * @param {ivec2} range //级别范围，二维数组 [最小级别,最大级别] 
+     * @param {ivec2} range //级别范围，二维数组 [最小级别,最大级别]
      */
     Module.Terrain.setUnitLODLevRange = function (dataSetId, unitId, resType, range) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         let _range = isEmpty(range) ? [0, 21] : range;
         return Module.RealBIMWeb.SetTerrUnitLodRange(dataSetId, unitId, _resType, _range);
-    }
+    };
 
     /**
      * 获取地形数据层单元的显示范围
@@ -6988,14 +7534,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
     Module.Terrain.getUnitLODLevRange = function (dataSetId, unitId, resType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(unitId) || unitId == "") { logParErr("unitId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitLodRange(dataSetId, unitId, _resType);
-    }
-
-
-
+    };
 
     // MARK 加载属性
     /**
@@ -7003,14 +7552,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Terrain.getAllUnitNames = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var tempArr = Module.RealBIMWeb.GetAllTerrUnitNames(dataSetId);
         var nameArr = [];
         for (i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 获取地形数据层单元的包围盒
@@ -7020,88 +7569,90 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} activeOnly //是否仅处理已激活的地形数据层单元
      */
     Module.Terrain.getUnitBV = function (dataSetId, unitId, resType, activeOnly) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(unitId, "unitId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
         let _resType = isEmpty(resType) ? eval(Module.RE_TERR_RES_TYPE.ALL) : eval(resType);
         let _activeOnly = isEmpty(activeOnly) ? false : activeOnly;
         var _tempbv = Module.RealBIMWeb.GetTerrUnitBoundingBox(dataSetId, unitId, _resType, _activeOnly);
         var aabbList = [];
-        aabbList.push(_tempbv[0][0]); aabbList.push(_tempbv[1][0]);  //Xmin、Xmax
-        aabbList.push(_tempbv[0][1]); aabbList.push(_tempbv[1][1]);  //Ymin、Ymax
-        aabbList.push(_tempbv[0][2]); aabbList.push(_tempbv[1][2]);  //Zmin、Zmax
+        aabbList.push(_tempbv[0][0]);
+        aabbList.push(_tempbv[1][0]); //Xmin、Xmax
+        aabbList.push(_tempbv[0][1]);
+        aabbList.push(_tempbv[1][1]); //Ymin、Ymax
+        aabbList.push(_tempbv[0][2]);
+        aabbList.push(_tempbv[1][2]); //Zmin、Zmax
         return aabbList;
-    }
-
+    };
 
     /**
      * 获取所有的地形矢量样式标识名
      * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Terrain.getAllShpStyleNames = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var tempArr = Module.RealBIMWeb.GetAllTerrShpStyleNames(dataSetId);
         var nameArr = [];
         for (i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     class RETerrShpStyleInfo {
         constructor() {
-            this.quadStyleList = []; //广告板样式序列 （RETerrShpQuadStyle 类型）       
-            this.textStyleList = []; //文本样式序列 （RETerrShpTextStyle 类型）        
-            this.lineStyleList = []; //线条样式序列 （RETerrShpLineStyle 类型）   
-            this.faceStyleList = []; //三角面样式序列 （RETerrShpFaceStyle 类型）   
+            this.quadStyleList = []; //广告板样式序列 （RETerrShpQuadStyle 类型）
+            this.textStyleList = []; //文本样式序列 （RETerrShpTextStyle 类型）
+            this.lineStyleList = []; //线条样式序列 （RETerrShpLineStyle 类型）
+            this.faceStyleList = []; //三角面样式序列 （RETerrShpFaceStyle 类型）
         }
     }
     ExtModule.RETerrShpStyleInfo = RETerrShpStyleInfo;
 
     class RETerrShpQuadStyle {
         constructor() {
-            this.matchAttrName = "";//表示样式要匹配的矢量原数据的属性字段名
-            this.matchAttrVal = "*";//表示样式要匹配的矢量原数据的属性值名(支持通配符)
-            this.texPath = null;//表示纹理资源的路径，若为空则为全白纹理
-            this.dispRect = [-8.0, -8.0, 8.0, 8.0];//表示广告板在定位点(0,0)处的显示区域[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
-            this.texRect = [0.0, 0.0, 0.0, 0.0];//表示广告板关联的纹理关联的纹理子区域上的相对UV[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
-            this.quadClr = null;//表示广告板颜色 （REColor 类型）不建议设置混合颜色不易掌控，建议获取值再返回
+            this.matchAttrName = ''; //表示样式要匹配的矢量原数据的属性字段名
+            this.matchAttrVal = '*'; //表示样式要匹配的矢量原数据的属性值名(支持通配符)
+            this.texPath = null; //表示纹理资源的路径，若为空则为全白纹理
+            this.dispRect = [-8.0, -8.0, 8.0, 8.0]; //表示广告板在定位点(0,0)处的显示区域[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
+            this.texRect = [0.0, 0.0, 0.0, 0.0]; //表示广告板关联的纹理关联的纹理子区域上的相对UV[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
+            this.quadClr = null; //表示广告板颜色 （REColor 类型）不建议设置混合颜色不易掌控，建议获取值再返回
         }
     }
     ExtModule.RETerrShpQuadStyle = RETerrShpQuadStyle;
 
     class RETerrShpTextStyle {
         constructor() {
-            this.matchAttrName = "";//表示样式要匹配的矢量原数据的属性字段名
-            this.matchAttrVal = "*";//表示样式要匹配的矢量原数据的属性值名(支持通配符)
-            this.weight = false;//表示文字是否采用粗体显示
-            this.italic = false;//表示文字是否采用斜体显示
-            this.textClr = null;//表示文本颜色 （REColor 类型）
-            this.textBorderClr = null;//表示文本的轮廓颜色 （REColor 类型）
-            this.dispRect = [-8.0, -8.0, 8.0, 8.0];//表示文字在定位点(0,0)处的显示区域[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
-            this.fmtFlag = RETextFmtEm.MM;//文字在显示区域内的对齐方式 （RETextFmtEm 类型）
-            this.charW = 16.0;//表示单个字符的宽(单位为一个虚拟像素)
-            this.charH = 16.0;//表示单个字符的高(单位为一个虚拟像素)
+            this.matchAttrName = ''; //表示样式要匹配的矢量原数据的属性字段名
+            this.matchAttrVal = '*'; //表示样式要匹配的矢量原数据的属性值名(支持通配符)
+            this.weight = false; //表示文字是否采用粗体显示
+            this.italic = false; //表示文字是否采用斜体显示
+            this.textClr = null; //表示文本颜色 （REColor 类型）
+            this.textBorderClr = null; //表示文本的轮廓颜色 （REColor 类型）
+            this.dispRect = [-8.0, -8.0, 8.0, 8.0]; //表示文字在定位点(0,0)处的显示区域[左下x，左下y，右上x，右上y](单位为一个虚拟像素)
+            this.fmtFlag = RETextFmtEm.MM; //文字在显示区域内的对齐方式 （RETextFmtEm 类型）
+            this.charW = 16.0; //表示单个字符的宽(单位为一个虚拟像素)
+            this.charH = 16.0; //表示单个字符的高(单位为一个虚拟像素)
         }
     }
     ExtModule.RETerrShpTextStyle = RETerrShpTextStyle;
 
     class RETerrShpLineStyle {
         constructor() {
-            this.matchAttrName = "";//表示样式要匹配的矢量原数据的属性字段名
-            this.matchAttrVal = "*";//表示样式要匹配的矢量原数据的属性值名(支持通配符)
-            this.texPath = null;//表示纹理资源的路径，若为空则为全白纹理
-            this.segLen = 32.0;//表示纹理的区间分段（进行纹理拼接限制长度）
-            this.width = 4.0;//表示线条的宽度
-            this.lineClr = null;//表示线条的统一颜色 （REColor 类型）
+            this.matchAttrName = ''; //表示样式要匹配的矢量原数据的属性字段名
+            this.matchAttrVal = '*'; //表示样式要匹配的矢量原数据的属性值名(支持通配符)
+            this.texPath = null; //表示纹理资源的路径，若为空则为全白纹理
+            this.segLen = 32.0; //表示纹理的区间分段（进行纹理拼接限制长度）
+            this.width = 4.0; //表示线条的宽度
+            this.lineClr = null; //表示线条的统一颜色 （REColor 类型）
         }
     }
     ExtModule.RETerrShpLineStyle = RETerrShpLineStyle;
 
     class RETerrShpFaceStyle {
         constructor() {
-            this.matchAttrName = "";//表示样式要匹配的矢量原数据的属性字段名
-            this.matchAttrVal = "*";//表示样式要匹配的矢量原数据的属性值名(支持通配符)
-            this.faceClr = null;//表示面的颜色 （REColor 类型）
+            this.matchAttrName = ''; //表示样式要匹配的矢量原数据的属性字段名
+            this.matchAttrVal = '*'; //表示样式要匹配的矢量原数据的属性值名(支持通配符)
+            this.faceClr = null; //表示面的颜色 （REColor 类型）
         }
     }
     ExtModule.RETerrShpFaceStyle = RETerrShpFaceStyle;
@@ -7113,9 +7664,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RETerrShpStyleInfo} shpStyleInfo //矢量样式信息 （RETerrShpStyleInfo 类型）
      */
     Module.Terrain.setShpStyle = function (dataSetId, shpStyleId, shpStyleInfo) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(shpStyleId) || shpStyleId == "") { logParErr("shpStyleId"); return; }
-        if (isEmptyLog(shpStyleInfo, "shpStyleInfo")) return;
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(shpStyleId) || shpStyleId == '') {
+            logParErr('shpStyleId');
+            return;
+        }
+        if (isEmptyLog(shpStyleInfo, 'shpStyleInfo')) return;
 
         let _quadStyleList = new Module.RE_Vector_SHPSRC_STYLE_QUAD();
         let _textStyleList = new Module.RE_Vector_SHPSRC_STYLE_TEXT();
@@ -7126,13 +7683,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < shpStyleInfo.quadStyleList.length; i++) {
             const element = shpStyleInfo.quadStyleList[i];
             let _tex = {
-                m_strTexPath: isEmpty(element.texPath) ? "" : element.texPath,
-                m_uMinTexW: 0, m_uMaxTexW: 120, m_uMinTexH: 0, m_uMaxTexH: 120,
-                m_uBeginU: 0, m_uEndU: 0, m_uBeginV: 0, m_uEndV: 0,
+                m_strTexPath: isEmpty(element.texPath) ? '' : element.texPath,
+                m_uMinTexW: 0,
+                m_uMaxTexW: 120,
+                m_uMinTexH: 0,
+                m_uMaxTexH: 120,
+                m_uBeginU: 0,
+                m_uEndU: 0,
+                m_uBeginV: 0,
+                m_uEndV: 0,
             };
             let _quadStyle = {
-                m_strMatchAttrName: isEmpty(element.matchAttrName) ? "" : element.matchAttrName,
-                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? "*" : element.matchAttrVal,
+                m_strMatchAttrName: isEmpty(element.matchAttrName) ? '' : element.matchAttrName,
+                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? '*' : element.matchAttrVal,
                 m_qDispRect: isEmpty(element.dispRect) ? [-8.0, -8.0, 8.0, 8.0] : element.dispRect,
                 m_qTexRect: isEmpty(element.texRect) ? [0, 0, 0, 0] : element.texRect,
                 m_uQuadClr: isEmpty(element.quadClr) ? 0xffffffff : clrToU32(element.quadClr),
@@ -7144,8 +7707,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < shpStyleInfo.textStyleList.length; i++) {
             const element = shpStyleInfo.textStyleList[i];
             let _textStyle = {
-                m_strMatchAttrName: isEmpty(element.matchAttrName) ? "" : element.matchAttrName,
-                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? "*" : element.matchAttrVal,
+                m_strMatchAttrName: isEmpty(element.matchAttrName) ? '' : element.matchAttrName,
+                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? '*' : element.matchAttrVal,
                 m_bWeight: isEmpty(element.weight) ? false : element.weight,
                 m_bItalic: isEmpty(element.italic) ? false : element.italic,
                 m_uTextClr: isEmpty(element.textClr) ? 0xffffffff : clrToU32(element.textClr),
@@ -7154,7 +7717,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_uFmtFlag: isEmpty(element.fmtFlag) ? RETextFmtEm.MM : element.fmtFlag,
                 m_fCharW: isEmpty(element.charW) ? 16.0 : element.charW,
                 m_fCharH: isEmpty(element.charH) ? 16.0 : element.charH,
-                m_strGolFontID: "RealBIMFont001",
+                m_strGolFontID: 'RealBIMFont001',
             };
             _textStyleList.push_back(_textStyle);
         }
@@ -7162,17 +7725,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < shpStyleInfo.lineStyleList.length; i++) {
             const element = shpStyleInfo.lineStyleList[i];
             let _tex = {
-                m_strTexPath: isEmpty(element.texPath) ? "" : element.texPath,
-                m_uMinTexW: 0, m_uMaxTexW: 120, m_uMinTexH: 0, m_uMaxTexH: 120,
-                m_uBeginU: 0, m_uEndU: 0, m_uBeginV: 0, m_uEndV: 0,
+                m_strTexPath: isEmpty(element.texPath) ? '' : element.texPath,
+                m_uMinTexW: 0,
+                m_uMaxTexW: 120,
+                m_uMinTexH: 0,
+                m_uMaxTexH: 120,
+                m_uBeginU: 0,
+                m_uEndU: 0,
+                m_uBeginV: 0,
+                m_uEndV: 0,
             };
             let _lineStyle = {
-                m_strMatchAttrName: isEmpty(element.matchAttrName) ? "" : element.matchAttrName,
-                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? "*" : element.matchAttrVal,
+                m_strMatchAttrName: isEmpty(element.matchAttrName) ? '' : element.matchAttrName,
+                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? '*' : element.matchAttrVal,
                 m_fSegLen: isEmpty(element.segLen) ? 32.0 : element.segLen,
                 m_fWidth: isEmpty(element.width) ? 4.0 : element.width,
                 m_uClr: isEmpty(element.lineClr) ? 0xffffffff : clrToU32(element.lineClr),
-                m_cTex: _tex, m_bPixelLen: true,
+                m_cTex: _tex,
+                m_bPixelLen: true,
             };
             _lineStyleList.push_back(_lineStyle);
         }
@@ -7180,13 +7750,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < shpStyleInfo.faceStyleList.length; i++) {
             const element = shpStyleInfo.faceStyleList[i];
             let _tex = {
-                m_strTexPath: isEmpty(element.texPath) ? "" : element.texPath,
-                m_uMinTexW: 0, m_uMaxTexW: 120, m_uMinTexH: 0, m_uMaxTexH: 120,
-                m_uBeginU: 0, m_uEndU: 0, m_uBeginV: 0, m_uEndV: 0,
+                m_strTexPath: isEmpty(element.texPath) ? '' : element.texPath,
+                m_uMinTexW: 0,
+                m_uMaxTexW: 120,
+                m_uMinTexH: 0,
+                m_uMaxTexH: 120,
+                m_uBeginU: 0,
+                m_uEndU: 0,
+                m_uBeginV: 0,
+                m_uEndV: 0,
             };
             let _faceStyle = {
-                m_strMatchAttrName: isEmpty(element.matchAttrName) ? "" : element.matchAttrName,
-                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? "*" : element.matchAttrVal,
+                m_strMatchAttrName: isEmpty(element.matchAttrName) ? '' : element.matchAttrName,
+                m_strMatchAttrVal: isEmpty(element.matchAttrVal) ? '*' : element.matchAttrVal,
                 m_uClr: isEmpty(element.faceClr) ? 0xffffffff : clrToU32(element.faceClr),
                 m_cTex: _tex,
             };
@@ -7199,7 +7775,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_arrStyleFaces: _faceStyleList,
         };
         return Module.RealBIMWeb.AddTerrShpStyle(dataSetId, shpStyleId, _shpStyleInfo);
-    }
+    };
 
     /**
      * 获取一个地形矢量样式
@@ -7207,8 +7783,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} shpStyleId //矢量样式的标识名（必填）
      */
     Module.Terrain.getShpStyle = function (dataSetId, shpStyleId) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(shpStyleId) || shpStyleId == "") { logParErr("shpStyleId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(shpStyleId) || shpStyleId == '') {
+            logParErr('shpStyleId');
+            return;
+        }
         let _shpStyleInfo = Module.RealBIMWeb.GetTerrShpStyle(dataSetId, shpStyleId);
 
         let shpStyleInfo = new RETerrShpStyleInfo();
@@ -7251,7 +7833,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         for (let i = 0; i < _shpStyleInfo.m_arrStyleFaces.size(); i++) {
             let element = _shpStyleInfo.m_arrStyleFaces.get(i);
-            console.log(" -- _shpStyleInfo.m_arrStyleFaces ---- ", element);
+            console.log(' -- _shpStyleInfo.m_arrStyleFaces ---- ', element);
             let _faceStyle = new RETerrShpFaceStyle();
             _faceStyle.matchAttrName = element.m_strMatchAttrName;
             _faceStyle.matchAttrVal = element.m_strMatchAttrVal;
@@ -7259,7 +7841,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             shpStyleInfo.faceStyleList.push(_faceStyle);
         }
         return shpStyleInfo;
-    }
+    };
 
     /**
      * 删除一个地形矢量样式
@@ -7267,35 +7849,41 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} shpStyleId //矢量样式的标识名（必填）
      */
     Module.Terrain.delShpStyle = function (dataSetId, shpStyleId) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(shpStyleId) || shpStyleId == "") { logParErr("shpStyleId"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(shpStyleId) || shpStyleId == '') {
+            logParErr('shpStyleId');
+            return;
+        }
         return Module.RealBIMWeb.DelTerrShpStyle(dataSetId, shpStyleId);
-    }
+    };
 
     /**
      * 删除所有的地形矢量样式
      * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Terrain.delAllShpStyle = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.DelAllTerrShpStyles(dataSetId);
-    }
+    };
 
     /**
      * 获取数据集所属的全局地形实例标识
      * @param {String} dataSetId //数据集的唯一标识名
      */
     Module.Terrain.getDataSetTerrId = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.GetTerrUnitOwnerName(dataSetId);
-    }
+    };
 
     /**
      * 获取全局地形实例下包含数据集集合
      * @param {String} terrId //全局地形实例标识
      */
     Module.Terrain.getTerrSubAllDataSetId = function (terrId) {
-        if (isEmptyLog(terrId, "terrId")) return;
+        if (isEmptyLog(terrId, 'terrId')) return;
         var tempArr = Module.RealBIMWeb.GetProjNamesByTerrID(terrId);
         var nameArr = [];
         for (i = 0; i < tempArr.size(); ++i) {
@@ -7305,23 +7893,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 360全景（Panorama）
-    Module.Panorama = typeof Module.Panorama !== "undefined" ? Module.Panorama : {};//增加 Panorama 模块
-
+    Module.Panorama = typeof Module.Panorama !== 'undefined' ? Module.Panorama : {}; //增加 Panorama 模块
 
     // MARK 加载
 
@@ -7340,17 +7915,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _count = dataSetList.length;
         for (var i = 0; i < _count; ++i) {
             var _dataSetInfo = dataSetList[i];
-            var _path = _dataSetInfo.resourcesAddress + "/360/total.xml";
+            var _path = _dataSetInfo.resourcesAddress + '/360/total.xml';
             Module.RealBIMWeb.LoadPanSce(_dataSetInfo.dataSetId, _path);
         }
-    }
+    };
 
     /**
      * 判断全景场景是否全部加载完成
      */
     Module.Panorama.getReadyState = function () {
         return Module.RealBIMWeb.IsPanSceReady();
-    }
+    };
 
     /**
      * 获取当前已加载的全部全景场景名称
@@ -7362,7 +7937,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(_tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 卸载一个或多个全景场景，传空数组时，卸载所有的全景场景
@@ -7374,7 +7949,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _panNames.push_back(dataSetIdList[i]);
         }
         Module.RealBIMWeb.UnLoadPanSce(_panNames);
-    }
+    };
 
     /**
      * 当所有的全景资源加载完成时，获取某一全景图资源的点位信息
@@ -7392,7 +7967,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             });
         }
         return elemList;
-    }
+    };
 
     /**
      * 设置360全景窗口显示的图片信息
@@ -7401,12 +7976,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Panorama.loadPanPic = function (elemId, panWindow) {
         Module.RealBIMWeb.LoadPan(elemId, panWindow);
-    }
-
-
-
-
-
+    };
 
     // MARK 相机
 
@@ -7416,11 +7986,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} panWindow //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.setCamLocateTo = function (locType, panWindow) {
-        if (isEmptyLog(locType, "locType")) return;
-        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
+        if (isEmptyLog(locType, 'locType')) return;
+        var _panCamId = 0;
+        if (!isEmpty(panWindow)) {
+            _panCamId = panWindow;
+        }
         var enumEval = eval(locType);
         Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
-    }
+    };
 
     /**
      * 设置全景场景相机方位
@@ -7429,16 +8002,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.setCamLocateToDestPos = function (curPos, destPos, panWindow) {
-        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
+        var _panCamId = 0;
+        if (!isEmpty(panWindow)) {
+            _panCamId = panWindow;
+        }
         Module.RealBIMWeb.LocatePanCamToDestPos(curPos, destPos, _panCamId);
-    }
+    };
 
     /**
      * 获取全景相机的方位信息
      * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.getCamLocate = function (panWindow) {
-        var _panCamId = 0; if (!isEmpty(panWindow)) { _panCamId = panWindow; }
+        var _panCamId = 0;
+        if (!isEmpty(panWindow)) {
+            _panCamId = panWindow;
+        }
         var camLoc = new RECamLoc();
         var _camLoc01 = Module.RealBIMWeb.GetPanCamLocation(_panCamId);
         var _camLoc02 = Module.RealBIMWeb.GetPanCamLocation_Dir(_panCamId);
@@ -7446,7 +8025,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         camLoc.camRotate = _camLoc01.m_qCamRotate;
         camLoc.camDir = _camLoc02.m_qCamDir;
         return camLoc;
-    }
+    };
 
     /**
      * 设置全景图的自动前进后退
@@ -7461,9 +8040,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _MoveCoef = _type == 1 ? 1.0 : -1.0;
         var _time = isEmpty(time) ? 1.0 : time;
         Module.RealBIMWeb.SetPanCamAutoForward(_threshold, _MoveCoef, _time, _panWindow);
-    }
-
-
+    };
 
     // MARK 探测
 
@@ -7477,7 +8054,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         shp_probe.elemPos = _shp_probe_ret.m_vSelPos;
         shp_probe.elemScrPos = _shp_probe_ret.m_vSelScrPos;
         return shp_probe;
-    }
+    };
 
     /**
      * 获取锚点在全景图上的像素坐标
@@ -7486,25 +8063,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Panorama.getTexPos = function (pos, panWindow) {
         return Module.RealBIMWeb.GetTexPos(pos, panWindow);
-    }
-
-
-
+    };
 
     // MARK 锚点
     class REPanAnc {
         constructor() {
-            this.panWindow = 0;//	全景相机标识(默认值0)，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
-            this.ancName = null;//	锚点的名称(唯一标识)，必填
-            this.pos = [0, 0, 0];//	锚点的位置，默认值 [0,0,0]
-            this.texPos = [0, 0];//	表示锚点在全景图上的像素位置
-            this.useTexPos = false;//	表示是否使用像素位置添加锚点
-            this.picPath = null;//	表示锚点的图片路径
-            this.picSize = [0, 0];//	表示锚点的图片大小
-            this.text = null;//	表示顶点的文字标注信息
-            this.textClr = new REColor(0, 0, 0, 255);//	表示锚点的文字标注颜色
-            this.texBias = [0, 0];//	表示锚点文字与图片的相对位置，二维坐标：以点为中心点，横轴为x，右侧为正方向，竖轴为y，向上为正方向, 例如（-1，-1）为文字在点的左下方，（1,1）为右上方
-            this.texFocus = [0, 0];//	表示指定纹理图片中的像素坐标，对应对锚点的位置坐标               
+            this.panWindow = 0; //	全景相机标识(默认值0)，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+            this.ancName = null; //	锚点的名称(唯一标识)，必填
+            this.pos = [0, 0, 0]; //	锚点的位置，默认值 [0,0,0]
+            this.texPos = [0, 0]; //	表示锚点在全景图上的像素位置
+            this.useTexPos = false; //	表示是否使用像素位置添加锚点
+            this.picPath = null; //	表示锚点的图片路径
+            this.picSize = [0, 0]; //	表示锚点的图片大小
+            this.text = null; //	表示顶点的文字标注信息
+            this.textClr = new REColor(0, 0, 0, 255); //	表示锚点的文字标注颜色
+            this.texBias = [0, 0]; //	表示锚点文字与图片的相对位置，二维坐标：以点为中心点，横轴为x，右侧为正方向，竖轴为y，向上为正方向, 例如（-1，-1）为文字在点的左下方，（1,1）为右上方
+            this.texFocus = [0, 0]; //	表示指定纹理图片中的像素坐标，对应对锚点的位置坐标
         }
     }
     ExtModule.REPanAnc = REPanAnc;
@@ -7517,10 +8091,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var tempPanAnchors = new Module.RE_Vector_PAN_ANC();
         for (var i = 0; i < ancList.length; ++i) {
             var _panAncInfo = ancList[i];
-            var _panCamId = 0; if (!isEmpty(_panAncInfo.panWindow)) _panCamId = _panAncInfo.panWindow;
-            var _pos = [0, 0, 0]; if (!isEmpty(_panAncInfo.pos)) _pos = _panAncInfo.pos;
-            var _texPos = [0, 0]; if (!isEmpty(_panAncInfo.texPos)) _texPos = _panAncInfo.texPos;
-            var _useCamPost = false; if (!isEmpty(_panAncInfo.useTexPos)) _useCamPost = _panAncInfo.useTexPos;
+            var _panCamId = 0;
+            if (!isEmpty(_panAncInfo.panWindow)) _panCamId = _panAncInfo.panWindow;
+            var _pos = [0, 0, 0];
+            if (!isEmpty(_panAncInfo.pos)) _pos = _panAncInfo.pos;
+            var _texPos = [0, 0];
+            if (!isEmpty(_panAncInfo.texPos)) _texPos = _panAncInfo.texPos;
+            var _useCamPost = false;
+            if (!isEmpty(_panAncInfo.useTexPos)) _useCamPost = _panAncInfo.useTexPos;
             var tempobj = {
                 m_uSlot: _panCamId,
                 m_strPanAncName: _panAncInfo.ancName,
@@ -7533,25 +8111,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_strTextInfo: _panAncInfo.text,
                 m_vTextClr: [_panAncInfo.textClr.red, _panAncInfo.textClr.green, _panAncInfo.textClr.blue],
                 m_vTextBia: _panAncInfo.texBias,
-            }
+            };
             tempPanAnchors.push_back(tempobj);
         }
         Module.RealBIMWeb.AddPanAnc(tempPanAnchors);
-    }
+    };
 
     /**
      * 获取当前已加载的全景图锚点的唯一标识集合
      * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.getAllAncName = function (panWindow) {
-        var _panCamId = 0; if (!isEmpty(panWindow)) _panCamId = panWindow;
+        var _panCamId = 0;
+        if (!isEmpty(panWindow)) _panCamId = panWindow;
         var tempArr = Module.RealBIMWeb.GetPanAnc(_panCamId);
         var nameArr = [];
         for (var i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 删除锚点
@@ -7559,50 +8138,46 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} panWindow //全景相机标识，如果当前场景仅有一个全景场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
      */
     Module.Panorama.delAnc = function (ancName, panWindow) {
-        var _panCamId = 0; if (!isEmpty(panWindow)) _panCamId = panWindow;
+        var _panCamId = 0;
+        if (!isEmpty(panWindow)) _panCamId = panWindow;
         Module.RealBIMWeb.DelPanAnc(_panCamId, ancName);
-    }
-
-
-
-
-
+    };
 
     // MOD-- 模型编辑（Edit）
-    Module.Edit = typeof Module.Edit !== "undefined" ? Module.Edit : {};//增加 Edit 模块
+    Module.Edit = typeof Module.Edit !== 'undefined' ? Module.Edit : {}; //增加 Edit 模块
 
     /**
      * 进入位置编辑状态
      */
     Module.Edit.startEdit = function () {
         return Module.RealBIMWeb.EnterSceneNodeEditMode();
-    }
+    };
 
     /**
      * 退出位置编辑状态
      */
     Module.Edit.endEdit = function () {
         Module.RealBIMWeb.ExitSceneNodeEditMode();
-    }
+    };
 
     /**
-     * 打开位置编辑放射变换窗口 
+     * 打开位置编辑放射变换窗口
      */
     Module.Edit.openAffineTransEditWnd = function () {
         let bState = Module.RealBIMWeb.GetCurState();
         if (bState != 19) {
-            logErr("没有进入编辑状态无法打开位置编辑窗口!");
+            logErr('没有进入编辑状态无法打开位置编辑窗口!');
             return;
         }
         return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, true);
-    }
+    };
 
     /**
      * 关闭位置编辑放射变换窗口
      */
     Module.Edit.closeAffineTransEditWnd = function () {
         return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, false);
-    }
+    };
 
     /**
      * 设置位置编辑放射变换窗口扩展按钮的可见性（重置|退出|保存）
@@ -7610,7 +8185,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Edit.setExtendBtnVisible = function (visible) {
         Module.RealBIMWeb.SetPositionMatchSaveBtnVisible(visible);
-    }
+    };
 
     /**
      * 设置数据集是否可编辑，所有数据集默认是可编辑的
@@ -7622,32 +8197,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < dataSetIdList.length; i++) {
             _projvec.push_back(dataSetIdList[i]);
         }
-        let _enable = isEmpty(enable) ? true : enable
+        let _enable = isEmpty(enable) ? true : enable;
         Module.RealBIMWeb.SetSceneNodeEditable(_projvec, _enable);
-    }
+    };
 
     /**
      * 获取数据集是否可编辑
      * @param {String} dataSetId //数据集唯一标识
      */
     Module.Edit.getDataSetEditEnable = function (dataSetId) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
-    }
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 测量（Measure）
-    Module.Measure = typeof Module.Measure !== "undefined" ? Module.Measure : {};//增加 Measure 模块
+    Module.Measure = typeof Module.Measure !== 'undefined' ? Module.Measure : {}; //增加 Measure 模块
 
     // MARK 渲染设置
     /**
@@ -7658,7 +8222,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Measure.setLineClr = function (clrType, lineClr) {
         var uclr = clrToU32(lineClr);
         Module.RealBIMWeb.SetMeasureShapeColor(clrType, uclr);
-    }
+    };
 
     /**
      * 设置测量显示文字的样式
@@ -7669,25 +8233,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setTextStyle = function (clrType, fontName, lineClr, isBorder) {
         var uclr = clrToU32(lineClr);
-        var tempshapetype = isBorder ? (clrType + "_Border") : clrType;
-        var _fontStyle = "RealBIMFont001"; if (fontName != "") { _fontStyle = fontName; }
+        var tempshapetype = isBorder ? clrType + '_Border' : clrType;
+        var _fontStyle = 'RealBIMFont001';
+        if (fontName != '') {
+            _fontStyle = fontName;
+        }
         Module.RealBIMWeb.SetMeasureTextColor(tempshapetype, uclr);
         Module.RealBIMWeb.SetMeasureTextFontName(tempshapetype, _fontStyle);
-    }
+    };
 
     /**
      * 重置测量样式为系统默认样式
      */
     Module.Measure.resetDefaultStyle = function () {
         Module.RealBIMWeb.ResetMeasureShapeAppearance();
-    }
+    };
 
     /**
      * 获取测量显示的精度
      */
     Module.Measure.getValueDispPrecision = function () {
         return Module.RealBIMWeb.GetMeasureValueDispPrecision();
-    }
+    };
 
     /**
      * 设置测量显示的精度
@@ -7695,14 +8262,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setValueDispPrecision = function (precision) {
         Module.RealBIMWeb.SetMeasureValueDispPrecision(precision);
-    }
+    };
 
     /**
      * 获取坡度显示状态
      */
     Module.Measure.getSlopeVisible = function () {
         return Module.RealBIMWeb.GetGradeVisible();
-    }
+    };
 
     /**
      * 设置长度测量时两点之间的坡度显示开关
@@ -7710,7 +8277,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setSlopeVisible = function (enable) {
         Module.RealBIMWeb.SetGradeVisible(enable);
-    }
+    };
 
     /**
      * 获取当前长度测量的数据显示模式
@@ -7718,7 +8285,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Measure.getLengthDataShowType = function () {
         var _type = Module.RealBIMWeb.GetMeasureLockDir();
         return _type == 4 ? 3 : _type;
-    }
+    };
 
     /**
      * 设置当前长度测量的数据显示模式
@@ -7727,14 +8294,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Measure.setLengthDataShowType = function (type) {
         var _type = type == 3 ? 4 : type;
         Module.RealBIMWeb.SetMeasureLockDir(_type);
-    }
+    };
 
     /**
      * 获取当前面积测量的数据显示模式
      */
     Module.Measure.getAreaDataShowType = function () {
         return Module.RealBIMWeb.GetAreaProjLockDir();
-    }
+    };
 
     /**
      * 设置当前面积测量的数据显示模式
@@ -7742,14 +8309,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setAreaDataShowType = function (type) {
         Module.RealBIMWeb.SetAreaProjLockDir(type);
-    }
+    };
 
     /**
      * 获取轴平行辅助线开启状态
      */
     Module.Measure.getAssistLineVisible = function () {
         return Module.RealBIMWeb.GetAssistLineVisible();
-    }
+    };
 
     /**
      * 设置轴平行辅助线开启状态
@@ -7757,11 +8324,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setAssistLineVisible = function (enable) {
         Module.RealBIMWeb.SetAssistLineVisible(enable);
-    }
-
-
-
-
+    };
 
     // MARK 操作设置
     /**
@@ -7769,14 +8332,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.startShowFenceMinDis = function () {
         return Module.RealBIMWeb.EnterPotAndFenceDistMeasureState();
-    }
+    };
 
     /**
      * 关闭显示鼠标选中点到场景中电子围栏的最短距离
      */
     Module.Measure.endShowFenceMinDis = function () {
         Module.RealBIMWeb.ExitPotAndFenceDistMeasureState();
-    }
+    };
 
     /**
      * 在屏幕上显示两个点之间的水平距离
@@ -7786,14 +8349,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.drawHoriDisLine = function (point1, point2, text) {
         Module.RealBIMWeb.DrawHoriMeasureData(point1, point2, text);
-    }
+    };
 
     /**
      * 清除屏幕上的两点之间水平距离的信息
      */
     Module.Measure.clearHoriDisLine = function () {
         Module.RealBIMWeb.ClearHoriMeasureData();
-    }
+    };
 
     /**
      * 在图形窗口显示两点之间的直线距离、水平距离、垂直距离
@@ -7803,14 +8366,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.drawDisLine = function (point1, point2, mode) {
         Module.RealBIMWeb.DrawMeasureDataOfLineSegment(point1, point2, mode);
-    }
+    };
 
     /**
      * 清除屏幕上的两点之间距离的信息
      */
     Module.Measure.clearDisLine = function () {
         Module.RealBIMWeb.ClearMeasureDataOfLineSegment();
-    }
+    };
 
     /**
      * 获取当前操作的测量类型
@@ -7828,7 +8391,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         return _type;
-    }
+    };
 
     /**
      * 设置当前操作的测量类型
@@ -7847,14 +8410,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         Module.RealBIMWeb.SetMeasureType(_type);
-    }
+    };
 
     /**
      * 获取是否是单次测量模式
      */
     Module.Measure.getSingleStyleState = function () {
         return Module.RealBIMWeb.GetSingleMeasureMode();
-    }
+    };
 
     /**
      * 设置是否是单次测量模式
@@ -7862,7 +8425,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setSingleStyleState = function (enable) {
         return Module.RealBIMWeb.SetSingleMeasureMode(enable);
-    }
+    };
 
     /**
      * 进入测量交互模式
@@ -7872,9 +8435,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetBuiltInUIVisible(false);
         Module.RealBIMWeb.SetBuiltInUIEnable(false);
         var state = Module.RealBIMWeb.EnterMeasureMode();
-        Module.RealBIMWeb.SetMeasureType(1);//默认进入长度测量
+        Module.RealBIMWeb.SetMeasureType(1); //默认进入长度测量
         return state;
-    }
+    };
 
     /**
      * 结束测量交互模式
@@ -7888,28 +8451,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetBuiltInUIVisible(true);
         }
         return Module.RealBIMWeb.ExitMeasureMode();
-    }
+    };
 
     /**
      * 取消当前点选操作
      */
     Module.Measure.cancelCurPotOpt = function () {
         return Module.RealBIMWeb.TerminateMeasurePath();
-    }
+    };
 
     /**
      * 获取当前是否处于测量交互模式
      */
     Module.Measure.getCurState = function () {
         return Module.RealBIMWeb.IsInMeasureMode();
-    }
+    };
 
     class REMeasureInfo {
         constructor() {
-            this.measureType = null;//测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
-            this.dataShowType = null;//数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向
-            this.groupId = null;//组id
-            this.pointList = null;//测量点集合
+            this.measureType = null; //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+            this.dataShowType = null; //数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向
+            this.groupId = null; //组id
+            this.pointList = null; //测量点集合
         }
     }
     ExtModule.REMeasureInfo = REMeasureInfo;
@@ -7919,10 +8482,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REMeasureInfo} measureInfo //测量信息
      */
     Module.Measure.addGroupData = function (measureInfo) {
-        if (!Module.RealBIMWeb.IsInMeasureMode()) return;//不处于测量模式下无效
-        if (isEmptyLog(measureInfo, "measureInfo")) return;
-        if (isEmptyLog(measureInfo.groupId, "groupId")) return;
-        if (isEmptyLog(measureInfo.pointList, "pointList")) return;
+        if (!Module.RealBIMWeb.IsInMeasureMode()) return; //不处于测量模式下无效
+        if (isEmptyLog(measureInfo, 'measureInfo')) return;
+        if (isEmptyLog(measureInfo.groupId, 'groupId')) return;
+        if (isEmptyLog(measureInfo.pointList, 'pointList')) return;
 
         var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureInfo.measureType;
         switch (_measureType) {
@@ -7948,7 +8511,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _pointList.push_back(measureInfo.pointList[i]);
         }
         Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
-    }
+    };
 
     /**
      * 删除一组测量数据
@@ -7956,7 +8519,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.delGroupData = function (groupId) {
         Module.RealBIMWeb.RemoveAMeasureGroup(groupId);
-    }
+    };
 
     /**
      * 删除一类测量数据
@@ -7975,45 +8538,38 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
-    }
-
-
-
-
-
-
+    };
 
     // MOD-- 电子围栏（Fence）
-    Module.Fence = typeof Module.Fence !== "undefined" ? Module.Fence : {};//增加 Fence 模块
-
+    Module.Fence = typeof Module.Fence !== 'undefined' ? Module.Fence : {}; //增加 Fence 模块
 
     /**
      * 进入编辑电子围栏状态
      */
     Module.Fence.startFenceEdit = function () {
         Module.RealBIMWeb.EnterFenceEditMode();
-    }
+    };
 
     /**
      * 退出编辑电子围栏状态
      */
     Module.Fence.endFenceEdit = function () {
         Module.RealBIMWeb.ExitFenceEditMode();
-    }
+    };
 
     /**
      * 开始添加电子围栏
      */
     Module.Fence.addFence = function () {
         return Module.RealBIMWeb.BeginAddFence();
-    }
+    };
 
     /**
      * 结束添加电子围栏
      */
     Module.Fence.endAddFence = function () {
         return Module.RealBIMWeb.EndAddFence();
-    }
+    };
 
     /**
      * 设置添加电子围栏时的小提示图标
@@ -8030,17 +8586,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uFrameNumV: 1,
             m_uFrameStrideU: 32,
             m_uFrameStrideV: 32,
-            m_fFrameFreq: 0.0
+            m_fFrameFreq: 0.0,
         };
         Module.RealBIMWeb.SetFencePotUniformIcon(temptexregions);
-    }
+    };
 
     class REFencePot {
         constructor() {
-            this.pos = null;//顶点位置
-            this.height = null;//顶点高度
-            this.potClr = null;//顶点颜色
-            this.endPotType = 0;//是否是当前围栏的最后一个顶点，0：不是最后一个顶点；1：最后一个顶点且围栏封闭；2：最后一个顶点且围栏不封闭
+            this.pos = null; //顶点位置
+            this.height = null; //顶点高度
+            this.potClr = null; //顶点颜色
+            this.endPotType = 0; //是否是当前围栏的最后一个顶点，0：不是最后一个顶点；1：最后一个顶点且围栏封闭；2：最后一个顶点且围栏不封闭
         }
     }
     ExtModule.REFencePot = REFencePot;
@@ -8061,7 +8617,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             fencePotList.push(fencePot);
         }
         return fencePotList;
-    }
+    };
 
     /**
      * 根据电子围栏的顶点的名称返回围栏的名称
@@ -8069,11 +8625,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Fence.getFenceName = function (potName) {
         var fencedata = Module.RealBIMWeb.GetShpObjExtInfo(potName);
-        if ((fencedata.m_eType.value == 3) || (fencedata.m_eType.value == 4)) {
+        if (fencedata.m_eType.value == 3 || fencedata.m_eType.value == 4) {
             var fencename = fencedata.m_strParent;
             return fencename;
         }
-    }
+    };
 
     /**
      * 删除一个围栏顶点
@@ -8084,7 +8640,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var bool = Module.RealBIMWeb.DelFencePot(potName);
         Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
         return bool;
-    }
+    };
 
     /**
      * 删除一个围栏
@@ -8095,7 +8651,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var bool = Module.RealBIMWeb.DelFence(fenceName);
         Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
         return bool;
-    }
+    };
 
     //删除全部围栏
     Module.Fence.delAllFence = function () {
@@ -8103,7 +8659,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var bool = Module.RealBIMWeb.DelAllFences();
         Module.RealBIMWeb.ExitFenceEditMode(); //退出编辑电子围栏的状态
         return bool;
-    }
+    };
 
     /**
      * 添加电子围栏的顶点信息集合
@@ -8123,32 +8679,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _tempfencepots.push_back(_obj);
         }
         return Module.RealBIMWeb.SetSceFenceInfos(_tempfencepots);
-    }
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 水面（Water）
-    Module.Water = typeof Module.Water !== "undefined" ? Module.Water : {};//增加 Water 模块
+    Module.Water = typeof Module.Water !== 'undefined' ? Module.Water : {}; //增加 Water 模块
 
     class REWaterInfo {
         constructor() {
-            this.waterName = null;//水面名称
-            this.waterClr = new REColor(255, 255, 255, 255);//水面颜色
-            this.blendDist = 1;//混合系数
-            this.visible = true;//是否可见
-            this.cornerPoint = null;//角点
+            this.waterName = null; //水面名称
+            this.waterClr = new REColor(255, 255, 255, 255); //水面颜色
+            this.blendDist = 1; //混合系数
+            this.visible = true; //是否可见
+            this.cornerPoint = null; //角点
         }
     }
     ExtModule.REWaterInfo = REWaterInfo;
-
 
     // MARK 加载
     /**
@@ -8156,13 +8701,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REWaterInfo} waterInfoList //水面数据集合
      */
     Module.Water.loadData = function (waterInfoList) {
-        if (!checkTypeLog(waterInfoList, "waterInfoList", RE_Enum.RE_Check_Array)) return;
+        if (!checkTypeLog(waterInfoList, 'waterInfoList', RE_Enum.RE_Check_Array)) return;
 
         var _waterList = [];
         for (let i = 0; i < waterInfoList.length; i++) {
             let obj = waterInfoList[i];
-            if (isEmptyLog(obj.waterName, "waterName")) return false;
-            if (isEmptyLog(obj.cornerPoint, "cornerPoint")) return false;
+            if (isEmptyLog(obj.waterName, 'waterName')) return false;
+            if (isEmptyLog(obj.cornerPoint, 'cornerPoint')) return false;
             let waterT = {
                 WaterName: obj.waterName,
                 Color: clrToRGBA_List(obj.waterClr),
@@ -8172,14 +8717,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             };
             _waterList.push(waterT);
         }
-        var _waterJson = "";
+        var _waterJson = '';
         _waterObj = {};
         if (_waterList.length) {
             _waterObj.Waters = _waterList;
             _waterJson = JSON.stringify(_waterObj);
         }
         return Module.RealBIMWeb.LoadWaterFromJson(_waterJson);
-    }
+    };
 
     /**
      * 获取当前场景中所有水域对象
@@ -8188,23 +8733,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _waterJson = Module.RealBIMWeb.SerializeWaterToString();
 
         var jsonObj = JSON.parse(_waterJson);
-        if (!checkTypeLog(jsonObj["Waters"], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
+        if (!checkTypeLog(jsonObj['Waters'], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
 
         var waterInfoList = [];
-        var count = jsonObj["Waters"].length;
+        var count = jsonObj['Waters'].length;
         for (let i = 0; i < count; i++) {
-            let _waterObj = jsonObj["Waters"][i];
+            let _waterObj = jsonObj['Waters'][i];
             let waterInfo = new REWaterInfo();
-            waterInfo.waterName = _waterObj["WaterName"];
-            waterInfo.waterClr = rgbaListToClr(_waterObj["Color"]);
-            waterInfo.blendDist = _waterObj["BlendDist"];
-            waterInfo.visible = _waterObj["Visible"];
-            waterInfo.cornerPoint = _waterObj["Corners"];
+            waterInfo.waterName = _waterObj['WaterName'];
+            waterInfo.waterClr = rgbaListToClr(_waterObj['Color']);
+            waterInfo.blendDist = _waterObj['BlendDist'];
+            waterInfo.visible = _waterObj['Visible'];
+            waterInfo.cornerPoint = _waterObj['Corners'];
 
             waterInfoList.push(waterInfo);
         }
         return waterInfoList;
-    }
+    };
 
     /**
      * 删除指定水面
@@ -8213,14 +8758,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.delData = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.DelWaterByName(waterName);
-    }
+    };
 
     /**
      * 清空全部水面对象
      */
     Module.Water.delAllData = function () {
         return Module.RealBIMWeb.DelAllWaters();
-    }
+    };
 
     /**
      * 根据水面名称定位到水面
@@ -8229,11 +8774,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.setCamToData = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.LocateToWater(waterName);
-    }
-
-
-
-
+    };
 
     // MARK 编辑
     /**
@@ -8241,28 +8782,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Water.startEditState = function () {
         return Module.RealBIMWeb.BeginWaterEdit();
-    }
+    };
 
     /**
      * 退出水面编辑状态
      */
     Module.Water.endEditState = function () {
         return Module.RealBIMWeb.EndWaterEdit();
-    }
+    };
 
     /**
      * 进入水面添加状态
      */
     Module.Water.startAddWaterState = function () {
         return Module.RealBIMWeb.BeginAddWaterRgn();
-    }
+    };
 
     /**
      * 退出水面添加状态
      */
     Module.Water.endAddWaterState = function () {
         return Module.RealBIMWeb.EndAddWaterRgn();
-    }
+    };
 
     /**
      * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
@@ -8271,7 +8812,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.setWaterName = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.SetNewAddedWaterName(waterName);
-    }
+    };
 
     /**
      * 获取所有水面对象的名称
@@ -8283,7 +8824,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             waterIDs.push(_vector.get(i));
         }
         return waterIDs;
-    }
+    };
 
     /**
      * 把水面加入选择集
@@ -8292,7 +8833,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.addToSelSet = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.AddWaterToSelSet(waterName);
-    }
+    };
 
     /**
      * 把指定水面移出选择集
@@ -8301,14 +8842,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.delFromSelSet = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.RemoveWaterFromSelSet(waterName);
-    }
+    };
 
     /**
      * 清空选择集
      */
     Module.Water.clearSelSet = function () {
         return Module.RealBIMWeb.ClearWaterSelSet();
-    }
+    };
 
     /**
      * 获取选择集中的所有水面标识
@@ -8320,14 +8861,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             waterIDs.push(_vector.get(i));
         }
         return waterIDs;
-    }
+    };
 
     /**
      * 删除当前选中的水面角点
      */
     Module.Water.delSelCorners = function () {
         return Module.RealBIMWeb.DelWaterCornersInSelSet();
-    }
+    };
 
     /**
      * 获取指定水面对象的可见性
@@ -8336,7 +8877,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.getVisible = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.GetWaterVisible(waterName);
-    }
+    };
 
     /**
      * 设置指定水面对象的可见性
@@ -8346,7 +8887,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.setVisible = function (waterName, enable) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.SetWaterVisible(waterName, enable);
-    }
+    };
 
     /**
      * 获取水体颜色
@@ -8364,7 +8905,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         waterClr.blue = _clrarr[2] * 255;
         waterClr.alpha = _alpha * 255;
         return waterClr;
-    }
+    };
 
     /**
      * 设置水体颜色 （RGB）
@@ -8383,7 +8924,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var isClrSucc = Module.RealBIMWeb.SetWaterColor(waterName, _clrArr);
         var isAlphaSucc = Module.RealBIMWeb.SetWaterAlpha(waterName, _A);
         return isClrSucc && isAlphaSucc;
-    }
+    };
 
     /**
      * 获取水体透明度
@@ -8393,7 +8934,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(waterName, 'waterName')) return;
         var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
         return Math.floor(_alpha * 255);
-    }
+    };
 
     /**
      * 设置水体透明度
@@ -8402,9 +8943,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Water.setAlpha = function (waterName, alpha) {
         if (isEmptyLog(waterName, 'waterName')) return;
-        var _a = (parseInt(alpha) / 255);
+        var _a = parseInt(alpha) / 255;
         return Module.RealBIMWeb.SetWaterAlpha(waterName, _a);
-    }
+    };
 
     /**
      * 获取水体跟模型混合系数
@@ -8413,7 +8954,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.getBlendDist = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.GetWaterBlendDist(waterName);
-    }
+    };
 
     /**
      * 设置水体跟模型混合系数
@@ -8423,7 +8964,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Water.setBlendDist = function (waterName, blendDist) {
         if (isEmptyLog(waterName, 'waterName')) return;
         return Module.RealBIMWeb.SetWaterBlendDist(waterName, blendDist);
-    }
+    };
 
     /**
      * 获取水面角点
@@ -8437,8 +8978,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < _vector.size(); i++) {
             crnersSet.push(_vector.get(i));
         }
-        return crnersSet
-    }
+        return crnersSet;
+    };
 
     /**
      * 设置水面角点（要在编辑水面模式下实时起作用）
@@ -8455,34 +8996,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _arrCorners.push_back(corners);
         }
         return Module.RealBIMWeb.SetWaterCorners(waterName, _arrCorners);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 有限元（FEM）
-    Module.FEM = typeof Module.FEM !== "undefined" ? Module.FEM : {};//增加 FEM 模块
+    Module.FEM = typeof Module.FEM !== 'undefined' ? Module.FEM : {}; //增加 FEM 模块
 
     /**
      * 加载FEM文件 (回调监听 RealBIMLoadFEM 用于接收加载文件是否成功)
@@ -8493,7 +9010,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(feId, 'feId')) return;
         if (isEmptyLog(filePath, 'filePath')) return;
         Module.RealBIMWeb.AddFEMData(feId, filePath);
-    }
+    };
 
     /**
      * 移除指定标识的FEM数据
@@ -8502,7 +9019,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.FEM.removeData = function (feId) {
         if (isEmptyLog(feId, 'feId')) return;
         return Module.RealBIMWeb.RemoveFEMData(feId);
-    }
+    };
 
     /**
      * 获取所有的标量属性字段名称集合
@@ -8516,7 +9033,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             scalarParamList.push(_vector.get(i));
         }
         return scalarParamList;
-    }
+    };
 
     /**
      * 设置用于展示标量信息的属性字段
@@ -8527,7 +9044,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(feId, 'feId')) return;
         if (isEmptyLog(scarlarParamName, 'scarlarParamName')) return;
         return Module.RealBIMWeb.SetActiveScalars(feId, scarlarParamName);
-    }
+    };
 
     /**
      * 设置颜色查找表信息（按照HSV格式参数）
@@ -8539,25 +9056,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.FEM.setCLUT = function (feId, hueRange, saturationRange, valueRange) {
         if (isEmptyLog(feId, 'feId')) return;
         return Module.RealBIMWeb.SetLookUpTableHSV(feId, hueRange, saturationRange, valueRange);
-    }
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 轴网（AxisGrid）
-    Module.AxisGrid = typeof Module.AxisGrid !== "undefined" ? Module.AxisGrid : {};//增加 AxisGrid 模块
+    Module.AxisGrid = typeof Module.AxisGrid !== 'undefined' ? Module.AxisGrid : {}; //增加 AxisGrid 模块
 
     class REAxisGridInfo {
         constructor() {
-            this.guid = null;  //轴线的唯一标识
-            this.name = null;   //轴线的名称
-            this.lineClr = null;  //轴线的颜色
-            this.pos = null;  //轴线两个顶点坐标
+            this.guid = null; //轴线的唯一标识
+            this.name = null; //轴线的名称
+            this.lineClr = null; //轴线的颜色
+            this.pos = null; //轴线两个顶点坐标
         }
     }
     ExtModule.REAxisGridInfo = REAxisGridInfo;
@@ -8585,7 +9094,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _tempGrids.push_back(_tempObj);
         }
         return Module.RealBIMWeb.SetGridData(groupName, _tempGrids);
-    }
+    };
 
     //获取当前添加的所有轴网组名称
     Module.AxisGrid.getAllGroupNames = function () {
@@ -8595,7 +9104,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(allgirdname.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 根据轴网组名称获取对应的轴线guid集合
@@ -8608,7 +9117,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(allguidname.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 根据轴网组名称删除数据
@@ -8620,7 +9129,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempGridsName.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.DelGridData(tempGridsName);
-    }
+    };
 
     /**
      * 删除所有轴网数据
@@ -8628,7 +9137,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.AxisGrid.delAllData = function () {
         var tempGridsName = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.DelGridData(tempGridsName);
-    }
+    };
 
     /**
      * 设置轴线的显示颜色
@@ -8643,7 +9152,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var tempclr = clrToU32(lineClr);
         Module.RealBIMWeb.SetGridColor(groupName, tempGrids, tempclr);
-    }
+    };
 
     /**
      * 设置轴网是否可以被探测
@@ -8656,7 +9165,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempGrids.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.SetGridProbeEnable(enable, tempGrids);
-    }
+    };
 
     /**
      * 设置轴网是否可以被探测
@@ -8669,7 +9178,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempGrids.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.SetGridVisible(enable, tempGrids);
-    }
+    };
 
     /**
      * 设置轴网是否允许被模型遮挡
@@ -8677,31 +9186,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.AxisGrid.setOverlap = function (enable) {
         Module.RealBIMWeb.SetGridContactSce(enable);
-    }
+    };
 
     /**
      * 获取当前设置的轴网是否允许被模型遮挡状态
      */
     Module.AxisGrid.getOverlap = function () {
         return Module.RealBIMWeb.GetGridContactSce();
-    }
-
-
-
-
-
+    };
 
     // MOD-- 标高（Elevation）
-    Module.Elevation = typeof Module.Elevation !== "undefined" ? Module.Elevation : {};//增加 Elevation 模块
+    Module.Elevation = typeof Module.Elevation !== 'undefined' ? Module.Elevation : {}; //增加 Elevation 模块
 
     class REElevationInfo {
         constructor() {
-            this.guid = null;  //标高的唯一标识
-            this.name = null;   //标高的名称
-            this.lineClr = null;  //标高线颜色
-            this.height = null;//高度
-            this.topHeight = null;//顶高
-            this.bottomHeight = null;//底高
+            this.guid = null; //标高的唯一标识
+            this.name = null; //标高的名称
+            this.lineClr = null; //标高线颜色
+            this.height = null; //高度
+            this.topHeight = null; //顶高
+            this.bottomHeight = null; //底高
         }
     }
     ExtModule.REElevationInfo = REElevationInfo;
@@ -8728,7 +9232,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _tempLevels.push_back(_tempObj);
         }
         return Module.RealBIMWeb.SetLevelData(groupName, _tempLevels, dataSetId);
-    }
+    };
 
     /**
      * 获取当前添加的标高组名称集合
@@ -8740,7 +9244,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(alllevelname.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 根据组名称获取对应的标高guid集合
@@ -8753,7 +9257,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(allguidname.get(i));
         }
         return nameArr;
-    }
+    };
 
     /**
      * 根据标高组名称删除数据
@@ -8765,7 +9269,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempLevelName.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.DelLevelData(tempLevelName);
-    }
+    };
 
     /**
      * 删除所有标高数据
@@ -8773,7 +9277,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Elevation.delAllData = function () {
         var tempLevelName = new Module.RE_Vector_WStr();
         Module.RealBIMWeb.DelLevelData(tempLevelName);
-    }
+    };
 
     /**
      * 设置标高的显示颜色
@@ -8788,7 +9292,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var tempclr = clrToU32(lineClr);
         Module.RealBIMWeb.SetLevelColor(groupName, tempLevels, tempclr);
-    }
+    };
 
     /**
      * 设置标高是否可以被探测
@@ -8801,7 +9305,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempLevels.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.SetLevelProbeEnable(enable, tempLevels);
-    }
+    };
 
     /**
      * 设置标高是否显示
@@ -8814,7 +9318,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             tempLevels.push_back(groupNameList[i]);
         }
         Module.RealBIMWeb.SetLevelVisible(enable, tempLevels);
-    }
+    };
 
     /**
      * 根据标高的guid获取三个高度值
@@ -8823,7 +9327,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Elevation.getData = function (groupName, guid) {
         return Module.RealBIMWeb.GetLevelHeightInfo(groupName, guid);
-    }
+    };
 
     /**
      * 设置标高是否允许被模型遮挡
@@ -8831,33 +9335,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Elevation.setOverlap = function (enable) {
         Module.RealBIMWeb.SetLevelContactSce(enable);
-    }
+    };
 
     /**
      * 获取当前设置的标高是否允许被模型遮挡状态
      */
     Module.Elevation.getOverlap = function () {
         return Module.RealBIMWeb.GetLevelContactSce();
-    }
-
-
-
-
-
-
-
+    };
 
     // MOD-- 动画（Animation）
-    Module.Animation = typeof Module.Animation !== "undefined" ? Module.Animation : {};//增加 Animation 模块
+    Module.Animation = typeof Module.Animation !== 'undefined' ? Module.Animation : {}; //增加 Animation 模块
 
     class REAnimWallInfo {
         constructor() {
-            this.groupName = null;//	动态墙组名称
-            this.name = null;//	动态墙名称
-            this.potList = null;//	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
-            this.texPath = null;//	动态墙纹理路径
-            this.normalDir = null;//	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
-            this.isClose = null;//	动态墙是否强制闭合，默认闭合
+            this.groupName = null; //	动态墙组名称
+            this.name = null; //	动态墙名称
+            this.potList = null; //	动态墙路径顶点坐标及高度，(x, y, z)表示顶点坐标，w表示高度
+            this.texPath = null; //	动态墙纹理路径
+            this.normalDir = null; //	纹理动画方向是否为法线方向，true为发现方向，false为切线方向
+            this.isClose = null; //	动态墙是否强制闭合，默认闭合
         }
     }
     ExtModule.REAnimWallInfo = REAnimWallInfo;
@@ -8867,21 +9364,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimWallInfo} animWallInfo //动态墙信息
      */
     Module.Animation.addAnimWall = function (animWallInfo) {
-        if (isEmptyLog(animWallInfo, "animWallInfo")) return;
+        if (isEmptyLog(animWallInfo, 'animWallInfo')) return;
         var temparr = new Module.RE_Vector_dvec4();
         for (var i = 0; i < animWallInfo.potList.length; ++i) {
             temparr.push_back(animWallInfo.potList[i]);
         }
-        var _bClose = true; if (!isEmpty(animWallInfo.isClose)) { _bClose = animWallInfo.isClose; }
-        return Module.RealBIMWeb.AddAnimationWall(animWallInfo.groupName, animWallInfo.name, temparr, animWallInfo.texPath, animWallInfo.normalDir, _bClose);
-    }
+        var _bClose = true;
+        if (!isEmpty(animWallInfo.isClose)) {
+            _bClose = animWallInfo.isClose;
+        }
+        return Module.RealBIMWeb.AddAnimationWall(
+            animWallInfo.groupName,
+            animWallInfo.name,
+            temparr,
+            animWallInfo.texPath,
+            animWallInfo.normalDir,
+            _bClose
+        );
+    };
 
     class REAnimPlaneInfo {
         constructor() {
-            this.groupName = null;//不规则平面组名称
-            this.name = null;//不规则平面名称
-            this.potList = null;//不规则平面路径顶点坐标 (x,y,z)表示位置 w表示高度
-            this.texPath = null;//纹理路径
+            this.groupName = null; //不规则平面组名称
+            this.name = null; //不规则平面名称
+            this.potList = null; //不规则平面路径顶点坐标 (x,y,z)表示位置 w表示高度
+            this.texPath = null; //纹理路径
         }
     }
     ExtModule.REAnimPlaneInfo = REAnimPlaneInfo;
@@ -8891,22 +9398,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimPlaneInfo} animPlaneInfo //扫描面信息
      */
     Module.Animation.addAnimPlane = function (animPlaneInfo) {
-        if (isEmptyLog(animPlaneInfo, "animPlaneInfo")) return;
+        if (isEmptyLog(animPlaneInfo, 'animPlaneInfo')) return;
         var temparr = new Module.RE_Vector_dvec3();
         for (var i = 0; i < animPlaneInfo.potList.length; ++i) {
             temparr.push_back(animPlaneInfo.potList[i]);
         }
         return Module.RealBIMWeb.AddAnimationPlane(animPlaneInfo.groupName, animPlaneInfo.name, temparr, animPlaneInfo.texPath);
-    }
+    };
 
     class REAnimSphereInfo {
         constructor() {
-            this.groupName = null;//扫描球组名称
-            this.nameList = null;//扫描球名称数组
-            this.potCenterList = null;//扫描球中心点坐标数组
-            this.radius = null;//当前批次扫描球半径
-            this.sphere = null;//是否为圆球，true表示圆球，false表示半球
-            this.texPath = null;//纹理路径
+            this.groupName = null; //扫描球组名称
+            this.nameList = null; //扫描球名称数组
+            this.potCenterList = null; //扫描球中心点坐标数组
+            this.radius = null; //当前批次扫描球半径
+            this.sphere = null; //是否为圆球，true表示圆球，false表示半球
+            this.texPath = null; //纹理路径
         }
     }
     ExtModule.REAnimSphereInfo = REAnimSphereInfo;
@@ -8916,25 +9423,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimSphereInfo} animSphereInfo //球体信息
      */
     Module.Animation.addAnimSpheres = function (animSphereInfo) {
-        if (isEmptyLog(animSphereInfo, "animSphereInfo")) return;
+        if (isEmptyLog(animSphereInfo, 'animSphereInfo')) return;
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animSphereInfo.nameList.length; ++i) { temparr0.push_back(animSphereInfo.nameList[i]); }
+        for (var i = 0; i < animSphereInfo.nameList.length; ++i) {
+            temparr0.push_back(animSphereInfo.nameList[i]);
+        }
         var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animSphereInfo.potCenterList.length; ++i) { temparr.push_back(animSphereInfo.potCenterList[i]); }
-        var _isSphere = true; if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
-        return Module.RealBIMWeb.AddAnimationSpheres(animSphereInfo.groupName, temparr0, temparr, animSphereInfo.radius, _isSphere, animSphereInfo.texPath);
-    }
+        for (var i = 0; i < animSphereInfo.potCenterList.length; ++i) {
+            temparr.push_back(animSphereInfo.potCenterList[i]);
+        }
+        var _isSphere = true;
+        if (!isEmpty(animSphereInfo.sphere)) _isSphere = animSphereInfo.sphere;
+        return Module.RealBIMWeb.AddAnimationSpheres(
+            animSphereInfo.groupName,
+            temparr0,
+            temparr,
+            animSphereInfo.radius,
+            _isSphere,
+            animSphereInfo.texPath
+        );
+    };
 
     class REAnimPolygonInfo {
         constructor() {
-            this.groupName = null;//扫描平面组名称
-            this.nameList = null;//扫描平面名称数组
-            this.potCenterList = null;//扫描平面中心点坐标数组
-            this.radius = null;//当前批次扫描平面半径
-            this.radarScan = null;//扫描效果是否为雷达扫描，true为雷达扫描，false为扩散扫描
-            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
-            this.edgeNum = null;//多边形的边数
-            this.texPath = null;//纹理路径
+            this.groupName = null; //扫描平面组名称
+            this.nameList = null; //扫描平面名称数组
+            this.potCenterList = null; //扫描平面中心点坐标数组
+            this.radius = null; //当前批次扫描平面半径
+            this.radarScan = null; //扫描效果是否为雷达扫描，true为雷达扫描，false为扩散扫描
+            this.isRing = null; //是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null; //多边形的边数
+            this.texPath = null; //纹理路径
         }
     }
     ExtModule.REAnimPolygonInfo = REAnimPolygonInfo;
@@ -8944,28 +9463,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimPolygonInfo} animPolygonInfo //多边形信息
      */
     Module.Animation.addAnimPolygons = function (animPolygonInfo) {
-        if (isEmptyLog(animPolygonInfo, "animPolygonInfo")) return;
+        if (isEmptyLog(animPolygonInfo, 'animPolygonInfo')) return;
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animPolygonInfo.nameList.length; ++i) { temparr0.push_back(animPolygonInfo.nameList[i]); }
+        for (var i = 0; i < animPolygonInfo.nameList.length; ++i) {
+            temparr0.push_back(animPolygonInfo.nameList[i]);
+        }
         var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animPolygonInfo.potCenterList.length; ++i) { temparr.push_back(animPolygonInfo.potCenterList[i]); }
-        var _isRing = false; if (!isEmpty(animPolygonInfo.isRing)) _isRing = animPolygonInfo.isRing;
-        var _radarScan = false; if (!isEmpty(animPolygonInfo.radarScan)) _radarScan = animPolygonInfo.radarScan;
-        var _edgeNum = 3; if (!isEmpty(animPolygonInfo.edgeNum)) _edgeNum = animPolygonInfo.edgeNum;
-        return Module.RealBIMWeb.AddAnimationPolygons(animPolygonInfo.groupName, temparr0, temparr, animPolygonInfo.radius, animPolygonInfo.texPath, _radarScan, _isRing, _edgeNum);
-    }
+        for (var i = 0; i < animPolygonInfo.potCenterList.length; ++i) {
+            temparr.push_back(animPolygonInfo.potCenterList[i]);
+        }
+        var _isRing = false;
+        if (!isEmpty(animPolygonInfo.isRing)) _isRing = animPolygonInfo.isRing;
+        var _radarScan = false;
+        if (!isEmpty(animPolygonInfo.radarScan)) _radarScan = animPolygonInfo.radarScan;
+        var _edgeNum = 3;
+        if (!isEmpty(animPolygonInfo.edgeNum)) _edgeNum = animPolygonInfo.edgeNum;
+        return Module.RealBIMWeb.AddAnimationPolygons(
+            animPolygonInfo.groupName,
+            temparr0,
+            temparr,
+            animPolygonInfo.radius,
+            animPolygonInfo.texPath,
+            _radarScan,
+            _isRing,
+            _edgeNum
+        );
+    };
 
     class REAnimPolyWallInfo {
         constructor() {
-            this.groupName = null;//扫描多边形动态墙组名称
-            this.nameList = null;//扫描多边形动态墙名称数组
-            this.potCenterList = null;//扫描多边形动态墙中心点坐标数组
-            this.radius = null;//当前批次扫描多边形动态墙半径
-            this.isRing = null;//是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
-            this.edgeNum = null;//多边形的边数
-            this.height = null;//高度
-            this.texPath = null;//纹理路径
-            this.normalDir = null;//贴图是否沿法线方向，true为法线方向，false为切线方向
+            this.groupName = null; //扫描多边形动态墙组名称
+            this.nameList = null; //扫描多边形动态墙名称数组
+            this.potCenterList = null; //扫描多边形动态墙中心点坐标数组
+            this.radius = null; //当前批次扫描多边形动态墙半径
+            this.isRing = null; //是否为圆形，true表示圆形，此时边数为默认值，false表示多边形
+            this.edgeNum = null; //多边形的边数
+            this.height = null; //高度
+            this.texPath = null; //纹理路径
+            this.normalDir = null; //贴图是否沿法线方向，true为法线方向，false为切线方向
         }
     }
     ExtModule.REAnimPolyWallInfo = REAnimPolyWallInfo;
@@ -8975,26 +9510,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimPolyWallInfo} animPolyWallInfo //多边形动态墙信息
      */
     Module.Animation.addAnimPolygonWalls = function (animPolyWallInfo) {
-        if (isEmptyLog(animPolyWallInfo, "animPolyWallInfo")) return;
+        if (isEmptyLog(animPolyWallInfo, 'animPolyWallInfo')) return;
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animPolyWallInfo.nameList.length; ++i) { temparr0.push_back(animPolyWallInfo.nameList[i]); }
+        for (var i = 0; i < animPolyWallInfo.nameList.length; ++i) {
+            temparr0.push_back(animPolyWallInfo.nameList[i]);
+        }
         var temparr = new Module.RE_Vector_dvec3();
-        for (var i = 0; i < animPolyWallInfo.potCenterList.length; ++i) { temparr.push_back(animPolyWallInfo.potCenterList[i]); }
-        var _isRing = false; if (!isEmpty(animPolyWallInfo.isRing)) _isRing = animPolyWallInfo.isRing;
-        var _radarScan = false; if (!isEmpty(animPolyWallInfo.radarScan)) _radarScan = animPolyWallInfo.radarScan;
-        var _edgeNum = 4; if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
-        var _height = 0; if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
-        return Module.RealBIMWeb.AddAnimationPolygonWalls(animPolyWallInfo.groupName, temparr0, temparr, animPolyWallInfo.radius, _height, animPolyWallInfo.texPath, _isRing, _edgeNum, animPolyWallInfo.normalDir);
-    }
+        for (var i = 0; i < animPolyWallInfo.potCenterList.length; ++i) {
+            temparr.push_back(animPolyWallInfo.potCenterList[i]);
+        }
+        var _isRing = false;
+        if (!isEmpty(animPolyWallInfo.isRing)) _isRing = animPolyWallInfo.isRing;
+        var _radarScan = false;
+        if (!isEmpty(animPolyWallInfo.radarScan)) _radarScan = animPolyWallInfo.radarScan;
+        var _edgeNum = 4;
+        if (!isEmpty(animPolyWallInfo.edgeNum)) _edgeNum = animPolyWallInfo.edgeNum;
+        var _height = 0;
+        if (!isEmpty(animPolyWallInfo.height)) _height = animPolyWallInfo.height;
+        return Module.RealBIMWeb.AddAnimationPolygonWalls(
+            animPolyWallInfo.groupName,
+            temparr0,
+            temparr,
+            animPolyWallInfo.radius,
+            _height,
+            animPolyWallInfo.texPath,
+            _isRing,
+            _edgeNum,
+            animPolyWallInfo.normalDir
+        );
+    };
 
     class REAnimAreaBufferInfo {
         constructor() {
-            this.groupName = null;//路径平面组名称
-            this.name = null;//路径平面名称
-            this.potList = null;//中心线路径顶点坐标集合
-            this.texPath = null;//纹理路径
-            this.width = null;//平面宽度
-            this.texLength = -1.0;//纹理对应的长度，默认为0 代表纹理采用等比缩放，使用纹理长度代表当模型超出设定纹理长度时，UV按照纹理长度拼贴扩展
+            this.groupName = null; //路径平面组名称
+            this.name = null; //路径平面名称
+            this.potList = null; //中心线路径顶点坐标集合
+            this.texPath = null; //纹理路径
+            this.width = null; //平面宽度
+            this.texLength = -1.0; //纹理对应的长度，默认为0 代表纹理采用等比缩放，使用纹理长度代表当模型超出设定纹理长度时，UV按照纹理长度拼贴扩展
         }
     }
     ExtModule.REAnimAreaBufferInfo = REAnimAreaBufferInfo;
@@ -9004,25 +9557,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimAreaBufferInfo} animAreaBufferInfo //路径平面信息（REAnimAreaBufferInfo类型）
      */
     Module.Animation.addAnimAreaBuffer = function (animAreaBufferInfo) {
-        if (isEmptyLog(animAreaBufferInfo, "animAreaBufferInfo")) return;
+        if (isEmptyLog(animAreaBufferInfo, 'animAreaBufferInfo')) return;
 
         var temparr = new Module.RE_Vector_dvec3();
         for (var i = 0; i < animAreaBufferInfo.potList.length; ++i) {
             temparr.push_back(animAreaBufferInfo.potList[i]);
         }
-        var _texPath = isEmpty(animAreaBufferInfo.texPath) ? "" : animAreaBufferInfo.texPath;
+        var _texPath = isEmpty(animAreaBufferInfo.texPath) ? '' : animAreaBufferInfo.texPath;
         var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
-        var _texLength = (isEmpty(animAreaBufferInfo.texLength) || animAreaBufferInfo.texLength <= 0) ? -1.0 : animAreaBufferInfo.texLength;
+        var _texLength = isEmpty(animAreaBufferInfo.texLength) || animAreaBufferInfo.texLength <= 0 ? -1.0 : animAreaBufferInfo.texLength;
         return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _texLength);
-    }
+    };
 
     class REAnimCylinderInfo {
         constructor() {
-            this.groupName = null;//路径管线组名称
-            this.name = null;//路径管线名称
-            this.potList = null;//中心线路径顶点坐标集合
-            this.texPath = null;//纹理路径
-            this.radius = null;//管线半径
+            this.groupName = null; //路径管线组名称
+            this.name = null; //路径管线名称
+            this.potList = null; //中心线路径顶点坐标集合
+            this.texPath = null; //纹理路径
+            this.radius = null; //管线半径
         }
     }
     ExtModule.REAnimCylinderInfo = REAnimCylinderInfo;
@@ -9032,18 +9585,26 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {REAnimCylinderInfo} animCylinderInfo //路径平面信息（REAnimCylinderInfo类型）
      */
     Module.Animation.addAnimCylinder = function (animCylinderInfo) {
-        if (isEmptyLog(animCylinderInfo, "animCylinderInfo")) return;
+        if (isEmptyLog(animCylinderInfo, 'animCylinderInfo')) return;
 
         var temparr = new Module.RE_Vector_dvec3();
         for (var i = 0; i < animCylinderInfo.potList.length; ++i) {
             temparr.push_back(animCylinderInfo.potList[i]);
         }
-        var _texPath = isEmpty(animCylinderInfo.texPath) ? "" : animCylinderInfo.texPath;
+        var _texPath = isEmpty(animCylinderInfo.texPath) ? '' : animCylinderInfo.texPath;
         var _radius = isEmpty(animCylinderInfo.radius) ? 0 : animCylinderInfo.radius;
         var _arrWidth = new Module.RE_Vector_dvec3();
-        return Module.RealBIMWeb.AddAnimationCylinder(animCylinderInfo.groupName, animCylinderInfo.name, temparr, _texPath, true, _radius, 18, _arrWidth);
-    }
-
+        return Module.RealBIMWeb.AddAnimationCylinder(
+            animCylinderInfo.groupName,
+            animCylinderInfo.name,
+            temparr,
+            _texPath,
+            true,
+            _radius,
+            18,
+            _arrWidth
+        );
+    };
 
     class REShpAnimStyle {
         constructor() {
@@ -9056,18 +9617,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REShpAnimStyle = REShpAnimStyle;
 
-
     /**
      * 按组名称设置矢量动画的参数
      * @param {REShpAnimStyle} animStyleInfo //矢量动画参数
      */
     Module.Animation.setShapeAnimStyle = function (animStyleInfo) {
-        if (isEmptyLog(animStyleInfo.groupName, "groupName")) return;
+        if (isEmptyLog(animStyleInfo.groupName, 'groupName')) return;
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < animStyleInfo.nameList.length; ++i) { temparr0.push_back(animStyleInfo.nameList[i]); }
-        var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, (isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight));
+        for (var i = 0; i < animStyleInfo.nameList.length; ++i) {
+            temparr0.push_back(animStyleInfo.nameList[i]);
+        }
+        var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight);
         return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset);
-    }
+    };
 
     /**
      * 删除矢量动画
@@ -9076,22 +9638,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Animation.delShpAnimation = function (groupName, nameList) {
         var temparr0 = new Module.RE_Vector_WStr();
-        for (var i = 0; i < nameList.length; ++i) { temparr0.push_back(nameList[i]); }
+        for (var i = 0; i < nameList.length; ++i) {
+            temparr0.push_back(nameList[i]);
+        }
         return Module.RealBIMWeb.DelShpAnimation(groupName, temparr0);
-    }
-
-
-
-
-
-
-
-
-
-
+    };
 
     // MOD-- 剖切（Clip）
-    Module.Clip = typeof Module.Clip !== "undefined" ? Module.Clip : {};//增加 Clip 模块
+    Module.Clip = typeof Module.Clip !== 'undefined' ? Module.Clip : {}; //增加 Clip 模块
 
     // MARK 通用
     /**
@@ -9099,7 +9653,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} deleteCrossPart //是否去除与包围体相交叉部分的构件，只保留包含在包围体内的；false：表示包含交叉；true：表示去除交叉
      */
     Module.Clip.getSurplusID = function (deleteCrossPart) {
-        var _deleteCrossPart = false; if (!isEmpty()) _deleteCrossPart = deleteCrossPart;
+        var _deleteCrossPart = false;
+        if (!isEmpty()) _deleteCrossPart = deleteCrossPart;
         var tempselids = new Uint32Array(Module.RealBIMWeb.GetClippedElementIds(_deleteCrossPart));
         var projidarr = [];
         if (tempselids.length < 2) {
@@ -9117,8 +9672,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 if (curprojelemarr.length > 0) {
                     var curprojinfo = {};
-                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-                    curprojinfo["elemIdList"] = curprojelemarr;
+                    curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo['elemIdList'] = curprojelemarr;
                     projidarr.push(curprojinfo);
                     curprojelemarr = [];
                 }
@@ -9128,23 +9683,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         if (curprojelemarr.length > 0) {
             var curprojinfo = {};
-            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-            curprojinfo["elemIdList"] = curprojelemarr;
+            curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo['elemIdList'] = curprojelemarr;
             projidarr.push(curprojinfo);
             curprojelemarr = [];
         }
         return projidarr;
-    }
+    };
 
     class REClipInfo {
         constructor() {
-            this.scale = null;//缩放
-            this.rotate = null;//旋转
-            this.offset = null;//平移
-            this.isSingleSurfaceClip = false;//是否是单面剖切
-            this.pot1 = null;//三角面剖切顶点1
-            this.pot2 = null;//三角面剖切顶点2
-            this.pot3 = null;//三角面剖切顶点3
+            this.scale = null; //缩放
+            this.rotate = null; //旋转
+            this.offset = null; //平移
+            this.isSingleSurfaceClip = false; //是否是单面剖切
+            this.pot1 = null; //三角面剖切顶点1
+            this.pot2 = null; //三角面剖切顶点2
+            this.pot3 = null; //三角面剖切顶点3
         }
     }
     ExtModule.REClipInfo = REClipInfo;
@@ -9164,14 +9719,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         clipInfo.pot2 = _clipInfoTemp.m_vVer1;
         clipInfo.pot3 = _clipInfoTemp.m_vVer2;
         return clipInfo;
-    }
+    };
 
     /**
      * 设置剖面信息，设置后进入剖切编辑状态
      * @param {REClipInfo} clipInfo //剖面信息
      */
     Module.Clip.setDataIntoClip = function (clipInfo) {
-        if (isEmptyLog(clipInfo, "clipInfo")) return;
+        if (isEmptyLog(clipInfo, 'clipInfo')) return;
         var _clipInfo = {
             m_qRotation: clipInfo.rotate,
             m_vTranslation: clipInfo.offset,
@@ -9182,14 +9737,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vVer2: clipInfo.pot3,
         };
         return Module.RealBIMWeb.SetSceneClippingInfoEdit(_clipInfo);
-    }
+    };
 
     /**
      * 设置剖面信息，设置后进入剖切完成状态
      * @param {REClipInfo} clipInfo //剖面信息
      */
     Module.Clip.setData = function (clipInfo) {
-        if (isEmptyLog(clipInfo, "clipInfo")) return;
+        if (isEmptyLog(clipInfo, 'clipInfo')) return;
         var _clipInfo = {
             m_qRotation: clipInfo.rotate,
             m_vTranslation: clipInfo.offset,
@@ -9200,72 +9755,70 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vVer2: clipInfo.pot3,
         };
         return Module.RealBIMWeb.SetSceneClippingInfo(_clipInfo);
-    }
+    };
 
     /**
      * 退出剖切状态
      */
     Module.Clip.endClip = function () {
         Module.RealBIMWeb.EndSceneClipping();
-    }
+    };
 
     /**
      * 判断是否处于剖切浏览模式
      */
     Module.Clip.getClipBrowseState = function () {
         return Module.RealBIMWeb.IsSceneClippingBrowsing();
-    }
+    };
 
     /**
      * 设置反向显示剖切区域
      */
     Module.Clip.setReverseShowClipRgn = function () {
         Module.RealBIMWeb.ReverseShowClipRgn();
-    }
+    };
 
     /**
      * 设置当前剖切状态为浏览模式
      */
     Module.Clip.setClipBrowseStyle = function () {
         Module.RealBIMWeb.ExecuteSceneClip(false);
-    }
+    };
 
     /**
      * 设置当前剖切状态为编辑模式
      */
     Module.Clip.setClipEditStyle = function () {
         Module.RealBIMWeb.ExecuteSceneClip(true);
-    }
+    };
 
     /**
      * 重置剖切操作
      */
     Module.Clip.resetClip = function () {
-        if (!Module.RealBIMWeb.IsClipObjectValid()) return;//不在剖切模式下
+        if (!Module.RealBIMWeb.IsClipObjectValid()) return; //不在剖切模式下
         if (Module.RealBIMWeb.IsSinglePlaneClipping()) {
             // 是否是单面剖切
             Module.RealBIMWeb.ResetClipping(true);
         } else {
             Module.RealBIMWeb.ResetClipping(false);
         }
-    }
+    };
 
     /**
      * 获取是否是在剖切模式下
      */
     Module.Clip.getClipState = function () {
         return Module.RealBIMWeb.IsClipObjectValid();
-    }
+    };
 
     /**
      * 获取当前处于剖切模式的操作状态（单面剖切、体剖切）
      */
     Module.Clip.getClipOptState = function () {
-        if (!Module.RealBIMWeb.IsClipObjectValid()) return 0;//不在剖切模式下
+        if (!Module.RealBIMWeb.IsClipObjectValid()) return 0; //不在剖切模式下
         return Module.RealBIMWeb.IsSinglePlaneClipping() ? 1 : 2;
-    }
-
-
+    };
 
     // MARK 体剖切
 
@@ -9274,7 +9827,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} dataList //构件集合（支持多数据集构件集合） [{dataSetId:"",elemIdList:[]}]
      */
     Module.Clip.setBoxClip = function (dataList) {
-        if (isEmptyLog(dataList, "dataList")) return;
+        if (isEmptyLog(dataList, 'dataList')) return;
 
         if (!dataList.length) {
             Module.RealBIMWeb.BeginSceneClippingByElemSet(false, 0, 0);
@@ -9282,53 +9835,53 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var count = 0;
             for (let i = 0; i < dataList.length; i++) {
                 let _obj = dataList[i];
-                let _list = _obj["elemIdList"];
+                let _list = _obj['elemIdList'];
                 count += _list.length;
             }
 
             var _moemory = (count * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory)//分配空间
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
             for (let i = 0; i < count; i++) {
                 let _obj = dataList[i];
-                let _list = _obj["elemIdList"];
-                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj["dataSetId"]);
+                let _list = _obj['elemIdList'];
+                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj['dataSetId']);
                 let elemid = _list[i];
                 _elemIds.set([elemid, _projid], i * 2);
             }
             Module.RealBIMWeb.BeginSceneClippingByElemSet(false, _elemIds.byteLength, _elemIds.byteOffset);
         }
-    }
+    };
 
     /**
      * 进入体剖切状态（数据集模式）
      * @param {Array} dataSetIdList //数据集标识集合,为空数组代表所有数据集
      */
     Module.Clip.setDataSetBoxClip = function (dataSetIdList) {
-        if (isEmptyLog(dataSetIdList, "dataSetIdList")) return;
+        if (isEmptyLog(dataSetIdList, 'dataSetIdList')) return;
 
         var _vector_DataSetIds = new Module.RE_Vector_WStr();
         for (let i = 0; i < dataSetIdList.length; i++) {
             _vector_DataSetIds.push_back(dataSetIdList[i]);
         }
         Module.RealBIMWeb.BeginSceneClippingByProjSet(false, _vector_DataSetIds);
-    }
+    };
 
     /**
      * 获取体剖切变换模式
      */
     Module.Clip.getBoxClipTransType = function () {
         return Module.RealBIMWeb.GetSceneClippingTransformMode();
-    }
+    };
 
     /**
      * 设置体剖切变换模式
-     * @param {Number} type //剖切变换模式(默认缩放) 0:位移 1:旋转 2:缩放  
+     * @param {Number} type //剖切变换模式(默认缩放) 0:位移 1:旋转 2:缩放
      */
     Module.Clip.setBoxClipTransType = function (type) {
         var _type = isEmpty(type) ? 2 : type;
         Module.RealBIMWeb.SetSceneClippingTransformMode(_type);
-    }
+    };
 
     /**
      * 根据指定高度进行单双面剖切
@@ -9339,12 +9892,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Clip.setClipSpecifyHeight = function (dataSetId, topHeight, bottomHeight, single) {
         return Module.RealBIMWeb.ClipByProj(topHeight, bottomHeight, single, dataSetId);
-    }
-
-
-
-
-
+    };
 
     // MARK 单面剖切
     /**
@@ -9352,30 +9900,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Clip.setSingleClip = function () {
         Module.RealBIMWeb.BeginSceneClippingByElemSet(true, 0, 0);
-    }
+    };
 
     /**
      * 获取单面剖切的创建方式
      */
     Module.Clip.getSingleClipCreateType = function () {
         return Module.RealBIMWeb.GetClipPlaneCreateMode();
-    }
+    };
 
     /**
      * 设置单面剖切的创建方式（三点构面、鼠标拾取）
-     * @param {Number} type //创建模式(默认三点构面) 0:三点构面 1:鼠标拾取  
+     * @param {Number} type //创建模式(默认三点构面) 0:三点构面 1:鼠标拾取
      */
     Module.Clip.setSingleClipCreateType = function (type) {
         var _type = isEmpty(type) ? 0 : type;
         Module.RealBIMWeb.SetClipPlaneCreateMode(_type);
-    }
-
-
-
-
-
-
-
+    };
 
     // MARK 相机
     /**
@@ -9384,67 +9925,50 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} scale //表示包围盒高度缩放系数
      */
     Module.Clip.setLocateToClipElem = function (locType, scale) {
-        if (isEmptyLog(locType, "locType")) return;
-        var _dScale = 1; if (!isEmpty(scale)) { _dScale = scale; }
+        if (isEmptyLog(locType, 'locType')) return;
+        var _dScale = 1;
+        if (!isEmpty(scale)) {
+            _dScale = scale;
+        }
 
-        var strCamDir = "top";
+        var strCamDir = 'top';
         switch (locType) {
             case RECamDirEm.CAM_DIR_FRONT:
-                strCamDir = "front";
+                strCamDir = 'front';
                 break;
             case RECamDirEm.CAM_DIR_BACK:
-                strCamDir = "back";
+                strCamDir = 'back';
                 break;
             case RECamDirEm.CAM_DIR_LEFT:
-                strCamDir = "left";
+                strCamDir = 'left';
                 break;
             case RECamDirEm.CAM_DIR_RIGHT:
-                strCamDir = "right";
+                strCamDir = 'right';
                 break;
             case RECamDirEm.CAM_DIR_TOP:
-                strCamDir = "top";
+                strCamDir = 'top';
                 break;
             case RECamDirEm.CAM_DIR_BOTTOM:
-                strCamDir = "bottom";
+                strCamDir = 'bottom';
                 break;
             default:
-                strCamDir = "top";
+                strCamDir = 'top';
                 break;
         }
-        return Module.RealBIMWeb.TargetToCilpElem(strCamDir, _dScale)
-    }
+        return Module.RealBIMWeb.TargetToCilpElem(strCamDir, _dScale);
+    };
 
     /**
      * 定位相机到剖切面
      */
     Module.Clip.setLocateToClipPlane = function () {
         Module.RealBIMWeb.TargetToClipRegion();
-    }
-
-
-
-
-
-
+    };
 
     // MARK 组合剖切
 
-
-
-
-
-
-
-
-
-
-
-
-
     // MOD-- 小地图（MiniMap）
-    Module.MiniMap = typeof Module.MiniMap !== "undefined" ? Module.MiniMap : {};//增加 MiniMap 模块
-
-
+    Module.MiniMap = typeof Module.MiniMap !== 'undefined' ? Module.MiniMap : {}; //增加 MiniMap 模块
 
     // MARK 加载
     /**
@@ -9454,11 +9978,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} scale //图纸的比例尺信息（默认为1:1）
      */
     Module.MiniMap.loadCAD = function (filePath, unit, scale) {
-        if (isEmptyLog(filePath, "filePath")) return;
+        if (isEmptyLog(filePath, 'filePath')) return;
         var _CADUnit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
-        var _CADScale = 1.0; if (!isEmpty(scale)) { _CADScale = scale; }
+        var _CADScale = 1.0;
+        if (!isEmpty(scale)) {
+            _CADScale = scale;
+        }
         Module.RealBIMWeb.LoadOverViewCAD(filePath, _CADUnit, _CADScale);
-    }
+    };
 
     /**
      * 加载小地图中的图片文件
@@ -9471,21 +9998,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.loadImage = function (texPath, picSize, texSize, insertPos, alpha) {
         if (!checkTypeLog(texPath, 'texPath', RE_Enum.RE_Check_String)) return;
 
-        var _a = 1.0; if (!isEmpty(alpha)) _a = (parseInt(alpha) / 255);
+        var _a = 1.0;
+        if (!isEmpty(alpha)) _a = parseInt(alpha) / 255;
         return Module.RealBIMWeb.LoadOverViewImage(texPath, texSize[0], texSize[1], insertPos, picSize[0], picSize[1], _a);
-    }
+    };
 
     /**
      * 调整CAD小地图显示，缩放到当前小地图展示范围
      */
     Module.MiniMap.setShowRangeRefresh = function () {
         return Module.RealBIMWeb.CADOverViewFocusToAll();
-    }
-
-
-
-
-
+    };
 
     // MARK 渲染设置
     /**
@@ -9493,7 +10016,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.MiniMap.getVisible = function () {
         return Module.RealBIMWeb.GetOverViewShow();
-    }
+    };
 
     /**
      * 设置小地图的显示状态
@@ -9502,7 +10025,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.setVisible = function (visible) {
         if (isEmptyLog(visible, 'visible')) return;
         return Module.RealBIMWeb.SetOverViewShow(visible);
-    }
+    };
 
     /**
      * 设置小地图的背景颜色
@@ -9513,14 +10036,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _clr = clrToRGBA_List(bgClr);
         Module.RealBIMWeb.SetOverViewBackColor(_clr);
         return true;
-    }
+    };
 
     /**
      * 获取小地图的显示区域范围 (小地图显示的实际范围（像素）)
      */
     Module.MiniMap.getRegion = function () {
         return Module.RealBIMWeb.GetOverViewRegion();
-    }
+    };
 
     /**
      * 设置小地图的显示区域比例（原点和对焦点相对主界面宽高的百分比）！！！显示范围限制在小地图最大的宽高设置
@@ -9530,14 +10053,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.setRegion = function (scaleOrigin, scaleDiagonal) {
         var _Region = scaleOrigin.concat(scaleDiagonal);
         return Module.RealBIMWeb.SetOverViewRegion(_Region);
-    }
+    };
 
     /**
      * 获取小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
      */
     Module.MiniMap.getMaxRegion = function () {
         return Module.RealBIMWeb.GetOverViewMaxRegion();
-    }
+    };
 
     /**
      * 设置小地图的最大宽高 (像素值, xy分别表示最大宽度和高度)
@@ -9545,14 +10068,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.MiniMap.setMaxRegion = function (region) {
         return Module.RealBIMWeb.SetOverViewMaxRegion(region);
-    }
+    };
 
     /**
      * 获取小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
      */
     Module.MiniMap.getMinRegion = function () {
         return Module.RealBIMWeb.GetOverViewMinRegion();
-    }
+    };
 
     /**
      * 设置小地图的最小宽高 (像素值, xy分别表示最小宽度和高度)
@@ -9560,7 +10083,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.MiniMap.setMinRegion = function (region) {
         return Module.RealBIMWeb.SetOverViewMinRegion(region);
-    }
+    };
 
     /**
      * 设置小地图相机显示样式
@@ -9571,11 +10094,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(iconClr, 'iconClr')) return;
 
         var _clr = clrToU32_W_WBGR(iconClr, iconClr.alpha);
-        var _iconSize = 20; if (!isEmpty(iconSize)) _iconSize = iconSize;
+        var _iconSize = 20;
+        if (!isEmpty(iconSize)) _iconSize = iconSize;
         return Module.RealBIMWeb.SetOverViewCamStyle(_clr, _iconSize);
-    }
-
-
+    };
 
     // MARK 相机
     /**
@@ -9584,32 +10106,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Vec2} camDir //相机朝向 可不传
      */
     Module.MiniMap.setCamLocateTo = function (camPos, camDir) {
-        if (isEmptyLog(camPos, "camPos")) return;
-        var _dPosX = camPos[0]; var _dPosY = camPos[1];
-        var _dDirX = 0; var _dDirY = 0;
-        if (camPos.length = 2) {
+        if (isEmptyLog(camPos, 'camPos')) return;
+        var _dPosX = camPos[0];
+        var _dPosY = camPos[1];
+        var _dDirX = 0;
+        var _dDirY = 0;
+        if ((camPos.length = 2)) {
             _dDirX = camDir[0];
             _dDirY = camDir[1];
         }
         return Module.RealBIMWeb.SetOverViewCamLocation(_dPosX, _dPosY, _dDirX, _dDirY);
-    }
+    };
 
     class RECADTransInfo {
         constructor() {
-            this.basePos = null;//	变换基点
-            this.offset = null;//	偏移量
-            this.scaleFactor = null;//	缩放比例
-            this.angle = null;//	旋转角度
-            this.normal = null;//	法向量
-            this.axis = null;//	镜像轴向以基点为基准
+            this.basePos = null; //	变换基点
+            this.offset = null; //	偏移量
+            this.scaleFactor = null; //	缩放比例
+            this.angle = null; //	旋转角度
+            this.normal = null; //	法向量
+            this.axis = null; //	镜像轴向以基点为基准
         }
     }
     ExtModule.RECADTransInfo = RECADTransInfo;
 
     class RECADConvertInfo {
         constructor() {
-            this.bimPoint = null;//	BIM顶点
-            this.cadPoint = null;//	CAD顶点
+            this.bimPoint = null; //	BIM顶点
+            this.cadPoint = null; //	CAD顶点
         }
     }
     ExtModule.RECADConvertInfo = RECADConvertInfo;
@@ -9623,7 +10147,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!checkTypeLog(pointList, 'pointList', RE_Enum.RE_Check_Array)) return {};
 
         if (pointList.length < 3) {
-            logErr("对应的BIM和CAD点集合, 最少大于等于3个数据");
+            logErr('对应的BIM和CAD点集合, 最少大于等于3个数据');
             return;
         }
         var _vector_BIMPoints = new Module.RE_Vector_dvec3();
@@ -9640,14 +10164,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
 
         var transInfo = new RECADTransInfo();
-        transInfo.basePos = _vector_TransformInfo.m_vBasePos;//变换基点
-        transInfo.offset = _vector_TransformInfo.m_vOffset;//偏移量
-        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor;//缩放比例
-        transInfo.angle = _vector_TransformInfo.m_dAngle;//旋转角度
-        transInfo.normal = _vector_TransformInfo.m_vNormal;//法向量
-        transInfo.axis = _vector_TransformInfo.m_vAxis;//镜像轴向以基点为基准
+        transInfo.basePos = _vector_TransformInfo.m_vBasePos; //变换基点
+        transInfo.offset = _vector_TransformInfo.m_vOffset; //偏移量
+        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor; //缩放比例
+        transInfo.angle = _vector_TransformInfo.m_dAngle; //旋转角度
+        transInfo.normal = _vector_TransformInfo.m_vNormal; //法向量
+        transInfo.axis = _vector_TransformInfo.m_vAxis; //镜像轴向以基点为基准
         return transInfo;
-    }
+    };
 
     /**
      * 设置小地图相机变换数据 (通过顶点映射)
@@ -9658,7 +10182,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!checkTypeLog(pointList, 'pointList', RE_Enum.RE_Check_Array)) return false;
 
         if (pointList.length < 3) {
-            logErr("对应的BIM和CAD点集合, 最少大于等于3个数据");
+            logErr('对应的BIM和CAD点集合, 最少大于等于3个数据');
             return;
         }
         var _vector_BIMPoints = new Module.RE_Vector_dvec3();
@@ -9673,7 +10197,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _CADUnit = isEmpty(unit) ? eval(RECadUnitEm.CAD_UNIT_Meter) : eval(unit);
         var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfoByPosMap(_vector_BIMPoints, _vector_CADPoints, _CADUnit);
         return Module.RealBIMWeb.SetOverViewCamTransformInfo(_vector_TransformInfo);
-    }
+    };
 
     /**
      * 设置小地图相机变换数据 (通过 RECADTransInfo 对象)
@@ -9690,7 +10214,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_vAxis: cadTransInfo.axis,
         };
         return Module.RealBIMWeb.SetOverViewCamTransformInfo(_TransformInfo);
-    }
+    };
 
     /**
      * 获取小地图相机变换数据
@@ -9698,14 +10222,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.getCamTransInfo = function () {
         var _vector_TransformInfo = Module.RealBIMWeb.GetOverViewCamTransformInfo();
         var transInfo = new RECADTransInfo();
-        transInfo.basePos = _vector_TransformInfo.m_vBasePos;//变换基点
-        transInfo.offset = _vector_TransformInfo.m_vOffset;//偏移量
-        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor;//缩放比例
-        transInfo.angle = _vector_TransformInfo.m_dAngle;//旋转角度
-        transInfo.normal = _vector_TransformInfo.m_vNormal;//法向量
-        transInfo.axis = _vector_TransformInfo.m_vAxis;//镜像轴向以基点为基准
+        transInfo.basePos = _vector_TransformInfo.m_vBasePos; //变换基点
+        transInfo.offset = _vector_TransformInfo.m_vOffset; //偏移量
+        transInfo.scaleFactor = _vector_TransformInfo.m_dScaleFactor; //缩放比例
+        transInfo.angle = _vector_TransformInfo.m_dAngle; //旋转角度
+        transInfo.normal = _vector_TransformInfo.m_vNormal; //法向量
+        transInfo.axis = _vector_TransformInfo.m_vAxis; //镜像轴向以基点为基准
         return transInfo;
-    }
+    };
 
     /**
      * 设置指定组 CAD类型小地图矢量锚点的相机缩放边界值
@@ -9716,11 +10240,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.setCADGroupShpAncScale = function (groupId, minScale, maxScale) {
         if (isEmptyLog(groupId, 'groupId')) return;
         return Module.RealBIMWeb.SetCADOverViewShpAnchorScale(groupId, minScale, maxScale);
-    }
-
-
-
-
+    };
 
     // MARK 锚点
 
@@ -9736,11 +10256,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let cadShpAnc = ancList[i];
 
             var _obj = {
-                m_strID: isEmpty(cadShpAnc.anchorId) ? "" : cadShpAnc.anchorId,
+                m_strID: isEmpty(cadShpAnc.anchorId) ? '' : cadShpAnc.anchorId,
                 m_vPos: isEmpty(cadShpAnc.pos) ? [0.0, 0.0] : cadShpAnc.pos,
-                m_strShpPath: isEmpty(cadShpAnc.shpPath) ? "" : cadShpAnc.shpPath,
-                m_strGroupID: isEmpty(cadShpAnc.groupId) ? "" : cadShpAnc.groupId,
-                m_strText: isEmpty(cadShpAnc.text) ? "" : cadShpAnc.text,
+                m_strShpPath: isEmpty(cadShpAnc.shpPath) ? '' : cadShpAnc.shpPath,
+                m_strGroupID: isEmpty(cadShpAnc.groupId) ? '' : cadShpAnc.groupId,
+                m_strText: isEmpty(cadShpAnc.text) ? '' : cadShpAnc.text,
                 m_uTextClr: isEmpty(cadShpAnc.textClr) ? 0xffffffff : clrToU32(cadShpAnc.textClr),
                 m_dTextSize: isEmpty(cadShpAnc.textSize) ? 16 : cadShpAnc.textSize,
                 m_vTextAlign: isEmpty(cadShpAnc.textAlign) ? REGridPosEm.MM : cadShpAnc.textAlign,
@@ -9748,15 +10268,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_ShpAnchor.push_back(_obj);
         }
         return Module.RealBIMWeb.AddCADOverViewShpAnchors(_vector_ShpAnchor);
-    }
-
+    };
 
     /**
      * 获取系统中的CAD类型小地图矢量锚点总数
      */
     Module.MiniMap.getCADShpAncNum = function () {
         return Module.RealBIMWeb.GetCADOverViewShpAnchorNum();
-    }
+    };
 
     /**
      * 获取系统中所有的CAD类型小地图矢量锚点信息
@@ -9779,7 +10298,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _shpAnchors.push(shpAnc);
         }
         return _shpAnchors;
-    }
+    };
 
     /**
      * 获取一个CAD类型小地图矢量锚点的信息
@@ -9799,7 +10318,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         shpAnc.anchorId = _vector_ShpAnchor.m_strID;
         shpAnc.textAlign = _vector_ShpAnchor.m_vTextAlign;
         return shpAnc;
-    }
+    };
 
     /**
      * 获取系统中所有CAD类型小地图矢量锚点组的名称
@@ -9811,7 +10330,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _groupIDs.push(_vector_GroupIDs.get(i));
         }
         return _groupIDs;
-    }
+    };
 
     /**
      * 获取系统中某个CAD类型小地图矢量锚点组包含的所有CAD矢量锚点信息
@@ -9836,14 +10355,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _shpAnchors.push(shpAnc);
         }
         return _shpAnchors;
-    }
+    };
 
     /**
      * 删除系统所有的CAD类型小地图矢量锚点
      */
     Module.MiniMap.delAllCADShpAnc = function () {
         return Module.RealBIMWeb.DelAllCADOverViewShpAnchors();
-    }
+    };
 
     /**
      * 删除对应ID列表的 CAD类型小地图矢量锚点
@@ -9857,7 +10376,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_AnchorIDs.push_back(anc);
         }
         return Module.RealBIMWeb.DelCADOverViewShpAnchors(_vector_AnchorIDs);
-    }
+    };
 
     /**
      * 删除对应组 包含的所有CAD矢量锚点
@@ -9866,26 +10385,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.delCADGroupShpAnc = function (groupId) {
         if (isEmptyLog(groupId, 'groupId')) return;
         return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(groupId);
-    }
-
-
-
-
-
-
+    };
 
     // MOD-- 管道（Pipe）
-    Module.Pipe = typeof Module.Pipe !== "undefined" ? Module.Pipe : {};//增加 Pipe 模块
-
+    Module.Pipe = typeof Module.Pipe !== 'undefined' ? Module.Pipe : {}; //增加 Pipe 模块
 
     // MARK 加载
     class REPipeInfo {
         constructor() {
-            this.dataSetId = null;// 数据集标识
-            this.pipeId = null;// 管道唯一标识
-            this.elemIdList = null;// 连续的构件id集合
-            this.texPath = null;// 纹理路径
-            this.pipeClr = null;// 管道显示的颜色 （REColor 类型）
+            this.dataSetId = null; // 数据集标识
+            this.pipeId = null; // 管道唯一标识
+            this.elemIdList = null; // 连续的构件id集合
+            this.texPath = null; // 纹理路径
+            this.pipeClr = null; // 管道显示的颜色 （REColor 类型）
         }
     }
     ExtModule.REPipeInfo = REPipeInfo;
@@ -9902,18 +10414,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var count = pipeInfo.elemIdList.length;
         var _moemory = (count * 4).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < count; ++i) {
             var eleid = pipeInfo.elemIdList[i];
             _elemIds.set([eleid], i);
         }
 
-        var _texPath = !isEmpty(pipeInfo.texPath) ? pipeInfo.texPath : "";
+        var _texPath = !isEmpty(pipeInfo.texPath) ? pipeInfo.texPath : '';
         var _pipeClr = !isEmpty(pipeInfo.pipeClr) ? clrToU32(pipeInfo.pipeClr) : 0xffffffff;
         Module.RealBIMWeb.AddContPipe(pipeInfo.dataSetId, pipeInfo.pipeId, _elemIds.byteLength, _elemIds.byteOffset, _texPath, _pipeClr);
-
-    }
+    };
 
     /**
      * 删除连续管道
@@ -9926,7 +10437,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_PipeIds.push_back(pipeId);
         }
         Module.RealBIMWeb.DelContPipe(_vector_PipeIds);
-    }
+    };
 
     /**
      * 获取连续管道的标识集合
@@ -9939,7 +10450,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             pipeIdList.push(tempobj);
         }
         return pipeIdList;
-    }
+    };
 
     /**
      * 获取连续管道信息中构件的ID集合
@@ -9959,8 +10470,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 if (curprojelemarr.length > 0) {
                     var curprojinfo = {};
-                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-                    curprojinfo["elemIdList"] = curprojelemarr;
+                    curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo['elemIdList'] = curprojelemarr;
                     projidarr.push(curprojinfo);
                     curprojelemarr = [];
                 }
@@ -9970,13 +10481,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         if (curprojelemarr.length > 0) {
             var curprojinfo = {};
-            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-            curprojinfo["elemIdList"] = curprojelemarr;
+            curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo['elemIdList'] = curprojelemarr;
             projidarr.push(curprojinfo);
             curprojelemarr = [];
         }
         return projidarr.length ? projidarr[0] : {};
-    }
+    };
 
     /**
      * 获取连续管道信息
@@ -9990,7 +10501,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_PipeIds.push_back(pipeId);
         }
         return Module.RealBIMWeb.GetContPipe(_vector_PipeIds);
-    }
+    };
 
     /**
      * 加载连续管道
@@ -10001,7 +10512,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         if (isEmptyLog(pipeInfoXMLStr, 'pipeInfoXMLStr')) return;
         Module.RealBIMWeb.SetContPipe(dataSetId, pipeInfoXMLStr);
-    }
+    };
 
     /**
      * 生成连续管道中心线
@@ -10015,11 +10526,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_PipeIds.push_back(pipeId);
         }
         Module.RealBIMWeb.GenContPipeCenterLine(_vector_PipeIds);
-    }
-
-
-
-
+    };
 
     // MARK 渲染设置
     /**
@@ -10031,7 +10538,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(pipeId, 'pipeId')) return;
         if (isEmptyLog(picPath, 'picPath')) return;
         return Module.RealBIMWeb.SetContPipeTex(pipeId, picPath);
-    }
+    };
 
     /**
      * 获取连续管道的纹理路径
@@ -10040,7 +10547,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Pipe.getContPipeTex = function (pipeId) {
         if (isEmptyLog(pipeId, 'pipeId')) return;
         return Module.RealBIMWeb.GetContPipeTex(pipeId);
-    }
+    };
 
     /**
      * 设置连续管道的颜色
@@ -10051,7 +10558,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(pipeId, 'pipeId')) return;
         var _pipeClr = !isEmpty(pipeClr) ? clrToU32(pipeClr) : 0xffffffff;
         Module.RealBIMWeb.SetContPipeClr(pipeId, _pipeClr);
-    }
+    };
 
     /**
      * 获取连续管道的颜色
@@ -10061,7 +10568,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(pipeId, 'pipeId')) return;
         var _uPipeClr = Module.RealBIMWeb.GetContPipeClr(pipeId);
         return clrU32ToClr(_uPipeClr);
-    }
+    };
 
     /**
      * 设置当前连续管道的颜色
@@ -10070,7 +10577,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Pipe.setCurContPipeClr = function (pipeClr) {
         var _pipeClr = !isEmpty(pipeClr) ? clrToU32(pipeClr) : 0xffffffff;
         Module.RealBIMWeb.SetCurContPipeClr(_pipeClr);
-    }
+    };
 
     /**
      * 获取当前连续管道的颜色
@@ -10078,7 +10585,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Pipe.getCurContPipeClr = function () {
         var _uPipeClr = Module.RealBIMWeb.GetCurContPipeClr();
         return clrU32ToClr(_uPipeClr);
-    }
+    };
 
     /**
      * 设置连续管道是否显示
@@ -10094,9 +10601,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _vector_PipeIds.push_back(pipeId);
         }
         Module.RealBIMWeb.ShowContPipe(_vector_PipeIds, enable, showAnc);
-    }
-
-
+    };
 
     // MARK 编辑
     /**
@@ -10104,21 +10609,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Pipe.startEditContPipeMode = function () {
         Module.RealBIMWeb.EnterContPipeMode();
-    }
+    };
 
     /**
      * 结束连续管道交互模式
      */
     Module.Pipe.endEditContPipeMode = function () {
         Module.RealBIMWeb.ExitContPipeMode();
-    }
+    };
 
     /**
      * 获取是否在连续管道编辑状态
      */
     Module.Pipe.getContPipeMode = function () {
         return Module.RealBIMWeb.GetContPipeMode();
-    }
+    };
 
     /**
      * 设置当前连续管道
@@ -10127,28 +10632,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Pipe.setCurContPipe = function (pipeId) {
         if (isEmptyLog(pipeId, 'pipeId')) return;
         Module.RealBIMWeb.SetCurContPipe(pipeId);
-    }
+    };
 
     /**
      * 获取当前连续管道ID
      */
     Module.Pipe.getCurContPipe = function () {
         return Module.RealBIMWeb.GetCurContPipeID();
-    }
+    };
 
     /**
      * 保存当前连续管道
      */
     Module.Pipe.saveCurContPipe = function () {
         Module.RealBIMWeb.SaveCurContPipe();
-    }
+    };
 
     /**
      * 重置当前连续管道
      */
     Module.Pipe.resetCurContPipe = function () {
         Module.RealBIMWeb.ResetCurContPipe();
-    }
+    };
 
     /**
      * 从当前操作的管道中移除构件
@@ -10166,14 +10671,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return;
         }
         var _moemory = (count * 8).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (i = 0; i < count; ++i) {
             var eleid = elemIdList[i];
             _elemIds.set([eleid, _projid], i * 2);
         }
         Module.RealBIMWeb.RemoveCurContPipeSubElem(_elemIds.byteLength, _elemIds.byteOffset);
-    }
+    };
 
     /**
      * 获取当前连续管道的构件ID集合
@@ -10192,8 +10697,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 if (curprojelemarr.length > 0) {
                     var curprojinfo = {};
-                    curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-                    curprojinfo["elemIdList"] = curprojelemarr;
+                    curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+                    curprojinfo['elemIdList'] = curprojelemarr;
                     projidarr.push(curprojinfo);
                     curprojelemarr = [];
                 }
@@ -10203,22 +10708,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         if (curprojelemarr.length > 0) {
             var curprojinfo = {};
-            curprojinfo["dataSetId"] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
-            curprojinfo["elemIdList"] = curprojelemarr;
+            curprojinfo['dataSetId'] = Module.RealBIMWeb.ConvGolIntID2StrID(curprojid);
+            curprojinfo['elemIdList'] = curprojelemarr;
             projidarr.push(curprojinfo);
             curprojelemarr = [];
         }
         return projidarr.length ? projidarr[0] : {};
-    }
-
-
-
-
-
-
+    };
 
     // MOD-- 单构件（Entity）
-    Module.Entity = typeof Module.Entity !== "undefined" ? Module.Entity : {};//增加 Entity 模块
+    Module.Entity = typeof Module.Entity !== 'undefined' ? Module.Entity : {}; //增加 Entity 模块
 
     // MARK 加载
     /**
@@ -10233,18 +10732,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(arrTypeName.get(i));
         }
         return nameArr;
-    }
-
+    };
 
     class REEntityInfo {
         constructor() {
-            this.dataSetId = null;// 数据集标识
-            this.entityType = null;// 实例类型名称
-            this.elemId = null;// 构件唯一标识，重复添加失败, 0代表引擎自增创建id
-            this.scale = [1.0, 1.0, 1.0];// 缩放
-            this.rotate = [0.0, 0.0, 0.0, 1.0];// 旋转
-            this.offset = [0.0, 0.0, 0.0];// 平移
-            this.dataSetCRS = null;// 坐标系标识
+            this.dataSetId = null; // 数据集标识
+            this.entityType = null; // 实例类型名称
+            this.elemId = null; // 构件唯一标识，重复添加失败, 0代表引擎自增创建id
+            this.scale = [1.0, 1.0, 1.0]; // 缩放
+            this.rotate = [0.0, 0.0, 0.0, 1.0]; // 旋转
+            this.offset = [0.0, 0.0, 0.0]; // 平移
+            this.dataSetCRS = null; // 坐标系标识
         }
     }
     ExtModule.REEntityInfo = REEntityInfo;
@@ -10273,12 +10771,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_vCustomScale: isEmpty(cEntity.scale) ? [1.0, 1.0, 1.0] : cEntity.scale,
                 m_qCustomRotate: isEmpty(cEntity.rotate) ? [0.0, 0.0, 0.0, 1.0] : cEntity.rotate,
                 m_vCustomOffset: isEmpty(cEntity.offset) ? [0.0, 0.0, 0.0] : cEntity.offset,
-                m_strCRS: isEmpty(cEntity.dataSetCRS) ? "" : cEntity.dataSetCRS
+                m_strCRS: isEmpty(cEntity.dataSetCRS) ? '' : cEntity.dataSetCRS,
             };
             _vector_entity.push_back(cEntity_obj);
         }
         return Module.RealBIMWeb.AddEntities(_vector_entity);
-    }
+    };
 
     /**
      * 获取项目中所有的实例信息集合
@@ -10286,8 +10784,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} entityType //实例类型名称, 空字符串获取当前项目所有类型的实例信息
      */
     Module.Entity.getEntitys = function (dataSetId, entityType) {
-        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
-        let _entityType = isEmpty(entityType) ? "" : entityType;
+        let _dataSetId = isEmpty(dataSetId) ? '' : dataSetId;
+        let _entityType = isEmpty(entityType) ? '' : entityType;
         let arrEntity = Module.RealBIMWeb.GetAllEntity(_dataSetId, _entityType);
         var entityList = [];
         for (i = 0; i < arrEntity.size(); ++i) {
@@ -10303,7 +10801,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             entityList.push(_entity);
         }
         return entityList;
-    }
+    };
 
     /**
      * 删除实例信息
@@ -10312,12 +10810,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //实例id集合, 空数组删除指定数据集指定类型下的所有实例id匹配实例
      */
     Module.Entity.delEntities = function (dataSetId, entityType, elemIdList) {
-        let _dataSetId = isEmpty(dataSetId) ? "" : dataSetId;
-        let _entityType = isEmpty(entityType) ? "" : entityType;
+        let _dataSetId = isEmpty(dataSetId) ? '' : dataSetId;
+        let _entityType = isEmpty(entityType) ? '' : entityType;
         let _elemIdList = isEmpty(elemIdList) ? [] : elemIdList;
 
-        if (_dataSetId == "") {
-            Module.RealBIMWeb.DelEntities("", "", 0xffffffff, 0);
+        if (_dataSetId == '') {
+            Module.RealBIMWeb.DelEntities('', '', 0xffffffff, 0);
         } else {
             if (!_elemIdList.length) {
                 Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, 0xffffffff, 0);
@@ -10325,7 +10823,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
                 let count = _elemIdList.length;
                 let _moemory = (count * 8).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
                 for (i = 0; i < count; ++i) {
                     var eleid = _elemIdList[i];
@@ -10334,9 +10832,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.DelEntities(_dataSetId, _entityType, _elemIds.byteLength, _elemIds.byteOffset);
             }
         }
-    }
-
-
+    };
 
     // MARK 编辑
     /**
@@ -10344,21 +10840,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Entity.getEditMode = function () {
         return Module.RealBIMWeb.GetEntityEditMode();
-    }
+    };
 
     /**
      * 开始进入实体交互状态
      */
     Module.Entity.enterEditMode = function () {
         Module.RealBIMWeb.EnterEntityEditMode();
-    }
+    };
 
     /**
      * 结束交互交互模式
      */
     Module.Entity.exitEditMode = function () {
         Module.RealBIMWeb.ExitEntityEditMode();
-    }
+    };
 
     /**
      * 设置是否连续添加实例
@@ -10366,7 +10862,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Entity.setMultiAddEntity = function (multiAdd) {
         Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
-    }
+    };
 
     /**
      * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
@@ -10374,19 +10870,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} entityType //实例类型名称，必填
      */
     Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
-        if (isEmpty(dataSetId) || dataSetId == "") { logParErr("dataSetId"); return; }
-        if (isEmpty(entityType) || entityType == "") { logParErr("entityType"); return; }
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(entityType) || entityType == '') {
+            logParErr('entityType');
+            return;
+        }
         Module.RealBIMWeb.SetEntityType(dataSetId, entityType);
-    }
-
+    };
 
     class REEntityAnimPlayInfo {
         constructor() {
-            this.dataSetId = null;// 数据集标识
-            this.entityType = null;// 实例类型名称
-            this.elemIdList = null;// 构件标识集合
-            this.animPlayMode = 4;// 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
-            this.animPlayState = 1;// 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+            this.dataSetId = null; // 数据集标识
+            this.entityType = null; // 实例类型名称
+            this.elemIdList = null; // 构件标识集合
+            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
         }
     }
     ExtModule.REEntityAnimPlayInfo = REEntityAnimPlayInfo;
@@ -10398,27 +10899,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Entity.setAnimPlayMode = function (animPlayModeInfo) {
         if (isEmptyLog(animPlayModeInfo, 'animPlayModeInfo')) return;
 
-        let _dataSetId = isEmpty(animPlayModeInfo.dataSetId) ? "" : animPlayModeInfo.dataSetId;
-        let _entityType = isEmpty(animPlayModeInfo.entityType) ? "" : animPlayModeInfo.entityType;
+        let _dataSetId = isEmpty(animPlayModeInfo.dataSetId) ? '' : animPlayModeInfo.dataSetId;
+        let _entityType = isEmpty(animPlayModeInfo.entityType) ? '' : animPlayModeInfo.entityType;
         let _elemIdList = isEmpty(animPlayModeInfo.elemIdList) ? [] : animPlayModeInfo.elemIdList;
         let _animPlayMode = isEmpty(animPlayModeInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animPlayModeInfo.animPlayMode);
         let _animPlayState = isEmpty(animPlayModeInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayModeInfo.animPlayState);
 
-        if (_dataSetId == "") {
-            Module.RealBIMWeb.SetEntityAnimPlayMode("", "", 0xffffffff, 0, _animPlayState, _animPlayMode);
+        if (_dataSetId == '') {
+            Module.RealBIMWeb.SetEntityAnimPlayMode('', '', 0xffffffff, 0, _animPlayState, _animPlayMode);
         } else {
             let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
             let count = animPlayModeInfo.elemIdList.length;
             let _moemory = (count * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
             for (i = 0; i < count; ++i) {
                 var eleid = _elemIdList[i];
                 _elemIds.set([eleid, _projid], i * 2);
             }
-            Module.RealBIMWeb.SetEntityAnimPlayMode(_dataSetId, _entityType, count ? _elemIds.byteLength : 0xffffffff, count ? _elemIds.byteOffset : 0, _animPlayState, _animPlayMode);
+            Module.RealBIMWeb.SetEntityAnimPlayMode(
+                _dataSetId,
+                _entityType,
+                count ? _elemIds.byteLength : 0xffffffff,
+                count ? _elemIds.byteOffset : 0,
+                _animPlayState,
+                _animPlayMode
+            );
         }
-    }
+    };
 
     /**
      * 获取实例的仿射变换信息
@@ -10426,12 +10934,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} elemIdList //构件id集合，空数组表示获取全部
      */
     Module.Entity.getTransInfo = function (dataSetId, elemIdList) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
 
         let _elemIdList = isEmpty(elemIdList) ? [] : elemIdList;
         let count = _elemIdList.length;
         if (!count) {
-            let arrEntity = Module.RealBIMWeb.GetAllEntity(dataSetId, "");
+            let arrEntity = Module.RealBIMWeb.GetAllEntity(dataSetId, '');
             for (let i = 0; i < arrEntity.size(); i++) {
                 let entity_obj = arrEntity.get(i);
                 _elemIdList.push(entity_obj.m_uEntityID);
@@ -10448,7 +10956,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             entityTransList.push(_trans_obj);
         }
         return entityTransList;
-    }
+    };
 
     /**
      * 设置实例的仿射变换信息
@@ -10457,14 +10965,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {RELocInfo} locInfo //位置信息
      */
     Module.Entity.setTransInfo = function (dataSetId, elemId, locInfo) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
         let _trans_obj = {
             m_vScale: locInfo.scale,
             m_qRotate: locInfo.rotate,
             m_vOffset: locInfo.offset,
         };
         return Module.RealBIMWeb.SetEntityTransform(dataSetId, elemId, _trans_obj);
-    }
+    };
 
     /**
      * 设置模型内子元素集合的总包围盒矢量是否显示
@@ -10472,15 +10980,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Entity.setBVShpVisiable = function (visible) {
         Module.RealBIMWeb.SetBVShpVisiable(visible);
-    }
-
+    };
 
     class REEntityBVInfo {
         constructor() {
-            this.lineClr = null;// 包围盒线颜色 （REColor 类型）
-            this.lineWidth = null;// 包围盒线宽度
-            this.faceClr = null;// 包围盒面颜色 （REColor 类型）
-            this.visiableType = 0;// 显示类型 0：全部显示  1：只显示线  2：只显示面 （默认显示全部）
+            this.lineClr = null; // 包围盒线颜色 （REColor 类型）
+            this.lineWidth = null; // 包围盒线宽度
+            this.faceClr = null; // 包围盒面颜色 （REColor 类型）
+            this.visiableType = 0; // 显示类型 0：全部显示  1：只显示线  2：只显示面 （默认显示全部）
         }
     }
     ExtModule.REEntityBVInfo = REEntityBVInfo;
@@ -10493,10 +11000,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _lineClr = isEmpty(entityBVInfo.lineClr) ? 0xff00ffff : clrToU32(entityBVInfo.lineClr);
         let _lineWidth = isEmpty(entityBVInfo.lineWidth) ? 3 : entityBVInfo.lineWidth;
         let _faceClr = isEmpty(entityBVInfo.faceClr) ? 0x0fffffff : clrToU32(entityBVInfo.faceClr);
-        let _visiableType = isEmpty(entityBVInfo.visiableType) ? 255 : (entityBVInfo.visiableType ? entityBVInfo.visiableType : 255);
+        let _visiableType = isEmpty(entityBVInfo.visiableType) ? 255 : entityBVInfo.visiableType ? entityBVInfo.visiableType : 255;
 
         Module.RealBIMWeb.SetBVShpStyle(_lineClr, _lineWidth, _faceClr, _visiableType);
-    }
+    };
 
     /**
      * 设置包围盒展示的范围
@@ -10505,12 +11012,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
      */
     Module.Entity.setBVShpRange = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, "dataSetId")) return;
-        if (isEmptyLog(elemIdList, "elemIdList")) return;
-        var _elemScope = 0; if (!isEmpty(elemScope)) { _elemScope = elemScope; }
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+        var _elemScope = 0;
+        if (!isEmpty(elemScope)) {
+            _elemScope = elemScope;
+        }
 
-        if (dataSetId == "") {
-            Module.RealBIMWeb.SetBVAttachHugeObjSubElems("", 0xffffffff, 0, _elemScope);
+        if (dataSetId == '') {
+            Module.RealBIMWeb.SetBVAttachHugeObjSubElems('', 0xffffffff, 0, _elemScope);
         } else {
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
             var _count = elemIdList.length;
@@ -10526,17 +11036,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.RealBIMWeb.SetBVAttachHugeObjSubElems(dataSetId, _elemIds.byteLength, _elemIds.byteOffset, _elemScope);
             }
         }
-    }
-
-
-
-
-
-
-
+    };
 
     // MOD-- 挖洞（Excavate）
-    Module.Excavate = typeof Module.Excavate !== "undefined" ? Module.Excavate : {};//增加 Excavate 模块    
+    Module.Excavate = typeof Module.Excavate !== 'undefined' ? Module.Excavate : {}; //增加 Excavate 模块
 
     // MARK 加载
     /**
@@ -10548,24 +11051,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(picPath, 'picPath')) return;
         let _size = isEmpty(size) ? [0, 0] : size;
         return Module.RealBIMWeb.AddExtrudeFaceTex(picPath, _size);
-    }
+    };
 
     /**
      * 清除挖洞面使用的纹理
      */
     Module.Excavate.clearAllExcavateFaceTex = function () {
         return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
-    }
-
+    };
 
     class REExcavateInfo {
         constructor() {
-            this.excavateId = null;// 挖洞标识
-            this.pointList = null;// 挖洞区域点集合 至少三个点
-            this.texId = null;// 纹理id 由 addExcavateFaceTex 返回的id
-            this.texPath = null;// 纹理路径
-            this.texSize = null;// 纹理大小
-            this.heightRange = null;//挖洞高度范围 范围需要包含挖洞区域点
+            this.excavateId = null; // 挖洞标识
+            this.pointList = null; // 挖洞区域点集合 至少三个点
+            this.texId = null; // 纹理id 由 addExcavateFaceTex 返回的id
+            this.texPath = null; // 纹理路径
+            this.texSize = null; // 纹理大小
+            this.heightRange = null; //挖洞高度范围 范围需要包含挖洞区域点
         }
     }
     ExtModule.REExcavateInfo = REExcavateInfo;
@@ -10590,7 +11092,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _texId = Module.Excavate.addExcavateFaceTex(excavateInfo.texPath, _size);
         }
         return Module.RealBIMWeb.CreateExtrudeObj(excavateInfo.excavateId, _vector_point, [0, 0, 1], _texId, excavateInfo.heightRange);
-    }
+    };
 
     /**
      * 根据标识删除一个挤出区域对象
@@ -10599,8 +11101,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Excavate.delExcavateObj = function (excavateId) {
         if (isEmptyLog(excavateId, 'excavateId')) return;
         return Module.RealBIMWeb.DelExtrudeObj(excavateId);
-    }
-
+    };
 
     // MARK 编辑
     /**
@@ -10610,9 +11111,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Excavate.setExcavateType = function (excavateId, type) {
         if (isEmptyLog(excavateId, 'excavateId')) return;
-        let _enumEval = isEmpty(type) ? eval("Module.RE_EXTRUDE_TYPE.None") : eval(REExcavateTypeEm[type]);
+        let _enumEval = isEmpty(type) ? eval('Module.RE_EXTRUDE_TYPE.None') : eval(REExcavateTypeEm[type]);
         return Module.RealBIMWeb.SetExtrudeObjType(excavateId, _enumEval);
-    }
+    };
 
     /**
      * 获取挖洞对象的类型
@@ -10622,7 +11123,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(excavateId, 'excavateId')) return;
         let _type = Module.RealBIMWeb.GetExtrudeObjType(excavateId);
         return _type.value;
-    }
+    };
 
     /**
      * 设置挖洞效果是否允许覆盖生效
@@ -10632,10 +11133,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Excavate.setExcavateEffect = function (dataSetId, effect) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
 
-        let b1 = Module.RealBIMWeb.SetHugeObjProjToGolShp(dataSetId, "", effect);
-        let b2 = Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, "", effect);
+        let b1 = Module.RealBIMWeb.SetHugeObjProjToGolShp(dataSetId, '', effect);
+        let b2 = Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, '', effect);
         return b1 || b2;
-    }
+    };
 
     /**
      * 获取挖洞效果是否允许覆盖生效
@@ -10644,11 +11145,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Excavate.getExcavateEffect = function (dataSetId) {
         if (isEmptyLog(dataSetId, 'dataSetId') && !dataSetId.length) return;
 
-        let b1 = Module.RealBIMWeb.GetHugeObjProjToGolShp(dataSetId, "");
-        let b2 = Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, "");
+        let b1 = Module.RealBIMWeb.GetHugeObjProjToGolShp(dataSetId, '');
+        let b2 = Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, '');
         return b1 || b2;
-    }
-
+    };
 
     // MARK 相机
     /**
@@ -10658,17 +11158,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Excavate.locateToExcavateObj = function (excavateId) {
         if (isEmptyLog(excavateId, 'excavateId')) return;
         return Module.RealBIMWeb.LocateToExtrudeObj(excavateId);
-    }
-
-
-
-
-
-
-
-
-
-
+    };
 
     // function getName() {
     //     let reg = /\s+at\s(\S+)\s\(/g
@@ -10686,13 +11176,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (typeof value == 'undefined') return true;
         if (value == null) return true;
         // if (!value) return true;
-        if ((Object.keys(value).length === 0 && value.constructor === Object)) return true;
+        if (Object.keys(value).length === 0 && value.constructor === Object) return true;
         return false;
     }
 
     /**
-        * 是不是空对象，并打印错误
-        */
+     * 是不是空对象，并打印错误
+     */
     function isEmptyLog(value, name) {
         if (!isEmpty(value)) return false;
         logParErr(name);
@@ -10708,7 +11198,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         switch (type) {
             case RE_Enum.RE_Check_String:
                 {
-                    if ((typeof value != "string")) {
+                    if (typeof value != 'string') {
                         return false;
                     }
                 }
@@ -10731,7 +11221,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function checkTypeLog(value, name, type) {
         if (checkType(value, type)) return true;
-        logErr("参数类型不匹配！-> ", name);
+        logErr('参数类型不匹配！-> ', name);
         return false;
     }
 
@@ -10749,7 +11239,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function checkArrCountLog(value, name, count) {
         if (checkArrCount(value, count)) return true;
-        logErr("参数类型不匹配！-> ", name);
+        logErr('参数类型不匹配！-> ', name);
         return false;
     }
 
@@ -10757,40 +11247,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 打印错误
      */
     function logErr(errStr) {
-        console.error("【REError】: " + errStr);
+        console.error('【REError】: ' + errStr);
     }
 
     /**
      * 打印参数格式错误
      */
     function logParErr(errStr) {
-        console.error("【REError】: 参数格式不正确！-> " + errStr);
+        console.error('【REError】: 参数格式不正确！-> ' + errStr);
     }
-
-
-
-
-
-
-
-
 
     /**
      * 32位颜色转十六进制颜色 ABGR -> RBG_HEX
      * @param {Number} colorU32 //32位颜色值
-        */
+     */
     function clrU32ToClr(colorU32) {
-        let _hexStr = (colorU32).toString(16);
+        let _hexStr = colorU32.toString(16);
         let count = _hexStr.length;
-        for (let a = 0; a < (8 - count); a++) {
+        for (let a = 0; a < 8 - count; a++) {
             _hexStr = '0' + _hexStr;
         }
         // ABGR -> RGBA
         // var _hexStr_Reverse = _hexStr.split('').reverse().join('');
-        var _hex_R = _hexStr.substring(6, 8); var int_R = Math.round(parseInt(_hex_R, 16));
-        var _hex_G = _hexStr.substring(4, 6); var int_G = Math.round(parseInt(_hex_G, 16));
-        var _hex_B = _hexStr.substring(2, 4); var int_B = Math.round(parseInt(_hex_B, 16));
-        var _hex_A = _hexStr.substring(0, 2); var int_A = Math.round(parseInt(_hex_A, 16));
+        var _hex_R = _hexStr.substring(6, 8);
+        var int_R = Math.round(parseInt(_hex_R, 16));
+        var _hex_G = _hexStr.substring(4, 6);
+        var int_G = Math.round(parseInt(_hex_G, 16));
+        var _hex_B = _hexStr.substring(2, 4);
+        var int_B = Math.round(parseInt(_hex_B, 16));
+        var _hex_A = _hexStr.substring(0, 2);
+        var int_A = Math.round(parseInt(_hex_A, 16));
 
         return new REColor(int_R, int_G, int_B, int_A);
     }
@@ -10798,14 +11284,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 颜色对象->U32_ABGR
      * @param {REColor} color
-        */
+     */
     function clrToU32(color) {
-        if (isEmpty(color.red) || isEmpty(color.green) || isEmpty(color.blue) || isEmpty(color.alpha)) return 0xFFFFFFFF;
-        var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
-        var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
-        var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
-        var int_A = Math.round(color.alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
-        var clrHEX_ABGR = "0x" + clrHEX_A + clrHEX_B + clrHEX_G + clrHEX_R;
+        if (isEmpty(color.red) || isEmpty(color.green) || isEmpty(color.blue) || isEmpty(color.alpha)) return 0xffffffff;
+        var int_R = Math.round(color.red);
+        var clrHEX_R = int_R > 15 ? int_R.toString(16) : '0' + int_R.toString(16);
+        var int_G = Math.round(color.green);
+        var clrHEX_G = int_G > 15 ? int_G.toString(16) : '0' + int_G.toString(16);
+        var int_B = Math.round(color.blue);
+        var clrHEX_B = int_B > 15 ? int_B.toString(16) : '0' + int_B.toString(16);
+        var int_A = Math.round(color.alpha);
+        var clrHEX_A = int_A > 15 ? int_A.toString(16) : '0' + int_A.toString(16);
+        var clrHEX_ABGR = '0x' + clrHEX_A + clrHEX_B + clrHEX_G + clrHEX_R;
         var intClr_ABGR = parseInt(clrHEX_ABGR);
         return intClr_ABGR;
     }
@@ -10813,36 +11303,53 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 颜色对象->U32_WBGR
      * @param {REColor} color
-        */
+     */
     function clrToU32_WBGR(color) {
-        if ((isEmpty(color.red) || color.red.toString() == "NaN")
-            || (isEmpty(color.green) || color.green.toString() == "NaN")
-            || (isEmpty(color.blue) || color.blue.toString() == "NaN")) return 0x00FFFFFF;
-        var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
-        var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
-        var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
+        if (
+            isEmpty(color.red) ||
+            color.red.toString() == 'NaN' ||
+            isEmpty(color.green) ||
+            color.green.toString() == 'NaN' ||
+            isEmpty(color.blue) ||
+            color.blue.toString() == 'NaN'
+        )
+            return 0x00ffffff;
+        var int_R = Math.round(color.red);
+        var clrHEX_R = int_R > 15 ? int_R.toString(16) : '0' + int_R.toString(16);
+        var int_G = Math.round(color.green);
+        var clrHEX_G = int_G > 15 ? int_G.toString(16) : '0' + int_G.toString(16);
+        var int_B = Math.round(color.blue);
+        var clrHEX_B = int_B > 15 ? int_B.toString(16) : '0' + int_B.toString(16);
         var clrHEX_W = (255).toString(16);
-        var clrHEX_WBGR = "0x" + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
+        var clrHEX_WBGR = '0x' + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
         var intClr_WBGR = parseInt(clrHEX_WBGR);
         return intClr_WBGR;
     }
 
     function clrToU32_W_WBGR(color, weight) {
-        if ((isEmpty(color.red) || color.red.toString() == "NaN")
-            || (isEmpty(color.green) || color.green.toString() == "NaN")
-            || (isEmpty(color.blue) || color.blue.toString() == "NaN")
+        if (
+            isEmpty(color.red) ||
+            color.red.toString() == 'NaN' ||
+            isEmpty(color.green) ||
+            color.green.toString() == 'NaN' ||
+            isEmpty(color.blue) ||
+            color.blue.toString() == 'NaN'
         ) {
             var intclrper = Math.round(weight);
-            var newclrper = (intclrper > 15 ? (intclrper.toString(16)) : ("0" + intclrper.toString(16)));
-            var clrinfo = "0x" + newclrper + "0000ff";
+            var newclrper = intclrper > 15 ? intclrper.toString(16) : '0' + intclrper.toString(16);
+            var clrinfo = '0x' + newclrper + '0000ff';
             var clr = parseInt(clrinfo);
             return clr;
         }
-        var int_R = Math.round(color.red); var clrHEX_R = (int_R > 15 ? (int_R.toString(16)) : ("0" + int_R.toString(16)));
-        var int_G = Math.round(color.green); var clrHEX_G = (int_G > 15 ? (int_G.toString(16)) : ("0" + int_G.toString(16)));
-        var int_B = Math.round(color.blue); var clrHEX_B = (int_B > 15 ? (int_B.toString(16)) : ("0" + int_B.toString(16)));
-        var int_W = Math.round(weight); var clrHEX_W = (int_W > 15 ? (int_W.toString(16)) : ("0" + int_W.toString(16)));
-        var clrHEX_WBGR = "0x" + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
+        var int_R = Math.round(color.red);
+        var clrHEX_R = int_R > 15 ? int_R.toString(16) : '0' + int_R.toString(16);
+        var int_G = Math.round(color.green);
+        var clrHEX_G = int_G > 15 ? int_G.toString(16) : '0' + int_G.toString(16);
+        var int_B = Math.round(color.blue);
+        var clrHEX_B = int_B > 15 ? int_B.toString(16) : '0' + int_B.toString(16);
+        var int_W = Math.round(weight);
+        var clrHEX_W = int_W > 15 ? int_W.toString(16) : '0' + int_W.toString(16);
+        var clrHEX_WBGR = '0x' + clrHEX_W + clrHEX_B + clrHEX_G + clrHEX_R;
         var intClr_WBGR = parseInt(clrHEX_WBGR);
         return intClr_WBGR;
     }
@@ -10850,28 +11357,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 透明度->U32_WA
      * @param {Number} alpha
-        */
+     */
     function alphaToU32_WA(alpha) {
-        if (isEmpty(alpha)) return 0xFFFFFFFF;
-        var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
+        if (isEmpty(alpha)) return 0xffffffff;
+        var int_A = Math.round(alpha);
+        var clrHEX_A = int_A > 15 ? int_A.toString(16) : '0' + int_A.toString(16);
         var clrHEX_W = (255).toString(16);
-        var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + "ffff";
+        var clrHEX_WA = '0x' + clrHEX_W + clrHEX_A + 'ffff';
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
 
     function alphaToU32_WA_UseCA(alpha, weight, useNewClr, useNewAlpha) {
-        var _useNewClrHex = useNewClr ? "ff" : "00";//使用新的颜色
-        var _useNewAlphaHex = useNewAlpha ? "ff" : "00";//使用新的透明度
+        var _useNewClrHex = useNewClr ? 'ff' : '00'; //使用新的颜色
+        var _useNewAlphaHex = useNewAlpha ? 'ff' : '00'; //使用新的透明度
         if (isEmpty(alpha)) {
-            var clrHEX_W = (weight).toString(16);
-            var clrHEX_WA = "0x" + clrHEX_W + "ff" + _useNewClrHex + _useNewAlphaHex;
+            var clrHEX_W = weight.toString(16);
+            var clrHEX_WA = '0x' + clrHEX_W + 'ff' + _useNewClrHex + _useNewAlphaHex;
             var intClr_WA = parseInt(clrHEX_WA);
             return intClr_WA;
         }
-        var int_A = Math.round(alpha); var clrHEX_A = (int_A > 15 ? (int_A.toString(16)) : ("0" + int_A.toString(16)));
-        var int_W = Math.round(weight); var clrHEX_W = (int_W > 15 ? (int_W.toString(16)) : ("0" + int_W.toString(16)));
-        var clrHEX_WA = "0x" + clrHEX_W + clrHEX_A + _useNewClrHex + _useNewAlphaHex;
+        var int_A = Math.round(alpha);
+        var clrHEX_A = int_A > 15 ? int_A.toString(16) : '0' + int_A.toString(16);
+        var int_W = Math.round(weight);
+        var clrHEX_W = int_W > 15 ? int_W.toString(16) : '0' + int_W.toString(16);
+        var clrHEX_WA = '0x' + clrHEX_W + clrHEX_A + _useNewClrHex + _useNewAlphaHex;
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
@@ -10879,19 +11389,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 透明度权重->U32_WA
      * @param {Number} alpha_W
-        */
+     */
     function alphaWToU32_WA(alpha_W) {
-        if (isEmpty(alpha_W)) return 0xFFFFFFFF;
-        var int_AW_r = 255 - Math.round(alpha_W);//设置透明度使用权重进行设置，不然会造成混合的异常（透明材质的情况）；透明值始终为0，想设置透明，即权重的比例增大；不透明，即权重的比例减少
-        var clrHEX_AW = (int_AW_r > 15 ? (int_AW_r.toString(16)) : ("0" + int_AW_r.toString(16)));
-        var clrHEX_WA = "0x" + clrHEX_AW + "00" + "ffff";
+        if (isEmpty(alpha_W)) return 0xffffffff;
+        var int_AW_r = 255 - Math.round(alpha_W); //设置透明度使用权重进行设置，不然会造成混合的异常（透明材质的情况）；透明值始终为0，想设置透明，即权重的比例增大；不透明，即权重的比例减少
+        var clrHEX_AW = int_AW_r > 15 ? int_AW_r.toString(16) : '0' + int_AW_r.toString(16);
+        var clrHEX_WA = '0x' + clrHEX_AW + '00' + 'ffff';
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
     /**
      * 颜色对象->RGBA数组
      * @param {REColor} color
-        */
+     */
     function clrToRGBA_List(color) {
         var _R = Math.round(color.red) / 255.0;
         var _G = Math.round(color.green) / 255.0;
@@ -10903,7 +11413,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * RGBA数组->颜色对象
      * @param {Array} rbga_list
-        */
+     */
     function rgbaListToClr(rbga_list) {
         var _r = Math.floor(rbga_list[0] * 255);
         var _g = Math.floor(rbga_list[1] * 255);
@@ -10912,19 +11422,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return new REColor(_r, _g, _b, _a);
     }
 
-
     /**
      * 发光和PBR转换工具函数
      * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
-        */
+     */
     function convPBR(elemBlendAttr) {
-        var intemis = (isEmpty(elemBlendAttr.elemEmis)) ? 0 : Math.round(elemBlendAttr.elemEmis);
-        var intemisratio = (isEmpty(elemBlendAttr.elemEmisPercent)) ? 0 : Math.round(elemBlendAttr.elemEmisPercent);
-        var intsmoothtemp = (isEmpty(elemBlendAttr.elemSmooth)) ? 0 : Math.round(elemBlendAttr.elemSmooth);
-        var intmetaltemp = (isEmpty(elemBlendAttr.elemMetal)) ? 0 : Math.round(elemBlendAttr.elemMetal);
-        var intsmmeratio = (isEmpty(elemBlendAttr.elemSmmePercent)) ? 0 : Math.round(elemBlendAttr.elemSmmePercent);
-        var intsmooth = Math.round(intsmoothtemp / 255 * 63);
-        var intmetal = Math.round(intmetaltemp / 255 * 3);
+        var intemis = isEmpty(elemBlendAttr.elemEmis) ? 0 : Math.round(elemBlendAttr.elemEmis);
+        var intemisratio = isEmpty(elemBlendAttr.elemEmisPercent) ? 0 : Math.round(elemBlendAttr.elemEmisPercent);
+        var intsmoothtemp = isEmpty(elemBlendAttr.elemSmooth) ? 0 : Math.round(elemBlendAttr.elemSmooth);
+        var intmetaltemp = isEmpty(elemBlendAttr.elemMetal) ? 0 : Math.round(elemBlendAttr.elemMetal);
+        var intsmmeratio = isEmpty(elemBlendAttr.elemSmmePercent) ? 0 : Math.round(elemBlendAttr.elemSmmePercent);
+        var intsmooth = Math.round((intsmoothtemp / 255) * 63);
+        var intmetal = Math.round((intmetaltemp / 255) * 3);
         var pbrtemp = intemis + intemisratio * 256 + intsmooth * 65536 + intmetal * 4194304 + intsmmeratio * 16777216;
         var pbr = Math.round(pbrtemp);
         return pbr;
@@ -10948,7 +11457,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 深拷贝
      * @param {Object} obj //拷贝数据
-        */
+     */
     function deepClone(obj) {
         var _obj = JSON.stringify(obj); //  对象转成字符串
         var objClone = JSON.parse(_obj); //  字符串转成对象
@@ -10958,16 +11467,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 判断是否有重复值
      * @param {Array} array //列表
-        * @param {String} paramName //需要判断的key
-        */
+     * @param {String} paramName //需要判断的key
+     */
     function isRepeat(array, paramName) {
         var objlist = [];
         for (const key in array) {
             if (Object.hasOwnProperty.call(array, key)) {
                 const element = array[key];
                 objlist.push(element[paramName]);
+            } else {
+                continue;
             }
-            else { continue; }
         }
 
         var hash = {};
@@ -10993,8 +11503,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 const element = array[key];
                 let isHas = isEmpty(element[paramName]);
                 if (isHas) return true;
+            } else {
+                continue;
             }
-            else { continue; }
         }
         return false;
     }
@@ -11003,12 +11514,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 删除所有空属性
      */
     function removeEmptyProperty(obj) {
-        Object.keys(obj).forEach(item => {
+        Object.keys(obj).forEach((item) => {
             if (obj[item] === undefined || obj[item] === null || obj[item] === 'null') {
                 delete obj[item];
             }
-        })
-        return obj
+        });
+        return obj;
     }
 
     /**
@@ -11016,237 +11527,192 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function isMobilDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
-        const patterns = [
-            /ipad/i,
-            /iphone os/i,
-            /midp/i,
-            /rv:1.2.3.4/i,
-            /ucweb/i,
-            /android/i,
-            /windows ce/i,
-            /windows mobil/i
-        ];
-        return patterns.some(pattern => pattern.test(userAgent));
+        const patterns = [/ipad/i, /iphone os/i, /midp/i, /rv:1.2.3.4/i, /ucweb/i, /android/i, /windows ce/i, /windows mobil/i];
+        return patterns.some((pattern) => pattern.test(userAgent));
     }
-    
+
     /**
      * 判断是否是 ios 移动端设备
      */
     function isMobilDevice_ios() {
         const userAgent = navigator.userAgent.toLowerCase();
-        const patterns = [
-            /ipad/i,
-            /iphone os/i,
-        ];
-        return patterns.some(pattern => pattern.test(userAgent));
+        const patterns = [/ipad/i, /iphone os/i];
+        return patterns.some((pattern) => pattern.test(userAgent));
     }
-
-
 
     // MOD-- 枚举类型
 
     // MARK RE_Enum
     //枚举参数
     const RE_Enum = {
-        RE_Check_String: 1,//检测字符串
-        RE_Check_Array: 2,//检测数组
-    }
-
+        RE_Check_String: 1, //检测字符串
+        RE_Check_Array: 2, //检测数组
+    };
 
     // MARK RE_Viewport
     //视图类型
     const REVpTypeEm = {
-        None: '',//该视图不显示任何内容
-        BIM: 'BIM',//该视图显示BIM场景模型
-        CAD: 'CAD',//该视图显示CAD图纸
-        Panorama: '360',//该视图显示360全景图
-    }
+        None: '', //该视图不显示任何内容
+        BIM: 'BIM', //该视图显示BIM场景模型
+        CAD: 'CAD', //该视图显示CAD图纸
+        Panorama: '360', //该视图显示360全景图
+    };
     ExtModule.REVpTypeEm = REVpTypeEm;
 
     //视图排列方式
     const REVpRankEm = {
-        Single: 0,//视图0/视图1任一为空字符串：屏幕中只显示一个内容有效的视图
-        LR: 1,//屏幕自左向右依次显示视图0、视图1
-        TB: -1,//屏幕自下向上依次显示视图0、视图1
-    }
+        Single: 0, //视图0/视图1任一为空字符串：屏幕中只显示一个内容有效的视图
+        LR: 1, //屏幕自左向右依次显示视图0、视图1
+        TB: -1, //屏幕自下向上依次显示视图0、视图1
+    };
     ExtModule.REVpRankEm = REVpRankEm;
 
     // MARK CamLoc
     //表示ViewCude视图的类型
     const RECamDirEm = {
-        CAM_DIR_FRONT: "Module.RE_CAM_DIR.FRONT",//面-主视图（前视图）
-        CAM_DIR_BACK: "Module.RE_CAM_DIR.BACK",//面-后视图
-        CAM_DIR_LEFT: "Module.RE_CAM_DIR.LEFT",//面-左视图
-        CAM_DIR_RIGHT: "Module.RE_CAM_DIR.RIGHT",//面-右视图
-        CAM_DIR_TOP: "Module.RE_CAM_DIR.TOP",//面-俯视图（上视图）
-        CAM_DIR_BOTTOM: "Module.RE_CAM_DIR.BOTTOM",//面-仰视图（下视图）
-        CAM_DIR_TOPFRONT: "Module.RE_CAM_DIR.TOPFRONT",//棱-上前
-        CAM_DIR_TOPRIGHT: "Module.RE_CAM_DIR.TOPRIGHT",//棱-上右
-        CAM_DIR_TOPBACK: "Module.RE_CAM_DIR.TOPBACK",//棱-上后
-        CAM_DIR_TOPLEFT: "Module.RE_CAM_DIR.TOPLEFT",//棱-上左
-        CAM_DIR_LEFTFRONT: "Module.RE_CAM_DIR.LEFTFRONT",//棱-左前
-        CAM_DIR_RIGHTFRONT: "Module.RE_CAM_DIR.RIGHTFRONT",//棱-前右
-        CAM_DIR_RIGHTBACK: "Module.RE_CAM_DIR.RIGHTBACK",//棱-右后
-        CAM_DIR_LEFTBACK: "Module.RE_CAM_DIR.LEFTBACK",//棱-后左
-        CAM_DIR_BOTTOMFRONT: "Module.RE_CAM_DIR.BOTTOMFRONT",//棱-下前
-        CAM_DIR_BOTTOMRIGHT: "Module.RE_CAM_DIR.BOTTOMRIGHT",//棱-下右
-        CAM_DIR_BOTTOMBACK: "Module.RE_CAM_DIR.BOTTOMBACK",//棱-下后
-        CAM_DIR_BOTTOMLEFT: "Module.RE_CAM_DIR.BOTTOMLEFT",//棱-下左
-        CAM_DIR_TOPRIGHTBACK: "Module.RE_CAM_DIR.TOPRIGHTBACK",//顶点-上右后
-        CAM_DIR_TOPLEFTBACK: "Module.RE_CAM_DIR.TOPLEFTBACK",//顶点-上左后
-        CAM_DIR_TOPLEFTFRONT: "Module.RE_CAM_DIR.TOPLEFTFRONT",//顶点-上左前
-        CAM_DIR_TOPRIGHTFRONT: "Module.RE_CAM_DIR.TOPRIGHTFRONT",//顶点-上右前
-        CAM_DIR_BOTTOMRIGHTBACK: "Module.RE_CAM_DIR.BOTTOMRIGHTBACK",//顶点-下右后
-        CAM_DIR_BOTTOMLEFTBACK: "Module.RE_CAM_DIR.BOTTOMLEFTBACK",//顶点-下左后
-        CAM_DIR_BOTTOMLEFTFRONT: "Module.RE_CAM_DIR.BOTTOMLEFTFRONT",//顶点-下左前
-        CAM_DIR_BOTTOMRIGHTFRONT: "Module.RE_CAM_DIR.BOTTOMRIGHTFRONT",//顶点-下右前
-        CAM_DIR_DEFAULT: "Module.RE_CAM_DIR.DEFAULT",//默认视角
-    }
+        CAM_DIR_FRONT: 'Module.RE_CAM_DIR.FRONT', //面-主视图（前视图）
+        CAM_DIR_BACK: 'Module.RE_CAM_DIR.BACK', //面-后视图
+        CAM_DIR_LEFT: 'Module.RE_CAM_DIR.LEFT', //面-左视图
+        CAM_DIR_RIGHT: 'Module.RE_CAM_DIR.RIGHT', //面-右视图
+        CAM_DIR_TOP: 'Module.RE_CAM_DIR.TOP', //面-俯视图（上视图）
+        CAM_DIR_BOTTOM: 'Module.RE_CAM_DIR.BOTTOM', //面-仰视图（下视图）
+        CAM_DIR_TOPFRONT: 'Module.RE_CAM_DIR.TOPFRONT', //棱-上前
+        CAM_DIR_TOPRIGHT: 'Module.RE_CAM_DIR.TOPRIGHT', //棱-上右
+        CAM_DIR_TOPBACK: 'Module.RE_CAM_DIR.TOPBACK', //棱-上后
+        CAM_DIR_TOPLEFT: 'Module.RE_CAM_DIR.TOPLEFT', //棱-上左
+        CAM_DIR_LEFTFRONT: 'Module.RE_CAM_DIR.LEFTFRONT', //棱-左前
+        CAM_DIR_RIGHTFRONT: 'Module.RE_CAM_DIR.RIGHTFRONT', //棱-前右
+        CAM_DIR_RIGHTBACK: 'Module.RE_CAM_DIR.RIGHTBACK', //棱-右后
+        CAM_DIR_LEFTBACK: 'Module.RE_CAM_DIR.LEFTBACK', //棱-后左
+        CAM_DIR_BOTTOMFRONT: 'Module.RE_CAM_DIR.BOTTOMFRONT', //棱-下前
+        CAM_DIR_BOTTOMRIGHT: 'Module.RE_CAM_DIR.BOTTOMRIGHT', //棱-下右
+        CAM_DIR_BOTTOMBACK: 'Module.RE_CAM_DIR.BOTTOMBACK', //棱-下后
+        CAM_DIR_BOTTOMLEFT: 'Module.RE_CAM_DIR.BOTTOMLEFT', //棱-下左
+        CAM_DIR_TOPRIGHTBACK: 'Module.RE_CAM_DIR.TOPRIGHTBACK', //顶点-上右后
+        CAM_DIR_TOPLEFTBACK: 'Module.RE_CAM_DIR.TOPLEFTBACK', //顶点-上左后
+        CAM_DIR_TOPLEFTFRONT: 'Module.RE_CAM_DIR.TOPLEFTFRONT', //顶点-上左前
+        CAM_DIR_TOPRIGHTFRONT: 'Module.RE_CAM_DIR.TOPRIGHTFRONT', //顶点-上右前
+        CAM_DIR_BOTTOMRIGHTBACK: 'Module.RE_CAM_DIR.BOTTOMRIGHTBACK', //顶点-下右后
+        CAM_DIR_BOTTOMLEFTBACK: 'Module.RE_CAM_DIR.BOTTOMLEFTBACK', //顶点-下左后
+        CAM_DIR_BOTTOMLEFTFRONT: 'Module.RE_CAM_DIR.BOTTOMLEFTFRONT', //顶点-下左前
+        CAM_DIR_BOTTOMRIGHTFRONT: 'Module.RE_CAM_DIR.BOTTOMRIGHTFRONT', //顶点-下右前
+        CAM_DIR_DEFAULT: 'Module.RE_CAM_DIR.DEFAULT', //默认视角
+    };
     ExtModule.RECamDirEm = RECamDirEm;
-
-
-
-
 
     // MARK UI
     //系统界面对应C++名称
     const RESysWndMateEm = {
-        PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha',//底部主工具栏-地形透明度
-        PanelBtn_FocusBoxSel: 'BuiltIn_Btn_FocusBoxSel',//底部主工具栏-框选放大
-        PanelBtn_Reset: 'BuiltIn_Btn_ResetAll',//底部主工具栏-重置操作
-        PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate',//底部主工具栏-隔离构件
-        PanelBtn_HideBuild: 'BuiltIn_Btn_Hide',//底部主工具栏-隐藏构件
-        PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible',//底部主工具栏-恢复显示
-        PanelBtn_Measure: 'BuiltIn_Btn_Measure',//底部主工具栏-测量
-        PanelBtn_Cutting: 'BuiltIn_Btn_Cutting',//底部主工具栏-剖切
-        PanelBtn_Setting: 'BuiltIn_Btn_Setting',//底部主工具栏-设置
-        SysWnd_AffineTransMode: 'PositionMatchingWnd',//位置编辑仿射变换窗口
-    }
+        PanelBtn_TerrainAlpha: 'BuiltIn_Btn_TerrAlpha', //底部主工具栏-地形透明度
+        PanelBtn_FocusBoxSel: 'BuiltIn_Btn_FocusBoxSel', //底部主工具栏-框选放大
+        PanelBtn_Reset: 'BuiltIn_Btn_ResetAll', //底部主工具栏-重置操作
+        PanelBtn_IsolateBuild: 'BuiltIn_Btn_Isolate', //底部主工具栏-隔离构件
+        PanelBtn_HideBuild: 'BuiltIn_Btn_Hide', //底部主工具栏-隐藏构件
+        PanelBtn_RecoverDisplay: 'BuiltIn_Btn_ResetVisible', //底部主工具栏-恢复显示
+        PanelBtn_Measure: 'BuiltIn_Btn_Measure', //底部主工具栏-测量
+        PanelBtn_Cutting: 'BuiltIn_Btn_Cutting', //底部主工具栏-剖切
+        PanelBtn_Setting: 'BuiltIn_Btn_Setting', //底部主工具栏-设置
+        SysWnd_AffineTransMode: 'PositionMatchingWnd', //位置编辑仿射变换窗口
+    };
     ExtModule.RESysWndMateEm = RESysWndMateEm;
-
-
 
     // MARK CAD
     //CAD单位
     const RECadUnitEm = {
-        CAD_UNIT_Inch: "Module.RE_CAD_UNIT.Inch",//英寸
-        CAD_UNIT_Foot: "Module.RE_CAD_UNIT.Foot",//英尺
-        CAD_UNIT_Mile: "Module.RE_CAD_UNIT.Mile",//英里
-        CAD_UNIT_Millimeter: "Module.RE_CAD_UNIT.Millimeter",//毫米
-        CAD_UNIT_Centimeter: "Module.RE_CAD_UNIT.Centimeter",//厘米
-        CAD_UNIT_Meter: "Module.RE_CAD_UNIT.Meter",//米
-        CAD_UNIT_Kilometer: "Module.RE_CAD_UNIT.Kilometer",//千米
-        CAD_UNIT_Microinch: "Module.RE_CAD_UNIT.Microinch",//微英寸
-        CAD_UNIT_Mil: "Module.RE_CAD_UNIT.Mil",//毫英寸
-        CAD_UNIT_Yard: "Module.RE_CAD_UNIT.Yard",//码
-        CAD_UNIT_Angstrom: "Module.RE_CAD_UNIT.Angstrom",//埃
-        CAD_UNIT_Nanometer: "Module.RE_CAD_UNIT.Nanometer",//纳米
-        CAD_UNIT_Micron: "Module.RE_CAD_UNIT.Micron",//微米
-        CAD_UNIT_Decimeter: "Module.RE_CAD_UNIT.Decimeter",//分米
-        CAD_UNIT_Decameter: "Module.RE_CAD_UNIT.Decameter", //十米
-        CAD_UNIT_Hectometer: "Module.RE_CAD_UNIT.Hectometer",//百米
-        CAD_UNIT_Gigameter: "Module.RE_CAD_UNIT.Gigameter",//百万公里
-        CAD_UNIT_Astro: "Module.RE_CAD_UNIT.Astro",//天文
-        CAD_UNIT_Lightyear: "Module.RE_CAD_UNIT.Lightyear",//光年
-        CAD_UNIT_Parsec: "Module.RE_CAD_UNIT.Parsec",//天体
-    }
+        CAD_UNIT_Inch: 'Module.RE_CAD_UNIT.Inch', //英寸
+        CAD_UNIT_Foot: 'Module.RE_CAD_UNIT.Foot', //英尺
+        CAD_UNIT_Mile: 'Module.RE_CAD_UNIT.Mile', //英里
+        CAD_UNIT_Millimeter: 'Module.RE_CAD_UNIT.Millimeter', //毫米
+        CAD_UNIT_Centimeter: 'Module.RE_CAD_UNIT.Centimeter', //厘米
+        CAD_UNIT_Meter: 'Module.RE_CAD_UNIT.Meter', //米
+        CAD_UNIT_Kilometer: 'Module.RE_CAD_UNIT.Kilometer', //千米
+        CAD_UNIT_Microinch: 'Module.RE_CAD_UNIT.Microinch', //微英寸
+        CAD_UNIT_Mil: 'Module.RE_CAD_UNIT.Mil', //毫英寸
+        CAD_UNIT_Yard: 'Module.RE_CAD_UNIT.Yard', //码
+        CAD_UNIT_Angstrom: 'Module.RE_CAD_UNIT.Angstrom', //埃
+        CAD_UNIT_Nanometer: 'Module.RE_CAD_UNIT.Nanometer', //纳米
+        CAD_UNIT_Micron: 'Module.RE_CAD_UNIT.Micron', //微米
+        CAD_UNIT_Decimeter: 'Module.RE_CAD_UNIT.Decimeter', //分米
+        CAD_UNIT_Decameter: 'Module.RE_CAD_UNIT.Decameter', //十米
+        CAD_UNIT_Hectometer: 'Module.RE_CAD_UNIT.Hectometer', //百米
+        CAD_UNIT_Gigameter: 'Module.RE_CAD_UNIT.Gigameter', //百万公里
+        CAD_UNIT_Astro: 'Module.RE_CAD_UNIT.Astro', //天文
+        CAD_UNIT_Lightyear: 'Module.RE_CAD_UNIT.Lightyear', //光年
+        CAD_UNIT_Parsec: 'Module.RE_CAD_UNIT.Parsec', //天体
+    };
     ExtModule.RECadUnitEm = RECadUnitEm;
-
-
 
     // MARK REGridPosEm
     //表示九宫格位置枚举
     const REGridPosEm = {
-        LT: [-1, 1],   //左上区域
-        MT: [0, 1],   //中上区域
-        RT: [1, 1],   //右上区域
-        LM: [-1, 0],   //左中区域
-        MM: [0, 0],   //中中区域
-        RM: [1, 0],   //右中区域
-        LB: [-1, -1],   //左下区域
-        MB: [0, -1],   //中下区域
-        RB: [1, -1],   //右下区域
-    }
+        LT: [-1, 1], //左上区域
+        MT: [0, 1], //中上区域
+        RT: [1, 1], //右上区域
+        LM: [-1, 0], //左中区域
+        MM: [0, 0], //中中区域
+        RM: [1, 0], //右中区域
+        LB: [-1, -1], //左下区域
+        MB: [0, -1], //中下区域
+        RB: [1, -1], //右下区域
+    };
     ExtModule.REGridPosEm = REGridPosEm;
 
     // MARK RETextFmtEm
     //表示文字排版类型枚举
     const RETextFmtEm = {
-        LT: (1 << 2)/*TEXT_FMT_TOP*/ | (1 << 3)/*TEXT_FMT_LEFT*/,   //左上区域
-        MT: (1 << 2)/*TEXT_FMT_TOP*/ | (1 << 4)/*TEXT_FMT_HCENTER*/,   //中上区域
-        RT: (1 << 5)/*TEXT_FMT_RIGHT*/ | (1 << 2)/*TEXT_FMT_TOP*/,   //右上区域
-        LM: (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 1)/*TEXT_FMT_VCENTER*/,   //左中区域
-        MM: (1 << 4)/*TEXT_FMT_HCENTER*/ | (1 << 1)/*TEXT_FMT_VCENTER*/,   //中中区域
-        RM: (1 << 5)/*TEXT_FMT_RIGHT*/ | (1 << 1)/*TEXT_FMT_VCENTER*/,   //右中区域
-        LB: (1 << 3)/*TEXT_FMT_LEFT*/ | (1 << 0)/*TEXT_FMT_BOTTOM*/,   //左下区域
-        MB: (1 << 1)/*TEXT_FMT_VCENTER*/ | (1 << 0)/*TEXT_FMT_BOTTOM*/,   //中下区域
-        RB: (1 << 5)/*TEXT_FMT_RIGHT*/ | (1 << 0)/*TEXT_FMT_BOTTOM*/,   //右下区域
-    }
+        LT: (1 << 2) /*TEXT_FMT_TOP*/ | (1 << 3) /*TEXT_FMT_LEFT*/, //左上区域
+        MT: (1 << 2) /*TEXT_FMT_TOP*/ | (1 << 4) /*TEXT_FMT_HCENTER*/, //中上区域
+        RT: (1 << 5) /*TEXT_FMT_RIGHT*/ | (1 << 2) /*TEXT_FMT_TOP*/, //右上区域
+        LM: (1 << 3) /*TEXT_FMT_LEFT*/ | (1 << 1) /*TEXT_FMT_VCENTER*/, //左中区域
+        MM: (1 << 4) /*TEXT_FMT_HCENTER*/ | (1 << 1) /*TEXT_FMT_VCENTER*/, //中中区域
+        RM: (1 << 5) /*TEXT_FMT_RIGHT*/ | (1 << 1) /*TEXT_FMT_VCENTER*/, //右中区域
+        LB: (1 << 3) /*TEXT_FMT_LEFT*/ | (1 << 0) /*TEXT_FMT_BOTTOM*/, //左下区域
+        MB: (1 << 1) /*TEXT_FMT_VCENTER*/ | (1 << 0) /*TEXT_FMT_BOTTOM*/, //中下区域
+        RB: (1 << 5) /*TEXT_FMT_RIGHT*/ | (1 << 0) /*TEXT_FMT_BOTTOM*/, //右下区域
+    };
     ExtModule.RETextFmtEm = RETextFmtEm;
-
 
     // MARK UI
     //系统界面对应C++名称
     const REExcavateTypeEm = [
-        'Module.RE_EXTRUDE_TYPE.UNDEFINED',//未定义
-        'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT',//挖洞（镂空指定范围）
-        'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX',//使用断面纹理，断面以贴图队列中的指定贴图表现
-        'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX',//使用原表面纹理，保持原模型上贴图
-    ]
+        'Module.RE_EXTRUDE_TYPE.UNDEFINED', //未定义
+        'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT', //挖洞（镂空指定范围）
+        'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX', //使用断面纹理，断面以贴图队列中的指定贴图表现
+        'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX', //使用原表面纹理，保持原模型上贴图
+    ];
     ExtModule.REExcavateTypeEm = REExcavateTypeEm;
-
 
     // MARK Entity
     //表示单构件动画播放模式
     const REEntityAnimPlayModeEm = {
-        ONCE: "Module.RE_ANIM_PLAY.ONCE",//表示仅播放一次，播放到边界处时停止，位置/方向保持不变
-        ONCETURN: "Module.RE_ANIM_PLAY.ONCETURN",//表示仅播放一次，播放到边界处时停止，位置不变，方向调转
-        ONCERESET: "Module.RE_ANIM_PLAY.ONCERESET",//表示仅播放一次，播放到边界处时停止，位置移到另一边界，方向不变
-        REPEAT: "Module.RE_ANIM_PLAY.REPEAT",//表示重复播放，当播放到边界处时方向不变从另一边界处继续播放
-        REPEATTURN: "Module.RE_ANIM_PLAY.REPEATTURN",//表示重复播放，当播放到边界处时方向调转继续播放
-    }
+        ONCE: 'Module.RE_ANIM_PLAY.ONCE', //表示仅播放一次，播放到边界处时停止，位置/方向保持不变
+        ONCETURN: 'Module.RE_ANIM_PLAY.ONCETURN', //表示仅播放一次，播放到边界处时停止，位置不变，方向调转
+        ONCERESET: 'Module.RE_ANIM_PLAY.ONCERESET', //表示仅播放一次，播放到边界处时停止，位置移到另一边界，方向不变
+        REPEAT: 'Module.RE_ANIM_PLAY.REPEAT', //表示重复播放，当播放到边界处时方向不变从另一边界处继续播放
+        REPEATTURN: 'Module.RE_ANIM_PLAY.REPEATTURN', //表示重复播放，当播放到边界处时方向调转继续播放
+    };
     ExtModule.REEntityAnimPlayModeEm = REEntityAnimPlayModeEm;
 
     //表示单构件动画播放状态
     const REEntityAnimPlayStateEm = {
-        PLAY: "Module.RE_ANIM_STATE.PLAY",//表示当前正处于播放状态
-        PAUSE: "Module.RE_ANIM_STATE.PAUSE",//表示当前正处于暂停状态
-        STOPMIN: "Module.RE_ANIM_STATE.STOPMIN",//表示当前正处于停止状态，播放位置在最小边界处
-        STOPMAX: "Module.RE_ANIM_STATE.STOPMAX",//表示当前正处于停止状态，播放位置在最大边界处
-    }
+        PLAY: 'Module.RE_ANIM_STATE.PLAY', //表示当前正处于播放状态
+        PAUSE: 'Module.RE_ANIM_STATE.PAUSE', //表示当前正处于暂停状态
+        STOPMIN: 'Module.RE_ANIM_STATE.STOPMIN', //表示当前正处于停止状态，播放位置在最小边界处
+        STOPMAX: 'Module.RE_ANIM_STATE.STOPMAX', //表示当前正处于停止状态，播放位置在最大边界处
+    };
     ExtModule.REEntityAnimPlayStateEm = REEntityAnimPlayStateEm;
-
-
-
-
-
 
     // MARK Terrain
     //表示地形资源数据的类型
     const RETerrResEm = {
-        HEIGHT: "Module.RE_TERR_RES_TYPE.HEIGHT",//高程图
-        EXTRUDE: "Module.RE_TERR_RES_TYPE.EXTRUDE",//挤出矢量
-        IMG_PIC: "Module.RE_TERR_RES_TYPE.IMG_PIC",//影像图片
-        IMG_SHP: "Module.RE_TERR_RES_TYPE.IMG_SHP",//影像矢量
-        ALL: "Module.RE_TERR_RES_TYPE.ALL",//表示所有类型的资源数据
-        FORCE_DWORD: "Module.RE_TERR_RES_TYPE.FORCE_DWORD",//
-    }
+        HEIGHT: 'Module.RE_TERR_RES_TYPE.HEIGHT', //高程图
+        EXTRUDE: 'Module.RE_TERR_RES_TYPE.EXTRUDE', //挤出矢量
+        IMG_PIC: 'Module.RE_TERR_RES_TYPE.IMG_PIC', //影像图片
+        IMG_SHP: 'Module.RE_TERR_RES_TYPE.IMG_SHP', //影像矢量
+        ALL: 'Module.RE_TERR_RES_TYPE.ALL', //表示所有类型的资源数据
+        FORCE_DWORD: 'Module.RE_TERR_RES_TYPE.FORCE_DWORD', //
+    };
     ExtModule.RETerrResEm = RETerrResEm;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     return ExtModule;
 };
