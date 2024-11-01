@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2806
+﻿//版本：v3.1.0.2816
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -8471,7 +8471,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.measureType = null; //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
             this.dataShowType = null; //数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向
-            this.groupId = null; //组id
+            this.groupId = null; //组id, 1024以内的id为系统工具栏创建的测量数据的保有数值，如果传递1024以内的值则会对工具栏创建的测量数据进行覆盖
             this.pointList = null; //测量点集合
         }
     }
@@ -8479,38 +8479,54 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 添加一组测量数据
-     * @param {REMeasureInfo} measureInfo //测量信息
+     * @param {Array} measureInfoList //测量信息集合 （REMeasureInfo 类型）
      */
-    Module.Measure.addGroupData = function (measureInfo) {
+    Module.Measure.addGroupData = function (measureInfoList) {
         if (!Module.RealBIMWeb.IsInMeasureMode()) return; //不处于测量模式下无效
-        if (isEmptyLog(measureInfo, 'measureInfo')) return;
-        if (isEmptyLog(measureInfo.groupId, 'groupId')) return;
-        if (isEmptyLog(measureInfo.pointList, 'pointList')) return;
+        if (isEmptyLog(measureInfoList, 'measureInfoList')) return;
 
-        var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureInfo.measureType;
-        switch (_measureType) {
-            case 3:
-                _measureType = 4;
-                break;
-            case 4:
-                _measureType = 8;
-                break;
-            default:
-                break;
+        let _vevtor_groupList = new Module.RE_Vector_MEASURE_INFO();
+        for (let i = 0; i < measureInfoList.length; i++) {
+            const measureInfo = measureInfoList[i];
+            if (isEmptyLog(measureInfo.groupId, 'groupId')) return;
+            if (isEmptyLog(measureInfo.pointList, 'pointList')) return;
+            if (measureInfo.groupId < 1024) {
+                // 限制用户必须传递大于1024的参数，否则和内部工具参数重叠
+                logParErr('groupId');
+                return;
+            }
+            var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureInfo.measureType;
+            switch (_measureType) {
+                case 3:
+                    _measureType = 4;
+                    break;
+                case 4:
+                    _measureType = 8;
+                    break;
+                default:
+                    break;
+            }
+            var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : measureInfo.dataShowType;
+            if (_measureType == 1) {
+                _dataShowType = _dataShowType == 3 ? 4 : _dataShowType;
+            } else if (_measureType == 3) {
+                _dataShowType = _dataShowType == 3 ? 1 : _dataShowType;
+            } else {
+                _dataShowType = 1;
+            }
+            var _pointList = new Module.RE_Vector_dvec3();
+            for (let i = 0; i < measureInfo.pointList.length; i++) {
+                _pointList.push_back(measureInfo.pointList[i]);
+            }
+            _vevtor_groupList.push_back({
+                m_uMeasureType: _measureType,
+                m_uLockDir: _dataShowType,
+                m_uGroupID: measureInfo.groupId,
+                m_arrPts:_pointList,
+            });
+            // Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
         }
-        var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : measureInfo.dataShowType;
-        if (_measureType == 1) {
-            _dataShowType = _dataShowType == 3 ? 4 : _dataShowType;
-        } else if (_measureType == 3) {
-            _dataShowType = _dataShowType == 3 ? 1 : _dataShowType;
-        } else {
-            _dataShowType = 1;
-        }
-        var _pointList = new Module.RE_Vector_dvec3();
-        for (let i = 0; i < measureInfo.pointList.length; i++) {
-            _pointList.push_back(measureInfo.pointList[i]);
-        }
-        Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
+        Module.RealBIMWeb.AddMeasureGroup(_vevtor_groupList);
     };
 
     /**
@@ -8538,6 +8554,107 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
+    };
+
+    /**
+     * 根据测量类型获取测量数据
+     * @param {Number} measureType //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+     */
+    Module.Measure.getGroupDataByType = function (measureType) {
+        var _measureType = isEmpty(measureType) ? 1 : measureType;
+        switch (_measureType) {
+            case 3:
+                _measureType = 4;
+                break;
+            case 4:
+                _measureType = 8;
+                break;
+            default:
+                break;
+        }
+        let _vList = Module.RealBIMWeb.GetMeasureGroupByType(_measureType);
+        let dataList = [];
+        for (let i = 0; i < _vList.size(); i++) {
+            const _i_data = _vList.get(i);
+            let _data = new Module.REMeasureInfo();
+            _data.groupId = _i_data.m_uGroupID;
+            switch (_i_data.m_uMeasureType) {
+                case 4:
+                    _data.measureType = 3;
+                    break;
+                case 8:
+                    _data.measureType = 4;
+                    break;
+                default:
+                    _data.measureType = _i_data.m_uMeasureType;
+                    break;
+            }
+            switch (_i_data.m_uLockDir) {
+                case 4:
+                    _data.dataShowType = 3;
+                    break;
+                default:
+                    _data.dataShowType = _i_data.m_uLockDir;
+                    break;
+            }
+            let _pointList_temp = [];
+            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
+                const _j_data = _i_data.m_arrPts.get(j);
+                _pointList_temp.push(_j_data);
+            }
+            _data.pointList = _pointList_temp;
+            dataList.push(_data);
+        }
+        return dataList;
+    };
+
+    /**
+     * 根据测量标识获取测量数据
+     * @param {Array} groupIdList //测量标识集合
+     */
+    Module.Measure.getGroupDataByID = function (groupIdList) {
+        var count = groupIdList.length;
+        var _moemory = (count * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _idList = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (i = 0; i < count; ++i) {
+            var id = groupIdList[i];
+            _idList.set([id], i);
+        }
+        let _vList = Module.RealBIMWeb.GetMeasureGroup(_idList.byteLength, _idList.byteOffset);
+        let dataList = [];
+        for (let i = 0; i < _vList.size(); i++) {
+            const _i_data = _vList.get(i);
+            let _data = new Module.REMeasureInfo();
+            _data.groupId = _i_data.m_uGroupID;
+            switch (_i_data.m_uMeasureType) {
+                case 4:
+                    _data.measureType = 3;
+                    break;
+                case 8:
+                    _data.measureType = 4;
+                    break;
+                default:
+                    _data.measureType = _i_data.m_uMeasureType;
+                    break;
+            }
+            switch (_i_data.m_uLockDir) {
+                case 4:
+                    _data.dataShowType = 3;
+                    break;
+                default:
+                    _data.dataShowType = _i_data.m_uLockDir;
+                    break;
+            }
+            let _pointList_temp = [];
+            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
+                const _j_data = _i_data.m_arrPts.get(j);
+                _pointList_temp.push(_j_data);
+            }
+            _data.pointList = _pointList_temp;
+            dataList.push(_data);
+        }
+        return dataList;
     };
 
     // MOD-- 电子围栏（Fence）
