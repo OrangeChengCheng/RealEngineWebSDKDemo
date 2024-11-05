@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2816
+﻿//版本：v3.1.0.2823
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -1851,6 +1851,55 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.SkyBox.getSkyAtmFogAmp = function () {
         return Module.RealBIMWeb.GetSkyAtmFogAmp();
+    };
+
+    /**
+     * 设置背景图的启用状态
+     * @param {Boolean} enable //是否启用
+     */
+    Module.SkyBox.setBackImgEnable = function (enable) {
+        Module.RealBIMWeb.SetBackImgEnable(enable);
+    };
+
+    /**
+     * 获取背景图的启用状态
+     */
+    Module.SkyBox.getBackImgEnable = function () {
+        return Module.RealBIMWeb.GetBackImgEnable();
+    };
+
+    /**
+     * 设置背景图片路径
+     * @param {String} imgPath //图片路径
+     */
+    Module.SkyBox.setBackImgPath = function (imgPath) {
+        if (isEmptyLog(imgPath, 'imgPath')) return false;
+        return Module.RealBIMWeb.SetBackImgPath(imgPath);
+    };
+
+    /**
+     * 获取背景图片路径
+     */
+    Module.SkyBox.getBackImgPath = function () {
+        return Module.RealBIMWeb.GetBackImgPath();
+    };
+
+    /**
+     * 设置背景图片填充方式
+     * @param {Number} fillMode //填充方式,
+     * 0: 拉伸 (让一张图片占满桌面 )
+     * 1: 适应 (图片也是等比缩放，只不过图片的最大边放大到屏幕最小边时就不再放大，也就是能保持图片比例的同时最大化显示图片 )
+     * 2: 填充 (图片也是等比缩放，按照图片的最小边来适应屏幕的最大边以达到填充屏幕效果，如果图片分辨率和屏幕的比例不一样的话，图片会有部分显示不了（超出屏幕之外）)
+     */
+    Module.SkyBox.setBackImgFillMode = function (fillMode) {
+        return Module.RealBIMWeb.SetBackImgFillMode(fillMode, [0.0, 0.0, 1.0, 1.0]);
+    };
+
+    /**
+     * 获取背景图片填充方式
+     */
+    Module.SkyBox.getBackImgFillMode = function () {
+        return Module.RealBIMWeb.GetBackImgFillMode();
     };
 
     // MOD-- 坐标（Coordinate）
@@ -8522,7 +8571,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_uMeasureType: _measureType,
                 m_uLockDir: _dataShowType,
                 m_uGroupID: measureInfo.groupId,
-                m_arrPts:_pointList,
+                m_arrPts: _pointList,
             });
             // Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
         }
