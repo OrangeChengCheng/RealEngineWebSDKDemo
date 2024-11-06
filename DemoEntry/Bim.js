@@ -63,8 +63,8 @@ function RESystemReady() {
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://10.218.51.104:9999/api/ecx-gateway/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://10.218.51.104:9999/api/ecx-gateway/res/", "http://10.218.51.104:9999/api/ecx-gateway/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "https://www.cim.xaxcsz.com:18000/author/author_path02.txt");
-    BlackHole3D.addPathIndex('RealEngineInitPathIndex', 'https://cim.xaxcsz.com:18000/res/', 'https://cim.xaxcsz.com:18000/pathindex/res/index.xml');
-    BlackHole3D.addAuthorPath('RealEngineInitAuthorPath', 'https://cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt');
+    // BlackHole3D.addPathIndex('RealEngineInitPathIndex', 'https://cim.xaxcsz.com:18000/res/', 'https://cim.xaxcsz.com:18000/pathindex/res/index.xml');
+    // BlackHole3D.addAuthorPath('RealEngineInitAuthorPath', 'https://cim.xaxcsz.com/api/ecx-gateway/author/author_path02.txt');
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "https://www.cim.xaxcsz.com/api/ecx-gateway/res/", "https://www.cim.xaxcsz.com/api/ecx-gateway/pathindex/res/index.xml");
     // BlackHole3D.addAuthorPath("RealEngineInitAuthorPath", "http://realbim.bjblackhole.cn:18080/author/author_path02.txt");
     // BlackHole3D.addPathIndex("RealEngineInitPathIndex", "http://realbim.bjblackhole.cn:18080/res/", "http://realbim.bjblackhole.cn:18080/pathindex/res/index.xml");

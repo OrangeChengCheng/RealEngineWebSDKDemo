@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2823
+﻿//版本：v3.1.0.2825
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -9776,7 +9776,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.groupName = null; //矢量动画组名称，此参数不能为空
             this.nameList = []; //矢量动画名称集合，如果nameList为空,则设置该组下所有的矢量动画信息；
-            this.animClr = null; //期望的矢量动画颜色（REColor 类型）
+            this.animClr = new REColor(255, 255, 255, 255); //期望的矢量动画颜色（REColor 类型）
             this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
             this.scaleAndOffset = null; //动画速度及方向，正负控制方向，数值控制速度,[]
         }
@@ -9794,7 +9794,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             temparr0.push_back(animStyleInfo.nameList[i]);
         }
         var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight);
-        return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset);
+        // 将透明度权重的值放在了透明度的位置上，透明度默认取值0，用权重调节
+        var _alpha = 0;//透明度为0，混合透明度0的强度控制，强度越大越透明度越为0，反之透明度的效果越小
+        var _alphaWeight = 255 - ((isEmpty(animStyleInfo.animClr) || isEmpty(animStyleInfo.animClr.alpha)) ? 255 : animStyleInfo.animClr.alpha);
+        var combinedAlpha = (_alphaWeight << 8) | _alpha;
+        return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset, combinedAlpha);
     };
 
     /**
