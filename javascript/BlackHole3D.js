@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2825
+﻿//版本：v3.1.0.2827
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -1369,9 +1369,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 调整相机定位到包围盒
      * @param {Array} arrBound //包围盒范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
+     * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
+     * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
      */
-    Module.Camera.setCamLocateToBound = function (arrBound) {
-        Module.RealBIMWeb.TargetToAABB(arrBound);
+    Module.Camera.setCamLocateToBound = function (arrBound, backDepth = 1.0, locType) {
+        let _useCustomDir = isEmpty(locType) ? false : true;
+        var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
+        Module.RealBIMWeb.TargetToAABB(arrBound, backDepth, _useCustomDir, _locType);
     };
 
     /**
