@@ -1,0 +1,336 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2024-11-25 15:33:42
+ * @LastEditTime: 2024-11-27 17:30:31
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn-1">
+                <button onclick="ShpEditStart()">矢量编辑开始</button>
+                <button onclick="AddMonomerRgn()">添加单体化区域</button>
+                <button onclick="ShpEditEnd()">矢量编辑结束</button>
+                <button onclick="Remove()">删除所有单体化区域</button>
+                <button onclick="OpenTrans()">打开位置编辑</button>
+            </div>
+            <div class="btn-2">
+                <button onclick="defaultDataSet()">设置默认颜色和跟随数据集</button>
+                <button onclick="logAll()">打印所有数据</button>
+                <button onclick="local(0)">定位1</button>
+                <button onclick="local(1)">定位2</button>
+                <button onclick="local(2)">定位3</button>
+                <button onclick="local(-1)">定位所有</button>
+            </div>
+            <div class="btn-3">
+                <button onclick="addMonomer_G_0()">添加一批单体化区域</button>
+                <button onclick="addMonomer_G_1()">添加一个单体化区域</button>
+            </div>
+            <div class="btn-4">
+                <button onclick="addHighlight(1)">添加绿色高亮标记</button>
+                <button onclick="addHighlight(2)">添加蓝色高亮标记</button>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            function addListener() {
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+                document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
+            }
+            function RESystemSelShpElement(e) {
+                console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '单体化_Grid',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [9200, 27000, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+            }
+            var Monomer_Rgn_count = 0;
+            function ShpEditStart() {
+                BlackHole3D.Monomer.startEditState();
+            }
+            function ShpEditEnd() {
+                Monomer_Rgn_count++;
+                BlackHole3D.Monomer.endEditState();
+            }
+            function AddMonomerRgn() {
+                BlackHole3D.Monomer.startAddMonomerState('Monomer_' + Monomer_Rgn_count);
+            }
+            function local(e) {
+                let monomerIdList = BlackHole3D.Monomer.getAllMonomerId();
+                if (monomerIdList.length <= 0) return;
+                if (e == -1) {
+                    BlackHole3D.Monomer.setCamToData(monomerIdList);
+                } else {
+                    if (monomerIdList.length <= e) return;
+                    BlackHole3D.Monomer.setCamToData([monomerIdList[e]]);
+                }
+            }
+            function Remove() {
+                let monomerIdList = BlackHole3D.Monomer.getAllMonomerId();
+                BlackHole3D.Monomer.delData(monomerIdList);
+            }
+            function OpenTrans() {
+                BlackHole3D.Edit.startEdit();
+                BlackHole3D.Edit.openAffineTransEditWnd();
+            }
+            function defaultDataSet() {
+                BlackHole3D.Monomer.setDefaultClr(new BlackHole3D.REColor(0, 255, 0, 128));
+                BlackHole3D.Monomer.setEditApplyDataSetId('单体化_Grid');
+            }
+            function logAll() {
+                console.log(BlackHole3D.Monomer.getData(BlackHole3D.Monomer.getAllMonomerId()));
+            }
+            function addMonomer_G_0() {
+                let monomerList_G_0 = [
+                    {
+                        monomerId: 'Monomer_0',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-35.04549841217218, 193.55450105148037, -41.049469365094055],
+                                [-53.67637291109426, 196.04598067690114, -36.75936291838427],
+                                [-55.850951045745234, 173.51200070905298, -44.98571620728849],
+                                [-37.36457280935848, 162.96617532216922, -45.246675350450516],
+                            ],
+                        ],
+                        heightMin: -46.6295108795166,
+                        heightMax: -33.95083999633789,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_1',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-53.50036250827219, 225.3216919866254, -37.2316360182341],
+                                [-54.488256982166426, 200.15852005148665, -45.410526193009105],
+                                [-34.633431482338565, 200.19357576707773, -45.04587756370242],
+                                [-26.947165340377424, 224.09019533572018, -44.55774066180592],
+                            ],
+                        ],
+                        heightMin: -46.34737968444824,
+                        heightMax: -30.97396469116211,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_2',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-97.88404843274166, 241.01934300167332, -41.649170629331195],
+                                [-63.87828887724248, 251.47376846315026, -44.85127515632965],
+                                [-57.619557588651716, 229.0789125542112, -45.27610189586355],
+                                [-92.01229840116919, 218.28330508103966, -45.24293564117053],
+                            ],
+                        ],
+                        heightMin: -46.323930740356445,
+                        heightMax: -30.277782440185547,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_3',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-126.62778977779575, 164.5367654676143, -45.35458771673106],
+                                [-77.27267965546756, 180.4899237164742, -38.65966998731625],
+                                [-69.80675867297086, 156.91808856034993, -42.197882410150186],
+                                [-121.13960103425667, 139.68309272731557, -45.21813505318113],
+                            ],
+                        ],
+                        heightMin: -47.10810661315918,
+                        heightMax: -25.576065063476562,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_4',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-168.39635269565812, 240.83342477800775, -41.53569587999374],
+                                [-125.40509444837129, 255.4031100634699, -37.636031051592155],
+                                [-114.9923821170365, 231.69080235104605, -42.67739434838782],
+                                [-161.34752290585635, 214.9238561932633, -42.83303644177758],
+                            ],
+                        ],
+                        heightMin: -46.25687599182129,
+                        heightMax: -30.34029769897461,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_5',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-51.63216625966707, 305.63682158209394, -39.305548578983036],
+                                [-52.97511462922369, 284.0681910108018, -44.97167975154869],
+                                [-22.674634417830568, 283.42591733459057, -44.73921118604119],
+                                [-20.030179559405994, 307.2527691533628, -41.48360967580547],
+                            ],
+                            [
+                                [-51.04445834229094, 279.0379320437486, -44.728225046411964],
+                                [-53.324729773370095, 257.96522546131473, -45.09562579947138],
+                                [-26.355488698594577, 256.3345039660928, -44.62638793901456],
+                                [-21.568781464927504, 276.9403843977957, -42.53710962636288],
+                            ],
+                        ],
+                        heightMin: -46.11400032043457,
+                        heightMax: -27.071571350097656,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                    {
+                        monomerId: 'Monomer_6',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-117.95340503894829, 263.14805796056345, -38.38625375066772],
+                                [-88.4251076180519, 272.7258829927377, -40.23533117764512],
+                                [-82.34572855320648, 251.76300258257842, -45.0213173746738],
+                                [-108.97313916217011, 240.8062507681497, -44.26824075873199],
+                            ],
+                        ],
+                        heightMin: -46.28701972961426,
+                        heightMax: -30.47897720336914,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                ];
+                BlackHole3D.Monomer.setData(monomerList_G_0);
+            }
+            function addMonomer_G_1() {
+                let monomerList_G_1 = [
+                    {
+                        monomerId: 'Monomer_0',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [-61.67774934727383, 3.424645380783204, 4.132206926800052],
+                                [-27.254584318521353, -6.182742964305589, 4.058364616482663],
+                                [-38.81458425621646, -47.81937794175078, 3.107119337608083],
+                                [-73.71501556850993, -37.65186470412394, 4.10686332599343],
+                            ],
+                        ],
+                        heightMin: -0.05030632019042969,
+                        heightMax: 7.633930206298828,
+                        monomerClr: {
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                    },
+                ];
+                BlackHole3D.Monomer.setData(monomerList_G_1);
+            }
+            function addHighlight(e) {
+                if (e == 1) {
+                    BlackHole3D.Monomer.setHighlightAttr(['Monomer_0', 'Monomer_2', 'Monomer_4'], {
+                        monomerClr: {
+                            red: 0,
+                            green: 255,
+                            blue: 0,
+                            alpha: 128,
+                        },
+                        clrWeight: 255,
+                        alphaWeight: 255,
+                    });
+                } else {
+                    BlackHole3D.Monomer.setHighlightAttr(['Monomer_1', 'Monomer_5', 'Monomer_7'], {
+                        monomerClr: {
+                            red: 0,
+                            green: 0,
+                            blue: 255,
+                            alpha: 112,
+                        },
+                        clrWeight: 255,
+                        alphaWeight: 255,
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>

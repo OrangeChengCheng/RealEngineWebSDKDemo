@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn-1">
+                <button onclick="ShpEditStart()">矢量编辑开始</button>
+                <button onclick="AddExtrudeRgn()">添加挤出区域</button>
+                <button onclick="ShpEditEnd()">矢量编辑结束</button>
+                <button onclick="SetCamToData()">定位挤出</button>
+                <button onclick="Remove()">删除所有挤出操作</button>
+            </div>
+            <div class="btn-2">
+                <button onclick="AddExtrude_M_1_1()">模型(上)-挖洞</button>
+                <button onclick="AddExtrude_M_2_1()">模型(下)-挖洞</button>
+                <button onclick="AddExtrude_M_12_1()">模型(上下)-挖洞</button>
+                <button onclick="AddExtrude_M_1_2()">模型(上)-挤出</button>
+                <button onclick="AddExtrude_M_2_2()">模型(下)-挤出</button>
+                <button onclick="AddExtrude_M_12_2()">模型(上下)-挤出</button>
+                <button onclick="AddExtrude_M_1_3()">模型(上)-限制挖洞</button>
+            </div>
+            <div class="btn-3">
+                <button onclick="OSGBextrude_D_1_1()">倾斜摄影(上)-挖洞</button>
+                <button onclick="OSGBextrude_D_1_2()">倾斜摄影(上)-拍平</button>
+                <button onclick="OSGBextrude_D_1_3()">倾斜摄影(上)-挤出</button>
+                <button onclick="OSGBextrude_D_12_1()">倾斜摄影(上下)-挖洞</button>
+                <button onclick="OSGBextrude_D_2_1()">倾斜摄影(下)-挤出</button>
+                <button onclick="OSGBextrude_D_12_2()">倾斜摄影(上下)-挤出</button>
+            </div>
+            <div class="btn-4">
+                <button onclick="MD_1234_1()">模型倾斜摄影(全)-挖洞</button>
+            </div>
+            <div class="btn-5">
+                <button onclick="showLine()">显示辅助线</button>
+                <button onclick="hideLine()">隐藏辅助线</button>
+                <button onclick="local(1)">定位-模型(上)</button>
+                <button onclick="local(2)">定位-模型(下)</button>
+                <button onclick="local(3)">定位-倾斜摄影(上)</button>
+                <button onclick="local(4)">定位-倾斜摄影(下)</button>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            function addListener() {
+                document.addEventListener('AddExtrudeRgnFinish', AddExtrudeRgnFinish); //添加挤出区域完成回调
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+                document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
+            }
+            function AddExtrudeRgnFinish(e) {
+                console.log(e);
+            }
+            function RESystemSelShpElement(e) {
+                console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '挤出渲染1',
+                        resourcesAddress: 'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a166033597471691509d0c8fe1a4377',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                    {
+                        dataSetId: '挤出渲染2',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, -20.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                    {
+                        dataSetId: '挤出渲染3',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [9200, 27000, 100.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                    {
+                        dataSetId: '挤出渲染4',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [9200, 27000, -50.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+            }
+            function local(e) {
+                let id = '挤出渲染' + e;
+                BlackHole3D.Camera.setCamLocateToDataSet(id, 0.8);
+            }
+            var Extrude_Rgn_count = 0;
+            function ShpEditStart() {
+                BlackHole3D.Extrude.startEditState();
+            }
+            function ShpEditEnd() {
+                Extrude_Rgn_count++;
+                BlackHole3D.Extrude.endEditState();
+            }
+            function AddExtrudeRgn() {
+                BlackHole3D.Extrude.startAddExtrudeState('Extrude_' + Extrude_Rgn_count);
+            }
+            function SetCamToData() {
+                let extrudeIdList = BlackHole3D.Extrude.getAllExtrudeId();
+                BlackHole3D.Extrude.setCamToData(extrudeIdList);
+            }
+            function Remove() {
+                let extrudeIdList = BlackHole3D.Extrude.getAllExtrudeId();
+                BlackHole3D.Extrude.delData(extrudeIdList);
+            }
+            function AddExtrude_M_1_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_1_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染1'];
+                extrudeInfo.rgnList = [
+                    [
+                        [15.800412857366394, 60.49535601724977, -10],
+                        [18.50151481517439, 60.44579531565839, -10],
+                        [18.427172201834612, 56.654387751843075, -10],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挖洞模式
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_2_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_2_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染2'];
+                extrudeInfo.rgnList = [
+                    [
+                        [11.450484881698362, 57.347221718034085, -16.92364104847012],
+                        [16.5669235132415, 57.34494580253592, -16.923641856357595],
+                        [16.34902598118135, 53.39397078704075, -16.923615091503514],
+                        [11.432735467245855, 53.344359105894775, -16.923627758086898],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挖洞模式
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_12_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_12_1';
+                extrudeInfo.dataSetIdList = [];
+                // extrudeInfo.dataSetIdList = ['挤出渲染1', '挤出渲染2'];
+                extrudeInfo.rgnList = [
+                    [
+                        [5.743053772060198, 37.7572780044156, -10],
+                        [9.064528507229104, 37.936369031526304, -10],
+                        [7.354348308139788, 35.22203213418769, -10],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挖洞模式
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_1_2() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_1_2';
+                extrudeInfo.dataSetIdList = ['挤出渲染1'];
+                extrudeInfo.rgnList = [
+                    [
+                        [7.411574856531935, 15.798791358518626, -2],
+                        [9.539594099746182, 14.302615786948063, -2],
+                        [5.336109637237804, 14.029981974798545, -2],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 2];
+                extrudeInfo.type = 2; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_2_2() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_2_2';
+                extrudeInfo.dataSetIdList = ['挤出渲染2'];
+                extrudeInfo.rgnList = [
+                    [
+                        [7.411574856531935, 15.798791358518626, -10],
+                        [9.539594099746182, 14.302615786948063, -10],
+                        [5.336109637237804, 14.029981974798545, -10],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-11, 1e10];
+                extrudeInfo.type = 2; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_12_2() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_12_2';
+                extrudeInfo.dataSetIdList = ['挤出渲染1', '挤出渲染2'];
+                extrudeInfo.rgnList = [
+                    [
+                        [11.84670899961667, 15.910498858891547, -10],
+                        [14.932312063439914, 17.083143304990916, -10],
+                        [15.718422613682986, 15.763081926251663, -10],
+                        [13.750290716208097, 14.835458514437304, -10],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-10000, 10000];
+                // extrudeInfo.depthLimitRange = [-11, 10];
+                extrudeInfo.type = 2; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function AddExtrude_M_1_3() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'bim_extrude_M_1_3';
+                extrudeInfo.dataSetIdList = ['挤出渲染1'];
+                extrudeInfo.rgnList = [
+                    [
+                        [8.255270364061431, 29.870627183886903, 2],
+                        [16.263679739601095, 29.232144961534587, 2],
+                        [10.918382414926352, 22.659706527379424, 2],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-11, 0];
+                extrudeInfo.type = 0; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function hideLine() {
+                BlackHole3D.Geometry.delAllShps();
+            }
+            function showLine() {
+                //矢量文字信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.texBias = [1, 0];
+                shpTextInfo.fontName = 'RealBIMFont001';
+                shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                shpTextInfo.textBackMode = 2;
+                shpTextInfo.textBackBorder = 2;
+                shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                //矢量线信息
+                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                lineShpInfo.fillState = 1;
+                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                lineShpInfo.textPos = -2;
+                lineShpInfo.scrASDist = -1.0;
+                lineShpInfo.scrVisDist = -1.0;
+                lineShpInfo.contactSce = false;
+                lineShpInfo.lineWidth = 2;
+                lineShpInfo.lineWidth = 2;
+                lineShpInfo.groupName = 'a';
+
+                // M_1_1
+                lineShpInfo.shpName = 'M_1_1';
+                lineShpInfo.potList = [
+                    [15.800412857366394, 60.49535601724977, -10],
+                    [18.50151481517439, 60.44579531565839, -10],
+                    [18.427172201834612, 56.654387751843075, -10],
+                ];
+                shpTextInfo.text = 'M_1_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_2_1
+                lineShpInfo.shpName = 'M_2_1';
+                lineShpInfo.potList = [
+                    [11.450484881698362, 57.347221718034085, -16.92364104847012],
+                    [16.5669235132415, 57.34494580253592, -16.923641856357595],
+                    [16.34902598118135, 53.39397078704075, -16.923615091503514],
+                    [11.432735467245855, 53.344359105894775, -16.923627758086898],
+                ];
+                shpTextInfo.text = 'M_2_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_12_1
+                lineShpInfo.shpName = 'M_12_1';
+                lineShpInfo.potList = [
+                    [5.743053772060198, 37.7572780044156, -10],
+                    [9.064528507229104, 37.936369031526304, -10],
+                    [7.354348308139788, 35.22203213418769, -10],
+                ];
+                shpTextInfo.text = 'M_12_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_1_2
+                lineShpInfo.shpName = 'M_1_2';
+                lineShpInfo.potList = [
+                    [7.411574856531935, 15.798791358518626, -2],
+                    [9.539594099746182, 14.302615786948063, -2],
+                    [5.336109637237804, 14.029981974798545, -2],
+                ];
+                shpTextInfo.text = 'M_1_2';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_1_3
+                lineShpInfo.shpName = 'M_1_3';
+                lineShpInfo.potList = [
+                    [8.255270364061431, 29.870627183886903, 2],
+                    [16.263679739601095, 29.232144961534587, 2],
+                    [10.918382414926352, 22.659706527379424, 2],
+                ];
+                shpTextInfo.text = 'M_1_3';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_2_2
+                lineShpInfo.shpName = 'M_2_2';
+                lineShpInfo.potList = [
+                    [7.411574856531935, 15.798791358518626, -10],
+                    [9.539594099746182, 14.302615786948063, -10],
+                    [5.336109637237804, 14.029981974798545, -10],
+                ];
+                shpTextInfo.text = 'M_2_2';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // M_12_2
+                lineShpInfo.shpName = 'M_12_2';
+                lineShpInfo.potList = [
+                    [11.84670899961667, 15.910498858891547, -10],
+                    [14.932312063439914, 17.083143304990916, -10],
+                    [15.718422613682986, 15.763081926251663, -10],
+                    [13.750290716208097, 14.835458514437304, -10],
+                ];
+                shpTextInfo.text = 'M_12_2';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_1_1
+                lineShpInfo.shpName = 'D_1_1';
+                lineShpInfo.potList = [
+                    [-61.0642090589232, 52.14752273116967, 133.505933093389785],
+                    [-179.11353798158603, 6.974919197468619, 131.26633716373194],
+                    [-111.3853527091256, -150.1309842989069, 131.953197100751275],
+                ];
+                shpTextInfo.text = 'D_1_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_1_2
+                lineShpInfo.shpName = 'D_1_2';
+                lineShpInfo.potList = [
+                    [-76.36813228299036, 139.9571317157323, 111.245724267267306],
+                    [-140.4087005702446, 120.92582981639804, 112.385065182875408],
+                    [-122.5245130427027, 61.058128177288026, 115.506499615428268],
+                    [-56.88037065725894, 81.19090521039169, 117.032576759584074],
+                ];
+                shpTextInfo.text = 'D_1_2';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_1_3
+                lineShpInfo.shpName = 'D_1_3';
+                lineShpInfo.potList = [
+                    [75.31284764350141, 40.06958269072095, 121.60102105373987],
+                    [105.98689429098889, -77.58929957111067, 119.831430816020955],
+                    [47.68809862819077, -127.62685009588978, 119.7264403219731],
+                    [15.00934384469306, 15.321589233879294, 119.690912062320066],
+                ];
+                shpTextInfo.text = 'D_1_3';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_12_1
+                lineShpInfo.shpName = 'D_12_1';
+                lineShpInfo.potList = [
+                    [-65.15989541301802, -380.6860842645239, 18.45379897496841],
+                    [-160.20178854384832, -464.3454027869882, 28.045441841277494],
+                    [38.530709536283894, -502.9557568150998, 25.49708492161287],
+                ];
+                shpTextInfo.text = 'D_12_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_2_1
+                lineShpInfo.shpName = 'D_2_1';
+                lineShpInfo.potList = [
+                    [-172.60290842661263, -230.81236687828368, 43.13894471599539],
+                    [-180.75558876876818, -303.05799553070756, 39.98294310620744],
+                    [-102.99225735575767, -264.03977048827363, 40.34306326024543],
+                ];
+                shpTextInfo.text = 'D_2_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // D_12_2
+                lineShpInfo.shpName = 'D_12_2';
+                lineShpInfo.potList = [
+                    [-17.574277370222802, -301.677277221626, 40],
+                    [77.71316064431517, -295.3561367686854, 40],
+                    [62.714649896267865, -373.0409376553304, 40],
+                    [1.0388465287521313, -378.35712737574505, 40],
+                ];
+                shpTextInfo.text = 'D_12_2';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // MD_1234_1
+                lineShpInfo.shpName = 'MD_1234_1';
+                lineShpInfo.potList = [
+                    [27.416999246101962, 43.241713910922165, -8],
+                    [-8.748595111122032, 42.73626162539628, -8],
+                    [-7.069041562992389, 58.33861643924458, -8],
+                    [30.68023623607904, 58.10856249766174, -8],
+                ];
+                shpTextInfo.text = 'MD_1234_1';
+                lineShpInfo.textInfo = shpTextInfo;
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+            }
+            function OSGBextrude_D_1_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_1_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染3'];
+                extrudeInfo.rgnList = [
+                    [
+                        [-61.0642090589232, 52.14752273116967, 133.505933093389785],
+                        [-179.11353798158603, 6.974919197468619, 131.26633716373194],
+                        [-111.3853527091256, -150.1309842989069, 131.953197100751275],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挖洞模式
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function OSGBextrude_D_1_2() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_1_2';
+                extrudeInfo.dataSetIdList = ['挤出渲染3'];
+                extrudeInfo.rgnList = [
+                    [
+                        [-76.36813228299036, 139.9571317157323, 111.245724267267306],
+                        [-140.4087005702446, 120.92582981639804, 112.385065182875408],
+                        [-122.5245130427027, 61.058128177288026, 115.506499615428268],
+                        [-56.88037065725894, 81.19090521039169, 117.032576759584074],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 1; // 简易投射（拍平）
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function OSGBextrude_D_1_3() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_1_3';
+                extrudeInfo.dataSetIdList = ['挤出渲染3'];
+                extrudeInfo.rgnList = [
+                    [
+                        [75.31284764350141, 40.06958269072095, 121.60102105373987],
+                        [105.98689429098889, -77.58929957111067, 119.831430816020955],
+                        [47.68809862819077, -127.62685009588978, 119.7264403219731],
+                        [15.00934384469306, 15.321589233879294, 119.690912062320066],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 2; // 准确投射(挤出)
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function OSGBextrude_D_12_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_12_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染3', '挤出渲染4'];
+                extrudeInfo.rgnList = [
+                    [
+                        [-65.15989541301802, -380.6860842645239, 18.45379897496841],
+                        [-160.20178854384832, -464.3454027869882, 28.045441841277494],
+                        [38.530709536283894, -502.9557568150998, 25.49708492161287],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挤出（挖洞）
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function OSGBextrude_D_2_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_2_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染4'];
+                extrudeInfo.rgnList = [
+                    [
+                        [-172.60290842661263, -230.81236687828368, 43.13894471599539],
+                        [-180.75558876876818, -303.05799553070756, 39.98294310620744],
+                        [-102.99225735575767, -264.03977048827363, 40.34306326024543],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 2; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function OSGBextrude_D_12_2() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'osgb_extrude_D_12_2';
+                extrudeInfo.dataSetIdList = ['挤出渲染3', '挤出渲染4'];
+                extrudeInfo.rgnList = [
+                    [
+                        [-17.574277370222802, -301.677277221626, 40],
+                        [77.71316064431517, -295.3561367686854, 40],
+                        [62.714649896267865, -373.0409376553304, 40],
+                        [1.0388465287521313, -378.35712737574505, 40],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 2; // 挤出
+                extrudeInfo.texPath = 'http://realbim.bjblackhole.cn:8008/default.aspx?dir=url_res02&path=res_temp/pics/a04.png';
+                extrudeInfo.texSize = [10.0, 10.0];
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+            function MD_1234_1() {
+                let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo.extrudeId = 'Exctrde_MD_1234_1';
+                extrudeInfo.dataSetIdList = ['挤出渲染1', '挤出渲染2', '挤出渲染3', '挤出渲染4'];
+                extrudeInfo.rgnList = [
+                    [
+                        [27.416999246101962, 43.241713910922165, -8],
+                        [-8.748595111122032, 42.73626162539628, -8],
+                        [-7.069041562992389, 58.33861643924458, -8],
+                        [30.68023623607904, 58.10856249766174, -8],
+                    ],
+                ];
+                extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                extrudeInfo.type = 0; // 挤出（挖洞）
+
+                // 创建挤出对象集合
+                let extrudeList = [extrudeInfo];
+                BlackHole3D.Extrude.setData(extrudeList);
+            }
+        </script>
+    </body>
+</html>

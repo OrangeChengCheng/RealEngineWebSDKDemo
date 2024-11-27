@@ -1,0 +1,163 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2024-11-25 15:33:42
+ * @LastEditTime: 2024-11-25 16:43:35
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../style.css" />
+        <style>
+            #movableDiv {
+                width: 40px;
+                height: 40px;
+                background-color: red;
+                position: absolute;
+                cursor: pointer;
+                transform: scale(1, 1);
+                display: none;
+            }
+            #movableDiv2 {
+                width: 40px;
+                height: 40px;
+                background-color: greenyellow;
+                position: absolute;
+                cursor: pointer;
+                transform: scale(1, 1);
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div id="movableDiv"></div>
+            <div id="movableDiv2"></div>
+            <div class="btn">
+                <button onclick="registerPosMark()">注册世界坐标标记</button>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            function addListener() {
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+                document.addEventListener('REWorldPosChange', REWorldPosChange); //监听世界坐标点变化触发回调事件
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '世界坐标标记',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+            }
+            // 获取div元素
+            let movableDiv = document.getElementById('movableDiv');
+            let movableDiv2 = document.getElementById('movableDiv2');
+            let canvasDiv = document.getElementById('canvas');
+            let canvasWidth = canvasDiv.offsetWidth;
+            let canvasHeight = canvasDiv.offsetHeight;
+            // 初始化div是否已经存在的标志
+            let isDivCreated = false;
+            function REWorldPosChange(e) {
+                let worldPosList = e.detail.states;
+                if (worldPosList && worldPosList.length > 0) {
+                    let state_obj1 = worldPosList.find((item) => item.name == 'worldPos_1');
+                    let state_obj2 = worldPosList.find((item) => item.name == 'worldPos_2');
+                    // console.log('---- canvasWidth : ' + canvasWidth + ', canvasHeight : ' + canvasHeight);
+                    // console.log('----', worldPosList);
+                    if (state_obj1) {
+                        let alpha = false;
+                        let x = state_obj1.state[0];
+                        let y = state_obj1.state[1];
+                        let depth = Math.trunc((1 - state_obj1.state[2]) * 1000000000);
+                        let scale = state_obj1.state[3];
+
+                        if (x <= 0 || y <= 0 || depth <= 0 || scale <= 0 || x >= canvasWidth || y >= canvasHeight) {
+                            movableDiv.style.display = `none`;
+                        } else {
+                            movableDiv.style.display = `block`;
+                        }
+                        movableDiv.style.left = `${x - 20}px`;
+                        movableDiv.style.top = `${canvasHeight - y - 20}px`;
+                        movableDiv.style.transform = `scale(${scale}, ${scale})`;
+                        movableDiv.style.zIndex = `${depth}`;
+                    }
+                    if (state_obj2) {
+                        let x = state_obj2.state[0];
+                        let y = state_obj2.state[1];
+                        let depth = Math.trunc((1 - state_obj2.state[2]) * 1000000000);
+                        let scale = state_obj2.state[3];
+
+                        if (x <= 0 || y <= 0 || depth <= 0 || scale <= 0 || x >= canvasWidth || y >= canvasHeight) {
+                            movableDiv2.style.display = `none`;
+                        } else {
+                            movableDiv2.style.display = `block`;
+                        }
+                        movableDiv2.style.left = `${x - 20}px`;
+                        movableDiv2.style.top = `${canvasHeight - y - 20}px`;
+                        movableDiv2.style.transform = `scale(${scale}, ${scale})`;
+                        movableDiv2.style.zIndex = `${depth}`;
+                    }
+                }
+            }
+            function registerPosMark() {
+                BlackHole3D.Coordinate.registerWorldPos({
+                    worldPosId: 'worldPos_1',
+                    viewportId: 0,
+                    pos: [12.698554620979571, 55.493914649115176, 1.8784023935654837],
+                    scaleDist: 100,
+                });
+
+                BlackHole3D.Coordinate.registerWorldPos({
+                    worldPosId: 'worldPos_2',
+                    viewportId: 0,
+                    pos: [11.763586721521971, 31.494786373007653, 5.931485446789704],
+                    scaleDist: 100,
+                });
+            }
+        </script>
+    </body>
+</html>

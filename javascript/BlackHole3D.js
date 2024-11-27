@@ -1,4 +1,4 @@
-﻿//版本：v3.1.0.2828
+﻿//版本：v3.2.0.2881
 const isPhoneMode = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -64,8 +64,38 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
             Module.setOperationMode(1);
         }
+        document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
+        document.addEventListener('REAddWaterFinish_Web', REAddWaterFinish_Web); //水面添加完成回调事件
+        document.addEventListener('REAddExtrudeFinish_Web', REAddExtrudeFinish_Web); //挤出添加完成回调事件
         return bool;
     };
+
+    function removeEventListener() {
+        document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
+        document.removeEventListener('REAddWaterFinish_Web', REAddWaterFinish_Web);
+        document.removeEventListener('REAddExtrudeFinish_Web', REAddExtrudeFinish_Web);
+    }
+
+    function REWorldPosChange_Web(e) {
+        const re_event_REWorldPosStates = new CustomEvent('REWorldPosChange', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REWorldPosStates);
+    }
+
+    function REAddWaterFinish_Web(e) {
+        const re_event_REAddWaterFinish = new CustomEvent('REAddWaterFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REAddWaterFinish);
+    }
+
+    function REAddExtrudeFinish_Web(e) {
+        const re_event_REAddExtrudeFinish = new CustomEvent('REAddExtrudeFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REAddExtrudeFinish);
+    }
 
     /**
      * 添加一个HTTP路径授权信息
@@ -137,6 +167,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 Module.ctx.getExtension('WEBGL_lose_context').loseContext();
             }
         }
+        removeEventListener();
     };
 
     /**
@@ -1055,6 +1086,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
             return;
         }
+        
         let count = dataSetList.length;
         for (let i = 0; i < count; i++) {
             let dataSetModel = dataSetList[i];
@@ -2097,6 +2129,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.setValueDispPrecision = function (precision) {
         Module.RealBIMWeb.SetFloatValueDispPrecision(precision);
+    };
+
+    class REWorldPosInfo {
+        constructor() {
+            this.worldPosId = null; //表示世界空间坐标的标识名
+            this.viewportId = 0; //表示世界空间坐标所归属的视口ID，默认为0单视口
+            this.pos = null; //表示世界空间坐标
+            this.scaleDist = 0.1; //表示与 worldPoint 关联的某对象在世界空间中的最小缩放距离，当 worldPoint 与相机的距离大于该值则对象开始缩放
+        }
+    }
+    ExtModule.REWorldPosInfo = REWorldPosInfo;
+
+    /**
+     * 注册一个世界空间坐标标记（世界坐标信息变动将会通过监听事件 REWorldPosChange 进行返回）
+     * @param {REWorldPosInfo} coordinateInfo //表示世界空间坐标信息
+     */
+    Module.Coordinate.registerWorldPos = function (coordinateInfo) {
+        if (isEmptyLog(coordinateInfo, 'coordinateInfo')) return;
+        if (isEmptyLog(coordinateInfo.worldPosId, 'worldPosId')) return;
+        if (isEmptyLog(coordinateInfo.pos, 'pos')) return;
+        return Module.RealBIMWeb.RegisterWorldPos(coordinateInfo.worldPosId, coordinateInfo.viewportId, coordinateInfo.pos, coordinateInfo.scaleDist);
+    };
+
+    /**
+     * 注销一个世界空间坐标标记
+     * @param {String} worldPosId //表示世界空间坐标的标识名
+     */
+    Module.Coordinate.unRegisterWorldPos = function (worldPosId) {
+        if (isEmptyLog(worldPosId, 'worldPosId')) return;
+        Module.RealBIMWeb.UnRegisterAllWorldPos(worldPosId);
+    };
+
+    /**
+     * 注销所有世界空间坐标标记
+     */
+    Module.Coordinate.unRegisterAllWorldPos = function () {
+        return Module.RealBIMWeb.UnRegisterWorldPos();
     };
 
     // MOD-- 鼠标探测（Probe）
@@ -5328,7 +5397,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var objAttr = {
             elemClr: new REColor(_clr_R, _clr_G, _clr_B, _clr_A),
-            probeMask: curattr.m_uProbeMask / 255,
+            probeMask: curattr.m_uProbeMask > 0 ? 1 : 0,
             attrValid: curattr.m_bAttrValid,
         };
         return objAttr;
@@ -7214,7 +7283,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     // MARK 倾斜摄影单体化
-    class REMonomerInfo {
+    class REMonomerInfo1 {
         constructor() {
             this.boxID = null; //倾斜摄影编辑对象的ID
             this.heightMin = null; //最小高度
@@ -7223,7 +7292,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.pos = null; //角点的位置
         }
     }
-    ExtModule.REMonomerInfo = REMonomerInfo;
+    ExtModule.REMonomerInfo1 = REMonomerInfo1;
 
     /**
      * 设置倾斜摄影单体化数据
@@ -8857,93 +8926,151 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REWaterInfo {
         constructor() {
             this.waterName = null; //水面名称
-            this.waterClr = new REColor(255, 255, 255, 255); //水面颜色
-            this.blendDist = 1; //混合系数
+            this.waterClr = new REColor(61, 158, 135, 255); //水面颜色
+            this.blendDist = 1; //混合系数，值越大边缘混合效果越强  取值范围 0-1
             this.visible = true; //是否可见
-            this.cornerPoint = null; //角点
+            this.rgnList = null; //水面区域集合 （RECornerRgnInfo 类型）
         }
     }
     ExtModule.REWaterInfo = REWaterInfo;
+
+    class RECornerRgnInfo {
+        constructor() {
+            this.pointList = []; //顶点集合
+            this.indexList = []; //三角网顶点索引值集合，（根据索引值构面，空数组为引擎自动构面）
+        }
+    }
+    ExtModule.RECornerRgnInfo = RECornerRgnInfo;
 
     // MARK 加载
     /**
      * 创建水域对象
      * @param {REWaterInfo} waterInfoList //水面数据集合
      */
-    Module.Water.loadData = function (waterInfoList) {
+    Module.Water.setData = function (waterInfoList) {
         if (!checkTypeLog(waterInfoList, 'waterInfoList', RE_Enum.RE_Check_Array)) return;
 
-        var _waterList = [];
+        let _vector_waterRgn = new Module.RE_Vector_WaterRgnInfo();
         for (let i = 0; i < waterInfoList.length; i++) {
             let obj = waterInfoList[i];
             if (isEmptyLog(obj.waterName, 'waterName')) return false;
-            if (isEmptyLog(obj.cornerPoint, 'cornerPoint')) return false;
+            if (isEmptyLog(obj.rgnList, 'rgnList')) return false;
+
+            let _vector_vector_m_arrCorners = new Module.RE_Vector_Vector_dvec3();
+            let _vector_vector_m_arrIndices = new Module.RE_Vector_Vector_u32();
+            const hasIndexRgnList = obj.rgnList.filter((item) => !isEmpty(item.indexList) && item.indexList.length > 0);
+            const notHasIndexRgnList = obj.rgnList.filter((item) => isEmpty(item.indexList) || !item.indexList.length);
+
+            hasIndexRgnList.forEach((rgn) => {
+                let _vector_m_arrCorner = new Module.RE_Vector_dvec3();
+                rgn.pointList.forEach((corner) => {
+                    _vector_m_arrCorner.push_back(corner);
+                });
+                _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
+
+                let _vector_m_arrIndice = new Module.RE_Vector_u32();
+                rgn.indexList.forEach((index) => {
+                    _vector_m_arrIndice.push_back(index);
+                });
+                _vector_vector_m_arrIndices.push_back(_vector_m_arrIndice);
+            });
+
+            notHasIndexRgnList.forEach((rgn) => {
+                let _vector_m_arrCorner = new Module.RE_Vector_dvec3();
+                rgn.pointList.forEach((corner) => {
+                    _vector_m_arrCorner.push_back(corner);
+                });
+                _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
+            });
+
             let waterT = {
-                WaterName: obj.waterName,
-                Color: clrToRGBA_List(obj.waterClr),
-                BlendDist: isEmpty(obj.blendDist) ? 1 : obj.blendDist,
-                Visible: isEmpty(obj.visible) ? true : obj.visible,
-                Corners: obj.cornerPoint,
+                m_strName: obj.waterName,
+                m_uClr: clrToU32(obj.waterClr),
+                m_fBlendDist: isEmpty(obj.blendDist) ? 1 : obj.blendDist,
+                m_bVisible: isEmpty(obj.visible) ? true : obj.visible,
+                m_arrCorners: _vector_vector_m_arrCorners,
+                m_arrIndices: _vector_vector_m_arrIndices,
             };
-            _waterList.push(waterT);
+            _vector_waterRgn.push_back(waterT);
         }
-        var _waterJson = '';
-        _waterObj = {};
-        if (_waterList.length) {
-            _waterObj.Waters = _waterList;
-            _waterJson = JSON.stringify(_waterObj);
-        }
-        return Module.RealBIMWeb.LoadWaterFromJson(_waterJson);
+        Module.RealBIMWeb.SetWater(_vector_waterRgn);
     };
 
     /**
-     * 获取当前场景中所有水域对象
+     * 获取当前场景中水面对象集合
+     * @param {Array} waterNameList //水面名称标识集合
      */
-    Module.Water.getData = function () {
-        var _waterJson = Module.RealBIMWeb.SerializeWaterToString();
+    Module.Water.getData = function (waterNameList) {
+        let _vector_water_name = new Module.RE_Vector_WStr();
+        waterNameList.forEach((element) => {
+            _vector_water_name.push_back(element);
+        });
 
-        var jsonObj = JSON.parse(_waterJson);
-        if (!checkTypeLog(jsonObj['Waters'], 'Waters', RE_Enum.RE_Check_Array, false)) return '';
+        const _vector_waterRgnInfo = Module.RealBIMWeb.GetWater(_vector_water_name);
+        let waterInfoList = [];
+        for (let i = 0; i < _vector_waterRgnInfo.size(); i++) {
+            const _cWaterRgn = _vector_waterRgnInfo.get(i);
 
-        var waterInfoList = [];
-        var count = jsonObj['Waters'].length;
-        for (let i = 0; i < count; i++) {
-            let _waterObj = jsonObj['Waters'][i];
-            let waterInfo = new REWaterInfo();
-            waterInfo.waterName = _waterObj['WaterName'];
-            waterInfo.waterClr = rgbaListToClr(_waterObj['Color']);
-            waterInfo.blendDist = _waterObj['BlendDist'];
-            waterInfo.visible = _waterObj['Visible'];
-            waterInfo.cornerPoint = _waterObj['Corners'];
+            let _rgn_list = [];
+            let _rgn_count = _cWaterRgn.m_arrCorners.size();
+            for (let j = 0; j < _rgn_count; j++) {
+                const _arrCornerRgn = _cWaterRgn.m_arrCorners.get(j);
+                const _arrIndexRgn = _cWaterRgn.m_arrIndices.get(j);
 
+                let cornerRgnInfo = new Module.RECornerRgnInfo();
+                for (let k = 0; k < _arrCornerRgn.size(); k++) {
+                    const _cCorner = _arrCornerRgn.get(k);
+                    cornerRgnInfo.pointList.push(_cCorner);
+                }
+                for (let k = 0; k < _arrIndexRgn.size(); k++) {
+                    const _uIndex = _arrIndexRgn.get(k);
+                    cornerRgnInfo.indexList.push(_uIndex);
+                }
+                _rgn_list.push(cornerRgnInfo);
+            }
+
+            let waterInfo = new Module.REWaterInfo();
+            waterInfo.waterName = _cWaterRgn.m_strName;
+            waterInfo.waterClr = clrU32ToClr(_cWaterRgn.m_uClr);
+            waterInfo.blendDist = _cWaterRgn.m_fBlendDist;
+            waterInfo.visible = _cWaterRgn.m_bVisible;
+            waterInfo.rgnList = _rgn_list;
             waterInfoList.push(waterInfo);
         }
+
         return waterInfoList;
     };
 
     /**
      * 删除指定水面
-     * @param {String} waterName //水面名称
+     * @param {Array} waterNameList //水面名称集合
      */
-    Module.Water.delData = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.DelWaterByName(waterName);
+    Module.Water.delData = function (waterNameList) {
+        if (!checkTypeLog(waterNameList, 'waterNameList', RE_Enum.RE_Check_Array)) return;
+        var _vector_water_name = new Module.RE_Vector_WStr();
+        waterNameList.forEach((element) => {
+            _vector_water_name.push_back(element);
+        });
+        return Module.RealBIMWeb.DelWater(_vector_water_name);
     };
 
     /**
-     * 清空全部水面对象
+     * 获取当前水面的名称
      */
-    Module.Water.delAllData = function () {
-        return Module.RealBIMWeb.DelAllWaters();
+    Module.Water.getCurWaterName = function () {
+        return Module.RealBIMWeb.GetCurWaterName();
     };
 
     /**
-     * 根据水面名称定位到水面
-     * @param {String} waterName //水面名称
+     * 获取所有水面对象的名称
      */
-    Module.Water.setCamToData = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.LocateToWater(waterName);
+    Module.Water.getAllWaterName = function () {
+        var _vector = Module.RealBIMWeb.GetAllWaterName();
+        var waterIDs = [];
+        for (let i = 0; i < _vector.size(); i++) {
+            waterIDs.push(_vector.get(i));
+        }
+        return waterIDs;
     };
 
     // MARK 编辑
@@ -8963,81 +9090,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 进入水面添加状态
+     * @param {String} waterName //水面唯一标识
      */
-    Module.Water.startAddWaterState = function () {
-        return Module.RealBIMWeb.BeginAddWaterRgn();
+    Module.Water.startAddWaterState = function (waterName) {
+        return Module.RealBIMWeb.BeginAddWater(waterName);
     };
 
     /**
      * 退出水面添加状态
      */
     Module.Water.endAddWaterState = function () {
-        return Module.RealBIMWeb.EndAddWaterRgn();
-    };
-
-    /**
-     * 为已添加的水面命名一个唯一名称（ AddWaterRgnFinishEvent 事件监听回调 水面添加成功）
-     * @param {String} waterName //水面唯一标识
-     */
-    Module.Water.setWaterName = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.SetNewAddedWaterName(waterName);
-    };
-
-    /**
-     * 获取所有水面对象的名称
-     */
-    Module.Water.getAllWaterNames = function () {
-        var _vector = Module.RealBIMWeb.GetAllWaterNames();
-        var waterIDs = [];
-        for (let i = 0; i < _vector.size(); i++) {
-            waterIDs.push(_vector.get(i));
-        }
-        return waterIDs;
-    };
-
-    /**
-     * 把水面加入选择集
-     * @param {String} waterName //水面唯一标识
-     */
-    Module.Water.addToSelSet = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.AddWaterToSelSet(waterName);
-    };
-
-    /**
-     * 把指定水面移出选择集
-     * @param {String} waterName //水面唯一标识
-     */
-    Module.Water.delFromSelSet = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.RemoveWaterFromSelSet(waterName);
-    };
-
-    /**
-     * 清空选择集
-     */
-    Module.Water.clearSelSet = function () {
-        return Module.RealBIMWeb.ClearWaterSelSet();
-    };
-
-    /**
-     * 获取选择集中的所有水面标识
-     */
-    Module.Water.getAllSelWaterNames = function () {
-        var _vector = Module.RealBIMWeb.GetAllWaterNamesInSelSet();
-        var waterIDs = [];
-        for (let i = 0; i < _vector.size(); i++) {
-            waterIDs.push(_vector.get(i));
-        }
-        return waterIDs;
-    };
-
-    /**
-     * 删除当前选中的水面角点
-     */
-    Module.Water.delSelCorners = function () {
-        return Module.RealBIMWeb.DelWaterCornersInSelSet();
+        return Module.RealBIMWeb.EndAddWater();
     };
 
     /**
@@ -9052,73 +9115,39 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 设置指定水面对象的可见性
      * @param {String} waterName //水面唯一标识
-     * @param {Boolean} enable //是否可见
+     * @param {Boolean} visible //是否可见
      */
-    Module.Water.setVisible = function (waterName, enable) {
+    Module.Water.setVisible = function (waterName, visible) {
         if (isEmptyLog(waterName, 'waterName')) return;
-        return Module.RealBIMWeb.SetWaterVisible(waterName, enable);
+        return Module.RealBIMWeb.SetWaterVisible(waterName, visible);
     };
 
     /**
-     * 获取水体颜色
+     * 获取水面颜色
      * @param {String} waterName //水面唯一标识
      */
     Module.Water.getClr = function (waterName) {
         if (isEmptyLog(waterName, 'waterName')) return;
 
-        var _clrarr = Module.RealBIMWeb.GetWaterColor(waterName);
-        var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
-
-        var waterClr = new Module.REColor();
-        waterClr.red = _clrarr[0] * 255;
-        waterClr.green = _clrarr[1] * 255;
-        waterClr.blue = _clrarr[2] * 255;
-        waterClr.alpha = _alpha * 255;
-        return waterClr;
+        let _uClr = Module.RealBIMWeb.GetWaterColor(waterName);
+        return clrU32ToClr(_uClr);
     };
 
     /**
-     * 设置水体颜色 （RGB）
+     * 设置水面颜色
      * @param {String} waterName //水面唯一标识
      * @param {REColor} waterClr //水面颜色 （REColor 类型）
      */
     Module.Water.setClr = function (waterName, waterClr) {
         if (isEmptyLog(waterName, 'waterName')) return;
         if (isEmptyLog(waterClr, 'waterClr')) return;
-        var _R = Math.round(waterClr.red) / 255.0;
-        var _G = Math.round(waterClr.green) / 255.0;
-        var _B = Math.round(waterClr.blue) / 255.0;
-        var _A = Math.round(waterClr.alpha) / 255.0;
-        var _clrArr = [_R, _G, _B];
+        let _uClr = clrToU32(waterClr);
 
-        var isClrSucc = Module.RealBIMWeb.SetWaterColor(waterName, _clrArr);
-        var isAlphaSucc = Module.RealBIMWeb.SetWaterAlpha(waterName, _A);
-        return isClrSucc && isAlphaSucc;
+        return Module.RealBIMWeb.SetWaterColor(waterName, _uClr);
     };
 
     /**
-     * 获取水体透明度
-     * @param {String} waterName //水面唯一标识
-     */
-    Module.Water.getAlpha = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        var _alpha = Module.RealBIMWeb.GetWaterAlpha(waterName);
-        return Math.floor(_alpha * 255);
-    };
-
-    /**
-     * 设置水体透明度
-     * @param {String} waterName //水面唯一标识
-     * @param {Number} alpha //水面透明度  取值范围 0~255，0表示全透明，255表示不透明
-     */
-    Module.Water.setAlpha = function (waterName, alpha) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        var _a = parseInt(alpha) / 255;
-        return Module.RealBIMWeb.SetWaterAlpha(waterName, _a);
-    };
-
-    /**
-     * 获取水体跟模型混合系数
+     * 获取水面跟模型混合系数
      * @param {String} waterName //水面唯一标识
      */
     Module.Water.getBlendDist = function (waterName) {
@@ -9127,9 +9156,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置水体跟模型混合系数
+     * 设置水面跟模型混合系数
      * @param {String} waterName //水面唯一标识
-     * @param {Number} blendDist //混合距离  取值范围 0-1
+     * @param {Number} blendDist //混合系数，值越大边缘混合效果越强  取值范围 0-1
      */
     Module.Water.setBlendDist = function (waterName, blendDist) {
         if (isEmptyLog(waterName, 'waterName')) return;
@@ -9137,36 +9166,107 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取水面角点
-     * @param {String} waterName //水面唯一标识
+     * 设置水面默认属性
+     * @param {REColor} waterClr //水面颜色 （REColor 类型）
+     * @param {Number} blendDist //混合系数，值越大边缘混合效果越强  取值范围 0-1
+     * @param {Boolean} visible //是否可见
      */
-    Module.Water.getCorners = function (waterName) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-
-        var _vector = Module.RealBIMWeb.GetWaterCorners(waterName);
-        var crnersSet = [];
-        for (let i = 0; i < _vector.size(); i++) {
-            crnersSet.push(_vector.get(i));
-        }
-        return crnersSet;
+    Module.Water.setDefaultAttr = function (waterClr, blendDist, visible) {
+        let _uClr = isEmpty(waterClr) ? clrToU32(new Module.REColor(61, 158, 135, 255)) : clrToU32(waterClr);
+        let _fBlendDist = isEmpty(blendDist) ? 1.0 : blendDist;
+        let _bVisible = isEmpty(visible) ? true : visible;
+        Module.RealBIMWeb.SetDefaultWaterAttr(_uClr, _fBlendDist, _bVisible);
     };
 
+    // MARK 相机
     /**
-     * 设置水面角点（要在编辑水面模式下实时起作用）
-     * @param {String} waterName //水面唯一标识
-     * @param {Array} potList //水面点坐标集合 至少有三个点构成一个平面
+     * 根据水面名称定位到水面
+     * @param {Array} waterNameList //水面名称
      */
-    Module.Water.setCorners = function (waterName, potList) {
-        if (isEmptyLog(waterName, 'waterName')) return;
-        if (!checkTypeLog(potList, 'potList', RE_Enum.RE_Check_Array)) return;
-
-        var _arrCorners = new Module.RE_Vector_dvec3();
-        for (let i = 0; i < potList.length; i++) {
-            let corners = potList[i];
-            _arrCorners.push_back(corners);
-        }
-        return Module.RealBIMWeb.SetWaterCorners(waterName, _arrCorners);
+    Module.Water.setCamToData = function (waterNameList) {
+        if (!checkTypeLog(waterNameList, 'waterNameList', RE_Enum.RE_Check_Array)) return;
+        var _vector_water_name = new Module.RE_Vector_WStr();
+        waterNameList.forEach((element) => {
+            _vector_water_name.push_back(element);
+        });
+        return Module.RealBIMWeb.LocateToWater(_vector_water_name);
     };
+
+    // /**
+    //  * 获取水面角点
+    //  * @param {String} waterName //水面唯一标识
+    //  */
+    // Module.Water.getCorners = function (waterName) {
+    //     if (isEmptyLog(waterName, 'waterName')) return;
+
+    //     var _vector = Module.RealBIMWeb.GetWaterCorners(waterName);
+    //     var crnersSet = [];
+    //     for (let i = 0; i < _vector.size(); i++) {
+    //         crnersSet.push(_vector.get(i));
+    //     }
+    //     return crnersSet;
+    // };
+
+    // /**
+    //  * 设置水面角点（要在编辑水面模式下实时起作用）
+    //  * @param {String} waterName //水面唯一标识
+    //  * @param {Array} potList //水面点坐标集合 至少有三个点构成一个平面
+    //  */
+    // Module.Water.setCorners = function (waterName, potList) {
+    //     if (isEmptyLog(waterName, 'waterName')) return;
+    //     if (!checkTypeLog(potList, 'potList', RE_Enum.RE_Check_Array)) return;
+
+    //     var _arrCorners = new Module.RE_Vector_dvec3();
+    //     for (let i = 0; i < potList.length; i++) {
+    //         let corners = potList[i];
+    //         _arrCorners.push_back(corners);
+    //     }
+    //     return Module.RealBIMWeb.SetWaterCorners(waterName, _arrCorners);
+    // };
+
+    // /**
+    //  * 把水面加入选择集
+    //  * @param {String} waterName //水面唯一标识
+    //  */
+    // Module.Water.addToSelSet = function (waterName) {
+    //     if (isEmptyLog(waterName, 'waterName')) return;
+    //     return Module.RealBIMWeb.AddWaterToSelSet(waterName);
+    // };
+
+    // /**
+    //  * 把指定水面移出选择集
+    //  * @param {String} waterName //水面唯一标识
+    //  */
+    // Module.Water.delFromSelSet = function (waterName) {
+    //     if (isEmptyLog(waterName, 'waterName')) return;
+    //     return Module.RealBIMWeb.RemoveWaterFromSelSet(waterName);
+    // };
+
+    // /**
+    //  * 清空选择集
+    //  */
+    // Module.Water.clearSelSet = function () {
+    //     return Module.RealBIMWeb.ClearWaterSelSet();
+    // };
+
+    // /**
+    //  * 获取选择集中的所有水面标识
+    //  */
+    // Module.Water.getAllSelWaterNames = function () {
+    //     var _vector = Module.RealBIMWeb.GetAllWaterNamesInSelSet();
+    //     var waterIDs = [];
+    //     for (let i = 0; i < _vector.size(); i++) {
+    //         waterIDs.push(_vector.get(i));
+    //     }
+    //     return waterIDs;
+    // };
+
+    // /**
+    //  * 删除当前选中的水面角点
+    //  */
+    // Module.Water.delSelCorners = function () {
+    //     return Module.RealBIMWeb.DelWaterCornersInSelSet();
+    // };
 
     // MOD-- 有限元（FEM）
     Module.FEM = typeof Module.FEM !== 'undefined' ? Module.FEM : {}; //增加 FEM 模块
@@ -9517,6 +9617,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 动画（Animation）
     Module.Animation = typeof Module.Animation !== 'undefined' ? Module.Animation : {}; //增加 Animation 模块
 
+    // MARK 矢量动画
     class REAnimWallInfo {
         constructor() {
             this.groupName = null; //	动态墙组名称
@@ -9799,8 +9900,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var tempClr = clrToU32_W_WBGR(animStyleInfo.animClr, isEmpty(animStyleInfo.clrWeight) ? 255 : animStyleInfo.clrWeight);
         // 将透明度权重的值放在了透明度的位置上，透明度默认取值0，用权重调节
-        var _alpha = 0;//透明度为0，混合透明度0的强度控制，强度越大越透明度越为0，反之透明度的效果越小
-        var _alphaWeight = 255 - ((isEmpty(animStyleInfo.animClr) || isEmpty(animStyleInfo.animClr.alpha)) ? 255 : animStyleInfo.animClr.alpha);
+        var _alpha = 0; //透明度为0，混合透明度0的强度控制，强度越大越透明度越为0，反之透明度的效果越小
+        var _alphaWeight = 255 - (isEmpty(animStyleInfo.animClr) || isEmpty(animStyleInfo.animClr.alpha) ? 255 : animStyleInfo.animClr.alpha);
         var combinedAlpha = (_alphaWeight << 8) | _alpha;
         return Module.RealBIMWeb.SetShapeAnimStyle(animStyleInfo.groupName, temparr0, tempClr, animStyleInfo.scaleAndOffset, combinedAlpha);
     };
@@ -10032,7 +10133,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} dataSetIdList //数据集标识集合,为空数组代表所有数据集
      */
     Module.Clip.setDataSetBoxClip = function (dataSetIdList) {
-        if (isEmptyLog(dataSetIdList, 'dataSetIdList')) return;
+        if (!checkTypeLog(dataSetIdList, 'dataSetIdList', RE_Enum.RE_Check_Array)) return;
 
         var _vector_DataSetIds = new Module.RE_Vector_WStr();
         for (let i = 0; i < dataSetIdList.length; i++) {
@@ -11212,126 +11313,783 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     };
 
-    // MOD-- 挖洞（Excavate）
-    Module.Excavate = typeof Module.Excavate !== 'undefined' ? Module.Excavate : {}; //增加 Excavate 模块
+    // MOD-- 挤出（Extrude）
+    Module.Extrude = typeof Module.Extrude !== 'undefined' ? Module.Extrude : {}; //增加 Extrude 模块
 
     // MARK 加载
+    class REExtrudeInfo {
+        constructor() {
+            this.extrudeId = null; // 挤出标识
+            this.dataSetIdList = null; //数据集标识集合，挤出作用有效的范围
+            this.rgnList = null; // 挤出区域集合，每个区域由点集合构成（至少三个点），一个挤出表示可以由多个区域构成
+            this.depthLimitRange = [-1e10, 1e10]; //挤出区域面Z值偏移范围，包含在偏移范围内的模型即为有效（只作用于挖坑效果，其余效果无用），[区域面下方，区域面上方]，负值为向下，正值为向上，例如：区域面的Z高度为2，偏移范围为[-2,3]，即为以这个区域面高度为基准，X值为向下偏移2和Y值向上偏移3的范围内的模型为有效模型，不在这个范围内的模型无效
+            this.type = 2; //挤出类型 0：挖空（无封口） 1：拍平（简易投射） 2：挖坑（使用指定纹理封口）
+            this.texId = null; // 纹理id 由 addExtrudeFaceTex 返回的id
+            this.texPath = null; // 纹理路径
+            this.texSize = null; // 纹理大小
+        }
+    }
+    ExtModule.REExtrudeInfo = REExtrudeInfo;
+
     /**
-     * 添加挖洞面上使用的纹理
+     * 设置挤出区域对象集合
+     * @param {Array} extrudeInfoList //挤出信息集合 （REExtrudeInfo 类型）
+     */
+    Module.Extrude.setData = function (extrudeInfoList) {
+        if (!checkTypeLog(extrudeInfoList, 'extrudeInfoList', RE_Enum.RE_Check_Array)) return;
+
+        let _vector_extrudeRgn = new Module.RE_Vector_ExtrudeRgnInfo();
+        for (let i = 0; i < extrudeInfoList.length; i++) {
+            let _extrude_obj = extrudeInfoList[i];
+            if (isEmptyLog(_extrude_obj.extrudeId, 'extrudeId')) return false;
+            if (isEmptyLog(_extrude_obj.rgnList, 'rgnList')) return false;
+            if (isEmptyLog(_extrude_obj.dataSetIdList, 'dataSetIdList')) return false;
+
+            let _vector_vector_m_arrCorners = new Module.RE_Vector_Vector_dvec3();
+            _extrude_obj.rgnList.forEach((rgn) => {
+                let _vector_m_arrCorner = new Module.RE_Vector_dvec3();
+                rgn.forEach((corner) => {
+                    _vector_m_arrCorner.push_back(corner);
+                });
+                _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
+            });
+
+            let _vector_m_arrProjName = new Module.RE_Vector_WStr();
+            _extrude_obj.dataSetIdList.forEach((dataSetId) => {
+                _vector_m_arrProjName.push_back(dataSetId);
+            });
+
+            let _texId = isEmpty(_extrude_obj.texId) ? 0 : _extrude_obj.texId;
+            if (!isEmpty(_extrude_obj.texPath)) {
+                let _size = isEmpty(_extrude_obj.texSize) ? [0, 0] : _extrude_obj.texSize;
+                _texId = Module.Extrude.addExtrudeFaceTex(_extrude_obj.texPath, _size);
+            }
+
+            let _m_uProjType = isEmpty(_extrude_obj.type) ? 0 : _extrude_obj.type;
+            let _m_bSimpMode = _m_uProjType == 1 ? true : false;
+            let _m_vMinMaxRange = [-1e10, 1e10];
+            if (_m_uProjType == 0) {
+                _m_vMinMaxRange = isEmpty(_extrude_obj.depthLimitRange) ? [-1e10, 1e10] : _extrude_obj.depthLimitRange;
+            }
+
+            let cExtrude = {
+                m_strName: _extrude_obj.extrudeId,
+                m_vProjDir: [0.0, 0.0, 1.0],
+                m_bSimpMode: _m_bSimpMode,
+                m_uTextID: _texId,
+                m_vMinMaxRange: _m_vMinMaxRange,
+                m_uProjType: _m_uProjType,
+                m_arrCorners: _vector_vector_m_arrCorners,
+                m_arrProjName: _vector_m_arrProjName,
+            };
+            _vector_extrudeRgn.push_back(cExtrude);
+        }
+        Module.RealBIMWeb.SetExtrudeRgn(_vector_extrudeRgn);
+    };
+
+    /**
+     * 获取当前场景挤出区域对象集合
+     * @param {Array} extrudeIdList // 挤出标识集合
+     */
+    Module.Extrude.getData = function (extrudeIdList) {
+        let _vector_extrude_id = new Module.RE_Vector_WStr();
+        extrudeIdList.forEach((element) => {
+            _vector_extrude_id.push_back(element);
+        });
+
+        const _vector_extrudeRgnInfo = Module.RealBIMWeb.GetExtrudeRgn(_vector_extrude_id);
+        let extrudeInfoList = [];
+        for (let i = 0; i < _vector_extrudeRgnInfo.size(); i++) {
+            const _cExtrudeRgn = _vector_extrudeRgnInfo.get(i);
+
+            let _rgn_list = [];
+            for (let j = 0; j < _cExtrudeRgn.m_arrCorners.size(); j++) {
+                const _arrCornerRgn = _cExtrudeRgn.m_arrCorners.get(j);
+                let cornerList = [];
+                for (let k = 0; k < _arrCornerRgn.size(); k++) {
+                    const _cCorner = _arrCornerRgn.get(k);
+                    cornerList.push(_cCorner);
+                }
+                _rgn_list.push(cornerList);
+            }
+            let _dataSetIdList = [];
+            for (let j = 0; j < _cExtrudeRgn.m_arrProjName.size(); j++) {
+                _dataSetIdList.push(_cExtrudeRgn.m_arrProjName.get(j));
+            }
+
+            let extrudeInfo = new Module.REExtrudeInfo();
+            extrudeInfo.extrudeId = _cExtrudeRgn.m_strName;
+            extrudeInfo.dataSetIdList = _dataSetIdList;
+            extrudeInfo.rgnList = _rgn_list;
+            extrudeInfo.depthLimitRange = _cExtrudeRgn.m_vMinMaxRange;
+            extrudeInfo.type = _cExtrudeRgn.m_uProjType;
+            extrudeInfo.texId = _cExtrudeRgn.m_uTextID;
+            extrudeInfoList.push(extrudeInfo);
+        }
+
+        return extrudeInfoList;
+    };
+
+    /**
+     * 根据标识删除指定挤出区域
+     * @param {Array} extrudeIdList // 挤出标识集合，空数组代表删除所有
+     */
+    Module.Extrude.delData = function (extrudeIdList) {
+        if (!checkTypeLog(extrudeIdList, 'extrudeIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_extrude_id = new Module.RE_Vector_WStr();
+        extrudeIdList.forEach((element) => {
+            _vector_extrude_id.push_back(element);
+        });
+        return Module.RealBIMWeb.DelExtrudeRgn(_vector_extrude_id);
+    };
+
+    /**
+     * 获取所有挤出区域标识
+     */
+    Module.Extrude.getAllExtrudeId = function () {
+        const _vector_extrude_id = Module.RealBIMWeb.GetAllExtrudeRgnName();
+        let _extrudeIdList = [];
+        for (let i = 0; i < _vector_extrude_id.size(); i++) {
+            _extrudeIdList.push(_vector_extrude_id.get(i));
+        }
+        return _extrudeIdList;
+    };
+
+    /**
+     * 获取当前编辑的挤出区域标识
+     */
+    Module.Extrude.getCurExtrudeId = function () {
+        return Module.RealBIMWeb.GetCurExtrudeRgnName();
+    };
+
+    /**
+     * 设置挤出区域作用的数据集集合
+     * @param {Array} dataSetIdList // 数据集标识集合，挤出作用有效的范围，空数组代表所有数据集
+     */
+    Module.Extrude.setDataSetScope = function (dataSetIdList) {
+        if (!checkTypeLog(dataSetIdList, 'dataSetIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_dataSet_id = new Module.RE_Vector_WStr();
+        dataSetIdList.forEach((element) => {
+            _vector_dataSet_id.push_back(element);
+        });
+        Module.RealBIMWeb.SetExtrudeDefaultProjNames(_vector_dataSet_id);
+    };
+
+    /**
+     * 获取挤出区域作用的数据集集合
+     */
+    Module.Extrude.getDataSetScope = function () {
+        const _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeDefaultProjNames();
+        let _dataSetIdList = [];
+        for (let i = 0; i < _vector_dataSet_id.size(); i++) {
+            _dataSetIdList.push(_vector_dataSet_id.get(i));
+        }
+        return _dataSetIdList;
+    };
+
+    /**
+     * 添加挤出面上使用的纹理
      * @param {String} picPath //纹理路径
      * @param {Array} size //纹理大小
      */
-    Module.Excavate.addExcavateFaceTex = function (picPath, size) {
+    Module.Extrude.addExtrudeFaceTex = function (picPath, size) {
         if (isEmptyLog(picPath, 'picPath')) return;
         let _size = isEmpty(size) ? [0, 0] : size;
-        return Module.RealBIMWeb.AddExtrudeFaceTex(picPath, _size);
+        return Module.RealBIMWeb.AddAExtrudeRgnFaceTex(picPath, _size);
     };
 
     /**
-     * 清除挖洞面使用的纹理
+     * 清除挤出面使用的纹理
      */
-    Module.Excavate.clearAllExcavateFaceTex = function () {
+    Module.Extrude.delAllExtrudeFaceTex = function () {
         return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
-    };
-
-    class REExcavateInfo {
-        constructor() {
-            this.excavateId = null; // 挖洞标识
-            this.pointList = null; // 挖洞区域点集合 至少三个点
-            this.texId = null; // 纹理id 由 addExcavateFaceTex 返回的id
-            this.texPath = null; // 纹理路径
-            this.texSize = null; // 纹理大小
-            this.heightRange = null; //挖洞高度范围 范围需要包含挖洞区域点
-        }
-    }
-    ExtModule.REExcavateInfo = REExcavateInfo;
-
-    /**
-     * 创建一个挖洞区域对象
-     * @param {REExcavateInfo} excavateInfo //挖洞信息 （REExcavateInfo 类型）
-     */
-    Module.Excavate.createExcavateObj = function (excavateInfo) {
-        if (isEmptyLog(excavateInfo, 'excavateInfo')) return;
-        if (isEmptyLog(excavateInfo.excavateId, 'excavateId')) return;
-        if (isEmptyLog(excavateInfo.pointList, 'pointList')) return;
-
-        let _vector_point = new Module.RE_Vector_dvec3();
-        for (let i = 0; i < excavateInfo.pointList.length; i++) {
-            const ele = excavateInfo.pointList[i];
-            _vector_point.push_back(ele);
-        }
-        let _texId = isEmpty(excavateInfo.texId) ? 0 : excavateInfo.texId;
-        if (!isEmpty(excavateInfo.texPath)) {
-            let _size = isEmpty(excavateInfo.texSize) ? [0, 0] : excavateInfo.texSize;
-            _texId = Module.Excavate.addExcavateFaceTex(excavateInfo.texPath, _size);
-        }
-        return Module.RealBIMWeb.CreateExtrudeObj(excavateInfo.excavateId, _vector_point, [0, 0, 1], _texId, excavateInfo.heightRange);
-    };
-
-    /**
-     * 根据标识删除一个挤出区域对象
-     * @param {String} excavateId //挖洞标识
-     */
-    Module.Excavate.delExcavateObj = function (excavateId) {
-        if (isEmptyLog(excavateId, 'excavateId')) return;
-        return Module.RealBIMWeb.DelExtrudeObj(excavateId);
     };
 
     // MARK 编辑
     /**
-     * 设置挖洞对象的类型
-     * @param {String} excavateId //挖洞标识
-     * @param {REExcavateTypeEm} type //类型 REExcavateTypeEm 枚举
+     * 进入挤出编辑状态
      */
-    Module.Excavate.setExcavateType = function (excavateId, type) {
-        if (isEmptyLog(excavateId, 'excavateId')) return;
-        let _enumEval = isEmpty(type) ? eval('Module.RE_EXTRUDE_TYPE.None') : eval(REExcavateTypeEm[type]);
-        return Module.RealBIMWeb.SetExtrudeObjType(excavateId, _enumEval);
+    Module.Extrude.startEditState = function () {
+        return Module.RealBIMWeb.BeginExtrudeRgnEdit();
     };
 
     /**
-     * 获取挖洞对象的类型
-     * @param {String} excavateId //挖洞标识
+     * 退出挤出编辑状态
      */
-    Module.Excavate.getExcavateType = function (excavateId) {
-        if (isEmptyLog(excavateId, 'excavateId')) return;
-        let _type = Module.RealBIMWeb.GetExtrudeObjType(excavateId);
-        return _type.value;
+    Module.Extrude.endEditState = function () {
+        return Module.RealBIMWeb.EndExtrudeRgnEdit();
     };
 
     /**
-     * 设置挖洞效果是否允许覆盖生效
-     * @param {String} dataSetId //数据集标识
-     * @param {Boolean} effect //是否生效
+     * 进入挤出添加状态
+     * @param {String} extrudeId //挤出唯一标识
      */
-    Module.Excavate.setExcavateEffect = function (dataSetId, effect) {
-        if (isEmptyLog(dataSetId, 'dataSetId')) return;
-
-        let b1 = Module.RealBIMWeb.SetHugeObjProjToGolShp(dataSetId, '', effect);
-        let b2 = Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, '', effect);
-        return b1 || b2;
+    Module.Extrude.startAddExtrudeState = function (extrudeId) {
+        return Module.RealBIMWeb.BeginAddExtrudeRgn(extrudeId);
     };
 
     /**
-     * 获取挖洞效果是否允许覆盖生效
-     * @param {String} dataSetId //数据集标识, 必填
+     * 退出挤出添加状态
      */
-    Module.Excavate.getExcavateEffect = function (dataSetId) {
-        if (isEmptyLog(dataSetId, 'dataSetId') && !dataSetId.length) return;
+    Module.Extrude.endAddExtrudeState = function () {
+        return Module.RealBIMWeb.EndAddExtrudeRgn();
+    };
 
-        let b1 = Module.RealBIMWeb.GetHugeObjProjToGolShp(dataSetId, '');
-        let b2 = Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, '');
-        return b1 || b2;
+    /**
+     * 设置指定挤出区域使用的纹理标识
+     * @param {String} extrudeId //挤出唯一标识
+     * @param {Number} texId //纹理id 由 addExtrudeFaceTex 返回的id
+     */
+    Module.Extrude.setExtrudeTexId = function (extrudeId, texId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        if (isEmptyLog(texId, 'texId')) return;
+        return Module.RealBIMWeb.SetExtrudeRgnTexID(extrudeId, texId);
+    };
+
+    /**
+     * 获取指定挤出区域使用的纹理标识
+     * @param {String} extrudeId //挤出唯一标识
+     */
+    Module.Extrude.getExtrudeTexId = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.GetExtrudeRgnTexID(extrudeId);
+    };
+
+    /**
+     * 设置挤出深度限制范围
+     * @param {String} extrudeId //挤出唯一标识
+     * @param {ivec2} range //深度限制范围
+     */
+    Module.Extrude.setDepthLimitRange = function (extrudeId, range) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        if (isEmptyLog(range, 'range')) return;
+        return Module.RealBIMWeb.SetExtrudeRgnMinMax(extrudeId, range);
+    };
+
+    /**
+     * 获取挤出深度限制范围
+     * @param {String} extrudeId //挤出唯一标识
+     */
+    Module.Extrude.getDepthLimitRange = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.GetExtrudeRgnMinMax(extrudeId);
+    };
+
+    /**
+     * 设置挤出展示的类型
+     * @param {String} extrudeId //挤出标识
+     * @param {Number} type //挤出类型 0：挖洞（挖空无封口） 1：拍平（简易投射） 2：挖坑（使用指定纹理封口）
+     */
+    Module.Extrude.setShowType = function (extrudeId, type) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.SetExtrudeRgnType(extrudeId, type);
+    };
+
+    /**
+     * 获取挤出展示的类型
+     * @param {String} extrudeId //挤出标识
+     */
+    Module.Extrude.getShowType = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.GetExtrudeRgnType(extrudeId);
+    };
+
+    /**
+     * 设置指定挤出对象的可见性
+     * @param {String} extrudeId //挤出标识
+     * @param {Boolean} visible //是否可见
+     */
+    Module.Extrude.setVisible = function (extrudeId, visible) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.SetExtrudeVisible(extrudeId, visible);
+    };
+
+    /**
+     * 获取指定挤出对象的可见性
+     * @param {String} extrudeId //挤出标识
+     */
+    Module.Extrude.getVisible = function (extrudeId) {
+        if (isEmptyLog(extrudeId, 'extrudeId')) return;
+        return Module.RealBIMWeb.GetExtrudeVisible(extrudeId);
     };
 
     // MARK 相机
     /**
-     * 聚焦到指定的挖洞对象区域
-     * @param {String} excavateId //挖洞标识
+     * 根据挤出标识定位到挤出区域
+     * @param {Array} extrudeIdst // 挤出标识集合，空数组无效
      */
-    Module.Excavate.locateToExcavateObj = function (excavateId) {
-        if (isEmptyLog(excavateId, 'excavateId')) return;
-        return Module.RealBIMWeb.LocateToExtrudeObj(excavateId);
+    Module.Extrude.setCamToData = function (extrudeIdList) {
+        if (!checkTypeLog(extrudeIdList, 'extrudeIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_extrude_id = new Module.RE_Vector_WStr();
+        extrudeIdList.forEach((element) => {
+            _vector_extrude_id.push_back(element);
+        });
+        return Module.RealBIMWeb.LocateToExtrudeRgn(_vector_extrude_id);
+    };
+
+    // MOD-- 单体化（Monomer）
+    Module.Monomer = typeof Module.Monomer !== 'undefined' ? Module.Monomer : {}; //增加 Monomer 模块
+
+    // MARK 加载
+    class REMonomerInfo {
+        constructor() {
+            this.monomerId = null; //单体化矢量标识
+            this.dataSetId = null; //数据集标识
+            this.rgnList = null; // 单体化区域集合，每个区域由点集合构成（至少三个点），一个单体化表示可以由多个区域构成
+            this.heightMin = null; //包围体最小高度
+            this.heightMax = null; //包围体最大高度
+            this.monomerClr = null; //单体化颜色（REColor类型）
+        }
+    }
+    ExtModule.REMonomerInfo = REMonomerInfo;
+
+    /**
+     * 设置单体化区域对象集合
+     * @param {Array} monomerInfoList //单体化信息集合 （REMonomerInfo 类型）
+     */
+    Module.Monomer.setData = function (monomerInfoList) {
+        if (!checkTypeLog(monomerInfoList, 'monomerInfoList', RE_Enum.RE_Check_Array)) return;
+
+        let _vector_monomerRgn = new Module.RE_Vector_MonomerRgn();
+        for (let i = 0; i < monomerInfoList.length; i++) {
+            const _monomer_obj = monomerInfoList[i];
+            if (isEmptyLog(_monomer_obj.monomerId, 'monomerId')) return false;
+            if (isEmptyLog(_monomer_obj.rgnList, 'rgnList')) return false;
+            if (isEmptyLog(_monomer_obj.dataSetId, 'dataSetId')) return false;
+
+            let _vector_vector_m_arrCorners = new Module.RE_Vector_Vector_dvec3();
+            _monomer_obj.rgnList.forEach((rgn) => {
+                let _vector_m_arrCorner = new Module.RE_Vector_dvec3();
+                rgn.forEach((corner) => {
+                    _vector_m_arrCorner.push_back(corner);
+                });
+                _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
+            });
+
+            let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x7fffffff : clrToU32(_monomer_obj.monomerClr);
+
+            let cMonomer = {
+                m_strName: _monomer_obj.monomerId,
+                m_strProjName: _monomer_obj.dataSetId,
+                m_arrCorners: _vector_vector_m_arrCorners,
+                m_dHeightMin: _monomer_obj.heightMin,
+                m_dHeightMax: _monomer_obj.heightMax,
+                m_uColor: _monomerClr,
+            };
+            _vector_monomerRgn.push_back(cMonomer);
+        }
+        Module.RealBIMWeb.SetMonomerRgn(_vector_monomerRgn);
+    };
+
+    /**
+     * 获取当前场景单体化区域对象集合
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表所有
+     */
+    Module.Monomer.getData = function (monomerIdList) {
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+
+        const _vector_monomerRgnInfo = Module.RealBIMWeb.GetMonomerRgn(_vector_monomer_id);
+        let monomerInfoList = [];
+        for (let i = 0; i < _vector_monomerRgnInfo.size(); i++) {
+            const _cMonomerRgn = _vector_monomerRgnInfo.get(i);
+
+            let _rgn_list = [];
+            for (let j = 0; j < _cMonomerRgn.m_arrCorners.size(); j++) {
+                const _arrCornerRgn = _cMonomerRgn.m_arrCorners.get(j);
+                let cornerList = [];
+                for (let k = 0; k < _arrCornerRgn.size(); k++) {
+                    const _cCorner = _arrCornerRgn.get(k);
+                    cornerList.push(_cCorner);
+                }
+                _rgn_list.push(cornerList);
+            }
+
+            let monomerInfo = new Module.REMonomerInfo();
+            monomerInfo.monomerId = _cMonomerRgn.m_strName;
+            monomerInfo.dataSetId = _cMonomerRgn.m_strProjName;
+            monomerInfo.rgnList = _rgn_list;
+            monomerInfo.heightMin = _cMonomerRgn.m_dHeightMin;
+            monomerInfo.heightMax = _cMonomerRgn.m_dHeightMax;
+            monomerInfo.monomerClr = clrU32ToClr(_cMonomerRgn.m_uColor);
+            monomerInfoList.push(monomerInfo);
+        }
+
+        return monomerInfoList;
+    };
+
+    /**
+     * 获取所有单体化标识
+     */
+    Module.Monomer.getAllMonomerId = function () {
+        const _vector_monomer_id = Module.RealBIMWeb.GetAllMonomerRgnName();
+        let _monomerIdList = [];
+        for (let i = 0; i < _vector_monomer_id.size(); i++) {
+            _monomerIdList.push(_vector_monomer_id.get(i));
+        }
+        return _monomerIdList;
+    };
+
+    /**
+     * 根据标识删除指定单体化区域
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表删除所有
+     */
+    Module.Monomer.delData = function (monomerIdList) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        Module.RealBIMWeb.DelMonomer(_vector_monomer_id);
+    };
+
+    /**
+     * 设置单体化的可见性
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有
+     * @param {Boolean} visible // 是否可见
+     */
+    Module.Monomer.setVisible = function (monomerIdList, visible) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        let _visible = isEmpty(visible) ? true : visible;
+
+        return Module.RealBIMWeb.SetMonomerVisible(_vector_monomer_id, _visible);
+    };
+
+    /**
+     * 获取单体化的可见性
+     * @param {String} monomerId //单体化标识
+     */
+    Module.Monomer.getVisible = function (monomerId) {
+        if (isEmptyLog(monomerId, 'monomerId')) return;
+        return Module.RealBIMWeb.GetMonomerVisible(monomerId);
+    };
+
+    // MARK 编辑
+    /**
+     * 进入单体化编辑状态
+     */
+    Module.Monomer.startEditState = function () {
+        return Module.RealBIMWeb.BeginMonomerEdit();
+    };
+
+    /**
+     * 退出单体化编辑状态
+     */
+    Module.Monomer.endEditState = function () {
+        return Module.RealBIMWeb.EndMonomerEdit();
+    };
+
+    /**
+     * 进入单体化添加状态
+     * @param {String} monomerId //单体化唯一标识
+     */
+    Module.Monomer.startAddMonomerState = function (monomerId) {
+        return Module.RealBIMWeb.BeginAddMonomer(monomerId);
+    };
+
+    /**
+     * 退出单体化添加状态
+     */
+    Module.Monomer.endAddMonomerState = function () {
+        return Module.RealBIMWeb.EndAddMonomer();
+    };
+
+    /**
+     * 获取当前编辑的单体化标识
+     */
+    Module.Monomer.getCurMonomerId = function () {
+        return Module.RealBIMWeb.GetCurMonomer();
+    };
+
+    /**
+     * 设置当前编辑单体化应用的数据集名称，在 startAddMonomerState 之前进行设置，设置后全局有效
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.Monomer.setEditApplyDataSetId = function (dataSetId) {
+        Module.RealBIMWeb.SetMonomerApplyProj(dataSetId);
+    };
+
+    /**
+     * 获取当前编辑单体化应用的数据集名称
+     */
+    Module.Monomer.getEditApplyDataSetId = function () {
+        return Module.RealBIMWeb.GetMonomerApplyProj();
+    };
+
+    /**
+     * 设置单体化数据的默认颜色，在 startAddMonomerState 之前进行设置，设置后全局有效
+     * @param {REColor} monomerClr //单体化颜色（REColor类型）
+     */
+    Module.Monomer.setDefaultClr = function (monomerClr) {
+        if (isEmptyLog(monomerClr, 'monomerClr')) return;
+        let _uClr = clrToU32(monomerClr);
+        Module.RealBIMWeb.SetMonomerDefaultClr(_uClr);
+    };
+
+    /**
+     * 获取单体化数据的默认颜色
+     */
+    Module.Monomer.getDefaultClr = function () {
+        let _uClr = Module.RealBIMWeb.GetMonomerDefaultClr();
+        return clrU32ToClr(_uClr);
+    };
+
+    /**
+     * 设置单体化颜色
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有区域
+     * @param {REColor} monomerClr //单体化颜色（REColor类型）
+     */
+    Module.Monomer.setClr = function (monomerIdList, monomerClr) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(monomerClr, 'monomerClr')) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        let _uClr = clrToU32(monomerClr);
+
+        Module.RealBIMWeb.SetMonomerRgnClr(_vector_monomer_id, _uClr);
+    };
+
+    /**
+     * 获取单体化颜色
+     * @param {String} monomerId //单体化唯一标识
+     */
+    Module.Monomer.getClr = function (monomerId) {
+        if (isEmptyLog(monomerId, 'monomerId')) return;
+
+        let _uClr = Module.RealBIMWeb.GetMonomerRgnClr(monomerId);
+        return clrU32ToClr(_uClr);
+    };
+
+    /**
+     * 设置单体化编辑时选点矢量墙的高度，在 startAddMonomerState 之前进行设置，设置后全局有效
+     * @param {Number} shpWallheight //选点矢量墙的高度
+     */
+    Module.Monomer.setEditShpWallHeight = function (shpWallheight) {
+        if (isEmptyLog(shpWallheight, 'shpWallheight')) return;
+        Module.RealBIMWeb.SetMonomerHeight(shpWallheight);
+    };
+
+    /**
+     * 获取单体化编辑时矢量选点面的高度
+     */
+    Module.Monomer.getEditShpWallHeight = function () {
+        return Module.RealBIMWeb.GetMonomerHeight();
+    };
+
+    /**
+     * 设置单体化编辑时包围体最小最大高度（设置表示使用自动计算包围体高度，如果需要改成自动需要调用 setEditAutoCalcMinMaxHeight），在 startAddMonomerState 之前进行设置
+     * @param {dvec2} minMaxHeight //包围体最小最大高度, [最小高度，最大高度]
+     */
+    Module.Monomer.setEditMinMaxHeight = function (minMaxHeight) {
+        if (isEmptyLog(minMaxHeight, 'minMaxHeight')) return;
+        Module.RealBIMWeb.SetMinMaxHeight(false, minMaxHeight);
+    };
+
+    /**
+     * 获取单体化编辑时包围体最小最大高度
+     */
+    Module.Monomer.getEditMinMaxHeight = function () {
+        return Module.RealBIMWeb.GetMinMaxHeight();
+    };
+
+    /**
+     * 设置使用自动计算包围体高度（在设置 setEditMinMaxHeight 后如果需要自动模式需要手动设置），在 startAddMonomerState 之前进行设置
+     */
+    Module.Monomer.setEditAutoCalcMinMaxHeight = function () {
+        Module.RealBIMWeb.SetMinMaxHeight(true, [0, 0]);
+    };
+
+    /**
+     * 获取是否使用自动计算包围体高度
+     */
+    Module.Monomer.getEditAutoCalcMinMaxHeight = function () {
+        return Module.RealBIMWeb.GetIsAutoCalcMinMaxHeight();
+    };
+
+    // MARK 选择集
+    /**
+     * 添加单体化区域到选择集中
+     * @param {Array} monomerIdList // 单体化标识集合
+     */
+    Module.Monomer.addToSel = function (monomerIdList) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+
+        Module.RealBIMWeb.AddMonomerToSelection(_vector_monomer_id);
+    };
+
+    /**
+     * 从选择集中删除单体化区域
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表移除所有
+     */
+    Module.Monomer.delFromSel = function (monomerIdList) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+
+        Module.RealBIMWeb.RemoveMonomerFromSelection(_vector_monomer_id);
+    };
+
+    /**
+     * 获取当前的选择集单体化标识集合
+     */
+    Module.Monomer.getAllCurSel = function () {
+        const _vector_monomer_id = Module.RealBIMWeb.GetSelectedMonomerName();
+        let _monomerIdList = [];
+        for (let i = 0; i < _vector_monomer_id.size(); i++) {
+            _monomerIdList.push(_vector_monomer_id.get(i));
+        }
+        return _monomerIdList;
+    };
+
+    class REMonomerClrAttr {
+        constructor() {
+            this.monomerClr = new REColor(255, 255, 255, 255); //单体化颜色（REColor类型）
+            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在（选填）
+            this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在（选填）
+        }
+    }
+    ExtModule.REMonomerClrAttr = REMonomerClrAttr;
+
+    /**
+     * 设置单体化选择集属性
+     * @param {REMonomerClrAttr} selAttrInfo //选择集属性信息（REMonomerClrAttr 类型）
+     */
+    Module.Monomer.setSelAttr = function (selAttrInfo) {
+        if (isEmptyLog(selAttrInfo, 'selAttrInfo')) return;
+        if (isEmptyLog(selAttrInfo.monomerClr, 'monomerClr')) return;
+        let _clrWeight = isEmpty(selAttrInfo.clrWeight) ? 255 : selAttrInfo.clrWeight;
+        let _alphaWeight = isEmpty(selAttrInfo.alphaWeight) ? 255 : selAttrInfo.alphaWeight;
+        let _wbgr_u32 = clrToU32_W_WBGR(selAttrInfo.monomerClr, _clrWeight);
+        let _wa_u32 = alphaToU32_W_WA(selAttrInfo.monomerClr.alpha, _alphaWeight);
+        Module.RealBIMWeb.SetSelMonomerClrInfo(_wbgr_u32, _wa_u32);
+    };
+
+    /**
+     * 获取单体化选择集属性
+     */
+    Module.Monomer.getSelAttr = function () {
+        const _vevtor_attr = Module.RealBIMWeb.GetSelMonomerClrInfo();
+        if (_vevtor_attr.size() <= 0) return null;
+
+        const _u32_wa = _vevtor_attr.get(0);
+        const _u32_wbgr = _vevtor_attr.get(1);
+        let obj_w_rbg = clrU32ToObj_W_RBG(_u32_wbgr);
+        let obj_w_a = clrU32ToObj_W_A(_u32_wa);
+        let selAttr = new Module.REMonomerClrAttr();
+        selAttr.monomerClr = new REColor(obj_w_rbg.int_R, obj_w_rbg.int_G, obj_w_rbg.int_B, obj_w_a.int_A);
+        selAttr.clrWeight = obj_w_rbg.int_W;
+        selAttr.alphaWeight = obj_w_a.int_W;
+        return selAttr;
+    };
+
+    /**
+     * 设置是否支持多选（Ctrl+点击）
+     * @param {Boolean} multiSel //是否支持多选，true表示支持多选，false表示单选
+     */
+    Module.Monomer.setMultiSel = function (multiSel) {
+        Module.RealBIMWeb.SetMultiSelMonomer(multiSel);
+    };
+
+    /**
+     * 获取是否支持多选
+     */
+    Module.Monomer.getMultiSel = function () {
+        return Module.RealBIMWeb.GetIsMultiSelMonomer();
+    };
+
+    /**
+     * 设置单体化是否可以被选中
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有
+     * @param {Boolean} probeEnable // 是否可以探测，为true,表示可被探测；设为false,表示不可被探测
+     */
+    Module.Monomer.setCanProbe = function (monomerIdList, probeEnable) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        let _probeEnable = isEmpty(probeEnable) ? 1 : probeEnable;
+
+        Module.RealBIMWeb.SetMonomerProbeMask(_vector_monomer_id, _probeEnable);
+    };
+
+    /**
+     * 获取单体化是否可以被选中
+     * @param {String} monomerId //单体化标识
+     */
+    Module.Monomer.getCanProbe = function (monomerId) {
+        if (isEmptyLog(monomerId, 'monomerId')) return;
+        let _uProbeMask = Module.RealBIMWeb.GetMonomerProbeMask(monomerId);
+        return _uProbeMask > 0 ? true : false;
+    };
+
+    // MARK 高亮标记
+    /**
+     * 设置单体化高亮标记属性
+     * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有
+     * @param {REMonomerClrAttr} highlightAttrInfo //高亮标记属性信息（REMonomerClrAttr 类型）
+     */
+    Module.Monomer.setHighlightAttr = function (monomerIdList, highlightAttrInfo) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        if (isEmptyLog(highlightAttrInfo, 'highlightAttrInfo')) return;
+        if (isEmptyLog(highlightAttrInfo.monomerClr, 'monomerClr')) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        let _clrWeight = isEmpty(highlightAttrInfo.clrWeight) ? 255 : highlightAttrInfo.clrWeight;
+        let _alphaWeight = isEmpty(highlightAttrInfo.alphaWeight) ? 255 : highlightAttrInfo.alphaWeight;
+        let _wbgr_u32 = clrToU32_W_WBGR(highlightAttrInfo.monomerClr, _clrWeight);
+        let _wa_u32 = alphaToU32_W_WA(highlightAttrInfo.monomerClr.alpha, _alphaWeight);
+        Module.RealBIMWeb.SetHighlightMonomerRgn(_vector_monomer_id, _wbgr_u32, _wa_u32);
+    };
+
+    /**
+     * 获取单体化高亮标记属性
+     * @param {String} monomerId //单体化标识
+     */
+    Module.Monomer.getHighlightAttr = function (monomerId) {
+        if (isEmptyLog(monomerId, 'monomerId')) return;
+        const _vevtor_attr = Module.RealBIMWeb.GetHighlightMonomerRgn(monomerId);
+        if (_vevtor_attr.size() <= 0) return null;
+
+        const _u32_wa = _vevtor_attr.get(0);
+        const _u32_wbgr = _vevtor_attr.get(1);
+        let obj_w_rbg = clrU32ToObj_W_RBG(_u32_wbgr);
+        let obj_w_a = clrU32ToObj_W_A(_u32_wa);
+        let selAttr = new Module.REMonomerClrAttr();
+        selAttr.monomerClr = new REColor(obj_w_rbg.int_R, obj_w_rbg.int_G, obj_w_rbg.int_B, obj_w_a.int_A);
+        selAttr.clrWeight = obj_w_rbg.int_W;
+        selAttr.alphaWeight = obj_w_a.int_W;
+        return selAttr;
+    };
+
+    // MARK 相机
+    /**
+     * 根据单体化标识定位到单体化区域
+     * @param {Array} monomerIdList // 单体化标识集合，空数组无效
+     */
+    Module.Monomer.setCamToData = function (monomerIdList) {
+        if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_monomer_id = new Module.RE_Vector_WStr();
+        monomerIdList.forEach((element) => {
+            _vector_monomer_id.push_back(element);
+        });
+        return Module.RealBIMWeb.LocateToMonomer(_vector_monomer_id);
     };
 
     // function getName() {
@@ -11395,7 +12153,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function checkTypeLog(value, name, type) {
         if (checkType(value, type)) return true;
-        logErr('参数类型不匹配！-> ', name);
+        logErr('参数类型不匹配！-> ' + name);
         return false;
     }
 
@@ -11413,7 +12171,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function checkArrCountLog(value, name, count) {
         if (checkArrCount(value, count)) return true;
-        logErr('参数类型不匹配！-> ', name);
+        logErr('参数类型不匹配！-> ' + name);
         return false;
     }
 
@@ -11527,6 +12285,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var intClr_WBGR = parseInt(clrHEX_WBGR);
         return intClr_WBGR;
     }
+    /**
+     * U32_WBGR -> OBJ_W_RBG
+     * @param {Number} clrU32_wbgr //32位颜色值
+     */
+    function clrU32ToObj_W_RBG(clrU32_wbgr) {
+        let _hexStr = clrU32_wbgr.toString(16);
+        let count = _hexStr.length;
+        for (let a = 0; a < 8 - count; a++) {
+            _hexStr = '0' + _hexStr;
+        }
+
+        var _hex_R = _hexStr.substring(6, 8);
+        var int_R = Math.round(parseInt(_hex_R, 16));
+        var _hex_G = _hexStr.substring(4, 6);
+        var int_G = Math.round(parseInt(_hex_G, 16));
+        var _hex_B = _hexStr.substring(2, 4);
+        var int_B = Math.round(parseInt(_hex_B, 16));
+        var _hex_W = _hexStr.substring(0, 2);
+        var int_W = Math.round(parseInt(_hex_W, 16));
+
+        return { int_R, int_G, int_B, int_W };
+    }
 
     /**
      * 透明度->U32_WA
@@ -11540,6 +12320,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var clrHEX_WA = '0x' + clrHEX_W + clrHEX_A + 'ffff';
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
+    }
+
+    function alphaToU32_W_WA(alpha, weight) {
+        if (isEmpty(alpha)) return 0x000000ff;
+        var int_A = Math.round(alpha);
+        var clrHEX_A = int_A > 15 ? int_A.toString(16) : '0' + int_A.toString(16);
+        var int_W = Math.round(weight);
+        var clrHEX_W = int_W > 15 ? int_W.toString(16) : '0' + int_W.toString(16);
+        var clrHEX_WA = '0x0000' + clrHEX_W + clrHEX_A;
+        var intClr_WA = parseInt(clrHEX_WA);
+        return intClr_WA;
+    }
+    /**
+     * U32_WA -> OBJ_W_A
+     * @param {Number} clrU32_wa //32位颜色值
+     */
+    function clrU32ToObj_W_A(clrU32_wa) {
+        let _hexStr = clrU32_wa.toString(16);
+        let count = _hexStr.length;
+        for (let a = 0; a < 8 - count; a++) {
+            _hexStr = '0' + _hexStr;
+        }
+
+        var _hex_A = _hexStr.substring(6, 8);
+        var int_A = Math.round(parseInt(_hex_A, 16));
+        var _hex_W = _hexStr.substring(4, 6);
+        var int_W = Math.round(parseInt(_hex_W, 16));
+
+        return { int_A, int_W };
     }
 
     function alphaToU32_WA_UseCA(alpha, weight, useNewClr, useNewAlpha) {
@@ -11848,13 +12657,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK UI
     //系统界面对应C++名称
-    const REExcavateTypeEm = [
+    const REExtrudeTypeEm = [
         'Module.RE_EXTRUDE_TYPE.UNDEFINED', //未定义
         'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT', //挖洞（镂空指定范围）
         'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX', //使用断面纹理，断面以贴图队列中的指定贴图表现
         'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX', //使用原表面纹理，保持原模型上贴图
     ];
-    ExtModule.REExcavateTypeEm = REExcavateTypeEm;
+    ExtModule.REExtrudeTypeEm = REExtrudeTypeEm;
 
     // MARK Entity
     //表示单构件动画播放模式
