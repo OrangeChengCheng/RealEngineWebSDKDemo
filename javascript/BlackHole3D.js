@@ -1086,7 +1086,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             console.error('【REError】: dataSetId 唯一标识名，不能为空不可重复');
             return;
         }
-        
+
         let count = dataSetList.length;
         for (let i = 0; i < count; i++) {
             let dataSetModel = dataSetList[i];
@@ -7162,8 +7162,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetUnVerInstsClippable();
     };
 
-    
-
     // MOD-- 地形（Terrain）
     Module.Terrain = typeof Module.Terrain !== 'undefined' ? Module.Terrain : {}; //增加 Terrain 模块
 
@@ -9535,7 +9533,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.potList = null; //中心线路径顶点坐标集合
             this.texPath = null; //纹理路径
             this.width = null; //平面宽度
-            this.texLength = -1.0; //纹理对应的长度，默认为0 代表纹理采用等比缩放，使用纹理长度代表当模型超出设定纹理长度时，UV按照纹理长度拼贴扩展
+            this.policy = 0; //拐点执行方案 0：贝塞尔曲线  1：线性折线
         }
     }
     ExtModule.REAnimAreaBufferInfo = REAnimAreaBufferInfo;
@@ -9553,8 +9551,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _texPath = isEmpty(animAreaBufferInfo.texPath) ? '' : animAreaBufferInfo.texPath;
         var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
-        var _texLength = isEmpty(animAreaBufferInfo.texLength) || animAreaBufferInfo.texLength <= 0 ? -1.0 : animAreaBufferInfo.texLength;
-        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _texLength);
+        var _policy = isEmpty(animAreaBufferInfo.policy) ? 0 : animAreaBufferInfo.policy;
+        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _policy);
     };
 
     class REAnimCylinderInfo {
