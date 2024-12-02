@@ -2158,14 +2158,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Coordinate.unRegisterWorldPos = function (worldPosId) {
         if (isEmptyLog(worldPosId, 'worldPosId')) return;
-        Module.RealBIMWeb.UnRegisterAllWorldPos(worldPosId);
+        Module.RealBIMWeb.UnRegisterWorldPos(worldPosId);
     };
 
     /**
      * 注销所有世界空间坐标标记
      */
     Module.Coordinate.unRegisterAllWorldPos = function () {
-        return Module.RealBIMWeb.UnRegisterWorldPos();
+        return Module.RealBIMWeb.UnRegisterAllWorldPos();
     };
 
     // MOD-- 鼠标探测（Probe）
