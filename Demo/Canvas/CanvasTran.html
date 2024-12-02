@@ -1,0 +1,125 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2024-11-25 15:33:42
+ * @LastEditTime: 2024-12-02 17:22:30
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../style.css" />
+        <style>
+            .rotate {
+                transform: rotate(90deg) !important;
+                transform-origin: 0% 100% !important;
+                top: -100vw !important;
+                position: absolute !important;
+                width: 100vh !important;
+                height: 100vw !important;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn">
+                <button onclick="canvasTran_90()">Canvas 旋转90°</button>
+                <button onclick="reset()">恢复</button>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../config.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script> -->
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            function addListener() {
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '世界坐标标记',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+            }
+            function reset() {
+                let canvasCntr = document.getElementById('canvas-cntr');
+                canvasCntr.className = '';
+                BlackHole3D.m_re_em_window_width = window.innerWidth;
+                BlackHole3D.m_re_em_window_height = window.innerHeight;
+
+                log();
+            }
+            function canvasTran_90() {
+                let canvasCntr = document.getElementById('canvas-cntr');
+                canvasCntr.className = 'rotate';
+                BlackHole3D.m_re_em_window_width = window.innerHeight;
+                BlackHole3D.m_re_em_window_height = window.innerWidth;
+
+                // canvasCntr.style.width = '100vh';
+                // canvasCntr.style.height = '100vw';
+                // canvasCntr.style.transform = 'rotate(90deg)';
+                // canvasCntr.style.transformOrigin = '0% 100%';
+                // canvasCntr.style.position = 'absolute';
+                // canvasCntr.style.top = '-100vw';
+
+                log();
+            }
+
+            function log() {
+                let canvasDiv = document.getElementById('canvas');
+                let canvasWidth = canvasDiv.offsetWidth;
+                let canvasHeight = canvasDiv.offsetHeight;
+
+                console.log(' 【旋转】 window.innerWidth: ' + window.innerWidth + '  window.innerHeight: ' + window.innerHeight);
+                console.log(' 【旋转】 canvasWidth: ' + canvasWidth + '  canvasHeight: ' + canvasHeight);
+                console.log(
+                    ' 【旋转】 m_re_em_window_width: ' +
+                        BlackHole3D.m_re_em_window_width +
+                        '  m_re_em_window_height: ' +
+                        BlackHole3D.m_re_em_window_height
+                );
+            }
+        </script>
+    </body>
+</html>
