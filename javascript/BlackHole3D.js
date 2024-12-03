@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2887
+﻿//版本：v3.2.0.2890
 const isPhoneMode = false;
 const hasNewExtrude = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
@@ -375,6 +375,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //获取相机操作固定中心点是否生效
     Module.getCamFixCenterPosEnable = function () {
         return Module.RealBIMWeb.GetIsFixCamProbePos();
+    };
+
+    /**
+     * 设置屏幕的虚拟旋转
+     * @param {Number} rotateType //旋转类型 0: 0度 1: 顺时针90度 2: 顺时针180度 3: 顺时针270度
+     */
+    Module.setScreenVirRotate = function (rotateType) {
+        let _rotateType = isEmpty(rotateType) ? 0 : rotateType;
+        Module.RealBIMWeb.SetScreenVirRot(_rotateType);
+    };
+
+    /**
+     * 获取屏幕的虚拟旋转类型
+     */
+    Module.getScreenVirRotate = function () {
+        return Module.RealBIMWeb.GetScreenVirRot();
     };
 
     // MOD-- 公共模块（Common）
