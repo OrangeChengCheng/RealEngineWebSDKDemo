@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2890
+﻿//版本：v3.2.0.2895
 const isPhoneMode = false;
 const hasNewExtrude = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
@@ -4027,6 +4027,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
             this.scrVisDist = null; //表示屏幕空间矢量的可视距离
             this.contactSce = null; //表示矢量是否与场景发生深度遮挡
+            this.useWorldDir = false; //表示是否使用二维平面映射到世界空间的方式
+            this.worldRightDir = [0, 0, 0]; //表示二维平面的单位右轴在世界空间下的绝对投影向量
+            this.worldUpDir = [0, 0, 0]; //表示二维平面的单位上轴在世界空间下的绝对投影向量
         }
     }
     ExtModule.REPotShpInfo = REPotShpInfo;
@@ -4121,6 +4124,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _uClr = 0xffffffff;
         if (!isEmpty(potShpInfo.potClr)) _uClr = clrToU32(potShpInfo.potClr);
 
+        let _vWorRight = [0, 0, 0];
+        let _vWorUp = [0, 0, 0];
+        if (!isEmpty(potShpInfo.useWorldDir) && potShpInfo.useWorldDir) {
+            if (isEmptyLog(potShpInfo.worldRightDir, 'worldRightDir')) return;
+            if (isEmptyLog(potShpInfo.worldUpDir, 'worldUpDir')) return;
+            _vWorRight = potShpInfo.worldRightDir;
+            _vWorUp = potShpInfo.worldUpDir;
+        }
+
         return Module.RealBIMWeb.AddCustomPotShp(
             potShpInfo.shpName,
             _groupName,
@@ -4130,7 +4142,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             textobj,
             potShpInfo.scrASDist,
             potShpInfo.scrVisDist,
-            _bContactSce
+            _bContactSce,
+            _vWorRight,
+            _vWorUp
         );
     };
 
