@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2897
+﻿//版本：v3.2.0.2900
 const isPhoneMode = false;
 const hasNewExtrude = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
@@ -5008,22 +5008,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetHugeObjSubElemClrInfos('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
         } else {
             //指定数据集设置
-            var _elemIdListTemp = elemIdList.length == 0 ? Module.BIM.getDataSetAllElemIDs(dataSetId, true) : elemIdList;
             var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-            var _count = _elemIdListTemp.length;
-            var _moemory = (_count * 24).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
-                _clrs.set([_elemIdListTemp[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                //如果构件ID集合为空，则默认为改变所有构件的信息
+                var _moemory = (24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
+            } else {
+                var _moemory = (_count * 24).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (i = 0; i < _count; ++i) {
+                    _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
             }
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(
-                dataSetId,
-                '',
-                _elemIdListTemp.length ? _clrs.byteLength : 0xffffffff,
-                _clrs.byteOffset,
-                _elemScope
-            );
         }
     };
 
