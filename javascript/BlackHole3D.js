@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2903
+﻿//版本：v3.2.0.2904
 const isPhoneMode = false;
 const hasNewExtrude = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
@@ -2374,7 +2374,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Boolean} enable //是否可见
      */
     Module.Graphics.setSysUIPanelVisible = function (enable) {
-        Module.RealBIMWeb.SetBuiltInUIVisible(enable);
+        Module.RealBIMWeb.SetToolBarUIVisible(enable);
     };
 
     /**
