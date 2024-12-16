@@ -55,7 +55,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             sysInfo.passWord
         );
         if (isPhoneMode) {
-            if (isMobilDevice_ios()) {
+            if (isMobilDevice_ios() || isMobilDevice_HarmonyOS()) {
                 Module.SkyBox.setSkyAtmActive(false);
                 Module.Common.setReflState(false);
                 Module.Common.setShadowState(false);
@@ -12910,7 +12910,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function isMobilDevice() {
         const userAgent = navigator.userAgent.toLowerCase();
-        const patterns = [/ipad/i, /iphone os/i, /midp/i, /rv:1.2.3.4/i, /ucweb/i, /android/i, /windows ce/i, /windows mobil/i];
+        const patterns = [/ipad/i, /iphone os/i, /midp/i, /rv:1.2.3.4/i, /ucweb/i, /android/i, /windows ce/i, /windows mobil/i, /HarmonyOS/i];
         return patterns.some((pattern) => pattern.test(userAgent));
     }
 
@@ -12920,6 +12920,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     function isMobilDevice_ios() {
         const userAgent = navigator.userAgent.toLowerCase();
         const patterns = [/ipad/i, /iphone os/i];
+        return patterns.some((pattern) => pattern.test(userAgent));
+    }
+
+    /**
+     * 判断是否是 鸿蒙 移动端设备
+     */
+    function isMobilDevice_HarmonyOS() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const patterns = [/HarmonyOS/i];
         return patterns.some((pattern) => pattern.test(userAgent));
     }
 
