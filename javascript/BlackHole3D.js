@@ -5996,7 +5996,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.boneId = null; //表示骨骼全局ID
             this.interval = null; //表示骨骼从当前方位过渡到目标方位所需的时长
-            this.procBatch = null; //表示骨骼的方位过渡批次（自定义标识作用，回调会返回）
+            this.procBatch = null; //表示骨骼的方位过渡批次
             this.sendPostEvent = null; //表示骨骼方位过渡完毕后是否发送事件消息
             this.destLoc = null; //表示骨骼的目标方位 (REBoneLoc 类型)
         }
