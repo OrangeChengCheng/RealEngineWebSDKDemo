@@ -829,10 +829,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REFontInfo {
         constructor() {
             this.fontId = null; //自定义的全局字体的id，不可重复
-            this.fontType = null; //字体的逻辑类型名,系统目前支持的类型名为："宋体"
             this.width = null; //字体的宽
             this.height = null; //字体的高
-            this.weight = null; //字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
+            this.weight = 0; //字体的粗细，0表示默认粗细； ==0：原始粗细，<0：文字变细，>0：文字变粗
+            this.antiAliasing = false; //抗锯齿
         }
     }
     ExtModule.REFontInfo = REFontInfo;
@@ -846,7 +846,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(fontInfo.fontId, 'fontId')) return;
 
         var _fontinfo = {
-            m_bAntialiased: false,
+            m_bAntialiased: isEmpty(fontInfo.antiAliasing) ? false : fontInfo.antiAliasing,
             m_fItalicRatio: 0,
             m_sSilhouetteAmp: -64,
             m_sWeightAmp: fontInfo.weight * 64,
@@ -868,10 +868,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _golfontInfo = Module.RealBIMWeb.GetAGolFont(fontId.toString());
         var fontInfo = new REFontInfo();
         fontInfo.fontId = _golfontInfo.m_strGolFontID;
-        fontInfo.fontType = _golfontInfo.m_strFontType;
         fontInfo.width = _golfontInfo.m_uWidth;
         fontInfo.height = _golfontInfo.m_uHeight;
         fontInfo.weight = _golfontInfo.m_sWeightAmp / 64;
+        fontInfo.antiAliasing = _golfontInfo.m_bAntialiased;
+        fontInfo.fontType = _golfontInfo.m_strFontType;
         return fontInfo;
     };
 
@@ -901,15 +902,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _fontInfo = _fontList.get(i);
             let fontInfo = new REFontInfo();
             fontInfo.fontId = _fontInfo.m_strGolFontID;
-            fontInfo.fontType = _fontInfo.m_strFontType;
-            fontInfo.texAtlasName = _fontInfo.m_strTexAtlasName;
             fontInfo.width = _fontInfo.m_uWidth;
             fontInfo.height = _fontInfo.m_uHeight;
             fontInfo.weight = _fontInfo.m_sWeightAmp / 64;
-            fontInfo.weightAmp = _fontInfo.m_sWeightAmp;
-            fontInfo.italicRatio = _fontInfo.m_fItalicRatio;
-            fontInfo.silhouetteAmp = _fontInfo.m_sSilhouetteAmp;
-            fontInfo.antialiased = _fontInfo.m_bAntialiased;
+            fontInfo.antiAliasing = _fontInfo.m_bAntialiased;
+            fontInfo.fontType = _fontInfo.m_strFontType;
             fontInfoList.push(fontInfo);
         }
         return fontInfoList;
@@ -2912,7 +2909,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
                     m_strGolFontID: 'RealBIMFont001',
-                    m_bTextWeight: false,
+                    m_bTextWeight: true,
                     m_strText: isEmpty(_tagInfo.infoList[i].text) ? '' : _tagInfo.infoList[i].text,
                     m_uTextClr: 0xffffffff,
                     m_uTextBorderClr: 0x80000000,
@@ -3000,7 +2997,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 let obj_t = {
                     m_strGolFontID: _fontName,
-                    m_bTextWeight: false,
+                    m_bTextWeight: true,
                     m_uTextClr: _elemClr,
                     m_uTextBorderClr: 0x00000000,
                     m_strText: _elemText,
@@ -3415,7 +3412,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 },
                 m_cTextRegion: {
                     m_strGolFontID: _GolFontID,
-                    m_bTextWeight: false,
+                    m_bTextWeight: true,
                     m_strText: _textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
@@ -3684,7 +3681,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 },
                 m_cTextRegion: {
                     m_strGolFontID: _GolFontID,
-                    m_bTextWeight: false,
+                    m_bTextWeight: true,
                     m_strText: ancInfo.textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
@@ -3853,7 +3850,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             },
             m_cTextRegion: {
                 m_strGolFontID: _GolFontID,
-                m_bTextWeight: false,
+                m_bTextWeight: true,
                 m_strText: '',
                 m_uTextClr: _textcolor,
                 m_uTextBorderClr: _textbordercolor,
@@ -3902,7 +3899,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             },
             m_cTextRegion: {
                 m_strGolFontID: 'RealBIMFont001',
-                m_bTextWeight: false,
+                m_bTextWeight: true,
                 m_strText: '',
                 m_uTextClr: 0x00000000,
                 m_uTextBorderClr: 0x00000000,
@@ -4108,7 +4105,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var textobj = {
             m_strGolFontID: _GolFontID,
-            m_bTextWeight: false,
+            m_bTextWeight: true,
             m_strText: _textInfo.text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
@@ -4243,7 +4240,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var textobj = {
             m_strGolFontID: _GolFontID,
-            m_bTextWeight: false,
+            m_bTextWeight: true,
             m_strText: isEmpty(_textInfo.text) ? '' : _textInfo.text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
