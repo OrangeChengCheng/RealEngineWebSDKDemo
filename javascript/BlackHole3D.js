@@ -13061,15 +13061,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
     ExtModule.RETextFmtEm = RETextFmtEm;
 
-    // MARK UI
-    //系统界面对应C++名称
-    const REExtrudeTypeEm = [
-        'Module.RE_EXTRUDE_TYPE.UNDEFINED', //未定义
-        'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT', //挖洞（镂空指定范围）
-        'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX', //使用断面纹理，断面以贴图队列中的指定贴图表现
-        'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX', //使用原表面纹理，保持原模型上贴图
-    ];
-    ExtModule.REExtrudeTypeEm = REExtrudeTypeEm;
+    if (!hasNewExtrude) {
+        // MARK UI
+        //系统界面对应C++名称
+        const REExcavateTypeEm = [
+            'Module.RE_EXTRUDE_TYPE.UNDEFINED', //未定义
+            'Module.RE_EXTRUDE_TYPE.HOLLOW_OUT', //挖洞（镂空指定范围）
+            'Module.RE_EXTRUDE_TYPE.USE_SECTION_TEX', //使用断面纹理，断面以贴图队列中的指定贴图表现
+            'Module.RE_EXTRUDE_TYPE.USE_SURFACE_TEX', //使用原表面纹理，保持原模型上贴图
+        ];
+        ExtModule.REExcavateTypeEm = REExcavateTypeEm;
+    }
 
     // MARK Entity
     //表示单构件动画播放模式
