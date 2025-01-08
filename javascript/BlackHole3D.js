@@ -2188,6 +2188,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REProbeInfo {
         constructor() {
             this.dataSetId = null; //数据集唯一标识
+            this.dataSetIdList = null; //数据集唯一标识集合
+            this.elemType = null; //表示拾取到的最上层渲染对象类型
             this.elemId = null; //构件标识
             this.elemPos = null; //选择构件坐标
             this.elemCenter = null; //选择构件几何中心点
@@ -2271,15 +2273,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前选中点相关参数
      */
     Module.Probe.getCurProbeRet = function () {
-        var _proberet = Module.RealBIMWeb.GetCurProbeRet(Module.RE_PROBE_TYPE.POT);
+        var _probeRet = Module.RealBIMWeb.GetCurProbeRet(Module.RE_PROBE_TYPE.POT);
         var probeInfo = new REProbeInfo();
-        probeInfo.dataSetId = _proberet.m_strProjName;
-        probeInfo.elemId = _proberet.m_uSelActorSubID_L32;
-        probeInfo.elemPos = _proberet.m_vSelPos;
-        probeInfo.elemScrPos = _proberet.m_vSelScrPos;
-        probeInfo.elemCenter = _proberet.m_vSelCenter;
-        probeInfo.elemBV = _proberet.m_bbSelBV;
-        return probeInfo;
+
+        let dataSetId = _probeRet.m_strProjName;
+        if (_probeRet.m_uSelActorSubID_L32 >= 0xfffffffe) {
+            if (dataSetId.length > 0) {
+                //老地形数据
+                probeInfo.elemType = 'GridElem';
+                probeInfo.dataSetId = dataSetId;
+            } else {
+                //新地形数据
+                probeInfo.elemType = 'TerrainElem';
+                let dataSetIdList = Module.Terrain.getTerrSubAllDataSetId(_probeRet.m_strSelActorName);
+                if (dataSetIdList.length > 0) {
+                    probeInfo.dataSetIdList = dataSetIdList;
+                } else {
+                    probeInfo.dataSetId = dataSetId;
+                }
+            }
+        } else {
+            //BIM元素
+            probeInfo.elemType = 'BIMElem';
+            probeInfo.dataSetId = dataSetId;
+        }
+
+        probeInfo.elemId = _probeRet.m_uSelActorSubID_L32;
+        probeInfo.elemPos = _probeRet.m_vSelPos;
+        probeInfo.elemScrPos = _probeRet.m_vSelScrPos;
+        probeInfo.elemCenter = _probeRet.m_vSelCenter;
+        probeInfo.elemBV = _probeRet.m_bbSelBV;
+        return removeEmptyProperty(probeInfo);
     };
 
     /**
@@ -2310,22 +2334,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             probeShpInfo.elemId = _probeShpRet.m_strSelShpObjName;
             probeShpInfo.elemPos = _probeShpRet.m_vSelPos;
             probeShpInfo.elemScrPos = _probeShpRet.m_vSelScrPos;
-            return probeShpInfo;
+            return removeEmptyProperty(probeShpInfo);
         } else if (_probeRet.m_strSelActorName != '') {
+            let dataSetId = _probeRet.m_strProjName;
             if (_probeRet.m_uSelActorSubID_L32 >= 0xfffffffe) {
-                //栅格元素
-                probeInfo.elemType = 'GridElem';
+                if (dataSetId.length > 0) {
+                    //老地形数据
+                    probeInfo.elemType = 'GridElem';
+                    probeInfo.dataSetId = dataSetId;
+                } else {
+                    //新地形数据
+                    probeInfo.elemType = 'TerrainElem';
+                    let dataSetIdList = Module.Terrain.getTerrSubAllDataSetId(_probeRet.m_strSelActorName);
+                    if (dataSetIdList.length > 0) {
+                        probeInfo.dataSetIdList = dataSetIdList;
+                    } else {
+                        probeInfo.dataSetId = dataSetId;
+                    }
+                }
             } else {
                 //BIM元素
                 probeInfo.elemType = 'BIMElem';
+                probeInfo.dataSetId = dataSetId;
             }
-            probeInfo.dataSetId = _probeRet.m_strProjName;
+
             probeInfo.elemId = _probeRet.m_uSelActorSubID_L32;
             probeInfo.elemPos = _probeRet.m_vSelPos;
             probeInfo.elemScrPos = _probeRet.m_vSelScrPos;
             probeInfo.elemCenter = _probeRet.m_vSelCenter;
             probeInfo.elemBV = _probeRet.m_bbSelBV;
-            return probeInfo;
+            return removeEmptyProperty(probeInfo);
         } else {
             //没有拾取到任何对象
             return { elemType: '', selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos };
@@ -2454,7 +2492,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.setPreLoadPicPath = function (picPath) {
         if (isEmptyLog(picPath, 'picPath')) return;
-        return Module.RealBIMWeb.PreLoadGUIImgs(picPath);
+        Module.RealBIMWeb.PreLoadGUIImgs(picPath);
     };
 
     /**
@@ -2596,7 +2634,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         var _arrStateParams = new Module.RE_Vector_STATE_PARAMS();
         for (let i = 0; i < btnInfo.stateParList.length; i++) {
-            _btnClrStyle =
+            let _btnClrStyle =
                 _wndClrStyle == 1 ? (i == 1 ? 'CS_BTN_WHITETEXT_NOBG' : 'CS_WND_DARK') : i == 1 ? 'CS_BTN_GRAYTEXT_BLUEBG' : 'CS_BTN_GRAYTEXT_NOBG';
             let statePar = btnInfo.stateParList[i];
             let _par = {
@@ -7024,6 +7062,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} alpha //透明度
      */
     Module.Grid.setDataSetAlpha = function (dataSetId, alpha) {
+        if (!isEmpty(dataSetId) && dataSetId.length > 0) {
+            if (BlackHole3D.Terrain.getDataSetTerrId(dataSetId).length > 0) {
+                logWarn('新版本转换工具处理数据无法使用该接口，请使用（Terrain.setUnitActive）接口处理！');
+                return;
+            }
+        }
         var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
@@ -7151,6 +7195,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Grid.setValidState = function (dataSetId, enable) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (!isEmpty(dataSetId) && dataSetId.length > 0) {
+            if (BlackHole3D.Terrain.getDataSetTerrId(dataSetId).length > 0) {
+                logWarn('新版本转换工具处理数据无法使用该接口，请使用（Terrain.setUnitActive）接口处理！');
+                return;
+            }
+        }
 
         Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, '', enable ? 1 : 0);
     };
@@ -7698,6 +7748,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitLodRange(dataSetId, unitId, _resType);
+    };
+
+    /**
+     * 设置地形数据层单元的透明度
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     * @param {Number} alpha //目标透明度，整型，范围0~255，0表示全透
+     */
+    Module.Terrain.setUnitLayerAlpha = function (dataSetId, unitId, resType, alpha) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        let _alpha = isEmpty(alpha) ? 255 : alpha / 255;
+        return Module.RealBIMWeb.SetTerrUnitFadeCoef(dataSetId, unitId, _resType, _alpha);
+    };
+
+    /**
+     * 获取地形数据层单元的透明度
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     */
+    Module.Terrain.getUnitLayerAlpha = function (dataSetId, unitId, resType) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        let _fadeCoef = Module.RealBIMWeb.GetTerrUnitFadeCoef(dataSetId, unitId, _resType);
+        return _fadeCoef * 255;
     };
 
     // MARK 加载属性
@@ -8586,7 +8665,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.startMeasureState = function () {
         //接口进入测量模式和系统UI面板中的测量模式不联动，需要关闭系统UI面板(包含内联弹窗)
-        Module.RealBIMWeb.SetBuiltInUIVisible(false);
+        Module.RealBIMWeb.SetToolBarUIVisible(false);
         Module.RealBIMWeb.SetBuiltInUIEnable(false);
         var state = Module.RealBIMWeb.EnterMeasureMode();
         Module.RealBIMWeb.SetMeasureType(1); //默认进入长度测量
@@ -8602,7 +8681,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_enable) {
             //需要恢复关闭的系统UI面板(包含内联弹窗)
             Module.RealBIMWeb.SetBuiltInUIEnable(true);
-            Module.RealBIMWeb.SetBuiltInUIVisible(true);
+            Module.RealBIMWeb.SetToolBarUIVisible(true);
         }
         return Module.RealBIMWeb.ExitMeasureMode();
     };
@@ -12577,6 +12656,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function logErr(errStr) {
         console.error('【REError】: ' + errStr);
+    }
+
+    /**
+     * 打印警告
+     */
+    function logWarn(warnStr) {
+        console.warn('【REWarn】: ' + warnStr);
     }
 
     /**
