@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2909
+﻿//版本：v3.2.0.2920
 const isPhoneMode = false;
 const hasNewExtrude = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
@@ -7254,6 +7254,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} regionVertex //不规则闭合区域的顶点信息
          */
         Module.Grid.setDataSetFlatRegion = function (dataSetId, rgnInfoList) {
+            logWarn("温馨提示：当前使用接口（Grid.setDataSetFlatRegion）即将失效，随后有全新的接口替代使用");
             if (isEmpty(dataSetId) || dataSetId == '') {
                 logParErr('dataSetId');
                 return;
@@ -7284,6 +7285,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} regionVertex //不规则闭合区域的顶点信息
          */
         Module.Grid.setFlatGolRegion = function (rgnInfoList, append) {
+            logWarn("温馨提示：当前使用接口（Grid.setFlatGolRegion）即将失效，随后有全新的接口替代使用");
             var _append = !isEmpty(append) ? append : false;
             var jsonStr = JSON.stringify(rgnInfoList);
             Module.RealBIMWeb.ParseUnverprojectInfo(jsonStr, _append);
@@ -7294,6 +7296,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} regionIdList //拍平区域id集合
          */
         Module.Grid.removeFlatRegion = function (regionIdList) {
+            logWarn("温馨提示：当前使用接口（Grid.removeFlatRegion）即将失效，随后有全新的接口替代使用");
             var _count = regionIdList.length;
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
@@ -7310,6 +7313,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} regionIdList //拍平区域id集合
          */
         Module.Grid.resetFlatRegion = function (regionIdList) {
+            logWarn("温馨提示：当前使用接口（Grid.resetFlatRegion）即将失效，随后有全新的接口替代使用");
             var _count = regionIdList.length;
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
@@ -7327,6 +7331,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Number} effective //表示通过 setFlatGolRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
          */
         Module.Grid.setFlatRegionEffective = function (dataSetId, effective) {
+            logWarn("温馨提示：当前使用接口（Grid.setFlatRegionEffective）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.SetUnVerHugeGroupProjToGolShp(dataSetId, '', effective);
         };
 
@@ -7335,6 +7340,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
          */
         Module.Grid.getFlatRegionEffective = function (dataSetId) {
+            logWarn("温馨提示：当前使用接口（Grid.getFlatRegionEffective）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.GetUnVerHugeGroupProjToGolShp(dataSetId, '');
         };
 
@@ -7343,6 +7349,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
          */
         Module.Grid.clearLocalFlatRegion = function (dataSetId) {
+            logWarn("温馨提示：当前使用接口（Grid.clearLocalFlatRegion）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.SetLocalProjRgnsInfo(dataSetId, '');
         };
 
@@ -7352,6 +7359,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Number} effective //表示通过 setDataSetFlatRegion 接口设置的拍平数据是否有效：0表示无效；1表示有效
          */
         Module.Grid.setLocalFlatRegionEffective = function (dataSetId, effective) {
+            logWarn("温馨提示：当前使用接口（Grid.setLocalFlatRegionEffective）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.SetUnVerHugeGroupProjToLocalShp(dataSetId, '', effective);
         };
 
@@ -7360,6 +7368,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} dataSetId //数据集标识，为空字符串则表示处理所有数据集
          */
         Module.Grid.getLocalFlatRegionEffective = function (dataSetId) {
+            logWarn("温馨提示：当前使用接口（Grid.getLocalFlatRegionEffective）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.GetUnVerHugeGroupProjToLocalShp(dataSetId, '');
         };
 
@@ -7381,6 +7390,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Boolean} append //表示是否拼接到原来的数据上，（默认false 替换原始的数据）
          */
         Module.Grid.setMonomerElemData = function (elemDataList, append) {
+            logWarn("温馨提示：当前使用接口（Grid.setMonomerElemData）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(elemDataList, 'elemDataList')) return;
             var _append = false;
             if (!isEmpty(append)) _append = append;
@@ -7414,6 +7424,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} boxIdList //倾斜摄影单体化对象id集合
          */
         Module.Grid.addToSelMonomerElemIDs = function (boxIdList) {
+            logWarn("温馨提示：当前使用接口（Grid.addToSelMonomerElemIDs）即将失效，随后有全新的接口替代使用");
             var _s = boxIdList.length;
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
@@ -7430,6 +7441,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} boxIdList //倾斜摄影单体化对象id集合
          */
         Module.Grid.removeFromSelMonomerElemIDs = function (boxIdList) {
+            logWarn("温馨提示：当前使用接口（Grid.removeFromSelMonomerElemIDs）即将失效，随后有全新的接口替代使用");
             var _s = boxIdList.length;
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
@@ -7445,6 +7457,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * 获取当前单体化选择集的ID集合
          */
         Module.Grid.getSelMonomerElemIDs = function () {
+            logWarn("温馨提示：当前使用接口（Grid.getSelMonomerElemIDs）即将失效，随后有全新的接口替代使用");
             var selids = new Uint32Array(Module.RealBIMWeb.GetSelectedUnverelemId());
             var arrunverelemid = [];
             for (var i = 0; i < selids.length; ++i) {
@@ -7462,6 +7475,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {REColor} elemClr //颜色 (REColor 类型)
          */
         Module.Grid.setSelMonomerElemClr = function (elemClr) {
+            logWarn("温馨提示：当前使用接口（Grid.setSelMonomerElemClr）即将失效，随后有全新的接口替代使用");
             var _clr = clrToU32_WBGR(elemClr);
             Module.RealBIMWeb.SetUnverelemSelectionColor(_clr, elemClr.alpha, 0xff);
         };
@@ -7471,6 +7485,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {REColor} elemClr //颜色 (REColor 类型)
          */
         Module.Grid.setMonomerElemHideClr = function (elemClr) {
+            logWarn("温馨提示：当前使用接口（Grid.setMonomerElemHideClr）即将失效，随后有全新的接口替代使用");
             if (elemClr.alpha < 2) {
                 elemClr.alpha = 2;
             }
@@ -7484,6 +7499,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Boolean} enable //是否能够选中，true：能选中  false：无法选中
          */
         Module.Grid.setMonomerElemSelEnable = function (boxIdList, enable) {
+            logWarn("温馨提示：当前使用接口（Grid.setMonomerElemSelEnable）即将失效，随后有全新的接口替代使用");
             var _s = boxIdList.length;
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
@@ -7501,6 +7517,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Boolean} visible //是否显示，true：显示  false：隐藏
          */
         Module.Grid.setMonomerElemVisible = function (boxIdList, visible) {
+            logWarn("温馨提示：当前使用接口（Grid.setMonomerElemVisible）即将失效，随后有全新的接口替代使用");
             var _s = boxIdList.length;
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
@@ -7517,6 +7534,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} boxIdList //倾斜摄影单体化对象id集合, 空数组表示全部
          */
         Module.Grid.delMonomerElem = function (boxIdList) {
+            logWarn("温馨提示：当前使用接口（Grid.delMonomerElem）即将失效，随后有全新的接口替代使用");
             var _s = boxIdList.length;
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
@@ -9053,6 +9071,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {REWaterInfo} waterInfoList //水面数据集合
          */
         Module.Water.loadData = function (waterInfoList) {
+            logWarn("温馨提示：当前使用接口（Water.loadData）即将失效，随后有全新的接口替代使用");
             if (!checkTypeLog(waterInfoList, 'waterInfoList', RE_Enum.RE_Check_Array)) return;
 
             var _waterList = [];
@@ -9082,6 +9101,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * 获取当前场景中所有水域对象
          */
         Module.Water.getData = function () {
+            logWarn("温馨提示：当前使用接口（Water.getData）即将失效，随后有全新的接口替代使用");
             var _waterJson = Module.RealBIMWeb.SerializeWaterToString();
 
             var jsonObj = JSON.parse(_waterJson);
@@ -9108,6 +9128,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} waterName //水面名称
          */
         Module.Water.delData = function (waterName) {
+            logWarn("温馨提示：当前使用接口（Water.delData）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(waterName, 'waterName')) return;
             return Module.RealBIMWeb.DelWaterByName(waterName);
         };
@@ -9116,6 +9137,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * 清空全部水面对象
          */
         Module.Water.delAllData = function () {
+            logWarn("温馨提示：当前使用接口（Water.delAllData）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.DelAllWaters();
         };
 
@@ -9124,6 +9146,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} waterName //水面名称
          */
         Module.Water.setCamToData = function (waterName) {
+            logWarn("温馨提示：当前使用接口（Water.setCamToData）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(waterName, 'waterName')) return;
             return Module.RealBIMWeb.LocateToWater(waterName);
         };
@@ -11676,6 +11699,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Array} size //纹理大小
          */
         Module.Excavate.addExcavateFaceTex = function (picPath, size) {
+            logWarn("温馨提示：当前使用接口（Excavate.addExcavateFaceTex）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(picPath, 'picPath')) return;
             let _size = isEmpty(size) ? [0, 0] : size;
             return Module.RealBIMWeb.AddExtrudeFaceTex(picPath, _size);
@@ -11685,6 +11709,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * 清除挖洞面使用的纹理
          */
         Module.Excavate.clearAllExcavateFaceTex = function () {
+            logWarn("温馨提示：当前使用接口（Excavate.clearAllExcavateFaceTex）即将失效，随后有全新的接口替代使用");
             return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
         };
 
@@ -11705,6 +11730,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {REExcavateInfo} excavateInfo //挖洞信息 （REExcavateInfo 类型）
          */
         Module.Excavate.createExcavateObj = function (excavateInfo) {
+            logWarn("温馨提示：当前使用接口（Excavate.createExcavateObj）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(excavateInfo, 'excavateInfo')) return;
             if (isEmptyLog(excavateInfo.excavateId, 'excavateId')) return;
             if (isEmptyLog(excavateInfo.pointList, 'pointList')) return;
@@ -11727,6 +11753,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} excavateId //挖洞标识
          */
         Module.Excavate.delExcavateObj = function (excavateId) {
+            logWarn("温馨提示：当前使用接口（Excavate.delExcavateObj）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(excavateId, 'excavateId')) return;
             return Module.RealBIMWeb.DelExtrudeObj(excavateId);
         };
@@ -11738,6 +11765,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {REExcavateTypeEm} type //类型 REExcavateTypeEm 枚举
          */
         Module.Excavate.setExcavateType = function (excavateId, type) {
+            logWarn("温馨提示：当前使用接口（Excavate.setExcavateType）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(excavateId, 'excavateId')) return;
             let _enumEval = isEmpty(type) ? eval('Module.RE_EXTRUDE_TYPE.None') : eval(REExcavateTypeEm[type]);
             return Module.RealBIMWeb.SetExtrudeObjType(excavateId, _enumEval);
@@ -11748,6 +11776,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} excavateId //挖洞标识
          */
         Module.Excavate.getExcavateType = function (excavateId) {
+            logWarn("温馨提示：当前使用接口（Excavate.getExcavateType）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(excavateId, 'excavateId')) return;
             let _type = Module.RealBIMWeb.GetExtrudeObjType(excavateId);
             return _type.value;
@@ -11759,6 +11788,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {Boolean} effect //是否生效
          */
         Module.Excavate.setExcavateEffect = function (dataSetId, effect) {
+            logWarn("温馨提示：当前使用接口（Excavate.setExcavateEffect）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(dataSetId, 'dataSetId')) return;
 
             let b1 = Module.RealBIMWeb.SetHugeObjProjToGolShp(dataSetId, '', effect);
@@ -11771,6 +11801,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} dataSetId //数据集标识, 必填
          */
         Module.Excavate.getExcavateEffect = function (dataSetId) {
+            logWarn("温馨提示：当前使用接口（Excavate.getExcavateEffect）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(dataSetId, 'dataSetId') && !dataSetId.length) return;
 
             let b1 = Module.RealBIMWeb.GetHugeObjProjToGolShp(dataSetId, '');
@@ -11784,6 +11815,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} excavateId //挖洞标识
          */
         Module.Excavate.locateToExcavateObj = function (excavateId) {
+            logWarn("温馨提示：当前使用接口（Excavate.locateToExcavateObj）即将失效，随后有全新的接口替代使用");
             if (isEmptyLog(excavateId, 'excavateId')) return;
             return Module.RealBIMWeb.LocateToExtrudeObj(excavateId);
         };
