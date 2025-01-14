@@ -212,7 +212,7 @@ function loadModel() {
     var dataSetList = [
         {
             dataSetId: 'BIM',
-            resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a170dd33605a770a56f7801e1e6c7b7',
+            resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
             useTransInfo: true,
             transInfo: [
                 [1, 1, 1],
