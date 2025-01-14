@@ -211,8 +211,8 @@ function loadModel() {
 
     var dataSetList = [
         {
-            dataSetId: '机房01',
-            resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+            dataSetId: 'BIM',
+            resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a170dd33605a770a56f7801e1e6c7b7',
             useTransInfo: true,
             transInfo: [
                 [1, 1, 1],
@@ -222,6 +222,42 @@ function loadModel() {
             dataSetCRS: '',
             dataSetCRSNorth: 0.0,
         },
+        // {
+        //     dataSetId: '天地图标注',
+        //     resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a142310b14cab7b820e2fc1af93c5f6',
+        //     useTransInfo: true,
+        //     transInfo: [
+        //         [1, 1, 1],
+        //         [0, 0, 0, 1],
+        //         [0.0, 0.0, 0.0],
+        //     ],
+        //     dataSetCRS: '',
+        //     dataSetCRSNorth: 0.0,
+        // },
+        // {
+        //     dataSetId: '天地图标注',
+        //     resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a142310b14cab7b820e2fc1af93c5f6',
+        //     useTransInfo: true,
+        //     transInfo: [
+        //         [1, 1, 1],
+        //         [0, 0, 0, 1],
+        //         [0.0, 0.0, 0.0],
+        //     ],
+        //     dataSetCRS: '',
+        //     dataSetCRSNorth: 0.0,
+        // },
+        // {
+        //     dataSetId: '机房03',
+        //     resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a17525d776261bd7884a9a9a67921f5',
+        //     useTransInfo: true,
+        //     transInfo: [
+        //         [1, 1, 1],
+        //         [0, 0, 0, 1],
+        //         [0.0, 0.0, 0.0],
+        //     ],
+        //     dataSetCRS: '',
+        //     dataSetCRSNorth: 0.0,
+        // },
         // {
         //     "dataSetId": "机房03",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
