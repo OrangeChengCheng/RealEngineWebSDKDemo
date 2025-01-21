@@ -555,7 +555,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.getGhostState = function () {
         var ghostinfo = Module.RealBIMWeb.GetSceLightInfo();
-        var _info = ghostinfo.m_fGhostAmp == 0 ? 0 : 1;
+        var _info = ghostinfo.m_fGhostAmp == 0 ? false : true;
         return _info;
     };
 
