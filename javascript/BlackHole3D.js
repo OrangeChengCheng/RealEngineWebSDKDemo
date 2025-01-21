@@ -7070,9 +7070,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', { m_uDestAlpha: alpha, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: 0x00000000 });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uUseNewRGB: 255,
+                m_uUseNewAlpha: 255,
+                m_uDestAlpha: alpha,
+                m_uDestAlphaAmp: 255,
+                m_uDestRGBBlendInfo: 0x00000000,
+            });
         } else {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uUseNewRGB: 255,
+                m_uUseNewAlpha: 255,
                 m_uDestAlpha: alpha,
                 m_uDestAlphaAmp: 255,
                 m_uDestRGBBlendInfo: _info.m_uDestRGBBlendInfo,
@@ -7116,9 +7124,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _clr = clrToU32_WBGR(clr);
         var _info = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
         if (_info.m_uDestAlpha == 0 && _info.m_uDestAlphaAmp == 0 && _info.m_uDestRGBBlendInfo == 0) {
-            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', { m_uDestAlpha: 255, m_uDestAlphaAmp: 255, m_uDestRGBBlendInfo: _clr });
+            Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uUseNewRGB: 255,
+                m_uUseNewAlpha: 255,
+                m_uDestAlpha: 255,
+                m_uDestAlphaAmp: 255,
+                m_uDestRGBBlendInfo: _clr,
+            });
         } else {
             Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(dataSetId, '', {
+                m_uUseNewRGB: 255,
+                m_uUseNewAlpha: 255,
                 m_uDestAlpha: _info.m_uDestAlpha,
                 m_uDestAlphaAmp: 255,
                 m_uDestRGBBlendInfo: _clr,
@@ -7133,7 +7149,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Grid.resetDataSetClr = function (dataSetId) {
         var _dataSetId = '';
         if (!isEmpty(dataSetId)) _dataSetId = dataSetId;
-        Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, '', { m_uDestAlpha: 0, m_uDestAlphaAmp: 0, m_uDestRGBBlendInfo: 0 });
+        Module.RealBIMWeb.SetUnVerHugeGroupClrInfo(_dataSetId, '', {
+            m_uUseNewRGB: 255,
+            m_uUseNewAlpha: 255,
+            m_uDestAlpha: 0,
+            m_uDestAlphaAmp: 0,
+            m_uDestRGBBlendInfo: 0,
+        });
     };
 
     /**

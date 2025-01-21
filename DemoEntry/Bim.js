@@ -323,9 +323,7 @@ function loadModel() {
         // },
         // { //倾斜摄影
         //     dataSetId: "倾斜摄影",
-        //     resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a0e71b7ada9d754726e12cdcbd606a4",
-        //     dataSetCRS: "EPSG:4547",
-        //     engineOrigin: [569478, 3375298, 0.0]
+        //     resourcesAddress: "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res05&path=3a1422ec82219b33ec5d07ca4f592a07",
         // }
         // {
         //     dataSetId: "3a0d9efd-46f2-bea2-a85a-21b35fef5f72",
