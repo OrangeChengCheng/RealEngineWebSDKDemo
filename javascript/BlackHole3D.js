@@ -3736,15 +3736,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 停止闪烁
+     * 闪烁动画控制
      * @param {String} ancName //锚点的名称
+     * @param {Boolean} play //是否播放（默认播放）
      */
-    Module.Anchor.setAncAnimStop = function (ancName) {
+    Module.Anchor.setAncAnimPlay = function (ancName, play) {
+        let _play = isEmpty(play) ? true : play ? 255 : 0;
         var _shpObjInfo = {
             m_uRGBBlendInfo: 0x00ffffff,
             m_uAlpha: 0,
             m_uAlphaAmp: 0,
-            m_uForceAnimFrame: 0,
+            m_uForceAnimFrame: _play,
             m_uProbeMask: 1,
         };
         return Module.RealBIMWeb.SetShpObjInfo(ancName, _shpObjInfo);
@@ -12682,6 +12684,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //     return res && res[1]
     // }
     // var name = getName().replace('CreateBlackHoleWebSDK.Module.','')
+
+    // MOD-- 废弃替换接口
+    /**
+     * 停止闪烁
+     * @param {String} ancName //锚点的名称
+     */
+    Module.Anchor.setAncAnimStop = function (ancName) {
+        logWarn('温馨提示：当前使用接口（Anchor.setAncAnimStop）功能已替换为Anchor.setAncAnimPlay，请调整使用');
+    };
 
     // MOD-- 自定义方法 (工具)
     /**
