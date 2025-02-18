@@ -5644,7 +5644,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, '', visibalOnly));
         var elemIds = [];
-        for (i = 0; i < tempelemids.length; i += 2) {
+        for (let i = 0; i < tempelemids.length; i += 2) {
             if (tempelemids[i] == 4294967280) {
                 //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
                 continue;
@@ -5664,7 +5664,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var elemIds = [];
         if (_arr_id >= 0) {
             var _arr = new Uint32Array(Module.m_re_em_golarraybuf[_arr_id].buffer);
-            for (i = 0; i < _arr.length; ++i) {
+            for (let i = 0; i < _arr.length; ++i) {
                 if (_arr[i] == 4294967280) {
                     //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
                     continue;
