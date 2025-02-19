@@ -1,6 +1,7 @@
-﻿//版本：v3.2.0.2947
+﻿//版本：v3.2.0.2956
 const isPhoneMode = false;
 const hasNewExtrude = false;
+const hasNewEntity = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
     var Module = typeof ExtModule !== 'undefined' ? ExtModule : {};
@@ -10621,6 +10622,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.ClipByProj(topHeight, bottomHeight, single, dataSetId);
     };
 
+    /**
+     * 设置体剖切盒的面颜色和线颜色
+     * @param {REColor} faceClr //面颜色
+     * @param {REColor} lineClr //线颜色
+     */
+    Module.Clip.setClipBoxClr = function (faceClr, lineClr) {
+        let _faceClr = isEmpty(faceClr) ? 268435455 : clrToU32(faceClr);
+        let _lineClr = isEmpty(lineClr) ? 4293846272 : clrToU32(lineClr);
+        Module.RealBIMWeb.SetClipBoxClrInfo(_faceClr, _lineClr);
+    };
+
+    /**
+     * 获取体剖切盒的面颜色和线颜色
+     */
+    Module.Clip.getClipBoxClr = function () {
+        let _vector_Clr = Module.RealBIMWeb.GetClipBoxClrInfo();
+        let clr_list = [];
+        if (_vector_Clr.size() > 0) {
+            console.log(_vector_Clr.get(0));
+            console.log(_vector_Clr.get(1));
+            clr_list.push(clrU32ToClr(_vector_Clr.get(0)));
+            clr_list.push(clrU32ToClr(_vector_Clr.get(1)));
+        }
+        return clr_list;
+    };
+
     // MARK 单面剖切
     /**
      * 进入单面剖切状态
@@ -10643,6 +10670,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Clip.setSingleClipCreateType = function (type) {
         var _type = isEmpty(type) ? 0 : type;
         Module.RealBIMWeb.SetClipPlaneCreateMode(_type);
+    };
+
+    /**
+     * 设置单面剖切的面颜色和箭头颜色
+     * @param {REColor} faceClr //面颜色
+     * @param {REColor} arrowClr //箭头颜色
+     */
+    Module.Clip.setClipPlaneClr = function (faceClr, arrowClr) {
+        let _faceClr = isEmpty(faceClr) ? 2147483647 : clrToU32(faceClr);
+        let _arrowClr = isEmpty(arrowClr) ? 2147418112 : clrToU32(arrowClr);
+        Module.RealBIMWeb.SetClipPlaneClrInfo(_faceClr, _arrowClr);
+    };
+
+    /**
+     * 获取单面剖切的面颜色和箭头颜色
+     */
+    Module.Clip.getClipPlaneClr = function () {
+        let _vector_Clr = Module.RealBIMWeb.GetClipPlaneClrInfo();
+        let clr_list = [];
+        if (_vector_Clr.size() > 0) {
+            console.log(_vector_Clr.get(0));
+            console.log(_vector_Clr.get(1));
+            clr_list.push(clrU32ToClr(_vector_Clr.get(0)));
+            clr_list.push(clrU32ToClr(_vector_Clr.get(1)));
+        }
+        return clr_list;
     };
 
     // MARK 相机
@@ -11584,29 +11637,86 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置是否连续添加实例
-     * @param {Boolean} multiAdd //true为连续添加， false为单次添加
+     * 开始进入实例添加状态
+     * @param {Number} type //添加类型 0:点模式  1:线模式  2：面模式  3：复制模式
      */
-    Module.Entity.setMultiAddEntity = function (multiAdd) {
-        Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
+    Module.Entity.startAddState = function (type) {
+        let _type = Module.RE_ENTITY_EDIT_STATE.POINT;
+        switch (type) {
+            case 0:
+                _type = Module.RE_ENTITY_EDIT_STATE.POINT;
+                break;
+            case 1:
+                _type = Module.RE_ENTITY_EDIT_STATE.LINE;
+                break;
+            // case 2:
+            //     _type = Module.RE_ENTITY_EDIT_STATE.POLYGON;
+            //     break;
+            case 3:
+                _type = Module.RE_ENTITY_EDIT_STATE.COPY;
+                break;
+            default:
+                return;
+        }
+        Module.RealBIMWeb.BeginAddEntity(_type, '');
     };
 
     /**
-     * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
+     * 结束实例添加状态
+     */
+    Module.Entity.endAddState = function () {
+        Module.RealBIMWeb.EndAddEntity();
+    };
+
+    class REEntityTempTranInfo {
+        constructor() {
+            this.scale = [1.0, 1.0, 1.0]; // 缩放
+            this.rotate = [0.0, 0.0, 0.0, 1.0]; // 旋转
+        }
+    }
+    ExtModule.REEntityTempTranInfo = REEntityTempTranInfo;
+
+    /**
+     * 设置实例的模板信息
      * @param {String} dataSetId //数据集标识，必填
      * @param {String} entityType //实例类型名称，必填
+     * @param {REEntityTempTranInfo} tranInfo //实例默认的对应系数信息
      */
-    Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
-        if (isEmpty(dataSetId) || dataSetId == '') {
-            logParErr('dataSetId');
-            return;
-        }
-        if (isEmpty(entityType) || entityType == '') {
-            logParErr('entityType');
-            return;
-        }
-        Module.RealBIMWeb.SetEntityType(dataSetId, entityType);
+    Module.Entity.setTemplateInfo = function (dataSetId, entityType, tranInfo) {
+        let _tranInfo = {
+            m_vScale: isEmpty(tranInfo) ? [1.0, 1.0, 1.0] : isEmpty(tranInfo.scale) ? [1.0, 1.0, 1.0] : tranInfo.scale,
+            m_qRotate: isEmpty(tranInfo) ? [0.0, 0.0, 0.0, 1.0] : isEmpty(tranInfo.rotate) ? [0.0, 0.0, 0.0, 1.0] : tranInfo.rotate,
+            m_vOffset: [0, 0, 0],
+        };
+        Module.RealBIMWeb.SetEntityTypeInfo(dataSetId, entityType, _tranInfo);
     };
+
+    if (!hasNewEntity) {
+        /**
+         * 设置是否连续添加实例
+         * @param {Boolean} multiAdd //true为连续添加， false为单次添加
+         */
+        Module.Entity.setMultiAddEntity = function (multiAdd) {
+            Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
+        };
+
+        /**
+         * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
+         * @param {String} dataSetId //数据集标识，必填
+         * @param {String} entityType //实例类型名称，必填
+         */
+        Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
+            if (isEmpty(dataSetId) || dataSetId == '') {
+                logParErr('dataSetId');
+                return;
+            }
+            if (isEmpty(entityType) || entityType == '') {
+                logParErr('entityType');
+                return;
+            }
+            Module.RealBIMWeb.SetEntityType(dataSetId, entityType);
+        };
+    }
 
     class REEntityAnimPlayInfo {
         constructor() {
