@@ -72,6 +72,24 @@ body {
     left: 0px;
 }
 
+.btn-6 {
+    position: absolute;
+    top: 255px;
+    z-index: 1;
+    left: 0px;
+}
+
+.select {
+    cursor: pointer;
+    position: relative;
+    margin-left: 10px;
+    width: 150px;
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid #4e7dff;
+    outline: none;
+}
+
 button {
     text-align: center;
     box-sizing: border-box;

@@ -1,0 +1,132 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-02-19 10:54:17
+ * @LastEditTime: 2025-02-19 16:10:42
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn-1">
+                <button onclick="enterEditMode()">进入编辑模式</button>
+                <button onclick="startAdd()">进入添加模式</button>
+                <button onclick="endAdd()">结束添加模式</button>
+                <button onclick="exitEditMode()">退出编辑模式</button>
+            </div>
+            <div class="btn-2">
+                <select class="select" id="sel_type">
+                    <option value="0">点模式</option>
+                    <option value="1">线模式</option>
+                    <!-- <option value="2">面模式</option> -->
+                    <option value="3">复制模式</option>
+                </select>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            function addListener() {
+                document.addEventListener('AddExtrudeRgnFinish', AddExtrudeRgnFinish); //添加挤出区域完成回调
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+                document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
+
+                document.addEventListener('REExitEntityEditMode', REExitEntityEditMode); //单构件鼠标添加模式添加实例结束回调事件
+            }
+            function AddExtrudeRgnFinish(e) {
+                console.log(e);
+            }
+            function RESystemSelShpElement(e) {
+                console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function REExitEntityEditMode(e) {
+                console.log('-- 单构件鼠标添加模式添加实例结束回调事件 --', e);
+                alert('实例添加结束');
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '机房',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                    {
+                        dataSetId: '单构件模版',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 0.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+            }
+            function enterEditMode() {
+                BlackHole3D.Entity.enterEditMode();
+            }
+            function startAdd() {
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('单构件模版'); //获取所有的实例类型名称
+                if (typeNames.length) {
+                    BlackHole3D.Entity.setTemplateInfo('单构件模版', typeNames[0]); //设置鼠标点选添加的实力对象
+                } else {
+                    alert('单构件模版没有实例信息');
+                    return;
+                }
+                var type = Number.parseInt(document.getElementById('sel_type').value);
+                console.log('sel_type: ', type);
+                BlackHole3D.Entity.startAddState(type);
+            }
+            function endAdd() {
+                BlackHole3D.Entity.endAddState();
+            }
+            function exitEditMode() {
+                BlackHole3D.Entity.exitEditMode();
+            }
+        </script>
+    </body>
+</html>

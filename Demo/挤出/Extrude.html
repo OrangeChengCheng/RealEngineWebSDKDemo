@@ -65,6 +65,17 @@
                 <button onclick="local(3)">定位-倾斜摄影(上)</button>
                 <button onclick="local(4)">定位-倾斜摄影(下)</button>
             </div>
+            <div class="btn-6">
+                <select class="select" id="extrude_type">
+                    <option value="0">挖洞（挖空无封口）</option>
+                    <option value="1">拍平（简易投射）</option>
+                    <option value="2">挖坑（使用指定纹理封口）</option>
+                </select>
+                <select class="select" id="extrude_img">
+                    <option value="0">无纹理</option>
+                    <option value="1">有纹理</option>
+                </select>
+            </div>
         </div>
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
@@ -90,42 +101,43 @@
             }
             function loadDataSet() {
                 var dataSetList = [
-                    {
-                        dataSetId: '挤出渲染1',
-                        resourcesAddress: 'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a166033597471691509d0c8fe1a4377',
-                        useTransInfo: true,
-                        transInfo: [
-                            [1, 1, 1],
-                            [0, 0, 0, 1],
-                            [0.0, 0.0, 0.0],
-                        ],
-                        dataSetCRS: '',
-                        dataSetCRSNorth: 0.0,
-                    },
-                    {
-                        dataSetId: '挤出渲染2',
-                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
-                        useTransInfo: true,
-                        transInfo: [
-                            [1, 1, 1],
-                            [0, 0, 0, 1],
-                            [0.0, 0.0, -20.0],
-                        ],
-                        dataSetCRS: '',
-                        dataSetCRSNorth: 0.0,
-                    },
-                    {
-                        dataSetId: '挤出渲染3',
-                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
-                        useTransInfo: true,
-                        transInfo: [
-                            [1, 1, 1],
-                            [0, 0, 0, 1],
-                            [9200, 27000, 100.0],
-                        ],
-                        dataSetCRS: '',
-                        dataSetCRSNorth: 0.0,
-                    },
+                    // {
+                    //     dataSetId: '挤出渲染1',
+                    //     resourcesAddress:
+                    //         'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a166033597471691509d0c8fe1a4377',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0.0, 0.0, 0.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
+                    // {
+                    //     dataSetId: '挤出渲染2',
+                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0.0, 0.0, -20.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
+                    // {
+                    //     dataSetId: '挤出渲染3',
+                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [9200, 27000, 100.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
                     {
                         dataSetId: '挤出渲染4',
                         resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
@@ -138,6 +150,44 @@
                         dataSetCRS: '',
                         dataSetCRSNorth: 0.0,
                     },
+                    // {
+                    //     dataSetId: '挤出渲染3',
+                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0, 2100000, 300.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
+                    // {
+                    //     dataSetId: '挤出渲染4',
+                    //     resourcesAddress:
+                    //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res05&path=3a141f0ff3f12cd7f2fdc262b50c9f6b',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0, 0, 100.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
+                    // {
+                    //     dataSetId: '挤出渲染5',
+                    //     resourcesAddress:
+                    //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res05&path=3a142310836117161a02c22ada582bc6',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0, 0, 0.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList);
             }
@@ -150,6 +200,18 @@
                 BlackHole3D.Extrude.startEditState();
             }
             function ShpEditEnd() {
+                var type = Number.parseInt(document.getElementById('extrude_type').value);
+                console.log("type: ", type);
+                BlackHole3D.Extrude.setShowType('Extrude_' + Extrude_Rgn_count, type);
+                var img = Number.parseInt(document.getElementById('extrude_img').value);
+                console.log("img: ", img);
+                if (img) {
+                    let texId = BlackHole3D.Extrude.addExtrudeFaceTex(
+                        'https://demo.bjblackhole.com/demopage/examplesImgs/skybox/06/right.jpg',
+                        [5.0, 5.0]
+                    );
+                    BlackHole3D.Extrude.setExtrudeTexId('Extrude_' + Extrude_Rgn_count, texId);
+                }
                 Extrude_Rgn_count++;
                 BlackHole3D.Extrude.endEditState();
             }
@@ -161,6 +223,10 @@
                 BlackHole3D.Extrude.setCamToData(extrudeIdList);
             }
             function Remove() {
+                let extrudeIdList = BlackHole3D.Extrude.getAllExtrudeId();
+                BlackHole3D.Extrude.delData(extrudeIdList);
+            }
+            function setType() {
                 let extrudeIdList = BlackHole3D.Extrude.getAllExtrudeId();
                 BlackHole3D.Extrude.delData(extrudeIdList);
             }
