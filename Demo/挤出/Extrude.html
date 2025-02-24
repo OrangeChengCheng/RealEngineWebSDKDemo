@@ -85,13 +85,21 @@
         <!-- 引擎初始化相关接口 -->
         <script type="text/javascript">
             function addListener() {
-                document.addEventListener('AddExtrudeRgnFinish', AddExtrudeRgnFinish); //添加挤出区域完成回调
+                document.addEventListener('REAddExtrudeRgnFinish', REAddExtrudeRgnFinish); //挤出添加区域完成回调事件
+                document.addEventListener('REAddExtrudeRgnCheck', REAddExtrudeRgnCheck); //挤出添加区域检查回调事件
+                document.addEventListener('REEditExtrudeFinish', REEditExtrudeFinish); //编辑挤出操作完成回调事件
                 //探测
                 document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
                 document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
             }
-            function AddExtrudeRgnFinish(e) {
-                console.log(e);
+            function REAddExtrudeRgnFinish(e) {
+                console.log("-- 挤出添加区域完成回调事件 -- ", e);
+            }
+            function REAddExtrudeRgnCheck(e) {
+                console.log("-- 挤出添加区域检查回调事件 -- ", e);
+            }
+            function REEditExtrudeFinish(e) {
+                console.log("-- 编辑挤出操作完成回调事件 -- ", e);
             }
             function RESystemSelShpElement(e) {
                 console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
@@ -126,18 +134,18 @@
                     //     dataSetCRS: '',
                     //     dataSetCRSNorth: 0.0,
                     // },
-                    // {
-                    //     dataSetId: '挤出渲染3',
-                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
-                    //     useTransInfo: true,
-                    //     transInfo: [
-                    //         [1, 1, 1],
-                    //         [0, 0, 0, 1],
-                    //         [9200, 27000, 100.0],
-                    //     ],
-                    //     dataSetCRS: '',
-                    //     dataSetCRSNorth: 0.0,
-                    // },
+                    {
+                        dataSetId: '挤出渲染3',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [9200, 27000, 100.0],
+                        ],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0.0,
+                    },
                     {
                         dataSetId: '挤出渲染4',
                         resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',

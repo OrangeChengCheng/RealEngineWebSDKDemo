@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2964
+﻿//版本：v3.2.0.2967
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -11,7 +11,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }); //创建引擎模块
 
     // MOD-- 引擎模块
-    // MARK 基础
+
     class RESysInfo {
         // 引擎参数模型
         constructor() {
@@ -67,17 +67,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.setOperationMode(1);
         }
         document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
-        document.addEventListener('REAddWaterFinish_Web', REAddWaterFinish_Web); //水面添加完成回调事件
-        document.addEventListener('REAddExtrudeFinish_Web', REAddExtrudeFinish_Web); //挤出添加完成回调事件
+        if (hasNewExtrude) {
+            document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
+            document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
+            document.addEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web); //编辑水面操作完成回调事件
+            document.addEventListener('REAddExtrudeRgnFinish_Web', REAddExtrudeRgnFinish_Web); //挤出添加区域完成回调事件
+            document.addEventListener('REAddExtrudeRgnCheck_Web', REAddExtrudeRgnCheck_Web); //挤出添加区域检查回调事件
+            document.addEventListener('REEditExtrudeFinish_Web', REEditExtrudeFinish_Web); //编辑挤出操作完成回调事件
+            document.addEventListener('REAddMonomerRgnFinish_Web', REAddMonomerRgnFinish_Web); //单体化添加区域完成回调事件
+            document.addEventListener('REAddMonomerRgnCheck_Web', REAddMonomerRgnCheck_Web); //单体化添加区域检查回调事件
+            document.addEventListener('REEditMonomerFinish_Web', REEditMonomerFinish_Web); //编辑单体化操作完成回调事件
+        }
         return bool;
     };
 
     function removeEventListener() {
         document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
-        document.removeEventListener('REAddWaterFinish_Web', REAddWaterFinish_Web);
-        document.removeEventListener('REAddExtrudeFinish_Web', REAddExtrudeFinish_Web);
+        if (hasNewExtrude) {
+            document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
+            document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
+            document.removeEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web);
+            document.removeEventListener('REAddExtrudeRgnFinish_Web', REAddExtrudeRgnFinish_Web);
+            document.removeEventListener('REAddExtrudeRgnCheck_Web', REAddExtrudeRgnCheck_Web);
+            document.removeEventListener('REEditExtrudeFinish_Web', REEditExtrudeFinish_Web);
+            document.removeEventListener('REAddMonomerRgnFinish_Web', REAddMonomerRgnFinish_Web);
+            document.removeEventListener('REAddMonomerRgnCheck_Web', REAddMonomerRgnCheck_Web);
+            document.removeEventListener('REEditMonomerFinish_Web', REEditMonomerFinish_Web);
+        }
     }
 
+    // MARK 回调事件
     function REWorldPosChange_Web(e) {
         const re_event_REWorldPosStates = new CustomEvent('REWorldPosChange', {
             detail: e.detail,
@@ -85,20 +104,72 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.dispatchEvent(re_event_REWorldPosStates);
     }
 
-    function REAddWaterFinish_Web(e) {
-        const re_event_REAddWaterFinish = new CustomEvent('REAddWaterFinish', {
-            detail: e.detail,
-        });
-        document.dispatchEvent(re_event_REAddWaterFinish);
+    if (hasNewExtrude) {
+        function REAddWaterRgnFinish_Web(e) {
+            const re_event_REAddWaterRgnFinish = new CustomEvent('REAddWaterRgnFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddWaterRgnFinish);
+        }
+
+        function REAddWaterRgnCheck_Web(e) {
+            const re_event_REAddWaterRgnCheck = new CustomEvent('REAddWaterRgnCheck', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddWaterRgnCheck);
+        }
+
+        function REEditWaterFinish_Web(e) {
+            const re_event_REEditWaterFinish = new CustomEvent('REEditWaterFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REEditWaterFinish);
+        }
+
+        function REAddExtrudeRgnFinish_Web(e) {
+            const re_event_REAddExtrudeRgnFinish = new CustomEvent('REAddExtrudeRgnFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddExtrudeRgnFinish);
+        }
+
+        function REAddExtrudeRgnCheck_Web(e) {
+            const re_event_REAddExtrudeRgnCheck = new CustomEvent('REAddExtrudeRgnCheck', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddExtrudeRgnCheck);
+        }
+
+        function REEditExtrudeFinish_Web(e) {
+            const re_event_REEditExtrudeFinish = new CustomEvent('REEditExtrudeFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REEditExtrudeFinish);
+        }
+
+        function REAddMonomerRgnFinish_Web(e) {
+            const re_event_REAddMonomerRgnFinish = new CustomEvent('REAddMonomerRgnFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddMonomerRgnFinish);
+        }
+
+        function REAddMonomerRgnCheck_Web(e) {
+            const re_event_REAddMonomerRgnCheck = new CustomEvent('REAddMonomerRgnCheck', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddMonomerRgnCheck);
+        }
+
+        function REEditMonomerFinish_Web(e) {
+            const re_event_REEditMonomerFinish = new CustomEvent('REEditMonomerFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REEditMonomerFinish);
+        }
     }
 
-    function REAddExtrudeFinish_Web(e) {
-        const re_event_REAddExtrudeFinish = new CustomEvent('REAddExtrudeFinish', {
-            detail: e.detail,
-        });
-        document.dispatchEvent(re_event_REAddExtrudeFinish);
-    }
-
+    // MARK 基础
     /**
      * 添加一个HTTP路径授权信息
      * @param {String} identifyName //表示信息的逻辑标识名（默认 RealEngineInitAuthorPath ）
@@ -9706,6 +9777,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetDefaultWaterAttr(_uClr, _fBlendDist, _bVisible);
         };
 
+        /**
+         * 获取错误绘制的水面区域的标识集合
+         */
+        Module.Water.getErrorDrawWaterIds = function () {
+            const _vector_water_name = Module.RealBIMWeb.GetErrorWaterName();
+            let _waterNameList = [];
+            for (let i = 0; i < _vector_water_name.size(); i++) {
+                _waterNameList.push(_vector_water_name.get(i));
+            }
+            return _waterNameList;
+        };
+
         // MARK 相机
         /**
          * 根据水面名称定位到水面
@@ -12158,22 +12241,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         /**
          * 设置挤出区域作用的数据集集合
+         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
          * @param {Array} dataSetIdList // 数据集标识集合，挤出作用有效的范围，空数组代表所有数据集
          */
-        Module.Extrude.setDataSetScope = function (dataSetIdList) {
+        Module.Extrude.setDataSetScope = function (extrudeId, dataSetIdList) {
+            if (isEmptyLog(extrudeId, 'extrudeId')) return;
             if (!checkTypeLog(dataSetIdList, 'dataSetIdList', RE_Enum.RE_Check_Array)) return;
             let _vector_dataSet_id = new Module.RE_Vector_WStr();
             dataSetIdList.forEach((element) => {
                 _vector_dataSet_id.push_back(element);
             });
-            Module.RealBIMWeb.SetExtrudeDefaultProjNames(_vector_dataSet_id);
+            if (extrudeId.length > 0) {
+                Module.RealBIMWeb.SetExtrudeRgnApplyProj(extrudeId, _vector_dataSet_id);
+            } else {
+                Module.RealBIMWeb.SetExtrudeDefaultProjNames(_vector_dataSet_id);
+            }
         };
 
         /**
          * 获取挤出区域作用的数据集集合
+         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
          */
-        Module.Extrude.getDataSetScope = function () {
-            const _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeDefaultProjNames();
+        Module.Extrude.getDataSetScope = function (extrudeId) {
+            if (isEmptyLog(extrudeId, 'extrudeId')) return;
+            let _vector_dataSet_id = null;
+            if (extrudeId.length > 0) {
+                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeRgnApplyProj(extrudeId);
+            } else {
+                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeDefaultProjNames();
+            }
             let _dataSetIdList = [];
             for (let i = 0; i < _vector_dataSet_id.size(); i++) {
                 _dataSetIdList.push(_vector_dataSet_id.get(i));
@@ -12305,6 +12401,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.Extrude.getVisible = function (extrudeId) {
             if (isEmptyLog(extrudeId, 'extrudeId')) return;
             return Module.RealBIMWeb.GetExtrudeVisible(extrudeId);
+        };
+
+        /**
+         * 获取错误绘制的挤出区域的标识集合
+         */
+        Module.Extrude.getErrorDrawExtrudeIds = function () {
+            const _vector_extrude_name = Module.RealBIMWeb.GetErrorExtrudeName();
+            let _extrudeNameList = [];
+            for (let i = 0; i < _vector_extrude_name.size(); i++) {
+                _extrudeNameList.push(_vector_extrude_name.get(i));
+            }
+            return _extrudeNameList;
         };
 
         // MARK 相机
@@ -12606,6 +12714,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Monomer.getEditAutoCalcMinMaxHeight = function () {
             return Module.RealBIMWeb.GetIsAutoCalcMinMaxHeight();
+        };
+
+        /**
+         * 获取错误绘制的单体化区域的标识集合
+         */
+        Module.Monomer.getErrorDrawMonomerIds = function () {
+            const _vector_monomer_name = Module.RealBIMWeb.GetErrorMonomerName();
+            let _monomerNameList = [];
+            for (let i = 0; i < _vector_monomer_name.size(); i++) {
+                _monomerNameList.push(_vector_monomer_name.get(i));
+            }
+            return _monomerNameList;
         };
 
         // MARK 选择集
