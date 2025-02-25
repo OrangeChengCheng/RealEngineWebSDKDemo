@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2967
+﻿//版本：v3.2.0.2973
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -67,6 +67,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.setOperationMode(1);
         }
         document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
+        document.addEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web); //位置编辑的控制点配准模式匹配完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -83,6 +84,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function removeEventListener() {
         document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
+        document.removeEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -102,6 +104,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_REWorldPosStates);
+    }
+
+    function REEditControlPosMatchFinish_Web(e) {
+        const re_event_REEditControlPosMatchFinish = new CustomEvent('REEditControlPosMatchFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REEditControlPosMatchFinish);
     }
 
     if (hasNewExtrude) {
@@ -8548,16 +8557,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 进入位置编辑状态
+     * @param {Number} type //编辑操作类型 0: 移动配准  1：控制点配准
      */
-    Module.Edit.startEdit = function () {
-        return Module.RealBIMWeb.EnterSceneNodeEditMode();
+    Module.Edit.startEdit = function (type) {
+        let _type = isEmpty(type) ? 0 : type;
+        if (_type == 0) {
+            return Module.RealBIMWeb.EnterSceneNodeEditMode();
+        } else if (_type == 1) {
+            return Module.RealBIMWeb.EnterControlPosMatchMode();
+        }
     };
 
     /**
      * 退出位置编辑状态
+     * @param {Number} type //编辑操作类型 0: 移动配准  1：控制点配准
      */
-    Module.Edit.endEdit = function () {
-        Module.RealBIMWeb.ExitSceneNodeEditMode();
+    Module.Edit.endEdit = function (type) {
+        let _type = isEmpty(type) ? 0 : type;
+        if (_type == 0) {
+            return Module.RealBIMWeb.ExitSceneNodeEditMode();
+        } else if (_type == 1) {
+            return Module.RealBIMWeb.ExitControlPosMatchMode();
+        }
+    };
+
+    /**
+     * 获取位置编辑状态
+     */
+    Module.Edit.getEditState = function () {
+        let bState = Module.RealBIMWeb.GetCurState();
+        if (bState == 19) {
+            return 1; //移动配准
+        } else if (bState == 28) {
+            return 2; //控制点配准
+        } else {
+            return 0;
+        }
     };
 
     /**
@@ -8565,11 +8600,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Edit.openAffineTransEditWnd = function () {
         let bState = Module.RealBIMWeb.GetCurState();
-        if (bState != 19) {
+
+        if (bState == 19 || bState == 28) {
+            return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, true);
+        } else {
             logErr('没有进入编辑状态无法打开位置编辑窗口!');
-            return;
+            return false;
         }
-        return Module.RealBIMWeb.UIWgtSetVisible(RESysWndMateEm.SysWnd_AffineTransMode, true);
     };
 
     /**
@@ -8608,6 +8645,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Edit.getDataSetEditEnable = function (dataSetId) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
+    };
+
+    /**
+     * 设置位置编辑面板Tab选项状态
+     * @param {Number} tabType //tab类型  1：移动配准 2：控制点配准
+     * @param {Boolean} state //tab状态  false：未选中 true：选中
+     */
+    Module.Edit.setEditWndTabItemState = function (tabType, state) {
+        let _uiID = '';
+        if (tabType == 1) {
+            _uiID = 'PosMatchTabPage1';
+        } else if (tabType == 2) {
+            _uiID = 'ControlPosMatchPage';
+        }
+
+        let _state = Module.RE_UI_TABITEM_FLAG.NONE;
+        if (state) {
+            _state = Module.RE_UI_TABITEM_FLAG.SET_SELECTED;
+        }
+
+        if (_uiID.length > 0) {
+            return Module.RealBIMWeb.UIWgtSetTabItemFlags(_uiID, _state);
+        } else {
+            return false;
+        }
     };
 
     // MOD-- 测量（Measure）
