@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2982
+﻿//版本：v3.2.0.2983
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -8602,7 +8602,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
     };
 
-
     // MOD-- 测量（Measure）
     Module.Measure = typeof Module.Measure !== 'undefined' ? Module.Measure : {}; //增加 Measure 模块
 
@@ -12984,20 +12983,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         /**
          * 向当前矢量选择集添加矢量对象
-         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         * @param {Array} shpIdList //矢量对象标识集合，可编辑矢量操作的模块对象标识
          */
-        Module.ShpEdit.addToSelShps = function (shpId) {
-            if (isEmptyLog(shpId, 'shpId')) return;
-            return Module.RealBIMWeb.AddToObjSelSet(shpId);
+        Module.ShpEdit.addToSelShps = function (shpIdList) {
+            if (isEmptyLog(shpIdList, 'shpIdList')) return;
+            let _state = false;
+            for (let i = 0; i < shpIdList.length; i++) {
+                _state = Module.RealBIMWeb.AddToObjSelSet(shpIdList[i]);
+            }
+            return _state;
         };
 
         /**
          * 从当前矢量选择集删除矢量对象
-         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         * @param {Array} shpIdList //矢量对象标识集合，可编辑矢量操作的模块对象标识
          */
-        Module.ShpEdit.delFromSelShps = function (shpId) {
-            if (isEmptyLog(shpId, 'shpId')) return;
-            return Module.RealBIMWeb.RemoveFromObjSelSet(shpId);
+        Module.ShpEdit.delFromSelShps = function (shpIdList) {
+            if (isEmptyLog(shpIdList, 'shpIdList')) return;
+            let _state = false;
+            for (let i = 0; i < shpIdList.length; i++) {
+                _state = Module.RealBIMWeb.RemoveFromObjSelSet(shpIdList[i]);
+            }
+            return _state;
         };
 
         /**
@@ -13019,7 +13026,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         /**
          * 获取当前矢量选择集所有矢量对象标识
          */
-        Module.ShpEdit.getExistSelShps = function () {
+        Module.ShpEdit.getAllSelShpId = function () {
             var tempArr = Module.RealBIMWeb.GetAllObjInSelSet();
             var nameArr = [];
             for (i = 0; i < tempArr.size(); ++i) {
