@@ -56,6 +56,7 @@ function addREListener() {
     document.addEventListener('REElevationUpdateFinish', REElevationUpdateFinish); //标高更新完成事件
     document.addEventListener('REAxisGridUpdateFinish', REAxisGridUpdateFinish); //轴网更新完成事件
     document.addEventListener('REAddEntityFinish', REAddEntityFinish); //裁剪完成回调事件
+    document.addEventListener('RESystemUIEvent', RESystemUIEvent); //鼠标点击图形界面系统按钮监听事件
 }
 
 // MOD-- 场景初始化，需正确传递相关参数
@@ -199,6 +200,10 @@ function REAddEntityFinish(e) {
 
 function RELODLevelChange(e) {
     console.log('-- LOD分级触发回调事件 --', e.detail);
+}
+
+function RESystemUIEvent(e) {
+    console.log('-- 鼠标点击图形界面系统按钮监听事件 --', e.detail);
 }
 
 // MOD-- 加载模型

@@ -192,20 +192,20 @@
                 // BlackHole3D.Animation.createADynObj(entity);
 
                 BlackHole3D.Entity.enterEditMode(); //进入编辑模式
-                // if (typeNames.length) {
-                //     let entityList = [];
-                //     let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
-                //     entity.dataSetId = '单构件模版';
-                //     entity.entityType = typeNames[0];
-                //     entity.elemId = 10; //自定义构件id，不可重复，重复添加失败
-                //     entity.scale = [1.0, 1.0, 1.0]; // 缩放
-                //     entity.rotate = [0.0, 0.0, 0.0, 1.0]; // 旋转
-                //     entity.offset = [0.0, -10.0, 0.0]; // 平移
-                //     entity.dataSetCRS = ''; // 坐标系标识
-                //     entityList.push(entity);
-                //     BlackHole3D.Entity.addEntities(entityList); //添加实例对象
-                // }
-                // BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+                if (typeNames.length) {
+                    let entityList = [];
+                    let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+                    entity.dataSetId = '单构件模版';
+                    entity.entityType = typeNames[0];
+                    entity.elemId = 10; //自定义构件id，不可重复，重复添加失败
+                    entity.scale = [1.0, 1.0, 1.0]; // 缩放
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0]; // 旋转
+                    entity.offset = [0.0, -10.0, 0.0]; // 平移
+                    entity.dataSetCRS = ''; // 坐标系标识
+                    entityList.push(entity);
+                    BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                }
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
             }
             //鼠标连续点选添加（左键添加右键结束）
             function addContEntity() {
