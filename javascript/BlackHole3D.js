@@ -9590,6 +9590,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 this.waterClr = new REColor(61, 158, 135, 255); //水面颜色
                 this.blendDist = 1; //混合系数，值越大边缘混合效果越强  取值范围 0-1
                 this.visible = true; //是否可见
+                this.expandDist = 10.0; //表示水面区域的边界扩充距离
+                this.depthBias = 0.0; //表示水面的深度偏移
+                this.visDist = 200000.0; //表示水面的最远可视距离
                 this.rgnList = null; //水面区域集合 （RECornerRgnInfo 类型）
             }
         }
@@ -9602,6 +9605,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         ExtModule.RECornerRgnInfo = RECornerRgnInfo;
+
+        class REWaterAttrInfo {
+            constructor() {
+                this.waterClr = new REColor(61, 158, 135, 255); //水面颜色
+                this.blendDist = 1; //混合系数，值越大边缘混合效果越强  取值范围 0-1
+                this.visible = true; //是否可见
+                this.expandDist = 10.0; //表示水面区域的边界扩充距离
+                this.depthBias = 0.0; //表示水面的深度偏移
+                this.visDist = 200000.0; //表示水面的最远可视距离
+            }
+        }
+        ExtModule.REWaterAttrInfo = REWaterAttrInfo;
 
         // MARK 加载
         /**
@@ -9649,6 +9664,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uClr: clrToU32(obj.waterClr),
                     m_fBlendDist: isEmpty(obj.blendDist) ? 1 : obj.blendDist,
                     m_bVisible: isEmpty(obj.visible) ? true : obj.visible,
+                    m_fExpandDist: isEmpty(obj.expandDist) ? 10.0 : obj.expandDist,
+                    m_fDepthBias: isEmpty(obj.depthBias) ? 0.0 : obj.depthBias,
+                    m_fVisDist: isEmpty(obj.visDist) ? 200000.0 : obj.visDist,
                     m_arrCorners: _vector_vector_m_arrCorners,
                     m_arrIndices: _vector_vector_m_arrIndices,
                 };
@@ -9695,6 +9713,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 waterInfo.waterClr = clrU32ToClr(_cWaterRgn.m_uClr);
                 waterInfo.blendDist = _cWaterRgn.m_fBlendDist;
                 waterInfo.visible = _cWaterRgn.m_bVisible;
+                waterInfo.expandDist = _cWaterRgn.m_fExpandDist;
+                waterInfo.depthBias = _cWaterRgn.m_fDepthBias;
+                waterInfo.visDist = _cWaterRgn.m_fVisDist;
                 waterInfo.rgnList = _rgn_list;
                 waterInfoList.push(waterInfo);
             }
@@ -9827,16 +9848,75 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
-         * 设置水面默认属性
-         * @param {REColor} waterClr //水面颜色 （REColor 类型）
-         * @param {Number} blendDist //混合系数，值越大边缘混合效果越强  取值范围 0-1
-         * @param {Boolean} visible //是否可见
+         * 获取水体扩展距离
+         * @param {String} waterName //水面唯一标识
          */
-        Module.Water.setDefaultAttr = function (waterClr, blendDist, visible) {
-            let _uClr = isEmpty(waterClr) ? clrToU32(new Module.REColor(61, 158, 135, 255)) : clrToU32(waterClr);
-            let _fBlendDist = isEmpty(blendDist) ? 1.0 : blendDist;
-            let _bVisible = isEmpty(visible) ? true : visible;
-            Module.RealBIMWeb.SetDefaultWaterAttr(_uClr, _fBlendDist, _bVisible);
+        Module.Water.getExpandDist = function (waterName) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.GetWaterExpandDist(waterName);
+        };
+
+        /**
+         * 设置水体扩展距离
+         * @param {String} waterName //水面唯一标识
+         * @param {Number} expandDist //表示水面区域的边界扩充距离
+         */
+        Module.Water.setExpandDist = function (waterName, expandDist) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.SetWaterExpandDist(waterName, expandDist);
+        };
+
+        /**
+         * 获取水体的深度偏移
+         * @param {String} waterName //水面唯一标识
+         */
+        Module.Water.getDepthBias = function (waterName) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.GetWaterDepthBias(waterName);
+        };
+
+        /**
+         * 设置水体的深度偏移
+         * @param {String} waterName //水面唯一标识
+         * @param {Number} depthBias //表示水面的深度偏移， 取值范围 【-0.0001，0.0001】
+         */
+        Module.Water.setDepthBias = function (waterName, depthBias) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.SetWaterDepthBias(waterName, depthBias);
+        };
+
+        /**
+         * 获取水体的最远可视距离
+         * @param {String} waterName //水面唯一标识
+         */
+        Module.Water.getVisDist = function (waterName) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.GetWaterVisDist(waterName);
+        };
+
+        /**
+         * 设置水体的最远可视距离
+         * @param {String} waterName //水面唯一标识
+         * @param {Number} visDist //表示水面的最远可视距离
+         */
+        Module.Water.setVisDist = function (waterName, visDist) {
+            if (isEmptyLog(waterName, 'waterName')) return;
+            return Module.RealBIMWeb.SetWaterVisDist(waterName, visDist);
+        };
+
+        /**
+         * 设置水面默认属性
+         * @param {REWaterAttrInfo} attrInfo //水面属性信息 （REWaterAttrInfo 类型）
+         */
+        Module.Water.setDefaultAttr = function (attrInfo) {
+            if (isEmptyLog(attrInfo, 'attrInfo')) return;
+            let _uClr = isEmpty(attrInfo.waterClr) ? clrToU32(new Module.REColor(61, 158, 135, 255)) : clrToU32(attrInfo.waterClr);
+            let _fBlendDist = isEmpty(attrInfo.blendDist) ? 1.0 : attrInfo.blendDist;
+            let _bVisible = isEmpty(attrInfo.visible) ? true : attrInfo.visible;
+            let _expandDist = isEmpty(attrInfo.expandDist) ? 10.0 : attrInfo.expandDist;
+            let _depthBias = isEmpty(attrInfo.depthBias) ? 0.0 : attrInfo.depthBias;
+            let _visDist = isEmpty(attrInfo.visDist) ? 200000.0 : attrInfo.visDist;
+            Module.RealBIMWeb.SetDefaultWaterAttr(_uClr, _fBlendDist, _bVisible, _expandDist, _depthBias, _visDist);
         };
 
         /**
@@ -12099,7 +12179,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.Excavate.setExcavateType = function (excavateId, type) {
             logWarn('温馨提示：当前使用接口（Excavate.setExcavateType）即将失效，随后有全新的接口替代使用');
             if (isEmptyLog(excavateId, 'excavateId')) return;
-            let _enumEval = isEmpty(type) ? eval('Module.RE_EXTRUDE_TYPE.None') : eval(REExcavateTypeEm[type]);
+            let _enumEval = isEmpty(type) ? eval('Module.RE_EXTRUDE_TYPE.None') : eval(Module.REExcavateTypeEm[type]);
             return Module.RealBIMWeb.SetExtrudeObjType(excavateId, _enumEval);
         };
 
@@ -12966,6 +13046,55 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _vector_monomer_id.push_back(element);
             });
             return Module.RealBIMWeb.LocateToMonomer(_vector_monomer_id);
+        };
+
+        // MOD-- 矢量编辑（ShpEdit）
+        Module.ShpEdit = typeof Module.ShpEdit !== 'undefined' ? Module.ShpEdit : {}; //增加 ShpEdit 模块
+
+        /**
+         * 向当前矢量选择集添加矢量对象
+         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         */
+        Module.ShpEdit.addToSelShps = function (shpId) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            return Module.RealBIMWeb.AddToObjSelSet(shpId);
+        };
+
+        /**
+         * 从当前矢量选择集删除矢量对象
+         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         */
+        Module.ShpEdit.delFromSelShps = function (shpId) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            return Module.RealBIMWeb.RemoveFromObjSelSet(shpId);
+        };
+
+        /**
+         * 清空当前矢量选择集
+         */
+        Module.ShpEdit.delAllSelShps = function () {
+            Module.RealBIMWeb.ClearObjSelSet();
+        };
+
+        /**
+         * 判断当前矢量选择集是否包含矢量对象
+         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         */
+        Module.ShpEdit.getExistSelShps = function (shpId) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            return Module.RealBIMWeb.IsInObjSelSet(shpId);
+        };
+
+        /**
+         * 获取当前矢量选择集所有矢量对象标识
+         */
+        Module.ShpEdit.getExistSelShps = function () {
+            var tempArr = Module.RealBIMWeb.GetAllObjInSelSet();
+            var nameArr = [];
+            for (i = 0; i < tempArr.size(); ++i) {
+                nameArr.push(tempArr.get(i));
+            }
+            return nameArr;
         };
     }
 
