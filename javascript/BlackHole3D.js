@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2984
+﻿//版本：v3.2.0.2993
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1436,7 +1436,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var _s01 = (obj_s * 8).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_s01);
-        _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
         for (var i = 0; i < locIDList.length; ++i) {
             var dataSetId = locIDList[i].dataSetId;
             var projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
