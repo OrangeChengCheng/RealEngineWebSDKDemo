@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.2994
+﻿//版本：v3.2.0.3000
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -2619,6 +2619,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(uiID, 'uiID')) return;
         if (isEmptyLog(clrStyleName, 'clrStyleName')) return;
         return Module.RealBIMWeb.UIWgtSetWndColorStyle(uiID, clrStyleName);
+    };
+
+    /**
+     * 获取Tab窗口的显示状态
+     * @param {String} uiID //组件唯一标识
+     */
+    Module.Graphics.getTabItemVisable = function (uiID) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtGetTabItemOpenState(uiID);
+    };
+
+    /**
+     * 设置Tab窗口的显示状态
+     * @param {String} uiID //组件唯一标识
+     * @param {Boolean} visable //是否显示
+     */
+    Module.Graphics.setTabItemVisable = function (uiID, visable) {
+        if (isEmptyLog(uiID, 'uiID')) return;
+        return Module.RealBIMWeb.UIWgtSetTabItemOpenState(uiID, visable);
     };
 
     // MARK 按钮（Button）
