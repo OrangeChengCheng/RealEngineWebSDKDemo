@@ -9,7 +9,15 @@
     </head>
 
     <body>
-        <div id="canvas-cntr">
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="duskTime()">黄昏</button>
+                <button onclick="nightTime()">夜晚</button>
+                <button onclick="morningToNight()">从早到晚</button>
+                <button onclick="visualAngle(1)">视角一</button>
+                <button onclick="visualAngle(2)">视角二</button>
+                <button onclick="visualAngle(3)">视角三</button>
+            </div>
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
             <div class="custom-loading-container">
                 <div class="loading-box">
@@ -28,14 +36,6 @@
                     </div>
                     <div class="process-info-box"></div>
                 </div>
-            </div>
-            <div class="btn">
-                <button onclick="duskTime()">黄昏</button>
-                <button onclick="nightTime()">夜晚</button>
-                <button onclick="morningToNight()">从早到晚</button>
-                <button onclick="visualAngle(1)">视角一</button>
-                <button onclick="visualAngle(2)">视角二</button>
-                <button onclick="visualAngle(3)">视角三</button>
             </div>
         </div>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
