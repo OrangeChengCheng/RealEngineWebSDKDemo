@@ -1,0 +1,246 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-03-19 15:50:35
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="addTex()">添加纹理资源</button>
+                <button onclick="addFountain_water()">添加粒子（水流效果）</button>
+                <button onclick="addFountain_smoke()">添加粒子（烟雾效果）</button>
+                <button onclick="addFountain_diffuse()">添加粒子（扩散效果）</button>
+                <button onclick="delAll()">删除所有粒子</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var worldCRS = 'EPSG:3857';
+                BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS); //设置引擎参考坐标系
+                var forceCamLoc = new BlackHole3D.REForceCamLoc();
+                forceCamLoc.force = true;
+                forceCamLoc.camPos = [12776960.551609863, 4683546.090482709, 230.40473858219903];
+                forceCamLoc.camRotate = [0.3560458340930769, -0.3960194622519575, -0.6294208876823961, 0.5658880593295286];
+                BlackHole3D.Camera.setCamForcedInitLoc(forceCamLoc);
+                var dataSetList = [
+                    {
+                        dataSetId: '天地图',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a15a068a3032c8ac7dc86033efa9159',
+                    },
+                    {
+                        dataSetId: '大坝',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a15f274c9f6c7566cdff46b0058ae63',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0.17688231607442104, 0.9842320083497329],
+                            [-7.168819741146358, -1.6519206655641199, 127.9460643631269],
+                        ],
+                        dataSetCRS: 'ENU:38.7337,114.77835',
+                    },
+                    {
+                        dataSetId: '区域地图',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a15f27cd17b394959b55b26a049bcb3',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+
+            function addTex() {
+                BlackHole3D.Particle.addTexGroup('transmitParTex_fountain', [
+                    'https://demo.bjblackhole.com/demopage/examplesImgs/particle/spray.png',
+                    'https://demo.bjblackhole.com/demopage/examplesImgs/particle/smoke.png',
+                ]);
+                BlackHole3D.Particle.addTexGroup('transmitParTex_fire', ['https://demo.bjblackhole.com/demopage/examplesImgs/particle/fire.png']);
+                BlackHole3D.Particle.setTransmitParticleSysTex('transmitParTex_fountain');
+            }
+            function addFountain_water() {
+                let posTransmitPar_water_01 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_01.particleId = 'pos_transmit_water_01';
+                posTransmitPar_water_01.pos = [12777100.053, 4683598.675, 171.581];
+                posTransmitPar_water_01.planNormal = [0.5, -0.7, -1.0];
+                posTransmitPar_water_01.texId = 0;
+                posTransmitPar_water_01.num = 100;
+                posTransmitPar_water_01.lifeTime = 3.5;
+                posTransmitPar_water_01.gravity = 9.8;
+                posTransmitPar_water_01.speedRange = [35.0, 37.0];
+                posTransmitPar_water_01.sizeRange = [30.0, 32.0];
+                posTransmitPar_water_01.sizeChangeRange = [0.12, 0.12];
+                posTransmitPar_water_01.alphaRange = [0.5, 1.0];
+                posTransmitPar_water_01.planDirectionAngleRange = [0.0, 0.0];
+                posTransmitPar_water_01.texUVRotAngle = 3.14;
+
+                let posTransmitPar_water_02 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_02.particleId = 'pos_transmit_water_02';
+                posTransmitPar_water_02.pos = [12777057.356, 4683582.505, 172.952];
+                posTransmitPar_water_02.planNormal = [0.5, -0.7, -1.0];
+                posTransmitPar_water_02.texId = 0;
+                posTransmitPar_water_02.num = 100;
+                posTransmitPar_water_02.lifeTime = 3.5;
+                posTransmitPar_water_02.gravity = 9.8;
+                posTransmitPar_water_02.speedRange = [35.0, 37.0];
+                posTransmitPar_water_02.sizeRange = [30.0, 32.0];
+                posTransmitPar_water_02.sizeChangeRange = [0.12, 0.12];
+                posTransmitPar_water_02.alphaRange = [0.5, 1.0];
+                posTransmitPar_water_02.planDirectionAngleRange = [0.0, 0.0];
+                posTransmitPar_water_02.texUVRotAngle = 3.14;
+
+                BlackHole3D.Particle.createTransmitParticleSysPos([posTransmitPar_water_01, posTransmitPar_water_02]);
+            }
+
+            function addFountain_smoke() {
+                let posTransmitPar_waterSmoke_01 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_waterSmoke_01.particleId = 'pos_transmit_water_smoke_01';
+                posTransmitPar_waterSmoke_01.pos = [12777100.053, 4683598.675, 171.581];
+                posTransmitPar_waterSmoke_01.planNormal = [0.5, -0.7, -1.0];
+                posTransmitPar_waterSmoke_01.texId = 1;
+                posTransmitPar_waterSmoke_01.num = 100;
+                posTransmitPar_waterSmoke_01.lifeTime = 6.0;
+                posTransmitPar_waterSmoke_01.gravity = 3.5;
+                posTransmitPar_waterSmoke_01.speedRange = [20.0, 20.0];
+                posTransmitPar_waterSmoke_01.sizeRange = [30.0, 32.0];
+                posTransmitPar_waterSmoke_01.sizeChangeRange = [0.2, 1.0];
+                posTransmitPar_waterSmoke_01.alphaRange = [0.2, 0.2];
+                posTransmitPar_waterSmoke_01.planDirectionAngleRange = [0.0, 0.0];
+
+                let posTransmitPar_waterSmoke_02 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_waterSmoke_02.particleId = 'pos_transmit_water_smoke_02';
+                posTransmitPar_waterSmoke_02.pos = [12777057.356, 4683582.505, 172.952];
+                posTransmitPar_waterSmoke_02.planNormal = [0.5, -0.7, -1.0];
+                posTransmitPar_waterSmoke_02.texId = 1;
+                posTransmitPar_waterSmoke_02.num = 100;
+                posTransmitPar_waterSmoke_02.lifeTime = 6.0;
+                posTransmitPar_waterSmoke_02.gravity = 3.5;
+                posTransmitPar_waterSmoke_02.speedRange = [20.0, 20.0];
+                posTransmitPar_waterSmoke_02.sizeRange = [30.0, 32.0];
+                posTransmitPar_waterSmoke_02.sizeChangeRange = [0.2, 1.0];
+                posTransmitPar_waterSmoke_02.alphaRange = [0.2, 0.2];
+                posTransmitPar_waterSmoke_02.planDirectionAngleRange = [0.0, 0.0];
+
+                BlackHole3D.Particle.createTransmitParticleSysPos([posTransmitPar_waterSmoke_01, posTransmitPar_waterSmoke_02]);
+            }
+
+            function addFountain_diffuse() {
+                let posTransmitPar_water_diffuse_01 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_diffuse_01.particleId = 'pos_transmit_water_diffuse_01';
+                posTransmitPar_water_diffuse_01.pos = [12777149.107, 4683500.457, 170.881];
+                posTransmitPar_water_diffuse_01.planNormal = [0.0, -1.0, 0.0];
+                posTransmitPar_water_diffuse_01.texId = 1;
+                posTransmitPar_water_diffuse_01.num = 100;
+                posTransmitPar_water_diffuse_01.lifeTime = 8.2;
+                posTransmitPar_water_diffuse_01.gravity = 2.5;
+                posTransmitPar_water_diffuse_01.speedRange = [12.0, 12.0];
+                posTransmitPar_water_diffuse_01.sizeRange = [50.0, 52.0];
+                posTransmitPar_water_diffuse_01.sizeChangeRange = [0.8, 1.0];
+                posTransmitPar_water_diffuse_01.alphaRange = [0.04, 0.05];
+                posTransmitPar_water_diffuse_01.planDirectionAngleRange = [0.0, 360.0];
+                posTransmitPar_water_diffuse_01.planNormalIncludedAngle = 60.0;
+
+                let posTransmitPar_water_diffuse_02 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_diffuse_02.particleId = 'pos_transmit_water_diffuse_02';
+                posTransmitPar_water_diffuse_02.pos = [12777102.5, 4683488.457, 167.881];
+                posTransmitPar_water_diffuse_02.planNormal = [0.0, -1.0, 0.0];
+                posTransmitPar_water_diffuse_02.texId = 1;
+                posTransmitPar_water_diffuse_02.num = 100;
+                posTransmitPar_water_diffuse_02.lifeTime = 8.2;
+                posTransmitPar_water_diffuse_02.gravity = 2.5;
+                posTransmitPar_water_diffuse_02.speedRange = [12.0, 12.0];
+                posTransmitPar_water_diffuse_02.sizeRange = [50.0, 52.0];
+                posTransmitPar_water_diffuse_02.sizeChangeRange = [0.8, 1.0];
+                posTransmitPar_water_diffuse_02.alphaRange = [0.04, 0.05];
+                posTransmitPar_water_diffuse_02.planDirectionAngleRange = [0.0, 360.0];
+                posTransmitPar_water_diffuse_02.planNormalIncludedAngle = 60.0;
+
+                let posTransmitPar_water_diffuse_03 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_diffuse_03.particleId = 'pos_transmit_water_diffuse_03';
+                posTransmitPar_water_diffuse_03.pos = [12777149.107, 4683500.457, 170.881];
+                posTransmitPar_water_diffuse_03.planNormal = [0.0, 1.0, 0.0];
+                posTransmitPar_water_diffuse_03.texId = 0;
+                posTransmitPar_water_diffuse_03.num = 30;
+                posTransmitPar_water_diffuse_03.lifeTime = 3.5;
+                posTransmitPar_water_diffuse_03.gravity = 0;
+                posTransmitPar_water_diffuse_03.dampingFactor = 0.015;
+                posTransmitPar_water_diffuse_03.speedRange = [18.0, 18.0];
+                posTransmitPar_water_diffuse_03.sizeRange = [10.0, 12.0];
+                posTransmitPar_water_diffuse_03.sizeChangeRange = [0.8, 1.0];
+                posTransmitPar_water_diffuse_03.alphaRange = [1.0, 1.0];
+                posTransmitPar_water_diffuse_03.planDirectionAngleRange = [0.0, 360.0];
+                posTransmitPar_water_diffuse_03.planNormalIncludedAngle = 90.0;
+                posTransmitPar_water_diffuse_03.faceDirection = 1;
+
+                let posTransmitPar_water_diffuse_04 = new BlackHole3D.REPosTransmitParticleSysInfo();
+                posTransmitPar_water_diffuse_04.particleId = 'pos_transmit_water_diffuse_04';
+                posTransmitPar_water_diffuse_04.pos = [12777109.5, 4683485.457, 170.881];
+                posTransmitPar_water_diffuse_04.planNormal = [0.0, 1.0, 0.0];
+                posTransmitPar_water_diffuse_04.texId = 0;
+                posTransmitPar_water_diffuse_04.num = 30;
+                posTransmitPar_water_diffuse_04.lifeTime = 3.5;
+                posTransmitPar_water_diffuse_04.gravity = 0;
+                posTransmitPar_water_diffuse_04.dampingFactor = 0.015;
+                posTransmitPar_water_diffuse_04.speedRange = [18.0, 18.0];
+                posTransmitPar_water_diffuse_04.sizeRange = [10.0, 12.0];
+                posTransmitPar_water_diffuse_04.sizeChangeRange = [0.8, 1.0];
+                posTransmitPar_water_diffuse_04.alphaRange = [1.0, 1.0];
+                posTransmitPar_water_diffuse_04.planDirectionAngleRange = [0.0, 360.0];
+                posTransmitPar_water_diffuse_04.planNormalIncludedAngle = 90.0;
+                posTransmitPar_water_diffuse_04.faceDirection = 1;
+
+                BlackHole3D.Particle.createTransmitParticleSysPos([
+                    posTransmitPar_water_diffuse_01,
+                    posTransmitPar_water_diffuse_02,
+                    posTransmitPar_water_diffuse_03,
+                    posTransmitPar_water_diffuse_04,
+                ]);
+            }
+            function delAll() {
+                BlackHole3D.Particle.delTransmitParticleSys([]);
+            }
+        </script>
+    </body>
+</html>
