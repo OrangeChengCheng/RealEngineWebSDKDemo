@@ -13274,7 +13274,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.particleId = null; //发射粒子标识
             this.pos = null; //发射器位置
-            this.planNormal = null; //发射器所在平面法向量，作用于发射方向
+            this.planNormal = null; //发射器所在平面法向量，作用于发射方向，右手坐标系参照
             this.planDirectionAngleRange = [0.0, 0.0]; //限制发射朝向相对于发射器所在平面的角度范围，取值范围【0，360°】，【最大值，最小值】，最大值最小值相同表示限制粒子相对发射器所在平面的方向为定值，不同表示范围随机, planNormalIncludedAngle=0, 范围无效，粒子发射方向为延发射器平面法向量方向
             this.planNormalIncludedAngle = 0.0; //限制发射朝向相对于发射器所在平面法向量方向的夹角度数，取值范围【0，90°】，夹角数值是相对发射器平面法向量方向，实际粒子发射方向范围为 planDirectionAngleRange 限制角度范围内的所有与法向量夹角度数的空间范围， 夹角度数为0，planDirectionAngleRange参数无效，粒子发射方向为延发射器平面法向量方向
             this.texId = null; //对应纹理id（已经添加的纹理数组内的索引）
@@ -13285,7 +13285,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.sizeChangeRange = [0.0, 1.0]; //粒子生命周期内粒子半径变化系数过度范围，粒子大小在粒子生命周期内过度的缩放系数范围，【初始值，结束值】，初始值结束值相同表示粒子大小变化为定值，不同表示生命周期过度
             this.gravity = 9.81; //重力系数
             this.dampingFactor = 0; //阻尼系数
-            this.color = null; //粒子颜色（REColor 类型）
+            this.color = null; //粒子颜色（REColor 类型），没有alpha数值
             this.alphaRange = [0, 1.0]; //粒子生命周期内透明度过度范围，【初始值，结束值】，初始值结束值相同表示粒子透明度为定值，不同表示生命周期过度
             this.faceDirection = 0; //粒子面向方向，0：发射方向, 1: 相机方向， 默认为0
             this.texUVRotAngle = 0; //贴图UV旋转角度
@@ -13319,7 +13319,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _m_fLifetime = isEmpty(transmitSysInfo.lifeTime) ? 1.0 : transmitSysInfo.lifeTime;
             let _m_fGravity = isEmpty(transmitSysInfo.gravity) ? 9.81 : transmitSysInfo.gravity;
             let _m_fDF = isEmpty(transmitSysInfo.dampingFactor) ? 0.0 : transmitSysInfo.dampingFactor;
-            let _m_uColor = isEmpty(transmitSysInfo.color) ? 0x00ffffff : clrToU32(transmitSysInfo.color);
+            let _m_uColor = 0x00ffffff;
+            if (!isEmpty(transmitSysInfo.color)) {
+                transmitSysInfo.color.alpha = 0; 
+                _m_uColor = clrToU32(transmitSysInfo.color);
+            }
             let _m_vSizeChangeRange = transmitSysInfo.sizeChangeRange;
             let _m_vAlphaRange = transmitSysInfo.alphaRange;
             let _m_bFacePlane = isEmpty(transmitSysInfo.faceDirection) ? false : transmitSysInfo.faceDirection == 1 ? true : false;
@@ -13442,7 +13446,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         transmitParticleSysInfo_pos.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
         transmitParticleSysInfo_pos.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
         transmitParticleSysInfo_pos.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
-        transmitParticleSysInfo_pos.color = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor);
+        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor); _clr.alpha = -1;
+        transmitParticleSysInfo_pos.color = _clr;
         transmitParticleSysInfo_pos.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
         transmitParticleSysInfo_pos.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
         transmitParticleSysInfo_pos.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
@@ -13457,7 +13462,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.pos = null; //发射器位置
             this.planWidth = 0; // 发射器平面宽度
             this.planHeight = 0; // 发射器平面高度
-            this.planNormal = null; //发射器所在平面法向量，作用于发射方向
+            this.planNormal = null; //发射器所在平面法向量，作用于发射方向，右手坐标系参照
             this.planRightDirection = null; //发射器所在平面指定右方向，作用与确定平面空间位置形态
             this.planDirectionAngleRange = [0.0, 0.0]; //限制发射朝向相对于发射器所在平面的角度范围，取值范围【0，360°】，【最大值，最小值】，最大值最小值相同表示限制粒子相对发射器所在平面的方向为定值，不同表示范围随机, planNormalIncludedAngle=0, 范围无效，粒子发射方向为延发射器平面法向量方向
             this.planNormalIncludedAngle = 0.0; //限制发射朝向相对于发射器所在平面法向量方向的夹角度数，取值范围【0，90°】，夹角数值是相对发射器平面法向量方向，实际粒子发射方向范围为 planDirectionAngleRange 限制角度范围内的所有与法向量夹角度数的空间范围， 夹角度数为0，planDirectionAngleRange参数无效，粒子发射方向为延发射器平面法向量方向
@@ -13469,7 +13474,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.sizeChangeRange = [0.0, 1.0]; //粒子生命周期内粒子半径变化系数过度范围，粒子大小在粒子生命周期内过度的缩放系数范围，【初始值，结束值】，初始值结束值相同表示粒子大小变化为定值，不同表示生命周期过度
             this.gravity = 9.81; //重力系数
             this.dampingFactor = 0; //阻尼系数
-            this.color = null; //粒子颜色（REColor 类型）
+            this.color = null; //粒子颜色（REColor 类型），没有alpha数值
             this.alphaRange = [0, 1.0]; //粒子生命周期内透明度过度范围，【初始值，结束值】，初始值结束值相同表示粒子透明度为定值，不同表示生命周期过度
             this.faceDirection = 0; //粒子面向方向，0：发射方向, 1: 相机方向， 默认为0
             this.texUVRotAngle = 0; //贴图UV旋转角度
@@ -13509,7 +13514,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _m_fLifetime = isEmpty(transmitSysInfo.lifeTime) ? 1.0 : transmitSysInfo.lifeTime;
             let _m_fGravity = isEmpty(transmitSysInfo.gravity) ? 9.81 : transmitSysInfo.gravity;
             let _m_fDF = isEmpty(transmitSysInfo.dampingFactor) ? 0.0 : transmitSysInfo.dampingFactor;
-            let _m_uColor = isEmpty(transmitSysInfo.color) ? 0x00ffffff : clrToU32(transmitSysInfo.color);
+            
+            let _m_uColor = 0x00ffffff;
+            if (!isEmpty(transmitSysInfo.color)) {
+                transmitSysInfo.color.alpha = 0; 
+                _m_uColor = clrToU32(transmitSysInfo.color);
+            }
             let _m_vSizeChangeRange = transmitSysInfo.sizeChangeRange;
             let _m_vAlphaRange = transmitSysInfo.alphaRange;
             let _m_bFacePlane = isEmpty(transmitSysInfo.faceDirection) ? false : transmitSysInfo.faceDirection == 1 ? true : false;
@@ -13635,7 +13645,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         transmitParticleSysInfo_rect.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
         transmitParticleSysInfo_rect.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
         transmitParticleSysInfo_rect.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
-        transmitParticleSysInfo_rect.color = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor);
+        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor); _clr.alpha = -1;
+        transmitParticleSysInfo_rect.color = _clr;
         transmitParticleSysInfo_rect.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
         transmitParticleSysInfo_rect.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
         transmitParticleSysInfo_rect.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
