@@ -1,3 +1,8 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 11:59:05
+ * @LastEditTime: 2025-03-21 15:20:08
+-->
 <!DOCTYPE html>
 <html lang="en-us">
     <head>
@@ -58,30 +63,30 @@
                     'https://demo.bjblackhole.com/demopage/examplesImgs/particle/rain.png',
                     'https://demo.bjblackhole.com/demopage/examplesImgs/particle/snow.png',
                 ]);
-                BlackHole3D.Particle.setWeatherParticleSysTex('weatherParTex_weather');
+                BlackHole3D.Particle.setWeatherSysTex('weatherParTex_weather');
             }
             function addRain() {
-                let weatherPar_rain = new BlackHole3D.REWeatherParticleSysInfo();
-                weatherPar_rain.particleId = 'weather_rain';
-                weatherPar_rain.descendSpeedRange = [14.6, 19.0];
-                weatherPar_rain.disperseSpeedRange = [0.0, 0.0];
-                weatherPar_rain.sizeRange = [2.5, 3.5];
-                weatherPar_rain.texId = 0;
-                weatherPar_rain.level = 22;
-                BlackHole3D.Particle.createWeatherParticleSys([weatherPar_rain]);
+                let weatherSys_rain = new BlackHole3D.REWeatherSysInfo();
+                weatherSys_rain.weatherSysId = 'weather_rain';
+                weatherSys_rain.descendSpeedRange = [14.6, 19.0];
+                weatherSys_rain.disperseSpeedRange = [0.0, 0.0];
+                weatherSys_rain.sizeRange = [2.5, 3.5];
+                weatherSys_rain.texId = 0;
+                weatherSys_rain.level = 22;
+                BlackHole3D.Particle.createWeatherSys([weatherSys_rain]);
             }
             function addSnow() {
-                let weatherPar_snow = new BlackHole3D.REWeatherParticleSysInfo();
-                weatherPar_snow.particleId = 'weather_snow';
-                weatherPar_snow.descendSpeedRange = [10.6, 15.0];
-                weatherPar_snow.disperseSpeedRange = [-1.0, 1.0];
-                weatherPar_snow.sizeRange = [0.2, 0.7];
-                weatherPar_snow.texId = 1;
-                weatherPar_snow.level = 10;
-                BlackHole3D.Particle.createWeatherParticleSys([weatherPar_snow]);
+                let weatherSys_snow = new BlackHole3D.REWeatherSysInfo();
+                weatherSys_snow.weatherSysId = 'weather_snow';
+                weatherSys_snow.descendSpeedRange = [10.6, 15.0];
+                weatherSys_snow.disperseSpeedRange = [-1.0, 1.0];
+                weatherSys_snow.sizeRange = [0.2, 0.7];
+                weatherSys_snow.texId = 1;
+                weatherSys_snow.level = 10;
+                BlackHole3D.Particle.createWeatherSys([weatherSys_snow]);
             }
             function delAll() {
-                BlackHole3D.Particle.delWeatherParticleSys([]);
+                BlackHole3D.Particle.delWeatherSys([]);
             }
         </script>
     </body>

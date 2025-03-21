@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-03-19 16:53:35
+ * @LastEditTime: 2025-03-21 14:11:47
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -61,32 +61,36 @@
 
             function addTex() {
                 BlackHole3D.Particle.addTexGroup('transmitParTex_fire', ['https://demo.bjblackhole.com/demopage/examplesImgs/particle/fire.png']);
-                BlackHole3D.Particle.setTransmitParticleSysTex('transmitParTex_fire');
+                BlackHole3D.Particle.setTransmitSysTex('transmitParTex_fire');
             }
             function addFire() {
-                let posTransmitPar_fire_01 = new BlackHole3D.RERectTransmitParticleSysInfo();
-                posTransmitPar_fire_01.particleId = 'rect_transmit_fire';
-                posTransmitPar_fire_01.pos = [3.0, 3.0, 3.0];
-                posTransmitPar_fire_01.planWidth = 1.0;
-                posTransmitPar_fire_01.planHeight = 1.0;
-                posTransmitPar_fire_01.planNormal = [0.0, -1.0, 0.0];
-                posTransmitPar_fire_01.planRightDirection = [1.0, 0.0, 0.0];
-                posTransmitPar_fire_01.planDirectionAngleRange = [0.0, 0.0];
-                posTransmitPar_fire_01.texId = 0;
-                posTransmitPar_fire_01.num = 300;
-                posTransmitPar_fire_01.lifeTime = 4.0;
-                posTransmitPar_fire_01.gravity = 0.0;
-                posTransmitPar_fire_01.speedRange = [1.6, 1.6];
-                posTransmitPar_fire_01.sizeRange = [4.0, 6.0];
-                posTransmitPar_fire_01.sizeChangeRange = [0.2, 1.0];
-                posTransmitPar_fire_01.alphaRange = [0.5, 0.01];
-                posTransmitPar_fire_01.texUVRotAngle = 0.68;
+                let particle = new BlackHole3D.REParticleInfo();
+                particle.texId = 0;
+                particle.num = 300;
+                particle.lifeTime = 4.0;
+                particle.gravity = 0.0;
+                particle.speedRange = [1.6, 1.6];
+                particle.sizeRange = [4.0, 6.0];
+                particle.sizeChangeRange = [0.2, 1.0];
+                particle.alphaRange = [0.5, 0.01];
+                particle.texUVRotAngle = 0.68;
 
-                BlackHole3D.Particle.createTransmitParticleSysRect([posTransmitPar_fire_01]);
+                let transmitSys_pos = new BlackHole3D.RERectTransmitSysInfo();
+                transmitSys_pos.transmitSysId = 'rect_transmitSys_fire';
+                transmitSys_pos.pos = [3.0, 3.0, 3.0];
+                transmitSys_pos.planWidth = 1.0;
+                transmitSys_pos.planHeight = 1.0;
+                transmitSys_pos.planNormal = [0.0, -1.0, 0.0];
+                transmitSys_pos.planRightDirection = [1.0, 0.0, 0.0];
+                transmitSys_pos.planDirectionAngleRange = [0.0, 0.0];
+                transmitSys_pos.particleInfo = particle;
+                
+
+                BlackHole3D.Particle.createTransmitSysRect([transmitSys_pos]);
             }
 
             function delAll() {
-                BlackHole3D.Particle.delTransmitParticleSys([]);
+                BlackHole3D.Particle.delTransmitSys([]);
             }
         </script>
     </body>

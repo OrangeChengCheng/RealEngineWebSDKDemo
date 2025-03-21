@@ -13058,20 +13058,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 粒子效果（Particle）
     Module.Particle = typeof Module.Particle !== 'undefined' ? Module.Particle : {}; //增加 Particle 模块
 
-    // MARK 天气粒子系统
+    // MARK 天气系统
     /**
-     * 设置天气粒子系统纹理信息
+     * 设置天气系统纹理信息
      * @param {String} texGroupId //纹理组标识，由 Particle.addTexGroup 添加的纹理组标识
      */
-    Module.Particle.setWeatherParticleSysTex = function (texGroupId) {
+    Module.Particle.setWeatherSysTex = function (texGroupId) {
         if (isEmptyLog(texGroupId, 'texGroupId')) return;
         return Module.RealBIMWeb.SetWeatherParticleSysTex(texGroupId);
     };
 
-    class REWeatherParticleSysInfo {
-        // 天气系统粒子信息
+    class REWeatherSysInfo {
+        // 天气系统信息
         constructor() {
-            this.particleId = null; //天气粒子标识
+            this.weatherSysId = null; //天气系统标识
             this.descendSpeedRange = [0.0, 0.0]; //下降速度范围，【最大值，最小值】，最大值最小值相同表示下降速度为定值，不同表示范围随机
             this.disperseSpeedRange = [0.0, 0.0]; //分散速度范围，【最大值，最小值】，最大值最小值相同表示分散速度为定值，不同表示范围随机，数值符号代表方向，＋为正向，-为反向
             this.sizeRange = [0.0, 1.0]; //粒子半径范围，【最小值，最大值】，最大值最小值相同表示粒子大小为定值，不同表示范围随机
@@ -13079,24 +13079,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.level = 1; //对应粒子数量等级，从1开始，数值越大，粒子越多，范围【1，50】
         }
     }
-    ExtModule.REWeatherParticleSysInfo = REWeatherParticleSysInfo;
+    ExtModule.REWeatherSysInfo = REWeatherSysInfo;
 
     /**
-     * 创建天气粒子系统
-     * @param {Array} weatherSysInfoList //天气粒子系统信息集合（REWeatherParticleSysInfo 类型）
+     * 创建天气系统
+     * @param {Array} weatherSysInfoList //天气系统信息集合（REWeatherSysInfo 类型）
      */
-    Module.Particle.createWeatherParticleSys = function (weatherSysInfoList) {
+    Module.Particle.createWeatherSys = function (weatherSysInfoList) {
         if (isEmptyLog(weatherSysInfoList, 'weatherSysInfoList')) return false;
         let _arrWeatherSys = new Module.RE_Vector_WEATHER_PARTICLE_INFO();
         for (let i = 0; i < weatherSysInfoList.length; i++) {
             const weatherSysInfo = weatherSysInfoList[i];
-            if (isEmptyLog(weatherSysInfo.particleId, 'particleId')) return false;
+            if (isEmptyLog(weatherSysInfo.weatherSysId, 'weatherSysId')) return false;
             if (!checkArrCountLog(weatherSysInfo.descendSpeedRange, 'descendSpeedRange', 2)) return false;
             if (!checkArrCountLog(weatherSysInfo.disperseSpeedRange, 'disperseSpeedRange', 2)) return false;
             if (!checkArrCountLog(weatherSysInfo.sizeRange, 'sizeRange', 2)) return false;
             if (isEmptyLog(weatherSysInfo.texId, 'texId')) return false;
 
-            let _m_strName = weatherSysInfo.particleId;
+            let _m_strName = weatherSysInfo.weatherSysId;
 
             let __descend_speed_min = isEmpty(weatherSysInfo.descendSpeedRange[0]) ? 0 : weatherSysInfo.descendSpeedRange[0];
             let __descend_speed_max = isEmpty(weatherSysInfo.descendSpeedRange[1]) ? 0 : weatherSysInfo.descendSpeedRange[1];
@@ -13124,7 +13124,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 if (_disperse_direction_random) {
                     logWarn(
-                        '温馨提示：当前使用接口（Particle.createWeatherSys）不可以操作分散速度不随机，分散方向随机操作，如果需求请创建两个天子粒子系统'
+                        '温馨提示：当前使用接口（Particle.createWeatherSys）不可以操作分散速度不随机，分散方向随机操作，如果需求请创建两个天气系统'
                     );
                     return false;
                 } else {
@@ -13157,12 +13157,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取指定天气粒子系统的信息
-     * @param {String} particleId //天气粒子标识
+     * 获取指定天气系统的信息
+     * @param {String} weatherSysId //天气系统标识
      */
-    Module.Particle.getWeatherParticleSysInfo = function (particleId) {
-        if (isEmptyLog(particleId, 'particleId')) return {};
-        const _cWeatherParticleSysInfo = Module.RealBIMWeb.GetWeatherParticleSysInfo(particleId);
+    Module.Particle.getWeatherSysInfo = function (weatherSysId) {
+        if (isEmptyLog(weatherSysId, 'weatherSysId')) return {};
+        const _cWeatherParticleSysInfo = Module.RealBIMWeb.GetWeatherParticleSysInfo(weatherSysId);
         if (!_cWeatherParticleSysInfo.m_strName.length) return {};
         const _m_vXSpeedRange = _cWeatherParticleSysInfo.m_vXSpeedRange;
         const _m_vZSpeedRange = _cWeatherParticleSysInfo.m_vZSpeedRange;
@@ -13198,20 +13198,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _size_random_range = [_m_vSizeRange[0], _m_vSizeRange[1]];
         }
 
-        let weatherParticleSysInfo = new Module.REWeatherParticleSysInfo();
-        weatherParticleSysInfo.particleId = _cWeatherParticleSysInfo.m_strName;
-        weatherParticleSysInfo.descendSpeedRange = arrayNumFixed(_descend_speed_random_range);
-        weatherParticleSysInfo.disperseSpeedRange = arrayNumFixed(_disperse_speed_random_range);
-        weatherParticleSysInfo.sizeRange = arrayNumFixed(_size_random_range);
-        weatherParticleSysInfo.texId = _cWeatherParticleSysInfo.m_uTexID;
-        weatherParticleSysInfo.level = _cWeatherParticleSysInfo.m_uLevel;
-        return weatherParticleSysInfo;
+        let weatherSysInfo = new Module.REWeatherSysInfo();
+        weatherSysInfo.weatherSysId = _cWeatherParticleSysInfo.m_strName;
+        weatherSysInfo.descendSpeedRange = arrayNumFixed(_descend_speed_random_range);
+        weatherSysInfo.disperseSpeedRange = arrayNumFixed(_disperse_speed_random_range);
+        weatherSysInfo.sizeRange = arrayNumFixed(_size_random_range);
+        weatherSysInfo.texId = _cWeatherParticleSysInfo.m_uTexID;
+        weatherSysInfo.level = _cWeatherParticleSysInfo.m_uLevel;
+        return weatherSysInfo;
     };
 
     /**
-     * 获取所有的天气粒子系统的名称
+     * 获取所有的天气系统的名称
      */
-    Module.Particle.getAllWeatherParticleSysIds = function () {
+    Module.Particle.getAllWeatherSysIds = function () {
         var tempArr = Module.RealBIMWeb.GetAllWeatherParticleSysNames();
         var nameArr = [];
         for (i = 0; i < tempArr.size(); ++i) {
@@ -13221,62 +13221,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 删除天气粒子系统
-     * @param {Array} particleIdList //天气粒子标识集合，空数组代表删除所有
+     * 删除天气系统
+     * @param {Array} weatherSysIdList //天气系统标识集合，空数组代表删除所有
      */
-    Module.Particle.delWeatherParticleSys = function (particleIdList) {
-        if (isEmptyLog(particleIdList, 'particleIdList')) return false;
+    Module.Particle.delWeatherSys = function (weatherSysIdList) {
+        if (isEmptyLog(weatherSysIdList, 'weatherSysIdList')) return false;
         let arrId = new Module.RE_Vector_WStr();
-        for (let i = 0; i < particleIdList.length; i++) {
-            arrId.push_back(particleIdList[i]);
+        for (let i = 0; i < weatherSysIdList.length; i++) {
+            arrId.push_back(weatherSysIdList[i]);
         }
         return Module.RealBIMWeb.RemoveWeatherParticleSys(arrId);
     };
 
-    // MARK 发射粒子系统
-    /**
-     * 设置发射粒子系统纹理信息
-     * @param {String} texGroupId //纹理组标识，由 Particle.addTexGroup 添加的纹理组标识
-     */
-    Module.Particle.setTransmitParticleSysTex = function (texGroupId) {
-        if (isEmptyLog(texGroupId, 'texGroupId')) return;
-        return Module.RealBIMWeb.SetTransmitParticleSysTex(texGroupId);
-    };
-
-    /**
-     * 获取所有的发射粒子系统的名称
-     */
-    Module.Particle.getAllTransmitParticleSysIds = function () {
-        var tempArr = Module.RealBIMWeb.GetAllTransmitParticleSysNames();
-        var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
-            nameArr.push(tempArr.get(i));
-        }
-        return nameArr;
-    };
-
-    /**
-     * 删除发射粒子系统
-     * @param {Array} particleIdList //发射粒子标识集合，空数组代表删除所有
-     */
-    Module.Particle.delTransmitParticleSys = function (particleIdList) {
-        if (isEmptyLog(particleIdList, 'particleIdList')) return false;
-        let arrId = new Module.RE_Vector_WStr();
-        for (let i = 0; i < particleIdList.length; i++) {
-            arrId.push_back(particleIdList[i]);
-        }
-        return Module.RealBIMWeb.RemoveTransmitParticleSys(arrId);
-    };
-
-    // MARK （点）发射粒子
-    class REPosTransmitParticleSysInfo {
-        // （点）发射粒子系统信息
+    // MARK 发射系统
+    class REParticleInfo {
+        // 粒子信息
         constructor() {
-            this.particleId = null; //发射粒子标识
-            this.pos = null; //发射器位置
-            this.planNormal = null; //发射器所在平面法向量，作用于发射方向，右手坐标系参照
-            this.planDirectionAngleRange = [0.0, 0.0]; //限制发射朝向相对于发射器所在平面的角度范围，取值范围【0，360°】，【最大值，最小值】，最大值最小值相同表示限制粒子相对发射器所在平面的方向为定值，不同表示范围随机, planNormalIncludedAngle=0, 范围无效，粒子发射方向为延发射器平面法向量方向
-            this.planNormalIncludedAngle = 0.0; //限制发射朝向相对于发射器所在平面法向量方向的夹角度数，取值范围【0，90°】，夹角数值是相对发射器平面法向量方向，实际粒子发射方向范围为 planDirectionAngleRange 限制角度范围内的所有与法向量夹角度数的空间范围， 夹角度数为0，planDirectionAngleRange参数无效，粒子发射方向为延发射器平面法向量方向
             this.texId = null; //对应纹理id（已经添加的纹理数组内的索引）
             this.num = 0; //粒子数量
             this.lifeTime = 1.0; //粒子生命周期
@@ -13291,65 +13251,80 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.texUVRotAngle = 0; //贴图UV旋转角度
         }
     }
-    ExtModule.REPosTransmitParticleSysInfo = REPosTransmitParticleSysInfo;
+    ExtModule.REParticleInfo = REParticleInfo;
 
     /**
-     * 创建（点）发射粒子系统
-     * @param {Array} posTransmitSysInfoList //（点）发射粒子系统信息集合（REPosTransmitParticleSysInfo 类型）
+     * 设置发射系统纹理信息
+     * @param {String} texGroupId //纹理组标识，由 Particle.addTexGroup 添加的纹理组标识
      */
-    Module.Particle.createTransmitParticleSysPos = function (posTransmitSysInfoList) {
+    Module.Particle.setTransmitSysTex = function (texGroupId) {
+        if (isEmptyLog(texGroupId, 'texGroupId')) return;
+        return Module.RealBIMWeb.SetTransmitParticleSysTex(texGroupId);
+    };
+
+    /**
+     * 获取所有的发射系统的名称
+     */
+    Module.Particle.getAllTransmitSysIds = function () {
+        var tempArr = Module.RealBIMWeb.GetAllTransmitParticleSysNames();
+        var nameArr = [];
+        for (i = 0; i < tempArr.size(); ++i) {
+            nameArr.push(tempArr.get(i));
+        }
+        return nameArr;
+    };
+
+    /**
+     * 删除发射系统
+     * @param {Array} transmitIdList //发射系统标识集合，空数组代表删除所有
+     */
+    Module.Particle.delTransmitSys = function (transmitIdList) {
+        if (isEmptyLog(transmitIdList, 'transmitIdList')) return false;
+        let arrId = new Module.RE_Vector_WStr();
+        for (let i = 0; i < transmitIdList.length; i++) {
+            arrId.push_back(transmitIdList[i]);
+        }
+        return Module.RealBIMWeb.RemoveTransmitParticleSys(arrId);
+    };
+
+    // MARK （点）发射系统
+    class REPosTransmitSysInfo {
+        // （点）发射系统信息
+        constructor() {
+            this.transmitSysId = null; //发射系统标识
+            this.pos = null; //发射器位置
+            this.planNormal = null; //发射器所在平面法向量，作用于发射方向，右手坐标系参照
+            this.planDirectionAngleRange = [0.0, 0.0]; //限制发射朝向相对于发射器所在平面的角度范围，取值范围【0，360°】，【最大值，最小值】，最大值最小值相同表示限制粒子相对发射器所在平面的方向为定值，不同表示范围随机, planNormalIncludedAngle=0, 范围无效，粒子发射方向为延发射器平面法向量方向
+            this.planNormalIncludedAngle = 0.0; //限制发射朝向相对于发射器所在平面法向量方向的夹角度数，取值范围【0，90°】，夹角数值是相对发射器平面法向量方向，实际粒子发射方向范围为 planDirectionAngleRange 限制角度范围内的所有与法向量夹角度数的空间范围， 夹角度数为0，planDirectionAngleRange参数无效，粒子发射方向为延发射器平面法向量方向
+            this.particleInfo = null; //粒子信息（REParticleInfo 类型）
+        }
+    }
+    ExtModule.REPosTransmitSysInfo = REPosTransmitSysInfo;
+
+    /**
+     * 创建（点）发射系统
+     * @param {Array} posTransmitSysInfoList //（点）发射系统信息集合（REPosTransmitSysInfo 类型）
+     */
+    Module.Particle.createTransmitSysPos = function (posTransmitSysInfoList) {
         if (isEmptyLog(posTransmitSysInfoList, 'posTransmitSysInfoList')) return false;
         let _arrTransmitSys = new Module.RE_Vector_TRANSMIT_PARTICLE_INFO();
         for (let i = 0; i < posTransmitSysInfoList.length; i++) {
             const transmitSysInfo = posTransmitSysInfoList[i];
-            if (isEmptyLog(transmitSysInfo.particleId, 'particleId')) return false;
+            if (isEmptyLog(transmitSysInfo.transmitSysId, 'transmitSysId')) return false;
+            if (isEmptyLog(transmitSysInfo.particleInfo, 'particleInfo')) return false;
+            const particleInfo = transmitSysInfo.particleInfo;
             if (!checkArrCountLog(transmitSysInfo.pos, 'pos', 3)) return false;
             if (!checkArrCountLog(transmitSysInfo.planNormal, 'planNormal', 3)) return false;
-            if (!checkArrCountLog(transmitSysInfo.sizeRange, 'sizeRange', 2)) return false;
-            if (!checkArrCountLog(transmitSysInfo.sizeChangeRange, 'sizeChangeRange', 2)) return false;
-            if (!checkArrCountLog(transmitSysInfo.alphaRange, 'alphaRange', 2)) return false;
             if (!checkArrCountLog(transmitSysInfo.planDirectionAngleRange, 'planDirectionAngleRange', 2)) return false;
-            if (isEmptyLog(transmitSysInfo.texId, 'texId')) return false;
+            if (!checkArrCountLog(particleInfo.sizeRange, 'sizeRange', 2)) return false;
+            if (!checkArrCountLog(particleInfo.sizeChangeRange, 'sizeChangeRange', 2)) return false;
+            if (!checkArrCountLog(particleInfo.alphaRange, 'alphaRange', 2)) return false;
+            if (isEmptyLog(particleInfo.texId, 'texId')) return false;
 
-            let _m_strName = transmitSysInfo.particleId;
-            let _m_uTexID = isEmpty(transmitSysInfo.texId) ? 0 : transmitSysInfo.texId;
+            // 发射器信息
+            let _m_strName = transmitSysInfo.transmitSysId;
             let _m_vPos = transmitSysInfo.pos;
             let _m_vWorNormal = transmitSysInfo.planNormal;
-            let _m_uLevel = isEmpty(transmitSysInfo.num) ? 1 : transmitSysInfo.num;
-            let _m_fLifetime = isEmpty(transmitSysInfo.lifeTime) ? 1.0 : transmitSysInfo.lifeTime;
-            let _m_fGravity = isEmpty(transmitSysInfo.gravity) ? 9.81 : transmitSysInfo.gravity;
-            let _m_fDF = isEmpty(transmitSysInfo.dampingFactor) ? 0.0 : transmitSysInfo.dampingFactor;
-            let _m_uColor = 0x00ffffff;
-            if (!isEmpty(transmitSysInfo.color)) {
-                transmitSysInfo.color.alpha = 0; 
-                _m_uColor = clrToU32(transmitSysInfo.color);
-            }
-            let _m_vSizeChangeRange = transmitSysInfo.sizeChangeRange;
-            let _m_vAlphaRange = transmitSysInfo.alphaRange;
-            let _m_bFacePlane = isEmpty(transmitSysInfo.faceDirection) ? false : transmitSysInfo.faceDirection == 1 ? true : false;
-            let _m_fRotAngle = isEmpty(transmitSysInfo.texUVRotAngle) ? 0.0 : transmitSysInfo.texUVRotAngle;
-            // 速度
-            let _speed_min = isEmpty(transmitSysInfo.speedRange[0]) ? 0 : transmitSysInfo.speedRange[0];
-            let _speed_max = isEmpty(transmitSysInfo.speedRange[1]) ? 0 : transmitSysInfo.speedRange[1];
-            let _speed_random = _speed_min == _speed_max ? false : true;
-            let _speed_dis = _speed_max - _speed_min;
-            let _m_vSpeedRange = [0, 0];
-            if (_speed_random) {
-                _m_vSpeedRange = [_speed_min, _speed_dis];
-            } else {
-                _m_vSpeedRange = [_speed_min, 0];
-            }
-            // 大小
-            let _size_min = isEmpty(transmitSysInfo.sizeRange[0]) ? 0 : transmitSysInfo.sizeRange[0];
-            let _size_max = isEmpty(transmitSysInfo.sizeRange[1]) ? 0 : transmitSysInfo.sizeRange[1];
-            let _size_random = _size_min == _size_max ? false : true;
-            let _size_dis = _size_max - _size_min;
-            let _m_vSizeRange = [0.0, 0.0];
-            if (_size_random) {
-                _m_vSizeRange = [_size_min, _size_dis];
-            } else {
-                _m_vSizeRange = [_size_min, 0];
-            }
             // 发射方向范围
             let _plan_dir_angle_min = isEmpty(transmitSysInfo.planDirectionAngleRange[0]) ? 0 : transmitSysInfo.planDirectionAngleRange[0];
             let _plan_dir_angle_max = isEmpty(transmitSysInfo.planDirectionAngleRange[1]) ? 0 : transmitSysInfo.planDirectionAngleRange[1];
@@ -13367,7 +13342,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 _m_vAngle = [_plan_dir_angle_min * (Math.PI / 180), 0, _plan_nor_inc_angle * (Math.PI / 180), 0.0];
             }
-
+            // 粒子信息
+            let _m_uTexID = isEmpty(particleInfo.texId) ? 0 : particleInfo.texId;
+            let _m_uLevel = isEmpty(particleInfo.num) ? 1 : particleInfo.num;
+            let _m_fLifetime = isEmpty(particleInfo.lifeTime) ? 1.0 : particleInfo.lifeTime;
+            let _m_fGravity = isEmpty(particleInfo.gravity) ? 9.81 : particleInfo.gravity;
+            let _m_fDF = isEmpty(particleInfo.dampingFactor) ? 0.0 : particleInfo.dampingFactor;
+            let _m_vSizeChangeRange = particleInfo.sizeChangeRange;
+            let _m_vAlphaRange = particleInfo.alphaRange;
+            let _m_bFacePlane = isEmpty(particleInfo.faceDirection) ? false : particleInfo.faceDirection == 1 ? true : false;
+            let _m_fRotAngle = isEmpty(particleInfo.texUVRotAngle) ? 0.0 : particleInfo.texUVRotAngle;
+            // 颜色
+            let _m_uColor = 0x00ffffff;
+            if (!isEmpty(particleInfo.color)) {
+                particleInfo.color.alpha = 0;
+                _m_uColor = clrToU32(particleInfo.color);
+            }
+            // 速度
+            let _speed_min = isEmpty(particleInfo.speedRange[0]) ? 0 : particleInfo.speedRange[0];
+            let _speed_max = isEmpty(particleInfo.speedRange[1]) ? 0 : particleInfo.speedRange[1];
+            let _speed_random = _speed_min == _speed_max ? false : true;
+            let _speed_dis = _speed_max - _speed_min;
+            let _m_vSpeedRange = [0, 0];
+            if (_speed_random) {
+                _m_vSpeedRange = [_speed_min, _speed_dis];
+            } else {
+                _m_vSpeedRange = [_speed_min, 0];
+            }
+            // 大小
+            let _size_min = isEmpty(particleInfo.sizeRange[0]) ? 0 : particleInfo.sizeRange[0];
+            let _size_max = isEmpty(particleInfo.sizeRange[1]) ? 0 : particleInfo.sizeRange[1];
+            let _size_random = _size_min == _size_max ? false : true;
+            let _size_dis = _size_max - _size_min;
+            let _m_vSizeRange = [0.0, 0.0];
+            if (_size_random) {
+                _m_vSizeRange = [_size_min, _size_dis];
+            } else {
+                _m_vSizeRange = [_size_min, 0];
+            }
+            // 构件引擎粒子结构体
             let _cTransmitParticleSysInfo = {
                 m_strName: _m_strName,
                 m_vPos: _m_vPos,
@@ -13395,12 +13408,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取指定（点）发射粒子系统的信息
-     * @param {String} particleId //发射粒子标识
+     * 获取指定（点）发射系统信息
+     * @param {String} transmitSysId //发射系统标识
      */
-    Module.Particle.getTransmitParticleSysInfoPos = function (particleId) {
-        if (isEmptyLog(particleId, 'particleId')) return {};
-        const _cTransmitParticleSysInfo = Module.RealBIMWeb.GetTransmitParticleSysInfo(particleId);
+    Module.Particle.getTransmitSysInfoPos = function (transmitSysId) {
+        if (isEmptyLog(transmitSysId, 'transmitSysId')) return {};
+        const _cTransmitParticleSysInfo = Module.RealBIMWeb.GetTransmitParticleSysInfo(transmitSysId);
         if (!_cTransmitParticleSysInfo.m_strName.length) return {};
         const _m_vAngle = _cTransmitParticleSysInfo.m_vAngle;
         const _m_vSizeRange = _cTransmitParticleSysInfo.m_vSizeRange;
@@ -13432,33 +13445,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         let _plan_nor_inc_angle = _m_vAngle[2] * (180 / Math.PI);
 
-        let transmitParticleSysInfo_pos = new Module.REPosTransmitParticleSysInfo();
-        transmitParticleSysInfo_pos.particleId = _cTransmitParticleSysInfo.m_strName;
-        transmitParticleSysInfo_pos.pos = _cTransmitParticleSysInfo.m_vPos;
-        transmitParticleSysInfo_pos.planNormal = _cTransmitParticleSysInfo.m_vWorNormal;
-        transmitParticleSysInfo_pos.planDirectionAngleRange = arrayNumFixed(_plan_dir_angle_range);
-        transmitParticleSysInfo_pos.planNormalIncludedAngle = numFixed(_plan_nor_inc_angle);
-        transmitParticleSysInfo_pos.texId = _cTransmitParticleSysInfo.m_uTexID;
-        transmitParticleSysInfo_pos.num = _cTransmitParticleSysInfo.m_uLevel;
-        transmitParticleSysInfo_pos.lifeTime = _cTransmitParticleSysInfo.m_fLifetime;
-        transmitParticleSysInfo_pos.speedRange = arrayNumFixed(_speed_random_range);
-        transmitParticleSysInfo_pos.sizeRange = arrayNumFixed(_size_random_range);
-        transmitParticleSysInfo_pos.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
-        transmitParticleSysInfo_pos.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
-        transmitParticleSysInfo_pos.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
-        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor); _clr.alpha = -1;
-        transmitParticleSysInfo_pos.color = _clr;
-        transmitParticleSysInfo_pos.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
-        transmitParticleSysInfo_pos.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
-        transmitParticleSysInfo_pos.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
-        return transmitParticleSysInfo_pos;
+        let transmitSysInfo_pos = new Module.REPosTransmitSysInfo();
+        transmitSysInfo_pos.transmitSysId = _cTransmitParticleSysInfo.m_strName;
+        transmitSysInfo_pos.pos = _cTransmitParticleSysInfo.m_vPos;
+        transmitSysInfo_pos.planNormal = _cTransmitParticleSysInfo.m_vWorNormal;
+        transmitSysInfo_pos.planDirectionAngleRange = arrayNumFixed(_plan_dir_angle_range);
+        transmitSysInfo_pos.planNormalIncludedAngle = numFixed(_plan_nor_inc_angle);
+        transmitSysInfo_pos.texId = _cTransmitParticleSysInfo.m_uTexID;
+        transmitSysInfo_pos.num = _cTransmitParticleSysInfo.m_uLevel;
+        transmitSysInfo_pos.lifeTime = _cTransmitParticleSysInfo.m_fLifetime;
+        transmitSysInfo_pos.speedRange = arrayNumFixed(_speed_random_range);
+        transmitSysInfo_pos.sizeRange = arrayNumFixed(_size_random_range);
+        transmitSysInfo_pos.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
+        transmitSysInfo_pos.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
+        transmitSysInfo_pos.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
+        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor);
+        _clr.alpha = -1;
+        transmitSysInfo_pos.color = _clr;
+        transmitSysInfo_pos.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
+        transmitSysInfo_pos.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
+        transmitSysInfo_pos.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
+        return transmitSysInfo_pos;
     };
 
-    // MARK （矩形）发射粒子
-    class RERectTransmitParticleSysInfo {
-        // （矩形）发射粒子系统信息
+    // MARK （矩形）发射系统
+    class RERectTransmitSysInfo {
+        // （矩形）发射系统信息
         constructor() {
-            this.particleId = null; //发射粒子标识
+            this.transmitSysId = null; //发射系统标识
             this.pos = null; //发射器位置
             this.planWidth = 0; // 发射器平面宽度
             this.planHeight = 0; // 发射器平面高度
@@ -13466,86 +13480,41 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.planRightDirection = null; //发射器所在平面指定右方向，作用与确定平面空间位置形态
             this.planDirectionAngleRange = [0.0, 0.0]; //限制发射朝向相对于发射器所在平面的角度范围，取值范围【0，360°】，【最大值，最小值】，最大值最小值相同表示限制粒子相对发射器所在平面的方向为定值，不同表示范围随机, planNormalIncludedAngle=0, 范围无效，粒子发射方向为延发射器平面法向量方向
             this.planNormalIncludedAngle = 0.0; //限制发射朝向相对于发射器所在平面法向量方向的夹角度数，取值范围【0，90°】，夹角数值是相对发射器平面法向量方向，实际粒子发射方向范围为 planDirectionAngleRange 限制角度范围内的所有与法向量夹角度数的空间范围， 夹角度数为0，planDirectionAngleRange参数无效，粒子发射方向为延发射器平面法向量方向
-            this.texId = null; //对应纹理id（已经添加的纹理数组内的索引）
-            this.num = 0; //粒子数量
-            this.lifeTime = 1.0; //粒子生命周期
-            this.speedRange = [0.0, 0.0]; //粒子速度范围，【最大值，最小值】，最大值最小值相同表示粒子速度为定值，不同表示范围随机
-            this.sizeRange = [0.0, 1.0]; //粒子半径范围，【最小值，最大值】，最大值最小值相同表示粒子大小为定值，不同表示范围随机
-            this.sizeChangeRange = [0.0, 1.0]; //粒子生命周期内粒子半径变化系数过度范围，粒子大小在粒子生命周期内过度的缩放系数范围，【初始值，结束值】，初始值结束值相同表示粒子大小变化为定值，不同表示生命周期过度
-            this.gravity = 9.81; //重力系数
-            this.dampingFactor = 0; //阻尼系数
-            this.color = null; //粒子颜色（REColor 类型），没有alpha数值
-            this.alphaRange = [0, 1.0]; //粒子生命周期内透明度过度范围，【初始值，结束值】，初始值结束值相同表示粒子透明度为定值，不同表示生命周期过度
-            this.faceDirection = 0; //粒子面向方向，0：发射方向, 1: 相机方向， 默认为0
-            this.texUVRotAngle = 0; //贴图UV旋转角度
+            this.particleInfo = null; //粒子信息（REParticleInfo 类型）
         }
     }
-    ExtModule.RERectTransmitParticleSysInfo = RERectTransmitParticleSysInfo;
+    ExtModule.RERectTransmitSysInfo = RERectTransmitSysInfo;
 
     /**
-     * 创建（矩形）发射粒子系统
-     * @param {Array} rectTransmitSysInfoList //（矩形）发射粒子系统信息集合（RERectTransmitParticleSysInfo 类型）
+     * 创建（矩形）发射系统
+     * @param {Array} rectTransmitSysInfoList //（矩形）发射系统信息集合（RERectTransmitSysInfo 类型）
      */
-    Module.Particle.createTransmitParticleSysRect = function (posTransmitSysInfoList) {
+    Module.Particle.createTransmitSysRect = function (posTransmitSysInfoList) {
         if (isEmptyLog(posTransmitSysInfoList, 'posTransmitSysInfoList')) return false;
         let _arrTransmitSys = new Module.RE_Vector_TRANSMIT_PARTICLE_INFO();
         for (let i = 0; i < posTransmitSysInfoList.length; i++) {
             const transmitSysInfo = posTransmitSysInfoList[i];
-            if (isEmptyLog(transmitSysInfo.particleId, 'particleId')) return false;
+            if (isEmptyLog(transmitSysInfo.transmitSysId, 'transmitSysId')) return false;
+            if (isEmptyLog(transmitSysInfo.particleInfo, 'particleInfo')) return false;
+            const particleInfo = transmitSysInfo.particleInfo;
             if (!checkArrCountLog(transmitSysInfo.pos, 'pos', 3)) return false;
             if (isEmptyLog(transmitSysInfo.planWidth, 'planWidth')) return false;
             if (isEmptyLog(transmitSysInfo.planHeight, 'planHeight')) return false;
             if (!checkArrCountLog(transmitSysInfo.planNormal, 'planNormal', 3)) return false;
             if (!checkArrCountLog(transmitSysInfo.planRightDirection, 'planRightDirection', 3)) return false;
-            if (!checkArrCountLog(transmitSysInfo.sizeRange, 'sizeRange', 2)) return false;
-            if (!checkArrCountLog(transmitSysInfo.sizeChangeRange, 'sizeChangeRange', 2)) return false;
-            if (!checkArrCountLog(transmitSysInfo.alphaRange, 'alphaRange', 2)) return false;
             if (!checkArrCountLog(transmitSysInfo.planDirectionAngleRange, 'planDirectionAngleRange', 2)) return false;
-            if (isEmptyLog(transmitSysInfo.texId, 'texId')) return false;
+            if (!checkArrCountLog(particleInfo.sizeRange, 'sizeRange', 2)) return false;
+            if (!checkArrCountLog(particleInfo.sizeChangeRange, 'sizeChangeRange', 2)) return false;
+            if (!checkArrCountLog(particleInfo.alphaRange, 'alphaRange', 2)) return false;
+            if (isEmptyLog(particleInfo.texId, 'texId')) return false;
 
-            let _m_strName = transmitSysInfo.particleId;
-            let _m_uTexID = isEmpty(transmitSysInfo.texId) ? 0 : transmitSysInfo.texId;
+            // 发射器信息
+            let _m_strName = transmitSysInfo.transmitSysId;
             let _m_vPos = transmitSysInfo.pos;
             let _m_fUpDist = isEmpty(transmitSysInfo.planHeight) ? 0.05 : transmitSysInfo.planHeight;
             let _m_fRightDist = isEmpty(transmitSysInfo.planWidth) ? 0.05 : transmitSysInfo.planWidth;
             let _m_vWorNormal = transmitSysInfo.planNormal;
             let _m_vWorRight = transmitSysInfo.planRightDirection;
-            let _m_uLevel = isEmpty(transmitSysInfo.num) ? 1 : transmitSysInfo.num;
-            let _m_fLifetime = isEmpty(transmitSysInfo.lifeTime) ? 1.0 : transmitSysInfo.lifeTime;
-            let _m_fGravity = isEmpty(transmitSysInfo.gravity) ? 9.81 : transmitSysInfo.gravity;
-            let _m_fDF = isEmpty(transmitSysInfo.dampingFactor) ? 0.0 : transmitSysInfo.dampingFactor;
-            
-            let _m_uColor = 0x00ffffff;
-            if (!isEmpty(transmitSysInfo.color)) {
-                transmitSysInfo.color.alpha = 0; 
-                _m_uColor = clrToU32(transmitSysInfo.color);
-            }
-            let _m_vSizeChangeRange = transmitSysInfo.sizeChangeRange;
-            let _m_vAlphaRange = transmitSysInfo.alphaRange;
-            let _m_bFacePlane = isEmpty(transmitSysInfo.faceDirection) ? false : transmitSysInfo.faceDirection == 1 ? true : false;
-            let _m_fRotAngle = isEmpty(transmitSysInfo.texUVRotAngle) ? 0.0 : transmitSysInfo.texUVRotAngle;
-            // 速度
-            let _speed_min = isEmpty(transmitSysInfo.speedRange[0]) ? 0 : transmitSysInfo.speedRange[0];
-            let _speed_max = isEmpty(transmitSysInfo.speedRange[1]) ? 0 : transmitSysInfo.speedRange[1];
-            let _speed_random = _speed_min == _speed_max ? false : true;
-            let _speed_dis = _speed_max - _speed_min;
-            let _m_vSpeedRange = [0, 0];
-            if (_speed_random) {
-                _m_vSpeedRange = [_speed_min, _speed_dis];
-            } else {
-                _m_vSpeedRange = [_speed_min, 0];
-            }
-            // 大小
-            let _size_min = isEmpty(transmitSysInfo.sizeRange[0]) ? 0 : transmitSysInfo.sizeRange[0];
-            let _size_max = isEmpty(transmitSysInfo.sizeRange[1]) ? 0 : transmitSysInfo.sizeRange[1];
-            let _size_random = _size_min == _size_max ? false : true;
-            let _size_dis = _size_max - _size_min;
-            let _m_vSizeRange = [0.0, 0.0];
-            if (_size_random) {
-                _m_vSizeRange = [_size_min, _size_dis];
-            } else {
-                _m_vSizeRange = [_size_min, 0];
-            }
             // 发射方向范围
             let _plan_dir_angle_min = isEmpty(transmitSysInfo.planDirectionAngleRange[0]) ? 0 : transmitSysInfo.planDirectionAngleRange[0];
             let _plan_dir_angle_max = isEmpty(transmitSysInfo.planDirectionAngleRange[1]) ? 0 : transmitSysInfo.planDirectionAngleRange[1];
@@ -13563,7 +13532,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             } else {
                 _m_vAngle = [_plan_dir_angle_min * (Math.PI / 180), 0, _plan_nor_inc_angle * (Math.PI / 180), 0.0];
             }
-
+            // 粒子信息
+            let _m_uTexID = isEmpty(particleInfo.texId) ? 0 : particleInfo.texId;
+            let _m_uLevel = isEmpty(particleInfo.num) ? 1 : particleInfo.num;
+            let _m_fLifetime = isEmpty(particleInfo.lifeTime) ? 1.0 : particleInfo.lifeTime;
+            let _m_fGravity = isEmpty(particleInfo.gravity) ? 9.81 : particleInfo.gravity;
+            let _m_fDF = isEmpty(particleInfo.dampingFactor) ? 0.0 : particleInfo.dampingFactor;
+            let _m_vSizeChangeRange = particleInfo.sizeChangeRange;
+            let _m_vAlphaRange = particleInfo.alphaRange;
+            let _m_bFacePlane = isEmpty(particleInfo.faceDirection) ? false : particleInfo.faceDirection == 1 ? true : false;
+            let _m_fRotAngle = isEmpty(particleInfo.texUVRotAngle) ? 0.0 : particleInfo.texUVRotAngle;
+            // 颜色
+            let _m_uColor = 0x00ffffff;
+            if (!isEmpty(particleInfo.color)) {
+                particleInfo.color.alpha = 0;
+                _m_uColor = clrToU32(particleInfo.color);
+            }
+            // 速度
+            let _speed_min = isEmpty(particleInfo.speedRange[0]) ? 0 : particleInfo.speedRange[0];
+            let _speed_max = isEmpty(particleInfo.speedRange[1]) ? 0 : particleInfo.speedRange[1];
+            let _speed_random = _speed_min == _speed_max ? false : true;
+            let _speed_dis = _speed_max - _speed_min;
+            let _m_vSpeedRange = [0, 0];
+            if (_speed_random) {
+                _m_vSpeedRange = [_speed_min, _speed_dis];
+            } else {
+                _m_vSpeedRange = [_speed_min, 0];
+            }
+            // 大小
+            let _size_min = isEmpty(particleInfo.sizeRange[0]) ? 0 : particleInfo.sizeRange[0];
+            let _size_max = isEmpty(particleInfo.sizeRange[1]) ? 0 : particleInfo.sizeRange[1];
+            let _size_random = _size_min == _size_max ? false : true;
+            let _size_dis = _size_max - _size_min;
+            let _m_vSizeRange = [0.0, 0.0];
+            if (_size_random) {
+                _m_vSizeRange = [_size_min, _size_dis];
+            } else {
+                _m_vSizeRange = [_size_min, 0];
+            }
+            // 构件引擎粒子结构体
             let _cTransmitParticleSysInfo = {
                 m_strName: _m_strName,
                 m_vPos: _m_vPos,
@@ -13591,12 +13598,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取指定（矩形）发射粒子系统的信息
-     * @param {String} particleId //发射粒子标识
+     * 获取指定（矩形）发射系统信息
+     * @param {String} transmitSysId //发射系统标识
      */
-    Module.Particle.getTransmitParticleSysInfoRect = function (particleId) {
-        if (isEmptyLog(particleId, 'particleId')) return {};
-        const _cTransmitParticleSysInfo = Module.RealBIMWeb.GetTransmitParticleSysInfo(particleId);
+    Module.Particle.getTransmitSysInfoRect = function (transmitSysId) {
+        if (isEmptyLog(transmitSysId, 'transmitSysId')) return {};
+        const _cTransmitParticleSysInfo = Module.RealBIMWeb.GetTransmitParticleSysInfo(transmitSysId);
         if (!_cTransmitParticleSysInfo.m_strName.length) return {};
         const _m_vAngle = _cTransmitParticleSysInfo.m_vAngle;
         const _m_vSizeRange = _cTransmitParticleSysInfo.m_vSizeRange;
@@ -13628,29 +13635,30 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         let _plan_nor_inc_angle = _m_vAngle[2] * (180 / Math.PI);
 
-        let transmitParticleSysInfo_rect = new Module.REPosTransmitParticleSysInfo();
-        transmitParticleSysInfo_rect.particleId = _cTransmitParticleSysInfo.m_strName;
-        transmitParticleSysInfo_rect.pos = _cTransmitParticleSysInfo.m_vPos;
-        transmitParticleSysInfo_rect.planWidth = numFixed(_cTransmitParticleSysInfo.m_fRightDist);
-        transmitParticleSysInfo_rect.planHeight = numFixed(_cTransmitParticleSysInfo.m_fUpDist);
-        transmitParticleSysInfo_rect.planNormal = arrayNumFixed(_cTransmitParticleSysInfo.m_vWorNormal);
-        transmitParticleSysInfo_rect.planRightDirection = arrayNumFixed(_cTransmitParticleSysInfo.m_vWorRight);
-        transmitParticleSysInfo_rect.planDirectionAngleRange = arrayNumFixed(_plan_dir_angle_range);
-        transmitParticleSysInfo_rect.planNormalIncludedAngle = numFixed(_plan_nor_inc_angle);
-        transmitParticleSysInfo_rect.texId = _cTransmitParticleSysInfo.m_uTexID;
-        transmitParticleSysInfo_rect.num = _cTransmitParticleSysInfo.m_uLevel;
-        transmitParticleSysInfo_rect.lifeTime = _cTransmitParticleSysInfo.m_fLifetime;
-        transmitParticleSysInfo_rect.speedRange = arrayNumFixed(_speed_random_range);
-        transmitParticleSysInfo_rect.sizeRange = arrayNumFixed(_size_random_range);
-        transmitParticleSysInfo_rect.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
-        transmitParticleSysInfo_rect.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
-        transmitParticleSysInfo_rect.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
-        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor); _clr.alpha = -1;
-        transmitParticleSysInfo_rect.color = _clr;
-        transmitParticleSysInfo_rect.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
-        transmitParticleSysInfo_rect.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
-        transmitParticleSysInfo_rect.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
-        return transmitParticleSysInfo_rect;
+        let transmitSysInfo_rect = new Module.RERectTransmitSysInfo();
+        transmitSysInfo_rect.transmitSysId = _cTransmitParticleSysInfo.m_strName;
+        transmitSysInfo_rect.pos = _cTransmitParticleSysInfo.m_vPos;
+        transmitSysInfo_rect.planWidth = numFixed(_cTransmitParticleSysInfo.m_fRightDist);
+        transmitSysInfo_rect.planHeight = numFixed(_cTransmitParticleSysInfo.m_fUpDist);
+        transmitSysInfo_rect.planNormal = arrayNumFixed(_cTransmitParticleSysInfo.m_vWorNormal);
+        transmitSysInfo_rect.planRightDirection = arrayNumFixed(_cTransmitParticleSysInfo.m_vWorRight);
+        transmitSysInfo_rect.planDirectionAngleRange = arrayNumFixed(_plan_dir_angle_range);
+        transmitSysInfo_rect.planNormalIncludedAngle = numFixed(_plan_nor_inc_angle);
+        transmitSysInfo_rect.texId = _cTransmitParticleSysInfo.m_uTexID;
+        transmitSysInfo_rect.num = _cTransmitParticleSysInfo.m_uLevel;
+        transmitSysInfo_rect.lifeTime = _cTransmitParticleSysInfo.m_fLifetime;
+        transmitSysInfo_rect.speedRange = arrayNumFixed(_speed_random_range);
+        transmitSysInfo_rect.sizeRange = arrayNumFixed(_size_random_range);
+        transmitSysInfo_rect.sizeChangeRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vSizeChangeRange);
+        transmitSysInfo_rect.gravity = numFixed(_cTransmitParticleSysInfo.m_fGravity);
+        transmitSysInfo_rect.dampingFactor = numFixed(_cTransmitParticleSysInfo.m_fDF);
+        let _clr = clrU32ToClr(_cTransmitParticleSysInfo.m_uColor);
+        _clr.alpha = -1;
+        transmitSysInfo_rect.color = _clr;
+        transmitSysInfo_rect.alphaRange = arrayNumFixed(_cTransmitParticleSysInfo.m_vAlphaRange);
+        transmitSysInfo_rect.faceDirection = _cTransmitParticleSysInfo.m_bFacePlane ? 1 : 0;
+        transmitSysInfo_rect.texUVRotAngle = numFixed(_cTransmitParticleSysInfo.m_fRotAngle);
+        return transmitSysInfo_rect;
     };
 
     // MARK 纹理资源
