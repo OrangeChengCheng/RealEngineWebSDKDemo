@@ -1186,8 +1186,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.layerId = 0; // 表示图层标识
             this.crs = 0; // 表示资源自身的地理投影坐标系
-            this.base = null; // 表示资源基点
-            this.size = null; // 表示资源大小
+            this.base = null; // 表示资源基点，（二维数组类型）
+            this.size = null; // 表示资源大小，（二维数组类型）
             this.layerName = null; // 表示图层名称
             this.reqFmt = null; // 表示资源请求模板
             this.rootNum = null; // 表示顶级瓦片数量，（二维数组类型）
