@@ -1,7 +1,8 @@
-﻿//版本：v3.2.0.3000
+﻿//版本：v3.2.0.3054
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
+const hasEntityAni = false;
 const discardHint = true;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -1153,29 +1154,60 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 模型加载（Model）
     Module.Model = typeof Module.Model !== 'undefined' ? Module.Model : {}; //增加 Model 模块
 
+    class REDataSet {
+        constructor() {
+            this.dataSetId = null; //数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
+            this.resourcesAddress = null; //数据集资源包地址
+            this.useTransInfo = null; //表示该项目是否需要调整位置，默认false
+            this.transInfo = null; //项目的偏移信息，依次为缩放、旋转（四元数）、平移
+            this.minLoadDist = null; //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
+            this.maxLoadDist = null; //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
+            this.dataSetCRS = null; //当前子项的坐标系标识
+            this.dataSetCRSNorth = null; //当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）dataSetCRS 为空时此参数无定意义
+            this.useAssginVer = null; //表示是否加载指定版本，默认 false
+            this.assginVer = null; //指定版本号，加载指定版本的时候，会用此版本号
+            this.useAssginVer2 = null; //表示是否加载指定版本2，默认 false
+            this.assginVer2 = null; //指定版本号2，加载指定版本的时候，会用此版本号
+            this.dividePrior = null; //项目内模型的细分优先级(值越小优先级越高)
+            this.engineOrigin = null; //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
+            this.preciseCRS = null; //表示在进行地理信息坐标系定位时是否采用精确计算模式
+            this.groundDisplay = null; //表示项目中的地形矢量是否需要贴地显示(将禁用影像图片显示)
+            this.terrSuffix = null; //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示（如果地形矢量为不贴地，那么这个参数不能为空，如果地形矢量允许可以独立编辑则此参数需要唯一，允许多个地形矢量同时编辑则此参数相同。如果地形矢量为贴地，那么这参数传空字符串）
+            this.terrSph = null; //表示项目中的地形系统数据是否允许适配到球面地形
+            this.dataSetSGContent = null; //表示项目对应的主场景组文件内容字符串
+            this.useWMS = false; // 表示是否使用Web地图发布服务信息
+            this.wmsInfo = null; // Web地图发布服务信息 （REWMSInfo 类型），useWMS=true有效
+        }
+    }
+    ExtModule.REDataSet = REDataSet;
+
+    class REWMSInfo {
+        // Web地图发布服务信息
+        constructor() {
+            this.layerId = 0; // 表示图层标识
+            this.crs = 0; // 表示资源自身的地理投影坐标系
+            this.base = null; // 表示资源基点
+            this.size = null; // 表示资源大小
+            this.layerName = null; // 表示图层名称
+            this.reqFmt = null; // 表示资源请求模板
+            this.rootNum = null; // 表示顶级瓦片数量，（二维数组类型）
+            this.biasLOD = 1; // 表示统一资源ID中的lod索引的偏移
+            this.lodRangeList = null; // 表示层级范围集合，层级范围和层级瓦片范围要对应数量，（二维数组类型）
+            this.boundList = null; // 表示层级瓦片范围集合，层级范围和层级瓦片范围要对应数量，（四位数组类型）
+            this.layerType = 1; // 表示图层类型 1：表示影像 2：矢量标注
+            this.revertResX = 0; // 表示资源索引水平翻转（0，1）
+            this.revertResY = 1; // 表示资源索引垂直翻转（0，1）
+            this.revertU = 0; // 表示资源内容水平翻转（0，1）
+            this.revertV = 0; // 表示资源内容垂直翻转（0，1）
+            this.biasRootXY = [0, 0]; // 表示根节点索引偏移，（二维数组类型）
+        }
+    }
+    ExtModule.REWMSInfo = REWMSInfo;
+
     /**
      * 加载数据集资源
      * @param {Boolean} clearLoaded //是否清除掉已经加载好的项目
-     * @param {Array} dataSetList //数据集集合  Object 类型   ↓ ↓ ↓ ↓ 以下参数均包含在 Object 中↓
-     * @param {String} dataSetId //数据集的唯一标识名，不能为空不可重复，重复前边的数据集会被自动覆盖
-     * @param {String} resourcesAddress //数据集资源包地址
-     * @param {Boolean} useTransInfo //表示该项目是否需要调整位置，默认false
-     * @param {Array} transInfo //项目的偏移信息，依次为缩放、旋转（四元数）、平移
-     * @param {Number} minLoadDist //项目模型的最小加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载
-     * @param {Number} maxLoadDist //项目模型的最大加载距离，>0表示绝对距离，<0表示距离阈值相对于项目包围盒尺寸的倍数，=0表示永不卸载；
-     * @param {String} dataSetCRS //当前子项的坐标系标识
-     * @param {Number} dataSetCRSNorth //当前子项的项目北与正北方向的夹角（右手坐标系，逆时针为正）dataSetCRS 为空时此参数无定意义
-     * @param {Boolean} useAssginVer  //表示是否加载指定版本，默认 false
-     * @param {String} assginVer //指定版本号，加载指定版本的时候，会用此版本号
-     * @param {Boolean} useAssginVer2  //表示是否加载指定版本2，默认 false
-     * @param {String} assginVer2 //指定版本号2，加载指定版本的时候，会用此版本号
-     * @param {Number} dividePrior //项目内模型的细分优先级(值越小优先级越高)
-     * @param {dvec3} engineOrigin //表示项目局部空间的原点在项目参考坐标系dataSetCRS下的坐标（dataSetCRS为空时无定义）
-     * @param {Boolean} preciseCRS //表示在进行地理信息坐标系定位时是否采用精确计算模式
-     * @param {Boolean} groundDisplay //表示项目中的地形矢量是否需要贴地显示(将禁用影像图片显示)
-     * @param {String} terrSuffix //表示项目中的地形系统标识后缀，同样投影参数/概览信息/标识后缀的地形数据将合并为一个地形系统进行显示（如果地形矢量为不贴地，那么这个参数不能为空，如果地形矢量允许可以独立编辑则此参数需要唯一，允许多个地形矢量同时编辑则此参数相同。如果地形矢量为贴地，那么这参数传空字符串）
-     * @param {Boolean} terrSph //表示项目中的地形系统数据是否允许适配到球面地形
-     * @param {String} dataSetSGContent //表示项目对应的主场景组文件内容字符串
+     * @param {Array} dataSetList //数据集集合 （REDataSet 类型）
      */
     Module.Model.loadDataSet = function (dataSetList, clearLoaded) {
         if (isRepeat(dataSetList, 'dataSetId')) {
@@ -1231,51 +1263,105 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 // 没有使用版本默认第一个版本为最新
                 _ver.m_sVer0 = 0x7fffffff;
             }
-            if (_dataSetSGContent.length > 0) {
-                Module.RealBIMWeb.LoadMainSceExt2(
-                    dataSetModel.dataSetId,
-                    _isMainProj,
-                    _projCRS,
-                    _projNorth,
-                    dataSetModel.resourcesAddress + '/total.xml',
-                    _dataSetSGContent,
-                    _deftransinfo[0],
-                    _deftransinfo[1],
-                    _deftransinfo[2],
-                    _minLoadDist,
-                    _maxLoadDist,
-                    '',
-                    _defMainProjCamFile,
-                    _useCamPost,
-                    _dividePrior,
-                    _originCRS,
-                    _preciseCRS,
-                    _terrImgShpAlone,
-                    _terrSuffix,
-                    _terrSph
-                );
+            const _useWMS = isEmpty(dataSetModel.useWMS) ? false : dataSetModel.useWMS; // 是否使用WMS信息
+            if (!_useWMS) {
+                if (_dataSetSGContent.length > 0) {
+                    Module.RealBIMWeb.LoadMainSceExt2(
+                        dataSetModel.dataSetId,
+                        _isMainProj,
+                        _projCRS,
+                        _projNorth,
+                        dataSetModel.resourcesAddress + '/total.xml',
+                        _dataSetSGContent,
+                        _deftransinfo[0],
+                        _deftransinfo[1],
+                        _deftransinfo[2],
+                        _minLoadDist,
+                        _maxLoadDist,
+                        '',
+                        _defMainProjCamFile,
+                        _useCamPost,
+                        _dividePrior,
+                        _originCRS,
+                        _preciseCRS,
+                        _terrImgShpAlone,
+                        _terrSuffix,
+                        _terrSph
+                    );
+                } else {
+                    Module.RealBIMWeb.LoadMainSceExt(
+                        dataSetModel.dataSetId,
+                        _isMainProj,
+                        _projCRS,
+                        _projNorth,
+                        dataSetModel.resourcesAddress + '/total.xml',
+                        _deftransinfo[0],
+                        _deftransinfo[1],
+                        _deftransinfo[2],
+                        _minLoadDist,
+                        _maxLoadDist,
+                        '',
+                        _defMainProjCamFile,
+                        _useCamPost,
+                        _dividePrior,
+                        _originCRS,
+                        _preciseCRS,
+                        _terrImgShpAlone,
+                        _terrSuffix,
+                        _terrSph
+                    );
+                }
             } else {
-                Module.RealBIMWeb.LoadMainSceExt(
-                    dataSetModel.dataSetId,
-                    _isMainProj,
-                    _projCRS,
-                    _projNorth,
-                    dataSetModel.resourcesAddress + '/total.xml',
-                    _deftransinfo[0],
-                    _deftransinfo[1],
-                    _deftransinfo[2],
-                    _minLoadDist,
-                    _maxLoadDist,
-                    '',
-                    _defMainProjCamFile,
-                    _useCamPost,
-                    _dividePrior,
-                    _originCRS,
-                    _preciseCRS,
-                    _terrImgShpAlone,
-                    _terrSuffix,
-                    _terrSph
-                );
+                if (isEmptyLog(dataSetModel.wmsInfo, 'wmsInfo')) return;
+                const _WMSInfo = dataSetModel.wmsInfo;
+                if (isEmptyLog(_WMSInfo.layerId, 'layerId')) return;
+                if (isEmptyLog(_WMSInfo.crs, 'crs')) return;
+                if (isEmptyLog(_WMSInfo.base, 'base')) return;
+                if (isEmptyLog(_WMSInfo.size, 'size')) return;
+                if (isEmptyLog(_WMSInfo.layerName, 'layerName')) return;
+                if (isEmptyLog(_WMSInfo.reqFmt, 'reqFmt')) return;
+                if (isEmptyLog(_WMSInfo.rootNum, 'rootNum')) return;
+                if (!checkTypeLog(_WMSInfo.lodRangeList, 'lodRangeList', RE_Enum.RE_Check_Array)) return;
+                if (!checkTypeLog(_WMSInfo.boundList, 'boundList', RE_Enum.RE_Check_Array)) return;
+                if (_WMSInfo.lodRangeList.length != _WMSInfo.boundList.length) {
+                    console.error('【REError】: lodRangeList 和 boundList 需要一一对应');
+                    return;
+                }
+                const _biasLOD = isEmpty(_WMSInfo.biasLOD) ? 1 : _WMSInfo.biasLOD;
+                const _layerType = isEmpty(_WMSInfo.layerType) ? 1 : _WMSInfo.layerType;
+                const _revertResX = isEmpty(_WMSInfo.revertResX) ? 0 : _WMSInfo.revertResX;
+                const _revertResY = isEmpty(_WMSInfo.revertResY) ? 1 : _WMSInfo.revertResY;
+                const _revertU = isEmpty(_WMSInfo.revertU) ? 0 : _WMSInfo.revertU;
+                const _revertV = isEmpty(_WMSInfo.revertV) ? 0 : _WMSInfo.revertV;
+                const _biasRootXY = isEmpty(_WMSInfo.biasRootXY) ? [0, 0] : _WMSInfo.biasRootXY;
+                const _vector_lodRange = new Module.RE_Vector_ivec2();
+                _WMSInfo.lodRangeList.forEach((element) => {
+                    _vector_lodRange.push_back(element);
+                });
+                const _vector_bound = new Module.RE_Vector_ivec4();
+                _WMSInfo.boundList.forEach((element) => {
+                    _vector_bound.push_back(element);
+                });
+                let cWMSInfo = {
+                    m_strDataSetId: dataSetModel.dataSetId,
+                    m_uLayerId: _WMSInfo.layerId,
+                    m_strCRS: _WMSInfo.crs,
+                    m_vBase: _WMSInfo.base,
+                    m_vSize: _WMSInfo.size,
+                    m_strLayerName: _WMSInfo.layerName,
+                    m_strFmtStr: _WMSInfo.reqFmt,
+                    m_vRootNum: _WMSInfo.rootNum,
+                    m_uBiasLOD: _biasLOD,
+                    m_arrLodRanges: _vector_lodRange,
+                    m_arrBounds: _vector_bound,
+                    m_uLayerType: _layerType,
+                    m_uRevertResX: _revertResX,
+                    m_uRevertResY: _revertResY,
+                    m_uRevertU: _revertU,
+                    m_uRevertV: _revertV,
+                    vBiasRootXY: _biasRootXY,
+                };
+                Module.RealBIMWeb.LoadWMS(cWMSInfo, _isMainProj);
             }
             Module.RealBIMWeb.SetSceVersionInfoExt(dataSetModel.dataSetId, _ver);
         }
@@ -11917,7 +12003,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _animPlayState = isEmpty(animPlayModeInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayModeInfo.animPlayState);
 
         if (_dataSetId == '') {
-            Module.RealBIMWeb.SetEntityAnimPlayMode('', '', 0xffffffff, 0, _animPlayState, _animPlayMode);
+            Module.RealBIMWeb.SetEntityAnimPlayMode('', '', 0xffffffff, 0, _animPlayState, '', _animPlayMode);
         } else {
             let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
             let count = animPlayModeInfo.elemIdList.length;
@@ -11934,6 +12020,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 count ? _elemIds.byteLength : 0xffffffff,
                 count ? _elemIds.byteOffset : 0,
                 _animPlayState,
+                '',
                 _animPlayMode
             );
         }
@@ -12048,6 +12135,365 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+
+    if (hasEntityAni) {
+        // MARK 骨骼动画
+        class REEntityAnimInfo {
+            // 单构件动画信息
+            constructor() {
+                this.dataSetId = null; // 数据集标识
+                this.elemId = null; // 构件唯一标识
+                this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
+                this.boneInfoList = null; //骨骼信息集合（REBoneInfo 类型）
+                this.selfAnimNameList = null; //自身动画名称标识列表，世界空间动画无效，自身关键帧序列集合的数量和自身动画名称标识列表数量相同，且顺序相同
+            }
+        }
+        ExtModule.REEntityAnimInfo = REEntityAnimInfo;
+
+        class REBoneInfo {
+            // 骨骼信息
+            constructor() {
+                this.linkInstId = null; // 关联实例标识
+                this.boneName = null; //骨骼标识名
+                this.parentName = null; //父骨骼标识名
+                this.trackSeqName = null; //骨骼关联的轨道序列信息标识名
+                this.keySeqList = null; //骨骼关联的关键帧序列集合（REKeySeqInfo 类型）
+                this.refTimeLen = null; //当前轨道的参考播放时长
+            }
+        }
+        ExtModule.REBoneInfo = REBoneInfo;
+
+        class REKeySeqInfo {
+            // 关键帧序列信息
+            constructor() {
+                this.keyFrameList = null; //关键帧序列信息 (REKeyFrameInfo 类型)
+            }
+        }
+        ExtModule.REKeySeqInfo = REKeySeqInfo;
+
+        class REKeyFrameInfo {
+            // 关键帧信息
+            constructor() {
+                this.pos = 0; // 该关键帧对应的相对播放位置(0~1)
+                this.scale = [1.0, 1.0, 1.0]; //该关键帧对应缩放信息
+                this.rotate = [0.0, 0.0, 0.0, 1.0]; //该关键帧对应旋转信息
+                this.offset = [0.0, 0.0, 0.0]; //该关键帧对应平移信息
+            }
+        }
+        ExtModule.REKeyFrameInfo = REKeyFrameInfo;
+
+        /**
+         * 设置单构件骨骼动画信息
+         * @param {REEntityAnimInfo} animInfo // 单构件动画信息（REEntityAnimInfo 类型）
+         */
+        Module.Entity.setAniInfo = function (animInfo) {
+            if (isEmptyLog(animInfo, 'animInfo')) return;
+            if (isEmptyLog(animInfo.dataSetId, 'dataSetId')) return;
+            if (isEmptyLog(animInfo.elemId, 'elemId')) return;
+            if (!checkTypeLog(animInfo.boneInfoList, 'boneInfoList', RE_Enum.RE_Check_Array)) return;
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(animInfo.dataSetId);
+
+            let _vector_bone = new Module.RE_Vector_ENTITY_BONE_INFO_W();
+            for (let i = 0; i < animInfo.boneInfoList.length; i++) {
+                const boneInfo = animInfo.boneInfoList[i];
+                if (isEmptyLog(boneInfo.linkInstId, 'linkInstId')) return;
+                if (isEmptyLog(boneInfo.boneName, 'boneName')) return;
+                if (!checkTypeLog(boneInfo.keySeqList, 'keySeqList', RE_Enum.RE_Check_Array)) return;
+
+                let _vector_key_seq = new Module.RE_Vector_KEY_SEQ();
+                for (let j = 0; j < boneInfo.keySeqList.length; j++) {
+                    const keySeq = boneInfo.keySeqList[j];
+                    if (!checkTypeLog(keySeq.keyFrameList, 'keyFrameList', RE_Enum.RE_Check_Array)) return;
+
+                    let _vector_key_frame = new Module.RE_Vector_KEY_FRAME();
+                    for (let k = 0; k < keySeq.keyFrameList.length; k++) {
+                        const keyFrame = keySeq.keyFrameList[k];
+                        let cKeyFrame = {
+                            m_dPos: keyFrame.pos,
+                            m_vScale: keyFrame.scale,
+                            m_qRotate: keyFrame.rotate,
+                            m_vOffset: keyFrame.offset,
+                        };
+                        _vector_key_frame.push_back(cKeyFrame);
+                    }
+                    let _cKeySeq = { m_arrKeys: _vector_key_frame };
+                    _vector_key_seq.push_back(_cKeySeq);
+                }
+                let cKeySeqSet = {
+                    m_arrKeySeqs: _vector_key_seq,
+                };
+                let _cBoneInfo = {
+                    m_uInstID_L32: boneInfo.linkInstId,
+                    m_uInstID_H32: _projid,
+                    m_strBoneName: boneInfo.boneName,
+                    m_strParentName: isEmpty(boneInfo.parentName) ? '' : boneInfo.parentName,
+                    m_strTrackSeqName: isEmpty(boneInfo.trackSeqName) ? '' : boneInfo.trackSeqName,
+                    m_sKeySeqSet: cKeySeqSet,
+                    m_dRefTimeLen: boneInfo.refTimeLen,
+                };
+                _vector_bone.push_back(_cBoneInfo);
+            }
+            let _vector_selfAnimName = new Module.RE_Vector_WStr();
+            let _animLevel = isEmpty(animInfo.animLevel) ? 0 : animInfo.animLevel;
+            let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+            if (_animLevel == 1) {
+                _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+                if (!checkTypeLog(animInfo.selfAnimNameList, 'selfAnimNameList', RE_Enum.RE_Check_Array)) return;
+                for (let i = 0; i < animInfo.selfAnimNameList.length; i++) {
+                    _vector_selfAnimName.push_back(animInfo.selfAnimNameList[i]);
+                }
+            }
+            let _cAniInfo = {
+                m_arrBoneInfos: _vector_bone,
+                m_arrSelfAniNames: _vector_selfAnimName,
+            };
+
+            Module.RealBIMWeb.EditEntityAni(animInfo.dataSetId, animInfo.elemId, _cAniInfo, _eAniLevel);
+        };
+
+        /**
+         * 获取单构件骨骼动画信息
+         * @param {String} dataSetId //数据集标识，必填
+         * @param {Number} elemId //构件id，必填
+         * @param {Number} animLevel // 动画级别 0：世界空间动画  1：自身动画
+         */
+        Module.Entity.getAniInfo = function (dataSetId, elemId, animLevel) {
+            if (isEmptyLog(dataSetId, 'dataSetId')) return;
+            if (isEmptyLog(elemId, 'elemId')) return;
+            if (isEmptyLog(animLevel, 'animLevel')) return;
+            let _animLevel = isEmpty(animLevel) ? 0 : animLevel;
+            let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+            if (_animLevel == 1) {
+                _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+            }
+            const _cAnimInfo = Module.RealBIMWeb.GetEntityAniInfo(dataSetId, elemId, _eAniLevel);
+            let boneInfoList = [];
+            for (let i = 0; i < _cAnimInfo.m_arrBoneInfos.size(); i++) {
+                const _cBoneInfo = _cAnimInfo.m_arrBoneInfos.get(i);
+
+                let keySeqList = [];
+                for (let j = 0; j < _cBoneInfo.m_sKeySeqSet.m_arrKeySeqs.size(); j++) {
+                    const _cKeySeq = _cBoneInfo.m_sKeySeqSet.m_arrKeySeqs.get(j);
+
+                    let keyFrameList = [];
+                    for (let k = 0; k < _cKeySeq.m_arrKeys.size(); k++) {
+                        const _cKey = _cKeySeq.m_arrKeys.get(k);
+                        let keyFrameInfo = new Module.REKeyFrameInfo();
+                        keyFrameInfo.pos = _cKey.m_dPos;
+                        keyFrameInfo.scale = _cKey.m_vScale;
+                        keyFrameInfo.rotate = _cKey.m_qRotate;
+                        keyFrameInfo.offset = _cKey.m_vOffset;
+                        keyFrameList.push(keyFrameInfo);
+                    }
+                    let keySeqInfo = new Module.REKeySeqInfo();
+                    keySeqInfo.keyFrameList = keyFrameList;
+
+                    keySeqList.push(keySeqInfo);
+                }
+
+                let boneInfo = new Module.REBoneInfo();
+                boneInfo.linkInstId = _cBoneInfo.m_uInstID_L32;
+                boneInfo.boneName = _cBoneInfo.m_strBoneName;
+                boneInfo.parentName = _cBoneInfo.m_strParentName;
+                boneInfo.trackSeqName = _cBoneInfo.m_strTrackSeqName;
+                boneInfo.keySeqList = keySeqList;
+                boneInfo.refTimeLen = _cBoneInfo.m_dRefTimeLen;
+                boneInfoList.push(boneInfo);
+            }
+            let selfAnimNameList = [];
+            for (let i = 0; i < _cAnimInfo.m_arrSelfAniNames.size(); i++) {
+                selfAnimNameList.push(_cAnimInfo.m_arrSelfAniNames.get(i));
+            }
+
+            let animInfo = new Module.REEntityAnimInfo();
+            animInfo.dataSetId = dataSetId;
+            animInfo.elemId = elemId;
+            animInfo.animLevel = animLevel;
+            animInfo.boneInfoList = boneInfoList;
+            animInfo.selfAnimNameList = selfAnimNameList;
+            return animInfo;
+        };
+
+        /**
+         * 根据动画类型获取动画名称列表
+         * @param {String} dataSetId //数据集标识，必填
+         * @param {String} entityType //实例类型名称，必填
+         */
+        Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
+            if (isEmpty(dataSetId) || dataSetId == '') {
+                logParErr('dataSetId');
+                return;
+            }
+            if (isEmpty(entityType) || entityType == '') {
+                logParErr('entityType');
+                return;
+            }
+            let arrName = Module.RealBIMWeb.GetEntitySelfAnimNameList(dataSetId, entityType);
+            let animNameList = [];
+            for (let i = 0; i < arrName.size(); i++) {
+                animNameList.push(arrName.get(i));
+            }
+            return animNameList;
+        };
+
+        class REEntityAnimPlayStateInfo {
+            constructor() {
+                this.dataSetId = null; // 数据集标识
+                this.elemId = null; // 构件标识
+                this.animName = null; // 动画标识，世界空间动画类型，该字段无效
+                this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
+                this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+                this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+            }
+        }
+        ExtModule.REEntityAnimPlayStateInfo = REEntityAnimPlayStateInfo;
+
+        /**
+         * 设置实体动画的播放状态信息
+         * @param {REEntityAnimPlayStateInfo} animPlayStateInfo //动画播放状态信息
+         */
+        Module.Entity.setAnimPlayState = function (animPlayStateInfo) {
+            if (isEmptyLog(animPlayStateInfo, 'animPlayStateInfo')) return;
+
+            let _dataSetId = isEmpty(animPlayStateInfo.dataSetId) ? '' : animPlayStateInfo.dataSetId;
+            let _elemId = isEmpty(animPlayStateInfo.elemId) ? 1 : animPlayStateInfo.elemId;
+            let _animName = isEmpty(animPlayStateInfo.animName) ? '' : animPlayStateInfo.animName;
+            let _animLevel = isEmpty(animPlayStateInfo.animLevel) ? 0 : animPlayStateInfo.animLevel;
+            let _animPlayMode = isEmpty(animPlayStateInfo.animPlayMode)
+                ? eval(REEntityAnimPlayModeEm.REPEATTURN)
+                : eval(animPlayStateInfo.animPlayMode);
+            let _animPlayState = isEmpty(animPlayStateInfo.animPlayState)
+                ? eval(REEntityAnimPlayStateEm.PAUSE)
+                : eval(animPlayStateInfo.animPlayState);
+            let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+            if (_animLevel == 1) {
+                _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+            }
+            Module.RealBIMWeb.SetEntityAniPlayState(_dataSetId, _elemId, _animName, _eAniLevel, _animPlayMode, _animPlayState);
+        };
+
+        // MARK 动画脚本
+        class REEntityAnimScriptInfo {
+            // 单构件动画脚本信息
+            constructor() {
+                this.playScriptId = null; // 动画脚本标识
+                this.playerSetList = null; // 动画播放器设置集合（REPlayerSetInfo 类型）
+                this.totalTimeLen = 0; // 动画脚本总时长
+            }
+        }
+        ExtModule.REEntityAnimScriptInfo = REEntityAnimScriptInfo;
+
+        class REPlayerSetInfo {
+            // 播放器设置信息
+            constructor() {
+                this.dataSetId = null; // 数据集标识
+                this.elemId = null; // 构件标识
+                this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
+                this.animName = null; // 动画标识，世界空间动画类型，该字段无效
+                this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+                this.startTime = 0; // 动画播放开始时间
+                this.timeLen = 0; // 动画播放时长
+                this.playSetList = null; // 动画播放设置集合（REPlaySetInfo 类型）
+            }
+        }
+        ExtModule.REPlayerSetInfo = REPlayerSetInfo;
+
+        class REPlaySetInfo {
+            // 播放设置信息
+            constructor() {
+                this.time = 0.0; // 播放位置（所在整个动画脚本的总时长）
+                this.state = 1; // 当前时刻动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+            }
+        }
+        ExtModule.REPlaySetInfo = REPlaySetInfo;
+
+        /**
+         * 增加一个动画脚本
+         * @param {REEntityAnimScriptInfo} animScriptInfo //动画脚本信息
+         */
+        Module.Entity.addAnimScript = function (animScriptInfo) {
+            if (isEmptyLog(animScriptInfo, 'animScriptInfo')) return;
+            if (isEmptyLog(animScriptInfo.playScriptId, 'playScriptId')) return;
+            if (!checkTypeLog(animScriptInfo.playerSetList, 'playerSetList', RE_Enum.RE_Check_Array)) return;
+
+            let _vector_player_set = new Module.RE_Vector_PLAYER_SET_W();
+            for (let i = 0; i < animScriptInfo.playerSetList.length; i++) {
+                const playerSet = animScriptInfo.playerSetList[i];
+                if (isEmptyLog(playerSet.dataSetId, 'dataSetId')) return;
+                if (isEmptyLog(playerSet.elemId, 'elemId')) return;
+                if (!checkTypeLog(playerSet.playSetList, 'playSetList', RE_Enum.RE_Check_Array)) return;
+
+                var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(playerSet.dataSetId);
+                let _vector_ainm_play_set = new Module.RE_Vector_ANI_PLAY_SET();
+                for (let j = 0; j < playerSet.playSetList.length; j++) {
+                    const playSet = playerSet.playSetList[j];
+                    let _animPlayState = isEmpty(playerSet.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(playerSet.animPlayState);
+                    let _cPlaySet = {
+                        m_dTime: playSet.time,
+                        m_eState: _animPlayState,
+                    };
+                    _vector_ainm_play_set.push_back(_cPlaySet);
+                }
+                let _animLevel = isEmpty(playerSet.animLevel) ? 0 : playerSet.animLevel;
+                let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+                if (_animLevel == 1) {
+                    _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+                }
+                let _animPlayMode = isEmpty(playerSet.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(playerSet.animPlayMode);
+                let _cPlayerSet = {
+                    m_strProjName: playerSet.dataSetId,
+                    m_uEntityID_L32: playerSet.elemId,
+                    m_uEntityID_H32: _projid,
+                    m_eAniLevel: _eAniLevel,
+                    m_strAniName: isEmpty(playerSet.animName) ? '' : playerSet.animName,
+                    m_ePlayMode: _animPlayMode,
+                    m_arrPlaySets: _vector_ainm_play_set,
+                };
+                _vector_player_set.push_back(_cPlayerSet);
+            }
+            let _cAnimScript = {
+                m_arrPlayerSets: _vector_player_set,
+                m_dTotalTimeLen: animScriptInfo.totalTimeLen,
+            };
+            Module.RealBIMWeb.AddAnimPlayScript(animScriptInfo.playScriptId, _cAnimScript);
+        };
+
+        /**
+         * 清除动画脚本
+         */
+        Module.Entity.delAnimScript = function () {
+            Module.RealBIMWeb.ClearAnimPlayScript();
+        };
+
+        /**
+         * 设置动画脚本播放状态
+         * @param {String} playScriptId //动画脚本标识
+         * @param {REEntityAnimPlayStateEm} animPlayState //动画脚本播放状态 类型 REEntityAnimPlayStateEm 枚举
+         */
+        Module.Entity.setAnimScriptPlayState = function (playScriptId, animPlayState) {
+            if (isEmptyLog(playScriptId, 'playScriptId')) return;
+            let _animPlayState = isEmpty(animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayState);
+            Module.RealBIMWeb.SetAnimPlayScriptState(playScriptId, _animPlayState);
+        };
+
+        /**
+         * 激活一个动画脚本
+         * @param {String} playScriptId //动画脚本标识
+         */
+        Module.Entity.setAnimScriptActive = function (playScriptId) {
+            if (isEmptyLog(playScriptId, 'playScriptId')) return;
+            Module.RealBIMWeb.ActiveAnimPlayScript(playScriptId);
+        };
+
+        /**
+         * 停止一个动画脚本
+         * @param {String} playScriptId //动画脚本标识
+         */
+        Module.Entity.setAnimScriptStop = function (playScriptId) {
+            if (isEmptyLog(playScriptId, 'playScriptId')) return;
+            Module.RealBIMWeb.StopAnimPlayScript(playScriptId);
+        };
+    }
 
     if (!hasNewExtrude) {
         // MOD-- 挖洞（Excavate）
@@ -12383,7 +12829,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * 清除挤出面使用的纹理
          */
         Module.Extrude.delAllExtrudeFaceTex = function () {
-            return Module.RealBIMWeb.ClearExtrudeFaceTexArray();
+            return Module.RealBIMWeb.ClearExtrudeRgnFaceTex();
         };
 
         // MARK 编辑
@@ -13714,6 +14160,48 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     //     return res && res[1]
     // }
     // var name = getName().replace('CreateBlackHoleWebSDK.Module.','')
+
+    // MOD-- 数学计算（Math）
+    Module.Math = typeof Module.Math !== 'undefined' ? Module.Math : {}; //增加 Math 模块
+
+    /**
+     * 获取旋转特定弧度计算后的偏移、旋转分量
+     * @param {dvec3} offset //初始偏移分量
+     * @param {Number} radian //旋转弧度
+     * @param {dvec3} rotatePos //旋转基点
+     * @param {dvec3} axis //旋转轴向量
+     */
+    Module.Math.getTranAfterRotate = function (offset, radian, rotatePos, axis) {
+        let cTran = Module.RealBIMWeb.Math_GetTranAfterRotate(offset, radian, rotatePos, axis);
+        return { offset: cTran.m_vOffset, rotate: cTran.m_qRotate };
+    };
+
+    /**
+     * 获取两个向量相减值
+     * @param {dvec3} vector1 //向量减数
+     * @param {dvec3} vector2 //向量被减数
+     */
+    Module.Math.getVectorSubtract = function (vector1, vector2) {
+        return [vector1[0] - vector2[0], vector1[1] - vector2[1], vector1[2] - vector2[2]];
+    };
+
+    /**
+     * 获取两个向量相加值
+     * @param {dvec3} vector1 //向量加数
+     * @param {dvec3} vector2 //向量被加数
+     */
+    Module.Math.getVectorAdd = function (vector1, vector2) {
+        return [vector1[0] + vector2[0], vector1[1] + vector2[1], vector1[2] + vector2[2]];
+    };
+
+    /**
+     * 获取两个向量相乘值
+     * @param {dvec3} vector1 //向量乘数
+     * @param {dvec3} vector2 //向量被乘数
+     */
+    Module.Math.getVectorMultiply = function (vector1, vector2) {
+        return [vector1[0] * vector2[0], vector1[1] * vector2[1], vector1[2] * vector2[2]];
+    };
 
     // MOD-- 废弃替换接口
     if (discardHint) {

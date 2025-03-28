@@ -92,7 +92,7 @@ function RESystemReady() {
 
 // MOD-- 初始化完成后，同时加载两个项目，第一个设置了偏移值
 function RESystemEngineCreated(e) {
-    // BlackHole3D.Common.setFakeSphMode(true)
+    // BlackHole3D.Common.setFakeSphMode(true);
     console.log('当前 WebSDK 运行版本', BlackHole3D.getVersion());
     console.log('=========================== 场景初始化完成');
     var isSuccess = e.detail.succeed;
@@ -264,6 +264,72 @@ function loadModel() {
         //     dataSetCRSNorth: 0.0,
         // },
         // {
+        //     dataSetId: 'WMS1',
+        //     useWMS: true,
+        //     wmsInfo: {
+        //         layerId: 0,
+        //         crs: '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
+        //         base: [-20037508.342789, -20037508.342789],
+        //         size: [40075016.685578, 40075016.685578],
+        //         layerName: '天地图影像图-Web墨卡托1111',
+        //         reqFmt: 'https://t0.tianditu.gov.cn/DataServer?T=img_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=1ef0065e3af1791bc26857090f7b90c6',
+        //         rootNum: [2, 2],
+        //         biasLOD: 1,
+        //         lodRangeList: [[0, 18]],
+        //         boundList: [[0, 0, 2, 2]],
+        //         layerType: 1,
+        //         revertResX: 0,
+        //         revertResY: 1,
+        //         revertU: 0,
+        //         revertV: 0,
+        //         biasRootXY: [0, 0],
+        //     },
+        // },
+        // {
+        //     dataSetId: 'WMS2',
+        //     useWMS: true,
+        //     wmsInfo: {
+        //         layerId: 2,
+        //         crs: '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
+        //         base: [-20037508.342789, -20037508.342789],
+        //         size: [40075016.685578, 40075016.685578],
+        //         layerName: '天地图矢量底图注记-Web墨卡托211',
+        //         reqFmt: 'https://t0.tianditu.gov.cn/DataServer?T=cva_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=1ef0065e3af1791bc26857090f7b90c6',
+        //         rootNum: [2, 2],
+        //         biasLOD: 1,
+        //         lodRangeList: [[0, 22]],
+        //         boundList: [[0, 0, 2, 2]],
+        //         layerType: 2,
+        //         revertResX: 0,
+        //         revertResY: 1,
+        //         revertU: 0,
+        //         revertV: 0,
+        //         biasRootXY: [0, 0],
+        //     },
+        // },
+        // {
+        //     dataSetId: 'WMS3',
+        //     useWMS: true,
+        //     wmsInfo: {
+        //         layerId: 3,
+        //         crs: '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
+        //         base: [-20037508.342789, -20037508.342789],
+        //         size: [40075016.685578, 40075016.685578],
+        //         layerName: '天地图矢量底图注记-Web墨卡托211',
+        //         reqFmt: 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&STYLES=&CRS=EPSG:4326&BBOX=%B%{%f,%f,%f,%f}&WIDTH=256&HEIGHT=256&FORMAT=image/png',
+        //         rootNum: [2, 2],
+        //         biasLOD: 1,
+        //         lodRangeList: [[0, 22]],
+        //         boundList: [[0, 0, 2, 2]],
+        //         layerType: 1,
+        //         revertResX: 0,
+        //         revertResY: 1,
+        //         revertU: 0,
+        //         revertV: 0,
+        //         biasRootXY: [0, 0],
+        //     },
+        // },
+        // {
         //     "dataSetId": "机房03",
         //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang",
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 15.0]],
@@ -362,7 +428,6 @@ function loadModel() {
         //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
         //     "dataSetCRS": 'PROJCS["CGCS2000_3_degree_Gauss_Kruger_CM_91.9E",GEOGCS["GCS_China Geodetic Coordinate System 2000",DATUM["D_China_2000",SPHEROID["CGCS2000",6378137,298.257222101]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",91.9],PARAMETER["scale_factor",1],PARAMETER["false_easting",500000],PARAMETER["false_northing",289],UNIT["Meter",1]]', "dataSetCRSNorth": 0.0,
         //     "engineOrigin": [491154.03125, 4717785, 0.0]
-
         // }
         // {
         //     "dataSetId": "机房01",
@@ -5359,6 +5424,7 @@ function addSpotLights() {
     spotLight3.lightId = 'light003';
     spotLight3.selfOffset = [16, 57, 3];
     spotLight3.lightClr = new BlackHole3D.REColor(0, 0, 255);
+
     spotLight3.brightness = 2400;
     spotLight3.emissionBodyRadius = 0.2;
     spotLight3.range = 10;

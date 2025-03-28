@@ -187,7 +187,7 @@ function RESystemSelElement(e) {
     if (typeof RESystemSelElementCallBack !== 'undefined') {
         RESystemSelElementCallBack(e);
     } else {
-        console.log('探测监听');
+        console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
     }
 }
 

@@ -1,0 +1,1081 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-03-28 16:40:33
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="setHuocheAni_move()">货车（位移）</button>
+                <button onclick="setHuocheAni_tyre()">货车（轮胎加速）</button>
+                <button onclick="setZhuagouAni_move()">抓钩（位移）</button>
+                <button onclick="setZhuagouAni_operate()">抓钩（操作）</button>
+                <button onclick="setHuowuAni_move()">货物（位移）</button>
+                <button onclick="setAnimScript()">动画脚本</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'changdi',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                    },
+                    {
+                        dataSetId: 'huoche',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/hc',
+                    },
+                    {
+                        dataSetId: 'zhuagou',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/zg',
+                    },
+                    {
+                        dataSetId: 'guidao',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/gd',
+                    },
+                    {
+                        dataSetId: 'huowu',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/hw',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                addEntity();
+            }
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                let entityList = [];
+                let typeNames_huoche = BlackHole3D.Entity.getAllTypeNames('huoche');
+                if (typeNames_huoche.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'huoche';
+                    entity.entityType = typeNames_huoche[0];
+                    entity.elemId = 1;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [300.0, 400.0, 2.163];
+                    entityList.push(entity);
+                }
+
+                let typeNames_zhuagou = BlackHole3D.Entity.getAllTypeNames('zhuagou');
+                if (typeNames_zhuagou.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'zhuagou';
+                    entity.entityType = typeNames_zhuagou[0];
+                    entity.elemId = 0;
+                    entity.scale = [0.5, 0.5, 0.5];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [300.0, 410.0, 6.163];
+                    entityList.push(entity);
+                }
+
+                let typeNames_guidao = BlackHole3D.Entity.getAllTypeNames('guidao');
+                if (typeNames_guidao.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'guidao';
+                    entity.entityType = typeNames_guidao[0];
+                    entity.elemId = 0;
+                    entity.scale = [0.6, 0.5, 0.5];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [305.0, 410.0, 11.3];
+                    entityList.push(entity);
+                }
+
+                let typeNames_huowu = BlackHole3D.Entity.getAllTypeNames('huowu');
+                if (typeNames_huowu.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'huowu';
+                    entity.entityType = typeNames_huowu[0];
+                    entity.elemId = 0;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [300.0, 400.0, 3.163];
+                    entityList.push(entity);
+                }
+
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+            function setHuocheAni_move() {
+                // 设置货车位移动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
+                let huoche_move_world_anim = new BlackHole3D.REEntityAnimInfo();
+                huoche_move_world_anim.dataSetId = 'huoche'; // 单构件模板数据集标识
+                huoche_move_world_anim.elemId = 1; // 单构件构件标识
+                huoche_move_world_anim.animLevel = 0; // 世界空间动画
+
+                // 设置骨骼信息
+                let huoche_move_bone = new BlackHole3D.REBoneInfo();
+                huoche_move_bone.linkInstId = 1; //关联单构件子构件id
+                huoche_move_bone.boneName = 'huoche_move_bone_1'; //骨骼标识
+                huoche_move_bone.parentName = '';
+                huoche_move_bone.trackSeqName = 'huoche_move_track'; //轨道标识信息
+                huoche_move_bone.refTimeLen = 20; //动画时长
+
+                // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                let huoche_move_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                huoche_move_keyFrameSeq.keyFrameList = [];
+                // 设置关键帧序列（假如指定小车移动的动画时长分为20秒，动画总共分为20个关键帧完成这20秒动画，前十帧位移到A点，后十帧位移到B点）
+                const keyCount = 21; // 虽然分了20帧的动画，但是首位都需要关键帧，初始原地关键帧也是要的，所以共计21帧
+                for (let i = 0; i < keyCount; i++) {
+                    // 设置关键帧信息
+                    let huoche_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huoche_move_keyFrame.pos = i * 0.05; //这里的播放位置，指的是在整体20秒的动画时长内，这一帧所在的时间比例，比如我想在1秒的时刻添加关键帧，则位置信息为1/20
+                    huoche_move_keyFrame.scale = [1.0, 1.0, 1.0];
+                    huoche_move_keyFrame.rotate = [0, 0, 0, 1];
+                    huoche_move_keyFrame.offset = [300.0, 400.0 + i * 1.8, 2.16]; // 这里设置货车沿着Y轴方向变化位置
+                    huoche_move_keyFrameSeq.keyFrameList.push(huoche_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                huoche_move_bone.keySeqList = [huoche_move_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关镇帧序列信息
+                huoche_move_world_anim.boneInfoList = [huoche_move_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                BlackHole3D.Entity.setAniInfo(huoche_move_world_anim); // 设置单构件动画信息
+
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('huoche');
+                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                animPlayStateInfo.dataSetId = 'huoche';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = '';
+                animPlayStateInfo.animLevel = 0;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+            }
+            function setHuocheAni_tyre() {
+                // 需要给货车添加自身动画，添加自身动画前，需要先获取货车自身动画信息，在编辑自身动画信息，不然会将货车原本自身动画信息覆盖
+                let huoche_anim = BlackHole3D.Entity.getAniInfo('huoche', 1, 1); // 获取本身的动画信息，不建议直接修改原本的自身动画，因为动画标识和关键帧序列顺序对应，设置即覆盖
+                // 货车本身是有自身动画的，轮胎的旋转在自身动画中，现在需要将轮胎的旋转加速，但不能影响本身翻斗的动画速率，需要先获取轮胎所属的单构件子构件标识
+                // 遍历骨骼信息，因为其他信息不需要修改，只需要增加一组关键帧序列，原本的关键帧序列还是保留状态，如果标识相同，则覆盖
+                for (let i = 0; i < huoche_anim.boneInfoList.length; i++) {
+                    let boneInfo = huoche_anim.boneInfoList[i];
+                    if (boneInfo.linkInstId == 11 || boneInfo.linkInstId == 16 || boneInfo.linkInstId == 21) {
+                        //这三个构件关联id为三组轮胎的子构件标识
+                        const keySeqList_old = boneInfo.keySeqList; //获取原本的自身动画序列集合
+                        const keySeqInfo_old = keySeqList_old[0]; //明确知道要修改的目标关键帧序列
+                        const keyFrameList_old = keySeqInfo_old.keyFrameList;
+                        const keyFrameList_new_temp = keyFrameList_old.map((frame) => ({ ...frame })); // 深拷贝 keyFrameList_old
+                        for (let i = 0; i < keyFrameList_new_temp.length - 1; i++) {
+                            keyFrameList_new_temp[i].pos = keyFrameList_new_temp[i].pos / 5.0; // 轮胎动画加速5倍
+                        }
+                        let keyFrameList_new = [];
+                        for (let i = 0; i < 5; i++) {
+                            for (let j = 0; j < keyFrameList_new_temp.length; j++) {
+                                const keyFrame = { ...keyFrameList_new_temp[j] }; // 深拷贝 keyFrameList_new_temp[j]
+                                keyFrame.pos = keyFrame.pos + (1.0 * i) / 5.0;
+                                keyFrameList_new.push(keyFrame); //加速5倍，会导致总时长的范围内动画只有前1/5有，要补齐后面的4/5动画
+                            }
+                        }
+                        const keySeqInfo_new = new BlackHole3D.REKeySeqInfo();
+                        keySeqInfo_new.keyFrameList = keyFrameList_new;
+                        keySeqList_old.push(keySeqInfo_new);
+                        boneInfo.keySeqList = keySeqList_old;
+                    } else {
+                        // 其他单构件子构件动画，原始关键帧为初始结束两帧的不处理，有其他关键帧序列动画的置空覆盖，添加默认关键帧，首尾两帧
+                        const keySeqList_old = boneInfo.keySeqList; //获取原本的自身动画序列集合
+                        const keySeqInfo_old = keySeqList_old[0]; //明确知道要修改的目标关键帧序列
+                        const keyFrameList_old = keySeqInfo_old.keyFrameList;
+                        let keyFrameList_new = [];
+                        if (keyFrameList_old.length == 2) {
+                            //不处理
+                            keyFrameList_new = [...keyFrameList_old];
+                        } else {
+                            const keyFrame_first = JSON.parse(JSON.stringify(keyFrameList_old[0])); // 首帧
+                            const keyFrame_last = JSON.parse(JSON.stringify(keyFrameList_old[0]));
+                            keyFrame_last.pos = 1.0; // 强制尾帧
+                            keyFrameList_new = [keyFrame_first, keyFrame_last];
+                        }
+                        const keySeqInfo_new = new BlackHole3D.REKeySeqInfo();
+                        keySeqInfo_new.keyFrameList = keyFrameList_new;
+                        keySeqList_old.push(keySeqInfo_new);
+                        boneInfo.keySeqList = keySeqList_old;
+                    }
+                }
+                // 自身动画标识列表和骨骼的关键帧序列集合的数量和顺序是强制对应的，上面添加了轮胎的加速动画，就需要对应的增加一个自身动画标识，且索引值要对应
+                const selfAnimName_new = 'ani002';
+                const keySeqCount = huoche_anim.boneInfoList[0].keySeqList.length;
+                const selfAnimNameCount = huoche_anim.selfAnimNameList.length;
+                // 这里的 keySeqCount 和 selfAnimNameCount 要严格数量、顺序对应，即货车本身有一个动画ani001，上面增加了一组关键帧序列，那么需要增加一个自身动画标识，且下标相同
+                huoche_anim.selfAnimNameList.push(selfAnimName_new);
+
+                console.log('--->> ', huoche_anim);
+                BlackHole3D.Entity.setAniInfo(huoche_anim); // 设置单构件动画信息
+
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('huoche');
+                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                animPlayStateInfo.dataSetId = 'huoche';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = 'ani002';
+                animPlayStateInfo.animLevel = 1;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+            }
+            function setZhuagouAni_move() {
+                // 设置抓钩位移动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
+                let zhuagou_move_world_anim = new BlackHole3D.REEntityAnimInfo();
+                zhuagou_move_world_anim.dataSetId = 'zhuagou'; // 单构件模板数据集标识
+                zhuagou_move_world_anim.elemId = 1; // 单构件构件标识
+                zhuagou_move_world_anim.animLevel = 0; // 世界空间动画
+
+                // 设置骨骼信息
+                let zhuagou_move_bone = new BlackHole3D.REBoneInfo();
+                zhuagou_move_bone.linkInstId = 1; //关联单构件子构件id
+                zhuagou_move_bone.boneName = 'zhuagou_move_bone_1'; //骨骼标识
+                zhuagou_move_bone.parentName = '';
+                zhuagou_move_bone.trackSeqName = 'zhuagou_move_track'; //轨道标识信息
+                zhuagou_move_bone.refTimeLen = 10; //动画时长
+
+                // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                let zhuagou_move_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                zhuagou_move_keyFrameSeq.keyFrameList = [];
+                // 设置关键帧序列
+                const keyCount = 11;
+                for (let i = 0; i < keyCount; i++) {
+                    // 设置关键帧信息
+                    let zhuagou_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    zhuagou_move_keyFrame.pos = i * 0.1;
+                    zhuagou_move_keyFrame.scale = [0.5, 0.5, 0.5]; //整体缩放0.5，太大
+                    zhuagou_move_keyFrame.rotate = [0, 0, 0, 1];
+                    zhuagou_move_keyFrame.offset = [300.0 + i * 1, 410.0, 6.163];
+                    zhuagou_move_keyFrameSeq.keyFrameList.push(zhuagou_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                zhuagou_move_bone.keySeqList = [zhuagou_move_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关镇帧序列信息
+                zhuagou_move_world_anim.boneInfoList = [zhuagou_move_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                BlackHole3D.Entity.setAniInfo(zhuagou_move_world_anim); // 设置单构件动画信息
+
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('zhuagou');
+                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                animPlayStateInfo.dataSetId = 'zhuagou';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = '';
+                animPlayStateInfo.animLevel = 0;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+            }
+            function setZhuagouAni_operate() {
+                // 获取抓钩的动画信息
+                let zhuagou_anim = BlackHole3D.Entity.getAniInfo('zhuagou', 1, 1);
+
+                // 遍历骨骼信息
+                for (let i = 0; i < zhuagou_anim.boneInfoList.length; i++) {
+                    let boneInfo = zhuagou_anim.boneInfoList[i];
+                    boneInfo.refTimeLen = 10.0;
+
+                    if (boneInfo.linkInstId === 5) {
+                        let keySeqList = boneInfo.keySeqList;
+                        let keyFrameList = keySeqList[0].keyFrameList;
+
+                        if (keyFrameList.length === 1) {
+                            let vOffset = [...keyFrameList[0].offset];
+                            for (let uI = 0; uI < 10; uI++) {
+                                let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                                keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                                if (uI > 4) {
+                                    let angle = (Math.PI * 2.0 * ((uI - 5) % 50)) / 50.0; // 旋转角度
+                                    let axis = [0.0, 1.0, 0.0]; //旋转轴向量
+                                    let rotatePos = [0.9, 0, 1.358]; //旋转基点
+                                    let tranResult = BlackHole3D.Math.getTranAfterRotate(vOffset, angle, rotatePos, axis); // 计算旋转分量和偏移分量
+                                    keyFrame.offset = tranResult.offset;
+                                    keyFrame.rotate = tranResult.rotate;
+                                } else {
+                                    keyFrame.offset = [...vOffset];
+                                    keyFrame.rotate = [0.0, 0.0, 0.0, 1.0];
+                                }
+
+                                let dScale = 1.0 + 0.3 * (uI + 1);
+                                keyFrame.offset = BlackHole3D.Math.getVectorSubtract(keyFrame.offset, [0.0, 0.0, 2.25 * (dScale - 1.0)]);
+                                keyFrame.scale = [1.0, 1.0, 1.0];
+                                keyFrameList.push(keyFrame);
+                            }
+                        }
+                    } else if (boneInfo.linkInstId === 2) {
+                        let keySeqList = boneInfo.keySeqList;
+                        let keyFrameList = keySeqList[0].keyFrameList;
+
+                        if (keyFrameList.length === 1) {
+                            let vOffset = [...keyFrameList[0].offset];
+                            for (let uI = 0; uI < 10; uI++) {
+                                let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                                keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                                if (uI > 4) {
+                                    let angle = (Math.PI * 2.0 * ((50 - (uI - 5)) % 50)) / 50.0; // 旋转角度
+                                    let axis = [0.0, 1.0, 0.0]; //旋转轴向量
+                                    let rotatePos = [-0.9, 0, 1.358]; //旋转基点
+                                    let tranResult = BlackHole3D.Math.getTranAfterRotate(vOffset, angle, rotatePos, axis); // 计算旋转分量和偏移分量
+                                    keyFrame.offset = tranResult.offset;
+                                    keyFrame.rotate = tranResult.rotate;
+                                } else {
+                                    keyFrame.offset = [...vOffset];
+                                    keyFrame.rotate = [0.0, 0.0, 0.0, 1.0];
+                                }
+
+                                let dScale = 1.0 + 0.3 * (uI + 1);
+                                keyFrame.offset = BlackHole3D.Math.getVectorSubtract(keyFrame.offset, [0.0, 0.0, 2.25 * (dScale - 1.0)]);
+                                keyFrame.scale = [1.0, 1.0, 1.0];
+                                keyFrameList.push(keyFrame);
+                            }
+                        }
+                    } else if (boneInfo.linkInstId === 1) {
+                        let keySeqList = boneInfo.keySeqList;
+                        let keyFrameList = keySeqList[0].keyFrameList;
+
+                        if (keyFrameList.length === 1) {
+                            let vOffset = [...keyFrameList[0].offset];
+                            for (let uI = 0; uI < 10; uI++) {
+                                let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                                keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                                let dScale = 1.0 + 0.3 * (uI + 1);
+                                keyFrame.offset = BlackHole3D.Math.getVectorSubtract(vOffset, [0.0, 0.0, 2.3 * (dScale - 1.0)]);
+                                keyFrameList.push(keyFrame);
+                            }
+                        }
+                    } else if (boneInfo.linkInstId === 6) {
+                        let keySeqList = boneInfo.keySeqList;
+                        let keyFrameList = keySeqList[0].keyFrameList;
+
+                        if (keyFrameList.length === 1) {
+                            let vOffset = [...keyFrameList[0].offset];
+                            for (let uI = 0; uI < 10; uI++) {
+                                let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                                keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                                let dScale = 1.0 + 0.3 * (uI + 1);
+                                keyFrame.scale = [1.0, 1.0, dScale];
+                                keyFrame.offset = BlackHole3D.Math.getVectorSubtract(vOffset, [0.0, 0.0, (2.35 * (dScale - 1.0)) / 2.0]);
+                                keyFrameList.push(keyFrame);
+                            }
+                        }
+                    } else if (boneInfo.linkInstId === 7) {
+                        let keySeqList = boneInfo.keySeqList;
+                        let keyFrameList = keySeqList[0].keyFrameList;
+
+                        if (keyFrameList.length === 1) {
+                            let vOffset = [...keyFrameList[0].offset];
+                            for (let uI = 0; uI < 10; uI++) {
+                                let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                                keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                                let dScale = 1.0 + 0.1 * (uI + 1);
+                                keyFrame.scale = [1.0, 1.0, dScale];
+                                keyFrame.offset = [...vOffset];
+                                keyFrameList.push(keyFrame);
+                            }
+                        }
+                    }
+                }
+
+                // 添加新的自身动画标识
+                const selfAnimName_new = 'ani001';
+                zhuagou_anim.selfAnimNameList.push(selfAnimName_new);
+
+                // 设置单构件动画信息
+                console.log('--->> ', zhuagou_anim);
+                BlackHole3D.Entity.setAniInfo(zhuagou_anim);
+
+                // 设置动画播放状态
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('zhuagou');
+                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                animPlayStateInfo.dataSetId = 'zhuagou';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = 'ani001';
+                animPlayStateInfo.animLevel = 1;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+            }
+            function setHuowuAni_move() {
+                // 设置货物动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
+                let huowu_move_world_anim = new BlackHole3D.REEntityAnimInfo();
+                huowu_move_world_anim.dataSetId = 'huowu'; // 单构件模板数据集标识
+                huowu_move_world_anim.elemId = 1; // 单构件构件标识
+                huowu_move_world_anim.animLevel = 0; // 世界空间动画
+
+                // 设置骨骼信息
+                let huowu_move_bone = new BlackHole3D.REBoneInfo();
+                huowu_move_bone.linkInstId = 1; // 关联单构件子构件id
+                huowu_move_bone.boneName = 'huowu_move_bone_1'; // 骨骼标识
+                huowu_move_bone.parentName = '';
+                huowu_move_bone.trackSeqName = 'huowu_move_track'; // 轨道标识信息
+                huowu_move_bone.refTimeLen = 50; // 动画时长
+
+                // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                let huowu_move_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                huowu_move_keyFrameSeq.keyFrameList = [];
+
+                // 跟随车辆移动
+                for (let uI = 0; uI < 10; uI++) {
+                    // 设置关键帧信息
+                    let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huowu_move_keyFrame.pos = (uI + 1) * 0.02;
+                    huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    huowu_move_keyFrame.offset = [300.0, 400.0 + uI * 1.5, 4.163];
+                    huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                // 卸货
+                for (let uI = 0; uI < 10; uI++) {
+                    // 设置关键帧信息
+                    let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huowu_move_keyFrame.pos = 0.2 + (uI + 1) * 0.01;
+                    huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    huowu_move_keyFrame.offset = [300.0, 413.0 - uI * 0.3, 4.163 - (uI + 1) * 0.1];
+                    huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                // 抓起货物
+                for (let uI = 0; uI < 10; uI++) {
+                    // 设置关键帧信息
+                    let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huowu_move_keyFrame.pos = 0.4 + (uI + 1) * 0.02;
+                    huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    huowu_move_keyFrame.offset = [300.0, 410.0, 3.163 + 0.5 * uI];
+                    huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                // 平移货物
+                for (let uI = 0; uI < 10; uI++) {
+                    // 设置关键帧信息
+                    let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huowu_move_keyFrame.pos = 0.6 + (uI + 1) * 0.02;
+                    huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    huowu_move_keyFrame.offset = [300.0 + uI * 1, 410.0, 7.563];
+                    huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                // 放下货物
+                for (let uI = 0; uI < 10; uI++) {
+                    // 设置关键帧信息
+                    let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    huowu_move_keyFrame.pos = 0.8 + (uI + 1) * 0.02;
+                    huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    huowu_move_keyFrame.offset = [309.0, 410.0, 7.563 - 0.6 * uI];
+                    huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                }
+
+                huowu_move_bone.keySeqList = [huowu_move_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关镇帧序列信息
+                huowu_move_world_anim.boneInfoList = [huowu_move_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                BlackHole3D.Entity.setAniInfo(huowu_move_world_anim); // 设置单构件动画信息
+
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('huowu');
+                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                animPlayStateInfo.dataSetId = 'huowu';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = '';
+                animPlayStateInfo.animLevel = 0;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+            }
+            function setAnimScript() {
+                // 设置单构件动画信息
+                {
+                    // 货车（移动）
+                    {
+                        // 创建货车动画信息对象
+                        let huoche_anim = new BlackHole3D.REEntityAnimInfo();
+                        huoche_anim.dataSetId = 'huoche'; // 单构件模板数据集标识
+                        huoche_anim.elemId = 1; // 单构件构件标识
+                        huoche_anim.animLevel = 0; // 世界空间动画
+
+                        // 设置骨骼信息
+                        let huoche_bone = new BlackHole3D.REBoneInfo();
+                        huoche_bone.linkInstId = 1; // 关联单构件子构件id
+                        huoche_bone.boneName = 'Path'; // 骨骼标识
+                        huoche_bone.parentName = '';
+                        huoche_bone.trackSeqName = 'PathTrack'; // 轨道标识信息
+                        huoche_bone.refTimeLen = 20; // 动画时长
+
+                        // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                        let huoche_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                        huoche_keyFrameSeq.keyFrameList = [];
+
+                        // 第一组关键帧序列
+                        const keyCount1 = 10;
+                        for (let i = 0; i < keyCount1; i++) {
+                            // 设置关键帧信息
+                            let huoche_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                            huoche_keyFrame.pos = (i + 1) * 0.05;
+                            huoche_keyFrame.scale = [1, 1, 1];
+                            huoche_keyFrame.rotate = [0, 0, 0, 1];
+                            huoche_keyFrame.offset = [300.0, 400.0 + i * 1.8, 2.16];
+                            huoche_keyFrameSeq.keyFrameList.push(huoche_keyFrame); // 添加关键帧到关键帧序列
+                        }
+
+                        // 第二组关键帧序列
+                        const keyCount2 = 10;
+                        for (let i = 0; i < keyCount2; i++) {
+                            // 设置关键帧信息
+                            let huoche_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                            huoche_keyFrame.pos = 0.5 + (i + 1) * 0.05;
+                            huoche_keyFrame.scale = [1, 1, 1];
+                            huoche_keyFrame.rotate = [0, 0, 0, 1];
+                            huoche_keyFrame.offset = [300.0, 416.2 + i * 2.0, 2.16];
+                            huoche_keyFrameSeq.keyFrameList.push(huoche_keyFrame); // 添加关键帧到关键帧序列
+                        }
+
+                        huoche_bone.keySeqList = [huoche_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关键帧序列信息
+                        huoche_anim.boneInfoList = [huoche_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                        BlackHole3D.Entity.setAniInfo(huoche_anim); // 设置单构件动画信息
+                    }
+
+                    // // 货车（轮胎加速）
+                    // {
+                    //     // 获取货车自身动画信息
+                    //     let huoche_anim = BlackHole3D.Entity.getAniInfo('huoche', 1, 1);
+                    //     // 遍历骨骼信息，因为其他信息不需要修改，只需要增加一组关键帧序列，原本的关键帧序列还是保留状态，如果标识相同，则覆盖
+                    //     for (let i = 0; i < huoche_anim.boneInfoList.length; i++) {
+                    //         let boneInfo = huoche_anim.boneInfoList[i];
+                    //         if (boneInfo.linkInstId == 11 || boneInfo.linkInstId == 16 || boneInfo.linkInstId == 21) {
+                    //             //这三个构件关联id为三组轮胎的子构件标识
+                    //             const keySeqList_old = boneInfo.keySeqList; //获取原本的自身动画序列集合
+                    //             const keySeqInfo_old = keySeqList_old[0]; //明确知道要修改的目标关键帧序列
+                    //             const keyFrameList_old = keySeqInfo_old.keyFrameList;
+                    //             const keyFrameList_new_temp = keyFrameList_old.map((frame) => ({ ...frame })); // 深拷贝 keyFrameList_old
+                    //             for (let i = 0; i < keyFrameList_new_temp.length - 1; i++) {
+                    //                 keyFrameList_new_temp[i].pos = keyFrameList_new_temp[i].pos / 5.0; // 轮胎动画加速5倍
+                    //             }
+                    //             let keyFrameList_new = [];
+                    //             for (let i = 0; i < 5; i++) {
+                    //                 for (let j = 0; j < keyFrameList_new_temp.length; j++) {
+                    //                     const keyFrame = { ...keyFrameList_new_temp[j] }; // 深拷贝 keyFrameList_new_temp[j]
+                    //                     keyFrame.pos = keyFrame.pos + (1.0 * i) / 5.0;
+                    //                     keyFrameList_new.push(keyFrame); //加速5倍，会导致总时长的范围内动画只有前1/5有，要补齐后面的4/5动画
+                    //                 }
+                    //             }
+                    //             const keySeqInfo_new = new BlackHole3D.REKeySeqInfo();
+                    //             keySeqInfo_new.keyFrameList = keyFrameList_new;
+                    //             keySeqList_old.push(keySeqInfo_new);
+                    //             boneInfo.keySeqList = keySeqList_old;
+                    //         } else {
+                    //             // 其他单构件子构件动画，原始关键帧为初始结束两帧的不处理，有其他关键帧序列动画的置空覆盖，添加默认关键帧，首尾两帧
+                    //             const keySeqList_old = boneInfo.keySeqList; //获取原本的自身动画序列集合
+                    //             const keySeqInfo_old = keySeqList_old[0]; //明确知道要修改的目标关键帧序列
+                    //             const keyFrameList_old = keySeqInfo_old.keyFrameList;
+                    //             let keyFrameList_new = [];
+                    //             if (keyFrameList_old.length == 2) {
+                    //                 //不处理
+                    //                 keyFrameList_new = [...keyFrameList_old];
+                    //             } else {
+                    //                 const keyFrame_first = JSON.parse(JSON.stringify(keyFrameList_old[0])); // 首帧
+                    //                 const keyFrame_last = JSON.parse(JSON.stringify(keyFrameList_old[0]));
+                    //                 keyFrame_last.pos = 1.0; // 强制尾帧
+                    //                 keyFrameList_new = [keyFrame_first, keyFrame_last];
+                    //             }
+                    //             const keySeqInfo_new = new BlackHole3D.REKeySeqInfo();
+                    //             keySeqInfo_new.keyFrameList = keyFrameList_new;
+                    //             keySeqList_old.push(keySeqInfo_new);
+                    //             boneInfo.keySeqList = keySeqList_old;
+                    //         }
+                    //     }
+                    //     const selfAnimName_new = 'ani002';
+                    //     const keySeqCount = huoche_anim.boneInfoList[0].keySeqList.length;
+                    //     const selfAnimNameCount = huoche_anim.selfAnimNameList.length;
+                    //     // 这里的 keySeqCount 和 selfAnimNameCount 要严格数量、顺序对应，即货车本身有一个动画ani001，上面增加了一组关键帧序列，那么需要增加一个自身动画标识，且下标相同
+                    //     huoche_anim.selfAnimNameList.push(selfAnimName_new);
+
+                    //     BlackHole3D.Entity.setAniInfo(huoche_anim); // 设置单构件动画信息
+                    // }
+
+                    // // 抓钩（移动）
+                    // {
+                    //     // 创建抓钩动画信息对象
+                    //     let zhuagou_anim = new BlackHole3D.REEntityAnimInfo();
+                    //     zhuagou_anim.dataSetId = 'zhuagou'; // 单构件模板数据集标识
+                    //     zhuagou_anim.elemId = 1; // 单构件构件标识
+                    //     zhuagou_anim.animLevel = 0; // 假设 WOELD_LEVEL 对应 0，代表世界空间动画
+
+                    //     // 设置骨骼信息
+                    //     let zhuagou_bone = new BlackHole3D.REBoneInfo();
+                    //     zhuagou_bone.linkInstId = 1; // 关联单构件子构件id
+                    //     zhuagou_bone.boneName = 'Path'; // 骨骼标识
+                    //     zhuagou_bone.parentName = '';
+                    //     zhuagou_bone.trackSeqName = 'PathTrack'; // 轨道标识信息
+                    //     zhuagou_bone.refTimeLen = 10; // 动画时长
+
+                    //     // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                    //     let zhuagou_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                    //     zhuagou_keyFrameSeq.keyFrameList = [];
+
+                    //     // 关键帧序列
+                    //     const keyCount = 10;
+                    //     for (let i = 0; i < keyCount; i++) {
+                    //         // 设置关键帧信息
+                    //         let zhuagou_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         zhuagou_keyFrame.pos = (i + 1) * 0.1;
+                    //         zhuagou_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         zhuagou_keyFrame.rotate = [0, 0, 0, 1];
+                    //         zhuagou_keyFrame.offset = [300.0 + i * 1, 410.0, 6.163];
+                    //         zhuagou_keyFrameSeq.keyFrameList.push(zhuagou_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     zhuagou_bone.keySeqList = [zhuagou_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关键帧序列信息
+                    //     zhuagou_anim.boneInfoList = [zhuagou_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                    //     BlackHole3D.Entity.setAniInfo(zhuagou_anim); // 设置单构件动画信息
+                    // }
+
+                    // // 抓钩（下降、取货）
+                    // {
+                    //     // 获取抓钩的动画信息
+                    //     let zhuagou_anim = BlackHole3D.Entity.getAniInfo('zhuagou', 1, 1);
+
+                    //     // 遍历骨骼信息
+                    //     for (let i = 0; i < zhuagou_anim.boneInfoList.length; i++) {
+                    //         let boneInfo = zhuagou_anim.boneInfoList[i];
+                    //         boneInfo.refTimeLen = 10.0;
+
+                    //         if (boneInfo.linkInstId === 5) {
+                    //             let keySeqList = boneInfo.keySeqList;
+                    //             let keyFrameList = keySeqList[0].keyFrameList;
+
+                    //             if (keyFrameList.length === 1) {
+                    //                 let vOffset = [...keyFrameList[0].offset];
+                    //                 for (let uI = 0; uI < 10; uI++) {
+                    //                     let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //                     keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                    //                     if (uI > 4) {
+                    //                         let angle = (Math.PI * 2.0 * ((uI - 5) % 50)) / 50.0; // 旋转角度
+                    //                         let axis = [0.0, 1.0, 0.0]; //旋转轴向量
+                    //                         let rotatePos = [0.9, 0, 1.358]; //旋转基点
+                    //                         let tranResult = BlackHole3D.Math.getTranAfterRotate(vOffset, angle, rotatePos, axis); // 计算旋转分量和偏移分量
+                    //                         keyFrame.offset = tranResult.offset;
+                    //                         keyFrame.rotate = tranResult.rotate;
+                    //                     } else {
+                    //                         keyFrame.offset = [...vOffset];
+                    //                         keyFrame.rotate = [0.0, 0.0, 0.0, 1.0];
+                    //                     }
+
+                    //                     let dScale = 1.0 + 0.3 * (uI + 1);
+                    //                     keyFrame.offset = BlackHole3D.Math.getVectorSubtract(keyFrame.offset, [0.0, 0.0, 2.25 * (dScale - 1.0)]);
+                    //                     keyFrame.scale = [1.0, 1.0, 1.0];
+                    //                     keyFrameList.push(keyFrame);
+                    //                 }
+                    //             }
+                    //         } else if (boneInfo.linkInstId === 2) {
+                    //             let keySeqList = boneInfo.keySeqList;
+                    //             let keyFrameList = keySeqList[0].keyFrameList;
+
+                    //             if (keyFrameList.length === 1) {
+                    //                 let vOffset = [...keyFrameList[0].offset];
+                    //                 for (let uI = 0; uI < 10; uI++) {
+                    //                     let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //                     keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                    //                     if (uI > 4) {
+                    //                         let angle = (Math.PI * 2.0 * ((50 - (uI - 5)) % 50)) / 50.0; // 旋转角度
+                    //                         let axis = [0.0, 1.0, 0.0]; //旋转轴向量
+                    //                         let rotatePos = [-0.9, 0, 1.358]; //旋转基点
+                    //                         let tranResult = BlackHole3D.Math.getTranAfterRotate(vOffset, angle, rotatePos, axis); // 计算旋转分量和偏移分量
+                    //                         keyFrame.offset = tranResult.offset;
+                    //                         keyFrame.rotate = tranResult.rotate;
+                    //                     } else {
+                    //                         keyFrame.offset = [...vOffset];
+                    //                         keyFrame.rotate = [0.0, 0.0, 0.0, 1.0];
+                    //                     }
+
+                    //                     let dScale = 1.0 + 0.3 * (uI + 1);
+                    //                     keyFrame.offset = BlackHole3D.Math.getVectorSubtract(keyFrame.offset, [0.0, 0.0, 2.25 * (dScale - 1.0)]);
+                    //                     keyFrame.scale = [1.0, 1.0, 1.0];
+                    //                     keyFrameList.push(keyFrame);
+                    //                 }
+                    //             }
+                    //         } else if (boneInfo.linkInstId === 1) {
+                    //             let keySeqList = boneInfo.keySeqList;
+                    //             let keyFrameList = keySeqList[0].keyFrameList;
+
+                    //             if (keyFrameList.length === 1) {
+                    //                 let vOffset = [...keyFrameList[0].offset];
+                    //                 for (let uI = 0; uI < 10; uI++) {
+                    //                     let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //                     keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                    //                     let dScale = 1.0 + 0.3 * (uI + 1);
+                    //                     keyFrame.offset = BlackHole3D.Math.getVectorSubtract(vOffset, [0.0, 0.0, 2.3 * (dScale - 1.0)]);
+                    //                     keyFrameList.push(keyFrame);
+                    //                 }
+                    //             }
+                    //         } else if (boneInfo.linkInstId === 6) {
+                    //             let keySeqList = boneInfo.keySeqList;
+                    //             let keyFrameList = keySeqList[0].keyFrameList;
+
+                    //             if (keyFrameList.length === 1) {
+                    //                 let vOffset = [...keyFrameList[0].offset];
+                    //                 for (let uI = 0; uI < 10; uI++) {
+                    //                     let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //                     keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                    //                     let dScale = 1.0 + 0.3 * (uI + 1);
+                    //                     keyFrame.scale = [1.0, 1.0, dScale];
+                    //                     keyFrame.offset = BlackHole3D.Math.getVectorSubtract(vOffset, [0.0, 0.0, (2.35 * (dScale - 1.0)) / 2.0]);
+                    //                     keyFrameList.push(keyFrame);
+                    //                 }
+                    //             }
+                    //         } else if (boneInfo.linkInstId === 7) {
+                    //             let keySeqList = boneInfo.keySeqList;
+                    //             let keyFrameList = keySeqList[0].keyFrameList;
+
+                    //             if (keyFrameList.length === 1) {
+                    //                 let vOffset = [...keyFrameList[0].offset];
+                    //                 for (let uI = 0; uI < 10; uI++) {
+                    //                     let keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //                     keyFrame.pos = ((uI + 1) * 1.0) / 10.0;
+                    //                     let dScale = 1.0 + 0.1 * (uI + 1);
+                    //                     keyFrame.scale = [1.0, 1.0, dScale];
+                    //                     keyFrame.offset = [...vOffset];
+                    //                     keyFrameList.push(keyFrame);
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+
+                    //     // 添加新的自身动画标识
+                    //     const selfAnimName_new = 'ani001';
+                    //     zhuagou_anim.selfAnimNameList.push(selfAnimName_new);
+
+                    //     // 设置单构件动画信息
+                    //     BlackHole3D.Entity.setAniInfo(zhuagou_anim);
+                    // }
+
+                    // // 货物（移动）
+                    // {
+                    //     // 设置货物动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
+                    //     let huowu_move_world_anim = new BlackHole3D.REEntityAnimInfo();
+                    //     huowu_move_world_anim.dataSetId = 'huowu'; // 单构件模板数据集标识
+                    //     huowu_move_world_anim.elemId = 1; // 单构件构件标识
+                    //     huowu_move_world_anim.animLevel = 0; // 世界空间动画
+
+                    //     // 设置骨骼信息
+                    //     let huowu_move_bone = new BlackHole3D.REBoneInfo();
+                    //     huowu_move_bone.linkInstId = 1; // 关联单构件子构件id
+                    //     huowu_move_bone.boneName = 'huowu_move_bone_1'; // 骨骼标识
+                    //     huowu_move_bone.parentName = '';
+                    //     huowu_move_bone.trackSeqName = 'huowu_move_track'; // 轨道标识信息
+                    //     huowu_move_bone.refTimeLen = 50; // 动画时长
+
+                    //     // 设置关键帧序列信息（通常一个骨骼对应单个关键帧序列，也可以多个）
+                    //     let huowu_move_keyFrameSeq = new BlackHole3D.REKeySeqInfo();
+                    //     huowu_move_keyFrameSeq.keyFrameList = [];
+
+                    //     // 跟随车辆移动
+                    //     for (let uI = 0; uI < 10; uI++) {
+                    //         // 设置关键帧信息
+                    //         let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         huowu_move_keyFrame.pos = (uI + 1) * 0.02;
+                    //         huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         huowu_move_keyFrame.offset = [300.0, 400.0 + uI * 1.5, 4.163];
+                    //         huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     // 卸货
+                    //     for (let uI = 0; uI < 10; uI++) {
+                    //         // 设置关键帧信息
+                    //         let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         huowu_move_keyFrame.pos = 0.2 + (uI + 1) * 0.01;
+                    //         huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    //         huowu_move_keyFrame.offset = [300.0, 413.0 - uI * 0.3, 4.163 - (uI + 1) * 0.1];
+                    //         huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     // 抓起货物
+                    //     for (let uI = 0; uI < 10; uI++) {
+                    //         // 设置关键帧信息
+                    //         let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         huowu_move_keyFrame.pos = 0.4 + (uI + 1) * 0.02;
+                    //         huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    //         huowu_move_keyFrame.offset = [300.0, 410.0, 3.163 + 0.5 * uI];
+                    //         huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     // 平移货物
+                    //     for (let uI = 0; uI < 10; uI++) {
+                    //         // 设置关键帧信息
+                    //         let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         huowu_move_keyFrame.pos = 0.6 + (uI + 1) * 0.02;
+                    //         huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    //         huowu_move_keyFrame.offset = [300.0 + uI * 1, 410.0, 7.563];
+                    //         huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     // 放下货物
+                    //     for (let uI = 0; uI < 10; uI++) {
+                    //         // 设置关键帧信息
+                    //         let huowu_move_keyFrame = new BlackHole3D.REKeyFrameInfo();
+                    //         huowu_move_keyFrame.pos = 0.8 + (uI + 1) * 0.02;
+                    //         huowu_move_keyFrame.scale = [0.5, 0.5, 0.5];
+                    //         huowu_move_keyFrame.rotate = [0, 0, 0, 1];
+                    //         huowu_move_keyFrame.offset = [309.0, 410.0, 7.563 - 0.6 * uI];
+                    //         huowu_move_keyFrameSeq.keyFrameList.push(huowu_move_keyFrame); // 添加关键帧到关键帧序列
+                    //     }
+
+                    //     huowu_move_bone.keySeqList = [huowu_move_keyFrameSeq]; // 添加关键帧序列集合到骨骼的关镇帧序列信息
+                    //     huowu_move_world_anim.boneInfoList = [huowu_move_bone]; // 添加骨骼信息集合到动画信息的骨骼信息集合
+                    //     BlackHole3D.Entity.setAniInfo(huowu_move_world_anim); // 设置单构件动画信息
+                    // }
+                
+                
+                }
+
+                // 创建动画脚本
+                {
+                    let animScriptInfo = new BlackHole3D.REEntityAnimScriptInfo();
+                    animScriptInfo.totalTimeLen = 75.0;
+                    animScriptInfo.playScriptId = 'anim_script_1';
+                    animScriptInfo.playerSetList = [];
+
+                    // 动画脚本 - 货车（位移）
+                    {
+                        let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                        playerSetInfo.dataSetId = 'huoche';
+                        playerSetInfo.elemId = 1;
+                        playerSetInfo.animLevel = 0;
+                        playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+                        playerSetInfo.animName = '';
+                        playerSetInfo.startTime = 0;
+                        playerSetInfo.timeLen = 60;
+                        playerSetInfo.playSetList = [];
+
+                        let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_1.time = 0.0;
+                        playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                        playerSetInfo.playSetList.push(playSetInfo_1);
+
+                        let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_2.time = 10.0;
+                        playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                        playerSetInfo.playSetList.push(playSetInfo_2);
+
+                        let playSetInfo_3 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_3.time = 30.0;
+                        playSetInfo_3.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                        playerSetInfo.playSetList.push(playSetInfo_3);
+
+                        animScriptInfo.playerSetList.push(playerSetInfo);
+                    }
+
+                    // // 动画脚本 - 货车（轮胎旋转）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'huoche';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 1;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEAT;
+                    //     playerSetInfo.animName = 'ani002';
+                    //     playerSetInfo.startTime = 0;
+                    //     playerSetInfo.timeLen = 10;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_2.time = 10.0;
+                    //     playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_2);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    // // 动画脚本 - 货车（轮胎旋转）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'huoche';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 1;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEAT;
+                    //     playerSetInfo.animName = 'ani002';
+                    //     playerSetInfo.startTime = 32.0;
+                    //     playerSetInfo.timeLen = 10;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_2.time = 30.0;
+                    //     playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_2);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    // // 动画脚本 - 货车（卸货）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'huoche';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 1;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                    //     playerSetInfo.animName = 'ani001';
+                    //     playerSetInfo.startTime = 11;
+                    //     playerSetInfo.timeLen = 20;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_2.time = 20.0;
+                    //     playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.STOPMIN;
+                    //     playerSetInfo.playSetList.push(playSetInfo_2);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    // // 动画脚本 - 抓钩（位移）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'zhuagou';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 0;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCERESET;
+                    //     playerSetInfo.animName = '';
+                    //     playerSetInfo.startTime = 45;
+                    //     playerSetInfo.timeLen = 10;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    // // 动画脚本 - 抓钩（取货卸货）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'zhuagou';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 1;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                    //     playerSetInfo.animName = '';
+                    //     playerSetInfo.startTime = 25;
+                    //     playerSetInfo.timeLen = 50;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_2.time = 20.0;
+                    //     playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_2);
+
+                    //     let playSetInfo_3 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_3.time = 30.0;
+                    //     playSetInfo_3.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_3);
+
+                    //     let playSetInfo_4 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_4.time = 50.0;
+                    //     playSetInfo_4.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_4);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    // // 动画脚本 - 货物（装卸过程）
+                    // {
+                    //     let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                    //     playerSetInfo.dataSetId = 'huowu';
+                    //     playerSetInfo.elemId = 1;
+                    //     playerSetInfo.animLevel = 0;
+                    //     playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+                    //     playerSetInfo.animName = '';
+                    //     playerSetInfo.startTime = 0;
+                    //     playerSetInfo.timeLen = 75;
+                    //     playerSetInfo.playSetList = [];
+
+                    //     let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_1.time = 0.0;
+                    //     playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_1);
+
+                    //     let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_2.time = 10.0;
+                    //     playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_2);
+
+                    //     let playSetInfo_3 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_3.time = 15.0;
+                    //     playSetInfo_3.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_3);
+
+                    //     let playSetInfo_4 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_4.time = 25.0;
+                    //     playSetInfo_4.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    //     playerSetInfo.playSetList.push(playSetInfo_4);
+
+                    //     let playSetInfo_5 = new BlackHole3D.REPlaySetInfo();
+                    //     playSetInfo_5.time = 35.0;
+                    //     playSetInfo_5.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    //     playerSetInfo.playSetList.push(playSetInfo_5);
+
+                    //     animScriptInfo.playerSetList.push(playerSetInfo);
+                    // }
+
+                    console.log('---->>>  animScriptInfo : ', animScriptInfo);
+                    BlackHole3D.Entity.addAnimScript(animScriptInfo);
+                }
+
+                // BlackHole3D.Entity.setAnimScriptActive("anim_script_1");// 激活一个动画脚本
+                // BlackHole3D.Entity.setAnimScriptPlayState("anim_script_1", BlackHole3D.REEntityAnimPlayStateEm.PLAY);// 设置脚本播放状态
+            }
+        </script>
+    </body>
+</html>
