@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3054
+﻿//版本：v3.2.0.3060
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1116,7 +1116,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return false;
         var tempArr = Module.RealBIMWeb.GetAllSpotLightNames(dataSetId);
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -1373,7 +1373,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Model.getAllDataSetId = function () {
         var tempArr = Module.RealBIMWeb.GetAllMainSceNames();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -1392,7 +1392,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Model.unloadAllDataSet = function () {
         var tempArr = Module.RealBIMWeb.GetAllMainSceNames();
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             var tempProjName = tempArr.get(i);
             Module.RealBIMWeb.UnLoadMainSce(tempProjName);
         }
@@ -2243,7 +2243,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _s01 = (_s * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_s01);
         var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
-        for (i = 0; i < _s; ++i) {
+        for (let i = 0; i < _s; ++i) {
             temparr1[i * 3 + 0] = coordList[i][0];
             temparr1[i * 3 + 1] = coordList[i][1];
             temparr1[i * 3 + 2] = coordList[i][2];
@@ -2252,7 +2252,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var bool = Module.RealBIMWeb.TransEngineCoords(forward, destCRS, temparr1.byteLength, temparr1.byteOffset);
         if (bool) {
             var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 temparr2.push([temparr3[i * 3 + 0], temparr3[i * 3 + 1], temparr3[i * 3 + 2]]);
             }
         }
@@ -2270,7 +2270,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _s01 = (_s * 32).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_s01);
         var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
-        for (i = 0; i < _s; ++i) {
+        for (let i = 0; i < _s; ++i) {
             temparr1[i * 4 + 0] = coordList[i][0];
             temparr1[i * 4 + 1] = coordList[i][1];
             temparr1[i * 4 + 2] = coordList[i][2];
@@ -2280,7 +2280,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var bool = Module.RealBIMWeb.TransGeoCoords(srcCRS, destCRS, temparr1.byteLength, temparr1.byteOffset);
         if (bool) {
             var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 temparr2.push([temparr3[i * 4 + 0], temparr3[i * 4 + 1], temparr3[i * 4 + 2], temparr3[i * 4 + 3]]);
             }
         }
@@ -2429,7 +2429,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
+            for (let i = 0; i < _count; ++i) {
                 var eleid = elemIdList[i];
                 _elemIds.set([eleid, projid], i * 2);
             }
@@ -3346,7 +3346,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Tag.delTags = function (tagNameList) {
         if (!checkTypeLog(tagNameList, 'tagNameList', RE_Enum.RE_Check_Array)) return false;
         var temptags = new Module.RE_Vector_WStr();
-        for (i = 0; i < tagNameList.length; ++i) {
+        for (let i = 0; i < tagNameList.length; ++i) {
             temptags.push_back(tagNameList[i]);
         }
         return Module.RealBIMWeb.DelTags(temptags);
@@ -3664,7 +3664,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.delAnc = function (ancNameList) {
         var tempAnchors = new Module.RE_Vector_WStr();
-        for (i = 0; i < ancNameList.length; ++i) {
+        for (let i = 0; i < ancNameList.length; ++i) {
             tempAnchors.push_back(ancNameList[i]);
         }
         return Module.RealBIMWeb.DelAnchors(tempAnchors);
@@ -3945,7 +3945,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Anchor.getAllAncGroupNames = function () {
         var _ancGroupName = Module.RealBIMWeb.GetAllAnchorGroupNames();
         var groupNameList = [];
-        for (i = 0; i < _ancGroupName.size(); ++i) {
+        for (let i = 0; i < _ancGroupName.size(); ++i) {
             groupNameList.push(_ancGroupName.get(i));
         }
         return groupNameList;
@@ -5041,7 +5041,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _clrs.set([elemAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemAttr.dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -5067,7 +5067,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (_count * 24).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _count; ++i) {
+        for (let i = 0; i < _count; ++i) {
             var eleid = _elemIdListTemp[i];
             _clrs.set([eleid, _projid, 0x00000000, 0, 0x00000000, 0x00000000], i * 6);
         }
@@ -5147,7 +5147,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 16).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     var _alpha;
                     if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
                         //单独设置颜色不改变透明度
@@ -5182,7 +5182,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (_count * 16).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _count; ++i) {
+        for (let i = 0; i < _count; ++i) {
             var eleid = elemIdList[i];
             _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
         }
@@ -5245,7 +5245,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -5293,7 +5293,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -5341,7 +5341,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _clrs.set([elemBlendAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -5389,7 +5389,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 24).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
@@ -5729,7 +5729,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         //     var _moemory = (_elemIdListTemp.length * 8).toString();
         //     Module.RealBIMWeb.ReAllocHeapViews(_moemory);//分配空间
         //     var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        //     for (i = 0; i < _elemIdListTemp.length; ++i) {
+        //     for (let i = 0; i < _elemIdListTemp.length; ++i) {
         //         var eleid = _elemIdListTemp[i];
         //         _elemIds.set([eleid, _projid], i * 2);
         //     }
@@ -5738,7 +5738,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (_count * 8).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < _count; ++i) {
+        for (let i = 0; i < _count; ++i) {
             var eleid = elemIdList[i];
             _elemIds.set([eleid, _projid], i * 2);
         }
@@ -5762,7 +5762,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
+            for (let i = 0; i < _count; ++i) {
                 var eleid = elemIdList[i];
                 _elemIds.set([eleid, _projid], i * 2);
             }
@@ -5783,7 +5783,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.getSelDataSetIDs = function () {
         var tempArr = Module.RealBIMWeb.GetCurSelProjIDs();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -5970,7 +5970,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
+            for (let i = 0; i < _count; ++i) {
                 var eleid = elemIdList[i];
                 _elemIds.set([eleid, _projid], i * 2);
             }
@@ -6163,7 +6163,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _elemIds.set([elemUVAnim.elemIdList[i], _projid], i * 2);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(
@@ -6206,7 +6206,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _elemIds.set([elemIdList[i], _projid], i * 2);
                 }
                 Module.RealBIMWeb.SetHugeObjSubElemUVAnimAttr(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, _lpUVAnimAttr, _elemScope);
@@ -6755,7 +6755,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.addAnc = function (ancList) {
         if (isEmptyLog(ancList, 'ancList')) return;
         var tempAnchors = new Module.RE_Vector_CAD_ANCHOR();
-        for (i = 0; i < ancList.length; ++i) {
+        for (let i = 0; i < ancList.length; ++i) {
             var _ancInfo = ancList[i];
             let _id = '';
             if (!isEmpty(_ancInfo.anchorId)) _id = _ancInfo.anchorId;
@@ -6834,7 +6834,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.delAnc = function (anchorIdList) {
         var tempAnchors = new Module.RE_Vector_WStr();
-        for (i = 0; i < anchorIdList.length; ++i) {
+        for (let i = 0; i < anchorIdList.length; ++i) {
             tempAnchors.push_back(anchorIdList[i]);
         }
         return Module.RealBIMWeb.DelCADAnchors(tempAnchors);
@@ -6855,7 +6855,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(shpAncList, 'shpAncList')) return;
 
         var tempAnchors = new Module.RE_Vector_CAD_SHP_ANCHOR();
-        for (i = 0; i < shpAncList.length; ++i) {
+        for (let i = 0; i < shpAncList.length; ++i) {
             let shpAnc = shpAncList[i];
 
             var _id = '';
@@ -6950,7 +6950,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.CAD.delShpAnc = function (anchorIdList) {
         var tempAnchors = new Module.RE_Vector_WStr();
-        for (i = 0; i < anchorIdList.length; ++i) {
+        for (let i = 0; i < anchorIdList.length; ++i) {
             tempAnchors.push_back(anchorIdList[i]);
         }
         return Module.RealBIMWeb.DelCADShpAnchors(tempAnchors);
@@ -7211,7 +7211,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.getAllLayoutId = function () {
         var tempArr = Module.RealBIMWeb.CADGetAllLayout();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -7512,7 +7512,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
+            for (let i = 0; i < _count; ++i) {
                 var eleid = regionIdList[i];
                 _elemIds.set([eleid, 0], i * 2);
             }
@@ -7529,7 +7529,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _moemory = (_count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _count; ++i) {
+            for (let i = 0; i < _count; ++i) {
                 var eleid = regionIdList[i];
                 _elemIds.set([eleid, 0], i * 2);
             }
@@ -7640,7 +7640,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 var eleid = boxIdList[i];
                 _elemIds.set([eleid], i);
             }
@@ -7657,7 +7657,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 var eleid = boxIdList[i];
                 _elemIds.set([eleid], i);
             }
@@ -7715,7 +7715,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 var eleid = boxIdList[i];
                 _elemIds.set([eleid], i);
             }
@@ -7733,7 +7733,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 var eleid = boxIdList[i];
                 _elemIds.set([eleid], i);
             }
@@ -7750,7 +7750,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _s01 = (_s * 4).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_s01);
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < _s; ++i) {
+            for (let i = 0; i < _s; ++i) {
                 var eleid = boxIdList[i];
                 _elemIds.set([eleid], i);
             }
@@ -8070,7 +8070,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var tempArr = Module.RealBIMWeb.GetAllTerrUnitNames(dataSetId);
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -8107,7 +8107,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var tempArr = Module.RealBIMWeb.GetAllTerrShpStyleNames(dataSetId);
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -8401,7 +8401,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(terrId, 'terrId')) return;
         var tempArr = Module.RealBIMWeb.GetProjNamesByTerrID(terrId);
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             if (tempArr.get(i) === 'RealBIMInnerDefaultSphProj') {
                 continue;
             }
@@ -8460,7 +8460,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Panorama.unloadDataSet = function (dataSetIdList) {
         var _panNames = new Module.RE_Vector_WStr();
-        for (i = 0; i < dataSetIdList.length; i++) {
+        for (let i = 0; i < dataSetIdList.length; i++) {
             _panNames.push_back(dataSetIdList[i]);
         }
         Module.RealBIMWeb.UnLoadPanSce(_panNames);
@@ -9114,7 +9114,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (count * 4).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _idList = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < count; ++i) {
+        for (let i = 0; i < count; ++i) {
             var id = groupIdList[i];
             _idList.set([id], i);
         }
@@ -11456,7 +11456,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (count * 4).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < count; ++i) {
+        for (let i = 0; i < count; ++i) {
             var eleid = pipeInfo.elemIdList[i];
             _elemIds.set([eleid], i);
         }
@@ -11713,7 +11713,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _moemory = (count * 8).toString();
         Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
         var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (i = 0; i < count; ++i) {
+        for (let i = 0; i < count; ++i) {
             var eleid = elemIdList[i];
             _elemIds.set([eleid, _projid], i * 2);
         }
@@ -11768,7 +11768,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         let arrTypeName = Module.RealBIMWeb.GetEntityTypeNamesByProj(dataSetId);
         var nameArr = [];
-        for (i = 0; i < arrTypeName.size(); ++i) {
+        for (let i = 0; i < arrTypeName.size(); ++i) {
             nameArr.push(arrTypeName.get(i));
         }
         return nameArr;
@@ -11828,7 +11828,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _entityType = isEmpty(entityType) ? '' : entityType;
         let arrEntity = Module.RealBIMWeb.GetAllEntity(_dataSetId, _entityType);
         var entityList = [];
-        for (i = 0; i < arrEntity.size(); ++i) {
+        for (let i = 0; i < arrEntity.size(); ++i) {
             let cEntity = arrEntity.get(i);
             let _entity = new REEntityInfo();
             _entity.dataSetId = cEntity.m_strProjName;
@@ -11865,7 +11865,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _moemory = (count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < count; ++i) {
+                for (let i = 0; i < count; ++i) {
                     var eleid = _elemIdList[i];
                     _elemIds.set([eleid, _projid], i * 2);
                 }
@@ -12010,7 +12010,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             let _moemory = (count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (i = 0; i < count; ++i) {
+            for (let i = 0; i < count; ++i) {
                 var eleid = _elemIdList[i];
                 _elemIds.set([eleid, _projid], i * 2);
             }
@@ -12128,7 +12128,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _moemory = (_count * 8).toString();
                 Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
                 var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (i = 0; i < _count; ++i) {
+                for (let i = 0; i < _count; ++i) {
                     _elemIds.set([elemIdList[i], _projid], i * 2);
                 }
                 Module.RealBIMWeb.SetBVAttachHugeObjSubElems(dataSetId, _elemIds.byteLength, _elemIds.byteOffset, _elemScope);
@@ -13494,7 +13494,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.ShpEdit.getAllSelShpId = function () {
             var tempArr = Module.RealBIMWeb.GetAllObjInSelSet();
             var nameArr = [];
-            for (i = 0; i < tempArr.size(); ++i) {
+            for (let i = 0; i < tempArr.size(); ++i) {
                 nameArr.push(tempArr.get(i));
             }
             return nameArr;
@@ -13660,7 +13660,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Particle.getAllWeatherSysIds = function () {
         var tempArr = Module.RealBIMWeb.GetAllWeatherParticleSysNames();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -13714,7 +13714,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Particle.getAllTransmitSysIds = function () {
         var tempArr = Module.RealBIMWeb.GetAllTransmitParticleSysNames();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
@@ -14131,7 +14131,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Particle.getTexGroupIds = function () {
         var tempArr = Module.RealBIMWeb.GetAllParticleTexArrays();
         var nameArr = [];
-        for (i = 0; i < tempArr.size(); ++i) {
+        for (let i = 0; i < tempArr.size(); ++i) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
