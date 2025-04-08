@@ -166,8 +166,8 @@
             //单构件鼠标添加模式添加实例结束回调事件
             function REExitEntityEditMode(e) {
                 console.log(e);
-                alert('实例添加结束');
-                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+                // alert('实例添加结束');
+                // BlackHole3D.Entity.exitEditMode(); //结束编辑模式
             }
             //鼠标单次点选添加（左键添加自动结束）
             function addOnceEntity() {
@@ -216,7 +216,7 @@
                 }
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('单构件模版'); //获取所有的实例类型名称
                 if (typeNames.length) {
-                    BlackHole3D.Entity.setMultiAddEntity(true); //设置是否连续添加
+                    BlackHole3D.Entity.setMultiAddEntity(false); //设置是否连续添加
                     BlackHole3D.Entity.setMouseAddEntity('单构件模版', typeNames[0]); //设置鼠标点选添加的实力对象
                 }
 

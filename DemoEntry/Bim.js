@@ -57,6 +57,12 @@ function addREListener() {
     document.addEventListener('REAxisGridUpdateFinish', REAxisGridUpdateFinish); //轴网更新完成事件
     document.addEventListener('REAddEntityFinish', REAddEntityFinish); //裁剪完成回调事件
     document.addEventListener('RESystemUIEvent', RESystemUIEvent); //鼠标点击图形界面系统按钮监听事件
+
+    document.addEventListener('REGolElemBoneDestLoc', REGolElemBoneDestLoc); //设置全局元素骨骼的目标方位回调事件
+}
+
+function REGolElemBoneDestLoc(e) {
+    console.log('-- 设置全局元素骨骼的目标方位回调事件 --', e);
 }
 
 // MOD-- 场景初始化，需正确传递相关参数
@@ -286,6 +292,18 @@ function loadModel() {
         //     },
         // },
         // {
+        //     dataSetId: 'UV动画',
+        //     resourcesAddress: 'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a18fc701cf2f5f114e84e0377444f04',
+        //     useTransInfo: true,
+        //     transInfo: [
+        //         [1, 1, 1],
+        //         [0, 0, 0, 1],
+        //         [0.0, 0.0, 0.0],
+        //     ],
+        //     dataSetCRS: '',
+        //     dataSetCRSNorth: 0.0,
+        // },
+        // {
         //     dataSetId: 'WMS2',
         //     useWMS: true,
         //     wmsInfo: {
@@ -360,12 +378,12 @@ function loadModel() {
         //     "terrSuffix": "CADSHP",
         //     "terrSph": false,
         // },
-        // {
-        //     "dataSetId": "伪球面",
-        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
-        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        // },
+        {
+            "dataSetId": "伪球面（精细天地图）",
+            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
+            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+            "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        },
         // {
         //     "dataSetId": "小房子",
         //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a14191abfddb3dd8cbcb87c99d5b614",
