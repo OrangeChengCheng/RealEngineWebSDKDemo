@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3060
+﻿//版本：v3.2.0.3064
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -14152,6 +14152,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Particle.delAllTexGroup = function () {
         Module.RealBIMWeb.DelAllParticleTexArrays();
     };
+
+
+    // MOD-- 三维分析（Analysis3D）
+    Module.Analysis3D = typeof Module.Analysis3D !== 'undefined' ? Module.Analysis3D : {}; //增加 Analysis3D 模块
+
+    /**
+     * 设置天际线颜色和透明度 注：需要配合地形限制，才有效果
+     * @param {REColor} color //颜色（REColor 类型）, alpha=0 表示禁用
+     */
+    Module.Analysis3D.setSkylineClr = function (color) {
+        if (isEmptyLog(color, 'color')) return;
+        let _color = clrToRGBA_List(color);
+        Module.RealBIMWeb.SetSkylineClr(_color);
+    };
+
+    /**
+     * 获取天际线颜色和透明度
+     */
+    Module.Analysis3D.getSkylineClr = function () {
+        let _color = Module.RealBIMWeb.GetSkylineClr();
+        return rgbaListToClr(_color);
+    };
+
 
     // function getName() {
     //     let reg = /\s+at\s(\S+)\s\(/g
