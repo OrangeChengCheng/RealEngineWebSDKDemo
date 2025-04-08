@@ -378,12 +378,12 @@ function loadModel() {
         //     "terrSuffix": "CADSHP",
         //     "terrSph": false,
         // },
-        {
-            "dataSetId": "伪球面（精细天地图）",
-            "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
-            "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
-            "dataSetCRS": "", "dataSetCRSNorth": 0.0
-        },
+        // {
+        //     "dataSetId": "伪球面（精细天地图）",
+        //     "resourcesAddress": "https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap",
+        //     "useTransInfo": true, "transInfo": [[1, 1, 1], [0, 0, 0, 1], [0.0, 0.0, 0.0]],
+        //     "dataSetCRS": "", "dataSetCRSNorth": 0.0
+        // },
         // {
         //     "dataSetId": "小房子",
         //     "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a14191abfddb3dd8cbcb87c99d5b614",
