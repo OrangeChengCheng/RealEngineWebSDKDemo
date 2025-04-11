@@ -2,7 +2,7 @@
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
-const hasEntityAni = false;
+const hasEntityAniEdit = false;
 const discardHint = true;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
@@ -1867,6 +1867,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.setCamGravityHeight = function (height) {
         Module.RealBIMWeb.SetCamHeightOnGravOpen(height);
     };
+
+    // MARK 动画
+
+    class RECamBindEntityBoneInfo {
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.elemId = null; // 构件唯一标识
+            this.initPos = null; // 相机基点位置
+            this.lookDir = null; // 相机视线方向
+            this.transTime = null; // 表示当前相机过渡到初始方位所需的时长，默认1s
+        }
+    }
+    ExtModule.RECamBindEntityBoneInfo = RECamBindEntityBoneInfo;
+
+    /**
+     * 绑定主场景相机到一个单构件动画骨骼上
+     * @param {RECamBindEntityBoneInfo} bindInfo //绑定信息（RECamBindEntityBoneInfo 类型）
+     */
+    Module.Camera.setCamBindEntityBone = function (bindInfo) {
+        if (isEmptyLog(bindInfo, 'bindInfo')) return;
+        if (isEmptyLog(bindInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(bindInfo.elemId, 'elemId')) return;
+        if (isEmptyLog(bindInfo.initPos, 'initPos')) return;
+        if (isEmptyLog(bindInfo.lookDir, 'lookDir')) return;
+        let _transTime = isEmpty(bindInfo.transTime) ? 1.0 : bindInfo.transTime;
+        Module.RealBIMWeb.BindCamToEntityBone_Dir(bindInfo.dataSetId, bindInfo.elemId, 0, bindInfo.initPos, bindInfo.lookDir, _transTime);
+    };
+
+    /**
+     * 除主场景相机到动画骨骼上的绑定
+     */
+    Module.Camera.clearCamBindBone = function () {
+        Module.RealBIMWeb.ClearBindCamToBone(true);
+    };
+
+
+    
 
     // MOD-- 天空盒（SkyBox）
     Module.SkyBox = typeof Module.SkyBox !== 'undefined' ? Module.SkyBox : {}; //增加 SkyBox 模块
@@ -9660,6 +9697,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Water.setData = function (waterInfoList) {
             if (!checkTypeLog(waterInfoList, 'waterInfoList', RE_Enum.RE_Check_Array)) return;
+            // if (!waterInfoList.length > 0) {
+            //     logErr("waterInfoList 不能为空");
+            //     return;
+            // }
 
             let _vector_waterRgn = new Module.RE_Vector_WaterRgnInfo();
             for (let i = 0; i < waterInfoList.length; i++) {
@@ -11978,54 +12019,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    class REEntityAnimPlayInfo {
-        constructor() {
-            this.dataSetId = null; // 数据集标识
-            this.entityType = null; // 实例类型名称
-            this.elemIdList = null; // 构件标识集合
-            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
-            this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
-        }
-    }
-    ExtModule.REEntityAnimPlayInfo = REEntityAnimPlayInfo;
-
-    /**
-     * 设置实体动画的播放信息
-     * @param {REEntityAnimPlayInfo} animPlayModeInfo //动画类型信息
-     */
-    Module.Entity.setAnimPlayMode = function (animPlayModeInfo) {
-        if (isEmptyLog(animPlayModeInfo, 'animPlayModeInfo')) return;
-
-        let _dataSetId = isEmpty(animPlayModeInfo.dataSetId) ? '' : animPlayModeInfo.dataSetId;
-        let _entityType = isEmpty(animPlayModeInfo.entityType) ? '' : animPlayModeInfo.entityType;
-        let _elemIdList = isEmpty(animPlayModeInfo.elemIdList) ? [] : animPlayModeInfo.elemIdList;
-        let _animPlayMode = isEmpty(animPlayModeInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animPlayModeInfo.animPlayMode);
-        let _animPlayState = isEmpty(animPlayModeInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayModeInfo.animPlayState);
-
-        if (_dataSetId == '') {
-            Module.RealBIMWeb.SetEntityAnimPlayMode('', '', 0xffffffff, 0, _animPlayState, '', _animPlayMode);
-        } else {
-            let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
-            let count = animPlayModeInfo.elemIdList.length;
-            let _moemory = (count * 8).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-            let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-            for (let i = 0; i < count; ++i) {
-                var eleid = _elemIdList[i];
-                _elemIds.set([eleid, _projid], i * 2);
-            }
-            Module.RealBIMWeb.SetEntityAnimPlayMode(
-                _dataSetId,
-                _entityType,
-                count ? _elemIds.byteLength : 0xffffffff,
-                count ? _elemIds.byteOffset : 0,
-                _animPlayState,
-                '',
-                _animPlayMode
-            );
-        }
-    };
-
     /**
      * 获取实例的仿射变换信息
      * @param {String} dataSetId //数据集标识，必填
@@ -12136,7 +12129,152 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     };
 
-    if (hasEntityAni) {
+    // MARK 动画通用
+
+    /**
+     * 根据动画类型获取动画名称列表
+     * @param {String} dataSetId //数据集标识，必填
+     * @param {String} entityType //实例类型名称，必填
+     */
+    Module.Entity.getSelfAnimNameList = function (dataSetId, entityType) {
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(entityType) || entityType == '') {
+            logParErr('entityType');
+            return;
+        }
+        let arrName = Module.RealBIMWeb.GetEntitySelfAnimNameList(dataSetId, entityType);
+        let animNameList = [];
+        for (let i = 0; i < arrName.size(); i++) {
+            animNameList.push(arrName.get(i));
+        }
+        return animNameList;
+    };
+
+    class REEntityAnimPlayInfo {
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.entityType = null; // 实例类型名称
+            this.elemIdList = null; // 构件标识集合
+            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+        }
+    }
+    ExtModule.REEntityAnimPlayInfo = REEntityAnimPlayInfo;
+
+    /**
+     * 设置实体动画的播放信息
+     * @param {REEntityAnimPlayInfo} animPlayModeInfo //动画类型信息
+     */
+    Module.Entity.setAnimPlayMode = function (animPlayModeInfo) {
+        if (isEmptyLog(animPlayModeInfo, 'animPlayModeInfo')) return;
+
+        let _dataSetId = isEmpty(animPlayModeInfo.dataSetId) ? '' : animPlayModeInfo.dataSetId;
+        let _entityType = isEmpty(animPlayModeInfo.entityType) ? '' : animPlayModeInfo.entityType;
+        let _elemIdList = isEmpty(animPlayModeInfo.elemIdList) ? [] : animPlayModeInfo.elemIdList;
+        let _animPlayMode = isEmpty(animPlayModeInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animPlayModeInfo.animPlayMode);
+        let _animPlayState = isEmpty(animPlayModeInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayModeInfo.animPlayState);
+
+        if (_dataSetId == '') {
+            Module.RealBIMWeb.SetEntityAnimPlayMode('', '', 0xffffffff, 0, _animPlayState, '', _animPlayMode);
+        } else {
+            let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_dataSetId);
+            let count = animPlayModeInfo.elemIdList.length;
+            let _moemory = (count * 8).toString();
+            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+            let _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+            for (let i = 0; i < count; ++i) {
+                var eleid = _elemIdList[i];
+                _elemIds.set([eleid, _projid], i * 2);
+            }
+            Module.RealBIMWeb.SetEntityAnimPlayMode(
+                _dataSetId,
+                _entityType,
+                count ? _elemIds.byteLength : 0xffffffff,
+                count ? _elemIds.byteOffset : 0,
+                _animPlayState,
+                '',
+                _animPlayMode
+            );
+        }
+    };
+
+    class REEntitySingleAnimPlayInfo {
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.elemId = null; // 构件标识
+            this.animName = null; // 动画标识，世界空间动画类型，该字段无效
+            this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
+            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+        }
+    }
+    ExtModule.REEntitySingleAnimPlayInfo = REEntitySingleAnimPlayInfo;
+
+    /**
+     * 设置单一实体动画的播放状态信息
+     * @param {REEntitySingleAnimPlayInfo} animPlayInfo //动画播放状态信息
+     */
+    Module.Entity.setAnimPlayModeSingle = function (animPlayInfo) {
+        if (isEmptyLog(animPlayInfo, 'animPlayInfo')) return;
+
+        let _dataSetId = isEmpty(animPlayInfo.dataSetId) ? '' : animPlayInfo.dataSetId;
+        let _elemId = isEmpty(animPlayInfo.elemId) ? 1 : animPlayInfo.elemId;
+        let _animName = isEmpty(animPlayInfo.animName) ? '' : animPlayInfo.animName;
+        let _animLevel = isEmpty(animPlayInfo.animLevel) ? 0 : animPlayInfo.animLevel;
+        let _animPlayMode = isEmpty(animPlayInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animPlayInfo.animPlayMode);
+        let _animPlayState = isEmpty(animPlayInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayInfo.animPlayState);
+        let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+        if (_animLevel == 1) {
+            _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+        }
+        Module.RealBIMWeb.SetEntityAniPlayState(_dataSetId, _elemId, _animName, _eAniLevel, _animPlayMode, _animPlayState);
+    };
+
+    // MARK 轨迹动画
+
+    class REEntityTrackAnimInfo {
+        // 单构件轨迹动画信息
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.elemId = null; // 构件唯一标识
+            this.trackPointList = null; //表示轨迹顶点序列
+            this.pathColsed = false; //表示路径是否闭合
+            this.speed = 1.0; // 表示动画运动速度（单位m/s）
+            this.selfVect = [0.0, 0.0, 0.0]; //表示单构件自身姿态正方向
+        }
+    }
+    ExtModule.REEntityTrackAnimInfo = REEntityTrackAnimInfo;
+
+    /**
+     * 设置单构件轨迹动画信息
+     * @param {REEntityTrackAnimInfo} trackAnimInfo // 单构件轨迹动画信息（REEntityTrackAnimInfo 类型）
+     */
+    Module.Entity.setTrackAnim = function (trackAnimInfo) {
+        if (isEmptyLog(trackAnimInfo, 'trackAnimInfo')) return;
+        if (isEmptyLog(trackAnimInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(trackAnimInfo.elemId, 'elemId')) return;
+        if (!checkTypeLog(trackAnimInfo.trackPointList, 'trackPointList', RE_Enum.RE_Check_Array)) return;
+        if (!checkTypeLog(trackAnimInfo.selfVect, 'selfVect', RE_Enum.RE_Check_Array)) return;
+        let _pathColsed = isEmpty(trackAnimInfo.pathColsed) ? false : trackAnimInfo.pathColsed;
+        let _speed = isEmpty(trackAnimInfo.speed) ? 1.0 : trackAnimInfo.speed;
+        let _selfVect = isEmpty(trackAnimInfo.selfVect) ? [1.0, 0.0, 0.0] : trackAnimInfo.selfVect;
+        let _vector_track = new Module.RE_Vector_vec3();
+        for (let i = 0; i < trackAnimInfo.trackPointList.length; i++) {
+            _vector_track.push_back(trackAnimInfo.trackPointList[i]);
+        }
+        let _cInfo = {
+            m_arrTrackPionts: _vector_track,
+            m_bPathClosed: _pathColsed,
+            m_dSpeed: _speed,
+            m_vSelfVect: _selfVect,
+        };
+        Module.RealBIMWeb.SetEntityTrackAni(trackAnimInfo.dataSetId, trackAnimInfo.elemId, _cInfo);
+    };
+
+    if (hasEntityAniEdit) {
         // MARK 骨骼动画
         class REEntityAnimInfo {
             // 单构件动画信息
@@ -12312,64 +12450,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             animInfo.boneInfoList = boneInfoList;
             animInfo.selfAnimNameList = selfAnimNameList;
             return animInfo;
-        };
-
-        /**
-         * 根据动画类型获取动画名称列表
-         * @param {String} dataSetId //数据集标识，必填
-         * @param {String} entityType //实例类型名称，必填
-         */
-        Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
-            if (isEmpty(dataSetId) || dataSetId == '') {
-                logParErr('dataSetId');
-                return;
-            }
-            if (isEmpty(entityType) || entityType == '') {
-                logParErr('entityType');
-                return;
-            }
-            let arrName = Module.RealBIMWeb.GetEntitySelfAnimNameList(dataSetId, entityType);
-            let animNameList = [];
-            for (let i = 0; i < arrName.size(); i++) {
-                animNameList.push(arrName.get(i));
-            }
-            return animNameList;
-        };
-
-        class REEntityAnimPlayStateInfo {
-            constructor() {
-                this.dataSetId = null; // 数据集标识
-                this.elemId = null; // 构件标识
-                this.animName = null; // 动画标识，世界空间动画类型，该字段无效
-                this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
-                this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
-                this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
-            }
-        }
-        ExtModule.REEntityAnimPlayStateInfo = REEntityAnimPlayStateInfo;
-
-        /**
-         * 设置实体动画的播放状态信息
-         * @param {REEntityAnimPlayStateInfo} animPlayStateInfo //动画播放状态信息
-         */
-        Module.Entity.setAnimPlayState = function (animPlayStateInfo) {
-            if (isEmptyLog(animPlayStateInfo, 'animPlayStateInfo')) return;
-
-            let _dataSetId = isEmpty(animPlayStateInfo.dataSetId) ? '' : animPlayStateInfo.dataSetId;
-            let _elemId = isEmpty(animPlayStateInfo.elemId) ? 1 : animPlayStateInfo.elemId;
-            let _animName = isEmpty(animPlayStateInfo.animName) ? '' : animPlayStateInfo.animName;
-            let _animLevel = isEmpty(animPlayStateInfo.animLevel) ? 0 : animPlayStateInfo.animLevel;
-            let _animPlayMode = isEmpty(animPlayStateInfo.animPlayMode)
-                ? eval(REEntityAnimPlayModeEm.REPEATTURN)
-                : eval(animPlayStateInfo.animPlayMode);
-            let _animPlayState = isEmpty(animPlayStateInfo.animPlayState)
-                ? eval(REEntityAnimPlayStateEm.PAUSE)
-                : eval(animPlayStateInfo.animPlayState);
-            let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
-            if (_animLevel == 1) {
-                _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
-            }
-            Module.RealBIMWeb.SetEntityAniPlayState(_dataSetId, _elemId, _animName, _eAniLevel, _animPlayMode, _animPlayState);
         };
 
         // MARK 动画脚本
@@ -14153,7 +14233,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelAllParticleTexArrays();
     };
 
-
     // MOD-- 三维分析（Analysis3D）
     Module.Analysis3D = typeof Module.Analysis3D !== 'undefined' ? Module.Analysis3D : {}; //增加 Analysis3D 模块
 
@@ -14174,7 +14253,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _color = Module.RealBIMWeb.GetSkylineClr();
         return rgbaListToClr(_color);
     };
-
 
     // function getName() {
     //     let reg = /\s+at\s(\S+)\s\(/g

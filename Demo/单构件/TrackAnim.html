@@ -1,0 +1,180 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-04-10 20:41:14
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="setCamToXiaoren()">定位小人</button>
+                <button onclick="setPathAnimPlay()">设置路径动画并播放</button>
+                <button onclick="playXiaorenWalk()">播放小人自身走路动画</button>
+                <button onclick="setCamBind()">设置相机绑定</button>
+                <button onclick="playAll()">整体动画</button>
+                <button onclick="clearCamBind()">清除相机绑定并结束动画</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'changdi',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                    },
+                    {
+                        dataSetId: 'xiaoren',
+                        resourcesAddress:
+                            'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a193093f32f24296f30d4ba4d247efe',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                addEntity();
+            }
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                let entityList = [];
+                let typeNames_xiaoren = BlackHole3D.Entity.getAllTypeNames('xiaoren');
+                if (typeNames_xiaoren.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'xiaoren';
+                    entity.entityType = typeNames_xiaoren[0];
+                    entity.elemId = 1;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [268.1516942425886, 412.1152666772725, 2.162647794886439];
+                    entityList.push(entity);
+                }
+
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+            function setCamToXiaoren() {
+                var locIDList = [{ dataSetId: 'xiaoren', elemIdList: [1] }];
+                var backDepth = 2.0;
+                var locType = BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
+            }
+            function setPathAnimPlay() {
+                let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
+                trackInfo.dataSetId = 'xiaoren';
+                trackInfo.elemId = 1;
+                trackInfo.trackPointList = [
+                    [268.1516942425886, 412.1152666772725, 2.162647794886439],
+                    [268.37034507350046, 409.84989341814963, 2.162647794886439],
+                    [268.58706670706755, 405.50119880674055, 2.162647794886439],
+                    [273.5447366518252, 403.6194642625328, 2.162647794886439],
+                    [277.773577083437, 399.0003991324121, 2.162647794886439],
+                ];
+                trackInfo.pathColsed = false;
+                trackInfo.speed = 1.0;
+                trackInfo.selfVect = [0.0, -1.0, 0.0];
+
+                BlackHole3D.Entity.setTrackAnim(trackInfo);
+
+                let animPlayInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayInfo.dataSetId = 'xiaoren';
+                animPlayInfo.elemId = 1;
+                animPlayInfo.animName = '';
+                animPlayInfo.animLevel = 0;
+                animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+                animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
+            }
+            function playXiaorenWalk() {
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('xiaoren');
+                let selfAnimNameList = BlackHole3D.Entity.getSelfAnimNameList('xiaoren', typeNames[0]);
+                console.log('selfAnimNameList: ', selfAnimNameList);
+                let animPlayInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayInfo.dataSetId = 'xiaoren';
+                animPlayInfo.elemId = 1;
+                animPlayInfo.animName = 'walk';
+                animPlayInfo.animLevel = 1;
+                animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEAT;
+                animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
+            }
+            function setCamBind() {
+                let bindInfo = new BlackHole3D.RECamBindEntityBoneInfo();
+                bindInfo.dataSetId = 'xiaoren';
+                bindInfo.elemId = 1;
+                bindInfo.initPos = [0, 3, 3];
+                bindInfo.lookDir = [0.0, -0.89442719099991586, -0.44721359549995793];
+                bindInfo.transTime = 1.0;
+                BlackHole3D.Camera.setCamBindEntityBone(bindInfo);
+            }
+            function clearCamBind() {
+                BlackHole3D.Camera.clearCamBindBone();
+
+                let animPlayInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayInfo.dataSetId = 'xiaoren';
+                animPlayInfo.elemId = 1;
+                animPlayInfo.animName = 'walk';
+                animPlayInfo.animLevel = 1;
+                animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEAT;
+                animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.STOPMIN;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
+
+
+                let animPlayInfo2 = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayInfo2.dataSetId = 'xiaoren';
+                animPlayInfo2.elemId = 1;
+                animPlayInfo2.animName = '';
+                animPlayInfo2.animLevel = 0;
+                animPlayInfo2.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEAT;
+                animPlayInfo2.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.STOPMIN;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo2);
+            }
+            function playAll() {
+                setPathAnimPlay();
+                playXiaorenWalk();
+                setCamBind();
+            }
+        </script>
+    </body>
+</html>
