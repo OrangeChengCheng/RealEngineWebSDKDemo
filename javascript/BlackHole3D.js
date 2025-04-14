@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3074
+﻿//版本：v3.2.0.3077
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1185,24 +1185,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         // Web地图发布服务信息
         constructor() {
             this.layerId = 0; // 表示图层标识
-            this.crs = 0; // 表示资源自身的地理投影坐标系
-            this.base = null; // 表示资源基点，（二维数组类型）
-            this.size = null; // 表示资源大小，（二维数组类型）
+            this.selfCrs = 0; // 表示资源自身的地理投影坐标系
             this.layerName = null; // 表示图层名称
             this.reqFmt = null; // 表示资源请求模板
-            this.rootNum = null; // 表示顶级瓦片数量，（二维数组类型）
-            this.biasLOD = 1; // 表示统一资源ID中的lod索引的偏移
-            this.lodRangeList = null; // 表示层级范围集合，层级范围和层级瓦片范围要对应数量，（二维数组类型）
-            this.boundList = null; // 表示层级瓦片范围集合，层级范围和层级瓦片范围要对应数量，（四位数组类型）
             this.layerType = 1; // 表示图层类型 1：表示影像 2：矢量标注
             this.revertResX = 0; // 表示资源索引水平翻转（0，1）
             this.revertResY = 1; // 表示资源索引垂直翻转（0，1）
             this.revertU = 0; // 表示资源内容水平翻转（0，1）
             this.revertV = 0; // 表示资源内容垂直翻转（0，1）
-            this.biasRootXY = [0, 0]; // 表示根节点索引偏移，（二维数组类型）
+            this.lodRange = [0, 18]; // 表示资源层级范围（二元素数组类型）
+            this.resLonLatBound = [0, 0, 0, 0]; // 表示地图资源的经纬度范围（四元素数组类型）【lonMin, lonMax, latMin, latMax】
+            this.tilingSchemeType = 1; // 切片方案类型（默认3857切片方案）  0：用户自定义  1：WebMercatorTilingScheme（3857切片方案）  2：GeoGraphicTilingScheme（4326切片方案（经纬度切片方案））  3：天地图切片方案
+            this.customTilingScheme = null; // 表示用户自定义切片方案（RETilingScheme 类型），只有tilingSchemeType=0生效
         }
     }
     ExtModule.REWMSInfo = REWMSInfo;
+
+    class RETilingScheme {
+        // Web地图发布服务信息
+        constructor() {
+            this.base = null; // 表示资源基点，（二元素数组类型）
+            this.size = null; // 表示资源大小，（二元素数组类型）
+            this.worCRSScale = [1.0, 1.0]; // 表示引擎世界空间在 dataSetCRS 指定的参考坐标系下进行的二次缩放系数，（二元素数组类型）
+            this.rootNum = null; // 表示顶级瓦片数量，（二元素数组类型）
+            this.biasLOD = 1; // 表示统一资源ID中的lod索引的偏移
+            this.lodRangeList = null; // 表示层级范围集合，层级范围和层级瓦片范围要对应数量，（二维二元素数组类型）
+            this.boundList = null; // 表示层级瓦片范围集合，层级范围和层级瓦片范围要对应数量，（二维四元素数组类型）
+            this.biasRootXY = [0, 0]; // 表示根节点索引偏移，（二元素数组类型）
+        }
+    }
+    ExtModule.RETilingScheme = RETilingScheme;
 
     /**
      * 加载数据集资源
@@ -1315,51 +1327,86 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 if (isEmptyLog(dataSetModel.wmsInfo, 'wmsInfo')) return;
                 const _WMSInfo = dataSetModel.wmsInfo;
                 if (isEmptyLog(_WMSInfo.layerId, 'layerId')) return;
-                if (isEmptyLog(_WMSInfo.crs, 'crs')) return;
-                if (isEmptyLog(_WMSInfo.base, 'base')) return;
-                if (isEmptyLog(_WMSInfo.size, 'size')) return;
+                if (isEmptyLog(_WMSInfo.selfCrs, 'selfCrs')) return;
                 if (isEmptyLog(_WMSInfo.layerName, 'layerName')) return;
                 if (isEmptyLog(_WMSInfo.reqFmt, 'reqFmt')) return;
-                if (isEmptyLog(_WMSInfo.rootNum, 'rootNum')) return;
-                if (!checkTypeLog(_WMSInfo.lodRangeList, 'lodRangeList', RE_Enum.RE_Check_Array)) return;
-                if (!checkTypeLog(_WMSInfo.boundList, 'boundList', RE_Enum.RE_Check_Array)) return;
-                if (_WMSInfo.lodRangeList.length != _WMSInfo.boundList.length) {
-                    console.error('【REError】: lodRangeList 和 boundList 需要一一对应');
-                    return;
-                }
-                const _biasLOD = isEmpty(_WMSInfo.biasLOD) ? 1 : _WMSInfo.biasLOD;
                 const _layerType = isEmpty(_WMSInfo.layerType) ? 1 : _WMSInfo.layerType;
                 const _revertResX = isEmpty(_WMSInfo.revertResX) ? 0 : _WMSInfo.revertResX;
                 const _revertResY = isEmpty(_WMSInfo.revertResY) ? 1 : _WMSInfo.revertResY;
                 const _revertU = isEmpty(_WMSInfo.revertU) ? 0 : _WMSInfo.revertU;
                 const _revertV = isEmpty(_WMSInfo.revertV) ? 0 : _WMSInfo.revertV;
-                const _biasRootXY = isEmpty(_WMSInfo.biasRootXY) ? [0, 0] : _WMSInfo.biasRootXY;
-                const _vector_lodRange = new Module.RE_Vector_ivec2();
-                _WMSInfo.lodRangeList.forEach((element) => {
-                    _vector_lodRange.push_back(element);
-                });
-                const _vector_bound = new Module.RE_Vector_ivec4();
-                _WMSInfo.boundList.forEach((element) => {
-                    _vector_bound.push_back(element);
-                });
+                const _lodRange = isEmpty(_WMSInfo.lodRange) ? [0, 18] : _WMSInfo.lodRange;
+                const _resLonLatBound = isEmpty(_WMSInfo.resLonLatBound) ? [0, 0, 0, 0] : _WMSInfo.resLonLatBound;
+                const _tilingSchemeType = isEmpty(_WMSInfo.tilingSchemeType) ? 1 : _WMSInfo.tilingSchemeType;
+                let _cCustomTilingScheme = {
+                    m_vBase: [0, 0],
+                    m_vSize: [0, 0],
+                    m_vWorCRSScale: [1.0, 1.0],
+                    m_arrLodRanges: new Module.RE_Vector_ivec2(),
+                    m_arrBounds: new Module.RE_Vector_ivec4(),
+                    m_vRootNum: [0, 0],
+                    m_uBiasLOD: 1,
+                    m_vBiasRootXY: [0, 0],
+                }; //默认添加不然web.js自动解析报错
+                if (_tilingSchemeType == 0 && _WMSInfo.customTilingScheme) {
+                    const _tilingScheme = _WMSInfo.customTilingScheme;
+                    if (isEmptyLog(_tilingScheme.base, 'base')) return;
+                    if (isEmptyLog(_tilingScheme.size, 'size')) return;
+                    if (!checkTypeLog(_tilingScheme.lodRangeList, 'lodRangeList', RE_Enum.RE_Check_Array)) return;
+                    if (!checkTypeLog(_tilingScheme.boundList, 'boundList', RE_Enum.RE_Check_Array)) return;
+                    if (isEmptyLog(_tilingScheme.rootNum, 'rootNum')) return;
+                    if (_tilingScheme.lodRangeList.length != _tilingScheme.boundList.length) {
+                        console.error('【REError】: lodRangeList 和 boundList 需要一一对应');
+                        return;
+                    }
+                    const _worCRSScale = isEmpty(_tilingScheme.worCRSScale) ? [1.0, 1.0] : _tilingScheme.worCRSScale;
+                    const _biasLOD = isEmpty(_tilingScheme.biasLOD) ? 1 : _tilingScheme.biasLOD;
+                    const _biasRootXY = isEmpty(_tilingScheme.biasRootXY) ? [0, 0] : _tilingScheme.biasRootXY;
+                    const _vector_lodRange = new Module.RE_Vector_ivec2();
+                    _tilingScheme.lodRangeList.forEach((element) => {
+                        _vector_lodRange.push_back(element);
+                    });
+                    const _vector_bound = new Module.RE_Vector_ivec4();
+                    _tilingScheme.boundList.forEach((element) => {
+                        _vector_bound.push_back(element);
+                    });
+                    _cCustomTilingScheme = {
+                        m_vBase: _tilingScheme.base,
+                        m_vSize: _tilingScheme.size,
+                        m_vWorCRSScale: _worCRSScale,
+                        m_arrLodRanges: _vector_lodRange,
+                        m_arrBounds: _vector_bound,
+                        m_vRootNum: _tilingScheme.rootNum,
+                        m_uBiasLOD: _biasLOD,
+                        m_vBiasRootXY: _biasRootXY,
+                    };
+                }
+                let _m_eTilingSchemeType = Module.RE_TILING_SCHEME_TYPE.WEBMERCATORTILINGSCHEME;
+                if (_tilingSchemeType == 0) {
+                    _m_eTilingSchemeType = Module.RE_TILING_SCHEME_TYPE.CUSTOMTILINGSCHEME;
+                } else if (_tilingSchemeType == 1) {
+                    _m_eTilingSchemeType = Module.RE_TILING_SCHEME_TYPE.WEBMERCATORTILINGSCHEME;
+                } else if (_tilingSchemeType == 2) {
+                    _m_eTilingSchemeType = Module.RE_TILING_SCHEME_TYPE.GEOGRAPHICTILINGSCHEME;
+                } else if (_tilingSchemeType == 3) {
+                    _m_eTilingSchemeType = Module.RE_TILING_SCHEME_TYPE.TIANDITUTILINGSCHEME;
+                }
+
                 let cWMSInfo = {
                     m_strDataSetId: dataSetModel.dataSetId,
                     m_uLayerId: _WMSInfo.layerId,
-                    m_strCRS: _WMSInfo.crs,
-                    m_vBase: _WMSInfo.base,
-                    m_vSize: _WMSInfo.size,
+                    m_strCRS: _WMSInfo.selfCrs,
                     m_strLayerName: _WMSInfo.layerName,
                     m_strFmtStr: _WMSInfo.reqFmt,
-                    m_vRootNum: _WMSInfo.rootNum,
-                    m_uBiasLOD: _biasLOD,
-                    m_arrLodRanges: _vector_lodRange,
-                    m_arrBounds: _vector_bound,
                     m_uLayerType: _layerType,
                     m_uRevertResX: _revertResX,
                     m_uRevertResY: _revertResY,
                     m_uRevertU: _revertU,
                     m_uRevertV: _revertV,
-                    vBiasRootXY: _biasRootXY,
+                    m_vLodRange: _lodRange,
+                    m_vResLonLatBound: _resLonLatBound,
+                    m_eTilingSchemeType: _m_eTilingSchemeType,
+                    m_cCustomTilingScheme: _cCustomTilingScheme,
                 };
                 Module.RealBIMWeb.LoadWMS(cWMSInfo, _isMainProj);
             }
@@ -1901,9 +1948,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.clearCamBindBone = function () {
         Module.RealBIMWeb.ClearBindCamToBone(true);
     };
-
-
-    
 
     // MOD-- 天空盒（SkyBox）
     Module.SkyBox = typeof Module.SkyBox !== 'undefined' ? Module.SkyBox : {}; //增加 SkyBox 模块

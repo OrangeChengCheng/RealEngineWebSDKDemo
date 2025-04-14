@@ -1,0 +1,215 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-04-14 17:34:23
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="setCamToXiaoren()">定位小人</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                // var worldCRS = 'EPSG:4326';
+                // BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS);
+                var dataSetList = [
+                    // {
+                    //     dataSetId: 'WMS1',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 1,
+                    //         selfCrs: 'EPSG:3857',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906902073705275394/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 1,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         tilingSchemeType: 0,
+                    //         customTilingScheme: {
+                    //             base: [-20037508.342789, -20037508.342789],
+                    //             size: [40075016.685578, 40075016.685578],
+                    //             worCRSScale: [(2.0 * Math.PI * 6378137.0) / 360.0, (2.0 * Math.PI * 6378137.0) / 360.0],
+                    //             rootNum: [1, 1],
+                    //             biasLOD: 0,
+                    //             lodRangeList: [[15, 18]],
+                    //             boundList: [[26307, 65536 / 2 - 13112 - 1, 26309, 65536 / 2 - 13110 - 1]],
+                    //             biasRootXY: [0, 0],
+                    //         },
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS1_new',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 5,
+                    //         selfCrs: 'EPSG:3857',
+                    //         layerName: '天地图矢量底图注记-Web墨卡托211',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906902073705275394/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 1,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         lodRange: [15, 18],
+                    //         resLonLatBound: [109.0261450407931, 33.793854312359635, 109.03624087552515, 33.80205676471956],
+                    //         tilingSchemeType: 1,
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS2',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 1,
+                    //         selfCrs: 'EPSG:4326',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906902037407768577/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 1,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         tilingSchemeType: 0,
+                    //         customTilingScheme: {
+                    //             base: [-180, -90],
+                    //             size: [360, 180],
+                    //             worCRSScale: [(2.0 * Math.PI * 6378137.0) / 360.0, (2.0 * Math.PI * 6378137.0) / 360.0],
+                    //             rootNum: [2, 1],
+                    //             biasLOD: 0,
+                    //             lodRangeList: [[14, 18]],
+                    //             boundList: [[26307, 32768 / 2 - 5116 - 1, 26309, 32768 / 2 - 5114 - 1]],
+                    //             biasRootXY: [0, 0],
+                    //         },
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS2_new',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 1,
+                    //         selfCrs: 'EPSG:4326',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906902037407768577/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 1,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         lodRange: [14, 18],
+                    //         resLonLatBound: [109.0261450407931, 33.793854312359635, 109.03624087552515, 33.80205676471956],
+                    //         tilingSchemeType: 2,
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS3',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 1,
+                    //         selfCrs: 'EPSG:3857',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906901993396936706/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 0,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         tilingSchemeType: 0,
+                    //         customTilingScheme: {
+                    //             base: [-20037508.342789, -20037508.342789],
+                    //             size: [40075016.685578, 40075016.685578],
+                    //             rootNum: [2, 2],
+                    //             biasLOD: 0,
+                    //             lodRangeList: [[15, 18]],
+                    //             boundList: [[26307, 19656, 26309, 19658]],
+                    //             biasRootXY: [0, 0],
+                    //         },
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS3_new',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 5,
+                    //         selfCrs: 'EPSG:3857',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906901993396936706/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 0,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         lodRange: [15, 18],
+                    //         resLonLatBound: [109.0261450407931, 33.793854312359635, 109.03624087552515, 33.80205676471956],
+                    //         tilingSchemeType: 1,
+                    //     },
+                    // },
+                    // {
+                    //     dataSetId: 'WMS4_new',
+                    //     useWMS: true,
+                    //     wmsInfo: {
+                    //         layerId: 5,
+                    //         selfCrs: 'EPSG:4326',
+                    //         layerName: '天地图影像图-Web墨卡托1111',
+                    //         reqFmt: 'http://36.138.229.240:7125/ls/mapserver/image/1906901948849233921/{z}/{x}/{y}.png',
+                    //         layerType: 1,
+                    //         revertResX: 0,
+                    //         revertResY: 0,
+                    //         revertU: 0,
+                    //         revertV: 0,
+                    //         lodRange: [14, 18],
+                    //         resLonLatBound: [109.0261450407931, 33.793854312359635, 109.03624087552515, 33.80205676471956],
+                    //         tilingSchemeType: 2,
+                    //     },
+                    // },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {}
+        </script>
+    </body>
+</html>
