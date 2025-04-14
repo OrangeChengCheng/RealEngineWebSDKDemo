@@ -4,6 +4,11 @@ var localDataSetList = [
         resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=3a1302ebf45d985e13bab65cce241ff2',
     },
 ];
+
+var re_canvas_size = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+};
 // 页面加载时添加相关监听事件
 window.onload = function () {
     // 若资源未准备好，则等待资源加载完成后再初始化
@@ -17,6 +22,12 @@ window.onload = function () {
         return canvas;
     })();
     BlackHole3D = CreateBlackHoleWebSDK(BlackHole3D);
+    let re_css_isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
+    if (BlackHole3D) {
+        re_canvas_size.width = window.innerWidth;
+        re_canvas_size.height = window.innerHeight - (re_css_isHeader ? 54 : 0);
+    }
     onResize(); // 初始化时调用一次，防止页面加载时出现比例问题
     // 开始监听模型加载
     addEngineListener(); //开启监听
@@ -34,14 +45,16 @@ function onBeforeUnload() {
         BlackHole3D = undefined;
     }
 }
+
 // 图形窗口改变时，需实时传递给引擎，否则模型会变形
 function onResize() {
-    let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
-    // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
-    if (BlackHole3D) {
-        BlackHole3D.m_re_em_window_width = window.innerWidth;
-        BlackHole3D.m_re_em_window_height = window.innerHeight - (isHeader ? 54 : 0);
-    }
+    // let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    // // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
+    // if (BlackHole3D) {
+    //     BlackHole3D.m_re_em_window_width = window.innerWidth;
+    //     BlackHole3D.m_re_em_window_height = window.innerHeight - (isHeader ? 54 : 0);
+    // }
+    BlackHole3D.m_re_em_window_height = window.innerHeight - 54;
 }
 // 模型加载的监听
 function addEngineListener() {
@@ -77,8 +90,8 @@ function removeEngineListener() {
 function RESystemReady() {
     var sysInfo = new BlackHole3D.RESysInfo();
     sysInfo.workerjsPath = 'https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb_Worker.js';
-    sysInfo.renderWidth = BlackHole3D.canvas.clientWidth;
-    sysInfo.renderHieght = BlackHole3D.canvas.clientHeight;
+    sysInfo.renderWidth = re_canvas_size.width;
+    sysInfo.renderHieght = re_canvas_size.height;
     BlackHole3D.initEngineSys(sysInfo);
     BlackHole3D.Common.setUseWebCache(true); //是否允许使用浏览器缓存
 }
