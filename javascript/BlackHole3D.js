@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3078
+﻿//版本：v3.2.0.3082
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -9906,6 +9906,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
+         * 设置指定水面显示状态  注：要在进入水面编辑状态之后有效, 只能改变当前已有的水面对象
+         * @param {Array} waterNameList //水面标识集合，空数组代表所有
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Water.setShowState = function (waterNameList, showState) {
+            if (!checkTypeLog(waterNameList, 'waterNameList', RE_Enum.RE_Check_Array)) return;
+            var _vector_water_name = new Module.RE_Vector_WStr();
+            waterNameList.forEach((element) => {
+                _vector_water_name.push_back(element);
+            });
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            return Module.RealBIMWeb.SetWaterShowState(_vector_water_name, _showState);
+        };
+
+        /**
+         * 获取指定水面状态的所有标识集合 注：要在进入水面编辑状态之后有效
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Water.getIdsByShowState = function (showState) {
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            const _vector_water_name = Module.RealBIMWeb.GetWaterIDByShowState(_showState);
+            let _waterNameList = [];
+            for (let i = 0; i < _vector_water_name.size(); i++) {
+                _waterNameList.push(_vector_water_name.get(i));
+            }
+            return _waterNameList;
+        };
+
+        /**
          * 获取指定水面对象的可见性
          * @param {String} waterName //水面唯一标识
          */
@@ -12984,6 +13013,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Extrude.endAddExtrudeState = function () {
             return Module.RealBIMWeb.EndAddExtrudeRgn();
+        };
+
+        /**
+         * 设置指定挤出显示类型  注：要在进入挤出编辑状态之后有效, 只能改变当前已有的挤出对象
+         * @param {Array} extrudeIdList //挤出标识集合，空数组代表所有
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Extrude.setShowState = function (extrudeIdList, showState) {
+            if (!checkTypeLog(extrudeIdList, 'extrudeIdList', RE_Enum.RE_Check_Array)) return;
+            var _vector_extrudeId = new Module.RE_Vector_WStr();
+            extrudeIdList.forEach((element) => {
+                _vector_extrudeId.push_back(element);
+            });
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            return Module.RealBIMWeb.SetExtrudeRgnShowState(_vector_extrudeId, _showState);
+        };
+
+        /**
+         * 获取指定挤出状态的所有标识集合 注：要在进入挤出编辑状态之后有效
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Extrude.getIdsByShowState = function (showState) {
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            const _vector_extrudeId = Module.RealBIMWeb.GetExtrudeRgnIDByShowState(_showState);
+            let _extrudeIdList = [];
+            for (let i = 0; i < _vector_extrudeId.size(); i++) {
+                _extrudeIdList.push(_vector_extrudeId.get(i));
+            }
+            return _extrudeIdList;
         };
 
         /**
