@@ -67,6 +67,7 @@ function addEngineListener() {
     document.addEventListener('RECADLoadFinish', RECADLoadFinish);
     document.addEventListener('REMiniMapLoadCAD', REMiniMapLoadCAD); // 小地图加载完成监听
     document.addEventListener('RESystemSelElement', RESystemSelElement);
+    document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
     document.addEventListener('RECADSelElement', RECADSelElement);
     window.addEventListener('beforeunload', onBeforeUnload); // 模型卸载监听
     window.addEventListener('resize', onResize); // 窗口大小变化实时调整canvas大小
@@ -82,6 +83,7 @@ function removeEngineListener() {
     document.removeEventListener('RECADLoadFinish', RECADLoadFinish);
     document.removeEventListener('REMiniMapLoadCAD', REMiniMapLoadCAD); // 小地图加载完成监听
     document.removeEventListener('RESystemSelElement', RESystemSelElement);
+    document.removeEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
     document.removeEventListener('RECADSelElement', RECADSelElement);
     window.removeEventListener('beforeunload', onBeforeUnload); // 模型卸载监听
     window.removeEventListener('resize', onResize); // 窗口大小变化实时调整canvas大小
@@ -201,6 +203,15 @@ function RESystemSelElement(e) {
         RESystemSelElementCallBack(e);
     } else {
         console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+    }
+}
+
+//鼠标探测矢量元素事件
+function RESystemSelShpElement(e) {
+    if (typeof RESystemSelShpElementCallBack !== 'undefined') {
+        RESystemSelShpElementCallBack(e);
+    } else {
+        console.log('-- 鼠标探测矢量模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
     }
 }
 

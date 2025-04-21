@@ -1,6 +1,6 @@
 ﻿//版本：v3.2.0.3082
 const isPhoneMode = false;
-const hasNewExtrude = false;
+const hasNewExtrude = true;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
@@ -5157,6 +5157,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (var i = 0; i < clrinfoarr.length; i += 6) {
             let elemAttrInfo = new REElemAttr();
             // let elemAttrInfo = {};
+            elemAttrInfo.dataSetId = dataSetId;
             elemAttrInfo.elemId = clrinfoarr[i];
             let red = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(6, 8), 16);
             let green = parseInt(conv32_hex16(clrinfoarr[i + 4]).substring(4, 6), 16);
@@ -9700,6 +9701,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.SetWaterCorners(waterName, _arrCorners);
         };
     } else {
+        // MARK 新水面
         class REWaterInfo {
             constructor() {
                 this.waterName = null; //水面名称
@@ -9857,13 +9859,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
-         * 获取当前水面的名称
-         */
-        Module.Water.getCurWaterName = function () {
-            return Module.RealBIMWeb.GetCurWaterName();
-        };
-
-        /**
          * 获取所有水面对象的名称
          */
         Module.Water.getAllWaterName = function () {
@@ -9905,6 +9900,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.EndAddWater();
         };
 
+        /**
+         * 获取当前水面的名称
+         */
+        Module.Water.getCurWaterName = function () {
+            return Module.RealBIMWeb.GetCurWaterName();
+        };
+
+        // MARK 渲染设置
         /**
          * 设置指定水面显示状态  注：要在进入水面编辑状态之后有效, 只能改变当前已有的水面对象
          * @param {Array} waterNameList //水面标识集合，空数组代表所有
@@ -12930,44 +12933,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
-         * 设置挤出区域作用的数据集集合
-         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
-         * @param {Array} dataSetIdList // 数据集标识集合，挤出作用有效的范围，空数组代表所有数据集
-         */
-        Module.Extrude.setDataSetScope = function (extrudeId, dataSetIdList) {
-            if (isEmptyLog(extrudeId, 'extrudeId')) return;
-            if (!checkTypeLog(dataSetIdList, 'dataSetIdList', RE_Enum.RE_Check_Array)) return;
-            let _vector_dataSet_id = new Module.RE_Vector_WStr();
-            dataSetIdList.forEach((element) => {
-                _vector_dataSet_id.push_back(element);
-            });
-            if (extrudeId.length > 0) {
-                Module.RealBIMWeb.SetExtrudeRgnApplyProj(extrudeId, _vector_dataSet_id);
-            } else {
-                Module.RealBIMWeb.SetExtrudeDefaultProjNames(_vector_dataSet_id);
-            }
-        };
-
-        /**
-         * 获取挤出区域作用的数据集集合
-         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
-         */
-        Module.Extrude.getDataSetScope = function (extrudeId) {
-            if (isEmptyLog(extrudeId, 'extrudeId')) return;
-            let _vector_dataSet_id = null;
-            if (extrudeId.length > 0) {
-                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeRgnApplyProj(extrudeId);
-            } else {
-                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeDefaultProjNames();
-            }
-            let _dataSetIdList = [];
-            for (let i = 0; i < _vector_dataSet_id.size(); i++) {
-                _dataSetIdList.push(_vector_dataSet_id.get(i));
-            }
-            return _dataSetIdList;
-        };
-
-        /**
          * 添加挤出面上使用的纹理
          * @param {String} picPath //纹理路径
          * @param {Array} size //纹理大小
@@ -12983,6 +12948,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Extrude.delAllExtrudeFaceTex = function () {
             return Module.RealBIMWeb.ClearExtrudeRgnFaceTex();
+        };
+
+        /**
+         * 获取错误绘制的挤出区域的标识集合
+         */
+        Module.Extrude.getErrorDrawExtrudeIds = function () {
+            const _vector_extrude_name = Module.RealBIMWeb.GetErrorExtrudeName();
+            let _extrudeNameList = [];
+            for (let i = 0; i < _vector_extrude_name.size(); i++) {
+                _extrudeNameList.push(_vector_extrude_name.get(i));
+            }
+            return _extrudeNameList;
         };
 
         // MARK 编辑
@@ -13013,35 +12990,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Extrude.endAddExtrudeState = function () {
             return Module.RealBIMWeb.EndAddExtrudeRgn();
-        };
-
-        /**
-         * 设置指定挤出显示类型  注：要在进入挤出编辑状态之后有效, 只能改变当前已有的挤出对象
-         * @param {Array} extrudeIdList //挤出标识集合，空数组代表所有
-         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
-         */
-        Module.Extrude.setShowState = function (extrudeIdList, showState) {
-            if (!checkTypeLog(extrudeIdList, 'extrudeIdList', RE_Enum.RE_Check_Array)) return;
-            var _vector_extrudeId = new Module.RE_Vector_WStr();
-            extrudeIdList.forEach((element) => {
-                _vector_extrudeId.push_back(element);
-            });
-            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
-            return Module.RealBIMWeb.SetExtrudeRgnShowState(_vector_extrudeId, _showState);
-        };
-
-        /**
-         * 获取指定挤出状态的所有标识集合 注：要在进入挤出编辑状态之后有效
-         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
-         */
-        Module.Extrude.getIdsByShowState = function (showState) {
-            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
-            const _vector_extrudeId = Module.RealBIMWeb.GetExtrudeRgnIDByShowState(_showState);
-            let _extrudeIdList = [];
-            for (let i = 0; i < _vector_extrudeId.size(); i++) {
-                _extrudeIdList.push(_vector_extrudeId.get(i));
-            }
-            return _extrudeIdList;
         };
 
         /**
@@ -13084,6 +13032,74 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.GetExtrudeRgnMinMax(extrudeId);
         };
 
+        // MARK 渲染效果
+        /**
+         * 设置指定挤出显示类型  注：要在进入挤出编辑状态之后有效, 只能改变当前已有的挤出对象
+         * @param {Array} extrudeIdList //挤出标识集合，空数组代表所有
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Extrude.setShowState = function (extrudeIdList, showState) {
+            if (!checkTypeLog(extrudeIdList, 'extrudeIdList', RE_Enum.RE_Check_Array)) return;
+            var _vector_extrudeId = new Module.RE_Vector_WStr();
+            extrudeIdList.forEach((element) => {
+                _vector_extrudeId.push_back(element);
+            });
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            return Module.RealBIMWeb.SetExtrudeRgnShowState(_vector_extrudeId, _showState);
+        };
+
+        /**
+         * 获取指定挤出状态的所有标识集合 注：要在进入挤出编辑状态之后有效
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Extrude.getIdsByShowState = function (showState) {
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            const _vector_extrudeId = Module.RealBIMWeb.GetExtrudeRgnIDByShowState(_showState);
+            let _extrudeIdList = [];
+            for (let i = 0; i < _vector_extrudeId.size(); i++) {
+                _extrudeIdList.push(_vector_extrudeId.get(i));
+            }
+            return _extrudeIdList;
+        };
+
+        /**
+         * 设置挤出区域作用的数据集集合
+         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
+         * @param {Array} dataSetIdList // 数据集标识集合，挤出作用有效的范围，空数组代表所有数据集
+         */
+        Module.Extrude.setDataSetScope = function (extrudeId, dataSetIdList) {
+            if (isEmptyLog(extrudeId, 'extrudeId')) return;
+            if (!checkTypeLog(dataSetIdList, 'dataSetIdList', RE_Enum.RE_Check_Array)) return;
+            let _vector_dataSet_id = new Module.RE_Vector_WStr();
+            dataSetIdList.forEach((element) => {
+                _vector_dataSet_id.push_back(element);
+            });
+            if (extrudeId.length > 0) {
+                Module.RealBIMWeb.SetExtrudeRgnApplyProj(extrudeId, _vector_dataSet_id);
+            } else {
+                Module.RealBIMWeb.SetExtrudeDefaultProjNames(_vector_dataSet_id);
+            }
+        };
+
+        /**
+         * 获取挤出区域作用的数据集集合
+         * @param {String} extrudeId //挤出唯一标识，空字符串代表默认通用挤出区域
+         */
+        Module.Extrude.getDataSetScope = function (extrudeId) {
+            if (isEmptyLog(extrudeId, 'extrudeId')) return;
+            let _vector_dataSet_id = null;
+            if (extrudeId.length > 0) {
+                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeRgnApplyProj(extrudeId);
+            } else {
+                _vector_dataSet_id = Module.RealBIMWeb.GetExtrudeDefaultProjNames();
+            }
+            let _dataSetIdList = [];
+            for (let i = 0; i < _vector_dataSet_id.size(); i++) {
+                _dataSetIdList.push(_vector_dataSet_id.get(i));
+            }
+            return _dataSetIdList;
+        };
+
         /**
          * 设置挤出展示的类型
          * @param {String} extrudeId //挤出标识
@@ -13120,18 +13136,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.Extrude.getVisible = function (extrudeId) {
             if (isEmptyLog(extrudeId, 'extrudeId')) return;
             return Module.RealBIMWeb.GetExtrudeVisible(extrudeId);
-        };
-
-        /**
-         * 获取错误绘制的挤出区域的标识集合
-         */
-        Module.Extrude.getErrorDrawExtrudeIds = function () {
-            const _vector_extrude_name = Module.RealBIMWeb.GetErrorExtrudeName();
-            let _extrudeNameList = [];
-            for (let i = 0; i < _vector_extrude_name.size(); i++) {
-                _extrudeNameList.push(_vector_extrude_name.get(i));
-            }
-            return _extrudeNameList;
         };
 
         // MARK 相机
@@ -13263,32 +13267,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             monomerIdList.forEach((element) => {
                 _vector_monomer_id.push_back(element);
             });
-            Module.RealBIMWeb.DelMonomer(_vector_monomer_id);
+            Module.RealBIMWeb.DelMonomerRgn(_vector_monomer_id);
         };
 
         /**
-         * 设置单体化的可见性
-         * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有
-         * @param {Boolean} visible // 是否可见
+         * 获取错误绘制的单体化区域的标识集合
          */
-        Module.Monomer.setVisible = function (monomerIdList, visible) {
-            if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
-            let _vector_monomer_id = new Module.RE_Vector_WStr();
-            monomerIdList.forEach((element) => {
-                _vector_monomer_id.push_back(element);
-            });
-            let _visible = isEmpty(visible) ? true : visible;
-
-            return Module.RealBIMWeb.SetMonomerVisible(_vector_monomer_id, _visible);
-        };
-
-        /**
-         * 获取单体化的可见性
-         * @param {String} monomerId //单体化标识
-         */
-        Module.Monomer.getVisible = function (monomerId) {
-            if (isEmptyLog(monomerId, 'monomerId')) return;
-            return Module.RealBIMWeb.GetMonomerVisible(monomerId);
+        Module.Monomer.getErrorDrawMonomerIds = function () {
+            const _vector_monomer_name = Module.RealBIMWeb.GetErrorMonomerRgnName();
+            let _monomerNameList = [];
+            for (let i = 0; i < _vector_monomer_name.size(); i++) {
+                _monomerNameList.push(_vector_monomer_name.get(i));
+            }
+            return _monomerNameList;
         };
 
         // MARK 编辑
@@ -13333,16 +13324,47 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} dataSetId //数据集标识
          */
         Module.Monomer.setEditApplyDataSetId = function (dataSetId) {
-            Module.RealBIMWeb.SetMonomerApplyProj(dataSetId);
+            Module.RealBIMWeb.SetMonomerLinkProj(dataSetId);
         };
 
         /**
          * 获取当前编辑单体化应用的数据集名称
          */
         Module.Monomer.getEditApplyDataSetId = function () {
-            return Module.RealBIMWeb.GetMonomerApplyProj();
+            return Module.RealBIMWeb.GetMonomerLinkProj();
         };
 
+        /**
+         * 设置默认单体化编辑时包围体最小最大高度（设置表示使用自动计算包围体高度，如果需要改成自动需要调用 setEditAutoCalcMinMaxHeight），在 startAddMonomerState 之前进行设置
+         * @param {dvec2} minMaxHeight //包围体最小最大高度, [最小高度，最大高度]
+         */
+        Module.Monomer.setDefaultEditMinMaxHeight = function (minMaxHeight) {
+            if (isEmptyLog(minMaxHeight, 'minMaxHeight')) return;
+            Module.RealBIMWeb.SetMonomerMinMaxHeight(false, minMaxHeight);
+        };
+
+        /**
+         * 获取默认单体化编辑时包围体最小最大高度
+         */
+        Module.Monomer.getDefaultEditMinMaxHeight = function () {
+            return Module.RealBIMWeb.GetMonomerMinMaxHeight();
+        };
+
+        /**
+         * 设置使用自动计算包围体高度（在设置 setEditMinMaxHeight 后如果需要自动模式需要手动设置），在 startAddMonomerState 之前进行设置
+         */
+        Module.Monomer.setEditAutoCalcMinMaxHeight = function () {
+            Module.RealBIMWeb.SetMonomerMinMaxHeight(true, [0, 0]);
+        };
+
+        /**
+         * 获取是否使用自动计算包围体高度
+         */
+        Module.Monomer.getEditAutoCalcMinMaxHeight = function () {
+            return Module.RealBIMWeb.GetIsAutoCalcMonomerMinMaxHeight();
+        };
+
+        // MARK 渲染效果
         /**
          * 设置单体化数据的默认颜色，在 startAddMonomerState 之前进行设置，设置后全局有效
          * @param {REColor} monomerClr //单体化颜色（REColor类型）
@@ -13390,61 +13412,72 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
-         * 设置单体化编辑时选点矢量墙的高度，在 startAddMonomerState 之前进行设置，设置后全局有效
-         * @param {Number} shpWallheight //选点矢量墙的高度
+         * 设置单体化的可见性
+         * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有
+         * @param {Boolean} visible // 是否可见
          */
-        Module.Monomer.setEditShpWallHeight = function (shpWallheight) {
-            if (isEmptyLog(shpWallheight, 'shpWallheight')) return;
-            Module.RealBIMWeb.SetMonomerHeight(shpWallheight);
+        Module.Monomer.setVisible = function (monomerIdList, visible) {
+            if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+            let _vector_monomer_id = new Module.RE_Vector_WStr();
+            monomerIdList.forEach((element) => {
+                _vector_monomer_id.push_back(element);
+            });
+            let _visible = isEmpty(visible) ? true : visible;
+
+            return Module.RealBIMWeb.SetMonomerRgnVisible(_vector_monomer_id, _visible);
         };
 
         /**
-         * 获取单体化编辑时矢量选点面的高度
+         * 获取单体化的可见性
+         * @param {String} monomerId //单体化标识
          */
-        Module.Monomer.getEditShpWallHeight = function () {
-            return Module.RealBIMWeb.GetMonomerHeight();
+        Module.Monomer.getVisible = function (monomerId) {
+            if (isEmptyLog(monomerId, 'monomerId')) return;
+            return Module.RealBIMWeb.GetMonomerRgnVisible(monomerId);
         };
 
         /**
-         * 设置单体化编辑时包围体最小最大高度（设置表示使用自动计算包围体高度，如果需要改成自动需要调用 setEditAutoCalcMinMaxHeight），在 startAddMonomerState 之前进行设置
+         * 设置指定单体化包围体的最小最大高度
+         * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有区域
          * @param {dvec2} minMaxHeight //包围体最小最大高度, [最小高度，最大高度]
          */
-        Module.Monomer.setEditMinMaxHeight = function (minMaxHeight) {
+        Module.Monomer.setMinMaxHeight = function (monomerIdList, minMaxHeight) {
+            if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
             if (isEmptyLog(minMaxHeight, 'minMaxHeight')) return;
-            Module.RealBIMWeb.SetMinMaxHeight(false, minMaxHeight);
+            let _vector_monomer_id = new Module.RE_Vector_WStr();
+            monomerIdList.forEach((element) => {
+                _vector_monomer_id.push_back(element);
+            });
+            Module.RealBIMWeb.SetMonomerRgnMinMaxHeight(_vector_monomer_id, minMaxHeight);
         };
 
         /**
-         * 获取单体化编辑时包围体最小最大高度
+         * 获取指定单体化包围体的最小最大高度
+         * @param {String} monomerId //单体化标识
          */
-        Module.Monomer.getEditMinMaxHeight = function () {
-            return Module.RealBIMWeb.GetMinMaxHeight();
+        Module.Monomer.getMinMaxHeight = function (monomerId) {
+            if (isEmptyLog(monomerId, 'monomerId')) return;
+            return Module.RealBIMWeb.GetMonomerRgnMinMaxHeight(monomerId);
         };
 
         /**
-         * 设置使用自动计算包围体高度（在设置 setEditMinMaxHeight 后如果需要自动模式需要手动设置），在 startAddMonomerState 之前进行设置
+         * 设置指定单体化包围体的扩展距离
+         * @param {String} monomerId //单体化标识
+         * @param {Number} expandDist //扩展距离
          */
-        Module.Monomer.setEditAutoCalcMinMaxHeight = function () {
-            Module.RealBIMWeb.SetMinMaxHeight(true, [0, 0]);
+        Module.Monomer.setExpandDist = function (monomerId, expandDist) {
+            if (isEmptyLog(monomerId, 'monomerId')) return;
+            let _expandDist = isEmpty(expandDist) ? 0 : expandDist;
+            return Module.RealBIMWeb.SetMonomerRgnExpandDist(monomerId, _expandDist);
         };
 
         /**
-         * 获取是否使用自动计算包围体高度
+         * 获取指定单体化包围体的扩展距离
+         * @param {String} monomerId //单体化标识
          */
-        Module.Monomer.getEditAutoCalcMinMaxHeight = function () {
-            return Module.RealBIMWeb.GetIsAutoCalcMinMaxHeight();
-        };
-
-        /**
-         * 获取错误绘制的单体化区域的标识集合
-         */
-        Module.Monomer.getErrorDrawMonomerIds = function () {
-            const _vector_monomer_name = Module.RealBIMWeb.GetErrorMonomerName();
-            let _monomerNameList = [];
-            for (let i = 0; i < _vector_monomer_name.size(); i++) {
-                _monomerNameList.push(_vector_monomer_name.get(i));
-            }
-            return _monomerNameList;
+        Module.Monomer.getExpandDist = function (monomerId) {
+            if (isEmptyLog(monomerId, 'monomerId')) return;
+            return Module.RealBIMWeb.GetMonomerRgnExpandDist(monomerId);
         };
 
         // MARK 选择集
@@ -13459,7 +13492,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _vector_monomer_id.push_back(element);
             });
 
-            Module.RealBIMWeb.AddMonomerToSelection(_vector_monomer_id);
+            Module.RealBIMWeb.AddMonomerRgnToSelection(_vector_monomer_id);
         };
 
         /**
@@ -13473,14 +13506,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _vector_monomer_id.push_back(element);
             });
 
-            Module.RealBIMWeb.RemoveMonomerFromSelection(_vector_monomer_id);
+            Module.RealBIMWeb.RemoveMonomerRgnFromSelection(_vector_monomer_id);
         };
 
         /**
          * 获取当前的选择集单体化标识集合
          */
         Module.Monomer.getAllCurSel = function () {
-            const _vector_monomer_id = Module.RealBIMWeb.GetSelectedMonomerName();
+            const _vector_monomer_id = Module.RealBIMWeb.GetSelectedMonomerRgnName();
             let _monomerIdList = [];
             for (let i = 0; i < _vector_monomer_id.size(); i++) {
                 _monomerIdList.push(_vector_monomer_id.get(i));
@@ -13557,7 +13590,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             });
             let _probeEnable = isEmpty(probeEnable) ? 1 : probeEnable;
 
-            Module.RealBIMWeb.SetMonomerProbeMask(_vector_monomer_id, _probeEnable);
+            Module.RealBIMWeb.SetMonomerRgnProbeMask(_vector_monomer_id, _probeEnable);
         };
 
         /**
@@ -13566,7 +13599,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Monomer.getCanProbe = function (monomerId) {
             if (isEmptyLog(monomerId, 'monomerId')) return;
-            let _uProbeMask = Module.RealBIMWeb.GetMonomerProbeMask(monomerId);
+            let _uProbeMask = Module.RealBIMWeb.GetMonomerRgnProbeMask(monomerId);
             return _uProbeMask > 0 ? true : false;
         };
 
@@ -13622,65 +13655,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             monomerIdList.forEach((element) => {
                 _vector_monomer_id.push_back(element);
             });
-            return Module.RealBIMWeb.LocateToMonomer(_vector_monomer_id);
+            return Module.RealBIMWeb.LocateToMonomerRgn(_vector_monomer_id);
         };
 
         // MOD-- 矢量编辑（ShpEdit）
         Module.ShpEdit = typeof Module.ShpEdit !== 'undefined' ? Module.ShpEdit : {}; //增加 ShpEdit 模块
 
+        // MARK 编辑
         /**
-         * 向当前矢量选择集添加矢量对象
-         * @param {Array} shpIdList //矢量对象标识集合，可编辑矢量操作的模块对象标识
+         * 进入矢量编辑状态
          */
-        Module.ShpEdit.addToSelShps = function (shpIdList) {
-            if (isEmptyLog(shpIdList, 'shpIdList')) return;
-            let _state = false;
-            for (let i = 0; i < shpIdList.length; i++) {
-                _state = Module.RealBIMWeb.AddToObjSelSet(shpIdList[i]);
-            }
-            return _state;
+        Module.ShpEdit.startShpEditState = function () {
+            return Module.RealBIMWeb.BeginShpEdit();
         };
 
         /**
-         * 从当前矢量选择集删除矢量对象
-         * @param {Array} shpIdList //矢量对象标识集合，可编辑矢量操作的模块对象标识
+         * 退出矢量编辑状态
          */
-        Module.ShpEdit.delFromSelShps = function (shpIdList) {
-            if (isEmptyLog(shpIdList, 'shpIdList')) return;
-            let _state = false;
-            for (let i = 0; i < shpIdList.length; i++) {
-                _state = Module.RealBIMWeb.RemoveFromObjSelSet(shpIdList[i]);
-            }
-            return _state;
+        Module.ShpEdit.endShpEditState = function () {
+            return Module.RealBIMWeb.EndShpEdit();
         };
 
         /**
-         * 清空当前矢量选择集
+         * 进入单体化添加状态
+         * @param {String} monomerId //单体化唯一标识
          */
-        Module.ShpEdit.delAllSelShps = function () {
-            Module.RealBIMWeb.ClearObjSelSet();
+        Module.ShpEdit.startAddMonomerState = function (monomerId) {
+            return Module.RealBIMWeb.BeginAddMonomer(monomerId);
         };
 
         /**
-         * 判断当前矢量选择集是否包含矢量对象
-         * @param {String} shpId //矢量对象标识，可编辑矢量操作的模块对象标识
+         * 退出单体化添加状态
          */
-        Module.ShpEdit.getExistSelShps = function (shpId) {
-            if (isEmptyLog(shpId, 'shpId')) return;
-            return Module.RealBIMWeb.IsInObjSelSet(shpId);
+        Module.ShpEdit.endAddMonomerState = function () {
+            return Module.RealBIMWeb.EndAddMonomer();
         };
 
-        /**
-         * 获取当前矢量选择集所有矢量对象标识
-         */
-        Module.ShpEdit.getAllSelShpId = function () {
-            var tempArr = Module.RealBIMWeb.GetAllObjInSelSet();
-            var nameArr = [];
-            for (let i = 0; i < tempArr.size(); ++i) {
-                nameArr.push(tempArr.get(i));
-            }
-            return nameArr;
-        };
     }
 
     // MOD-- 粒子效果（Particle）
