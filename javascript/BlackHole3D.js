@@ -13661,6 +13661,115 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         // MOD-- 矢量编辑（ShpEdit）
         Module.ShpEdit = typeof Module.ShpEdit !== 'undefined' ? Module.ShpEdit : {}; //增加 ShpEdit 模块
 
+        // MARK 加载
+        class REShpInfo {
+            // 矢量信息
+            constructor() {
+                this.shpId = null; //矢量唯一标识
+                this.shpClr = null; //矢量面颜色（REColor 类型）
+                this.visible = true; //是否显示，默认显示
+                this.rgnList = null; // 矢量区域集合，每个区域由点集合构成（至少三个点），一个矢量表示可以由多个区域构成
+            }
+        }
+        ExtModule.REShpInfo = REShpInfo;
+
+        /**
+         * 设置矢量区域对象集合
+         * @param {Array} shpInfoList //矢量信息集合 （REShpInfo 类型）
+         */
+        Module.ShpEdit.setData = function (shpInfoList) {
+            if (!checkTypeLog(shpInfoList, 'shpInfoList', RE_Enum.RE_Check_Array)) return;
+
+            let _vector_shpInfo = new Module.RE_Vector_RE_ShpInfo();
+            for (let i = 0; i < shpInfoList.length; i++) {
+                const _shp_obj = shpInfoList[i];
+                if (isEmptyLog(_shp_obj.shpId, 'shpId')) return;
+                if (isEmptyLog(_shp_obj.rgnList, 'rgnList')) return;
+
+                let _vector_vector_m_arrCorners = new Module.RE_Vector_Vector_dvec3();
+                _shp_obj.rgnList.forEach((rgn) => {
+                    let _vector_m_arrCorner = new Module.RE_Vector_dvec3();
+                    rgn.forEach((corner) => {
+                        _vector_m_arrCorner.push_back(corner);
+                    });
+                    _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
+                });
+
+                let _shpClr = isEmpty(_shp_obj.shpClr) ? 0x7fffffff : clrToU32(_shp_obj.shpClr);
+                let _visible = isEmpty(_shp_obj.visible) ? true : clrToU32(_shp_obj.visible);
+
+                let cShpInfo = {
+                    m_strName: _shp_obj.shpId,
+                    m_uClr: _shpClr,
+                    m_bVisible: _visible,
+                    m_arrCorners: _vector_vector_m_arrCorners,
+                };
+                _vector_shpInfo.push_back(cShpInfo);
+            }
+            Module.RealBIMWeb.SetShpInfo(_vector_shpInfo);
+        };
+
+        /**
+         * 获取当前场景矢量区域对象集合
+         * @param {Array} shpIdList // 矢量标识集合，空数组代表所有
+         */
+        Module.ShpEdit.getData = function (shpIdList) {
+            let _vector_shp_id = new Module.RE_Vector_WStr();
+            shpIdList.forEach((element) => {
+                _vector_shp_id.push_back(element);
+            });
+
+            const _vector_shpInfo = Module.RealBIMWeb.GetShpInfo(_vector_shp_id);
+            let shpInfoList = [];
+            for (let i = 0; i < _vector_shpInfo.size(); i++) {
+                const _cShpInfo = _vector_shpInfo.get(i);
+
+                let _rgn_list = [];
+                for (let j = 0; j < _cShpInfo.m_arrCorners.size(); j++) {
+                    const _arrCornerRgn = _cShpInfo.m_arrCorners.get(j);
+                    let cornerList = [];
+                    for (let k = 0; k < _arrCornerRgn.size(); k++) {
+                        const _cCorner = _arrCornerRgn.get(k);
+                        cornerList.push(_cCorner);
+                    }
+                    _rgn_list.push(cornerList);
+                }
+
+                let shpInfo = new Module.REShpInfo();
+                shpInfo.shpId = _cShpInfo.m_strName;
+                shpInfo.shpClr = clrU32ToClr(_cShpInfo.m_uClr);
+                shpInfo.visible = _cShpInfo.m_bVisible;
+                shpInfo.rgnList = _rgn_list;
+                shpInfoList.push(shpInfo);
+            }
+            return shpInfoList;
+        };
+
+        /**
+         * 获取所有矢量标识
+         */
+        Module.ShpEdit.getAllShpId = function () {
+            const _vector_shp_id = Module.RealBIMWeb.GetAllShpName();
+            let _shpIdList = [];
+            for (let i = 0; i < _vector_shp_id.size(); i++) {
+                _shpIdList.push(_vector_shp_id.get(i));
+            }
+            return _shpIdList;
+        };
+
+        /**
+         * 根据标识删除指定矢量区域
+         * @param {Array} shpIdList // 矢量标识集合，空数组代表删除所有
+         */
+        Module.ShpEdit.delData = function (shpIdList) {
+            if (!checkTypeLog(shpIdList, 'shpIdList', RE_Enum.RE_Check_Array)) return;
+            let _vector_shp_id = new Module.RE_Vector_WStr();
+            shpIdList.forEach((element) => {
+                _vector_shp_id.push_back(element);
+            });
+            return Module.RealBIMWeb.DelShpInfo(_vector_shp_id);
+        };
+
         // MARK 编辑
         /**
          * 进入矢量编辑状态
@@ -13677,20 +13786,133 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         /**
-         * 进入单体化添加状态
-         * @param {String} monomerId //单体化唯一标识
+         * 进入矢量添加状态 注：暂时不支持单个标识包含多个区域的功能
+         * @param {String} shpId //矢量唯一标识
          */
-        Module.ShpEdit.startAddMonomerState = function (monomerId) {
-            return Module.RealBIMWeb.BeginAddMonomer(monomerId);
+        Module.ShpEdit.startAddShpState = function (shpId) {
+            if (Module.ShpEdit.getCurShpId().includes(shpId)) {
+                logWarn('温馨提示：当前使用接口（ShpEdit.startAddShpState）暂时不支持单个标识包含多个区域的功能！');
+                return;
+            }
+            return Module.RealBIMWeb.BeginAddShp(shpId);
         };
 
         /**
-         * 退出单体化添加状态
+         * 退出矢量添加状态
          */
-        Module.ShpEdit.endAddMonomerState = function () {
-            return Module.RealBIMWeb.EndAddMonomer();
+        Module.ShpEdit.endAddShpState = function () {
+            return Module.RealBIMWeb.EndAddShp();
         };
 
+        /**
+         * 获取当前编辑的矢量标识
+         */
+        Module.ShpEdit.getCurShpId = function () {
+            return Module.RealBIMWeb.GetCurShpName();
+        };
+
+        /**
+         * 进入矢量切割状态 注：两点连线构成切割线对矢量面进行切割，切割暂不允许多层区域切割，即单个矢量id含有多个区域的数据，多区域矢量切割无效
+         */
+        Module.ShpEdit.startClipShpState = function () {
+            return Module.RealBIMWeb.BeginTwoPtClipShp('TwoPtClipMode');
+        };
+
+        /**
+         * 退出矢量切割状态
+         */
+        Module.ShpEdit.endClipShpState = function () {
+            return Module.RealBIMWeb.EndTwoPtClipShp();
+        };
+
+        // MARK 渲染效果
+        /**
+         * 设置矢量的可见性
+         * @param {String} shpId // 矢量标识
+         * @param {Boolean} visible // 是否可见
+         */
+        Module.ShpEdit.setVisible = function (shpId, visible) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            let _visible = isEmpty(visible) ? true : visible;
+            return Module.RealBIMWeb.SetShpVisible(shpId, _visible);
+        };
+
+        /**
+         * 获取矢量的可见性
+         * @param {String} shpId //矢量标识
+         */
+        Module.ShpEdit.getVisible = function (shpId) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            return Module.RealBIMWeb.GetShpVisible(shpId);
+        };
+
+        /**
+         * 设置矢量区域颜色
+         * @param {String} shpId //矢量标识
+         * @param {REColor} shpClr //矢量颜色（REColor类型）
+         */
+        Module.ShpEdit.setShpClr = function (shpId, shpClr) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            if (isEmptyLog(shpClr, 'shpClr')) return;
+            let _uClr = clrToU32(shpClr);
+            return Module.RealBIMWeb.SetShpColor(shpId, _uClr);
+        };
+
+        /**
+         * 获取矢量区域颜色
+         * @param {String} shpId //矢量标识
+         */
+        Module.ShpEdit.getShpClr = function (shpId) {
+            if (isEmptyLog(shpId, 'shpId')) return;
+            let _uClr = Module.RealBIMWeb.GetShpColor(shpId);
+            return clrU32ToClr(_uClr);
+        };
+
+        /**
+         * 设置矢量区域切割随机颜色的可用颜色池 注：如果设置了颜色池，随机颜色只会在颜色池内随机，如果不设置则颜色随机
+         * @param {Array} randomClrList //随机颜色集合（REColor类型）
+         */
+        Module.ShpEdit.setShpClipClrPool = function (randomClrList) {
+            if (!checkTypeLog(randomClrList, 'randomClrList', RE_Enum.RE_Check_Array)) return;
+            let _vector_shp_clr = new Module.RE_Vector_u32();
+            randomClrList.forEach((element) => {
+                _vector_shp_clr.push_back(clrToU32(element));
+            });
+            return Module.RealBIMWeb.SetShpClrPool(_vector_shp_clr);
+        };
+
+        /**
+         * 获取矢量区域切割随机颜色的可用颜色池
+         */
+        Module.ShpEdit.getShpClipClrPool = function () {
+            let _vector_shp_clr = Module.RealBIMWeb.GetShpClrPool();
+            let _clrList = [];
+            for (let i = 0; i < _vector_shp_clr.size(); i++) {
+                _clrList.push(clrU32ToClr(_vector_shp_clr.get(i)));
+            }
+            return _clrList;
+        };
+
+        /**
+         * 删除矢量区域切割随机颜色的可用颜色池
+         */
+        Module.ShpEdit.delShpClipClrPool = function () {
+            Module.RealBIMWeb.DelShpClrPool();
+        };
+
+        // MARK 相机
+        /**
+         * 根据矢量标识定位到矢量区域
+         * @param {Array} shpIdList // 矢量标识集合，空数组无效
+         */
+        Module.ShpEdit.setCamToData = function (shpIdList) {
+            if (!checkTypeLog(shpIdList, 'shpIdList', RE_Enum.RE_Check_Array)) return;
+            let _vector_shp_id = new Module.RE_Vector_WStr();
+            shpIdList.forEach((element) => {
+                _vector_shp_id.push_back(element);
+            });
+            return Module.RealBIMWeb.LocateToShp(_vector_shp_id);
+        };
     }
 
     // MOD-- 粒子效果（Particle）

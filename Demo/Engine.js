@@ -48,13 +48,12 @@ function onBeforeUnload() {
 
 // 图形窗口改变时，需实时传递给引擎，否则模型会变形
 function onResize() {
-    // let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
-    // // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
-    // if (BlackHole3D) {
-    //     BlackHole3D.m_re_em_window_width = window.innerWidth;
-    //     BlackHole3D.m_re_em_window_height = window.innerHeight - (isHeader ? 54 : 0);
-    // }
-    BlackHole3D.m_re_em_window_height = window.innerHeight - 54;
+    let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
+    if (BlackHole3D) {
+        BlackHole3D.m_re_em_window_width = window.innerWidth;
+        BlackHole3D.m_re_em_window_height = window.innerHeight - (isHeader ? 54 : 0);
+    }
 }
 // 模型加载的监听
 function addEngineListener() {
