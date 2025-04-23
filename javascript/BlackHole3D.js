@@ -9729,7 +9729,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 this.waterClr = new REColor(61, 158, 135, 255); //水面颜色
                 this.blendDist = 1; //混合系数，值越大边缘混合效果越强  取值范围 0-1
                 this.visible = true; //是否可见
-                this.expandDist = 10.0; //表示水面区域的边界扩充距离
+                this.expandDist = 0.0; //表示水面区域的边界扩充距离
                 this.depthBias = 0.0; //表示水面的深度偏移
                 this.visDist = 200000.0; //表示水面的最远可视距离
             }
@@ -9786,7 +9786,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uClr: clrToU32(obj.waterClr),
                     m_fBlendDist: isEmpty(obj.blendDist) ? 1 : obj.blendDist,
                     m_bVisible: isEmpty(obj.visible) ? true : obj.visible,
-                    m_fExpandDist: isEmpty(obj.expandDist) ? 10.0 : obj.expandDist,
+                    m_fExpandDist: isEmpty(obj.expandDist) ? 0.0 : obj.expandDist,
                     m_fDepthBias: isEmpty(obj.depthBias) ? 0.0 : obj.depthBias,
                     m_fVisDist: isEmpty(obj.visDist) ? 200000.0 : obj.visDist,
                     m_arrCorners: _vector_vector_m_arrCorners,
