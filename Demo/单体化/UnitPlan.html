@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-04-22 15:48:35
+ * @LastEditTime: 2025-04-23 17:20:45
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -16,7 +16,15 @@
     <body>
         <div id="canvas-cntrNew">
             <div class="btnNew">
-                <button onclick="setWorld()">添加有世界坐标的项目</button>
+                <button onclick="startEdit()">开始编辑</button>
+                <button onclick="endEdit()">结束编辑</button>
+                <button onclick="addShp()">添加矢量面（右键结束）</button>
+                <button onclick="startShpClip()">开始切割（右键结束）</button>
+                <button onclick="delAll()">删除</button>
+                <span style="margin-left: 10px">分层：</span><input type="text" id="id_layerNum" value="2" style="margin-right: 10px" />
+                <span>层高：</span><input type="text" id="id_layerHeight" value="3" />
+                <button onclick="addVolumeShp()">添加体积矢量</button>
+                <button onclick="addMonomer()">添加单体化</button>
             </div>
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
             <div class="custom-loading-container">
@@ -59,13 +67,15 @@
             function loadDataSet() {
                 var dataSetList = [
                     {
-                        dataSetId: '单体化_Grid',
-                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        dataSetId: 'Shp_Grid',
+                        resourcesAddress:
+                            'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                            // 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a196ebca342127a3b2a8ecc05210566',
                         useTransInfo: true,
                         transInfo: [
                             [1, 1, 1],
                             [0, 0, 0, 1],
-                            [9200, 27000, 0.0],
+                            [0.0, 0.0, 0.0],
                         ],
                         dataSetCRS: '',
                         dataSetCRSNorth: 0.0,
@@ -73,9 +83,80 @@
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
             }
-            function setWorld() {
+
+            function startEdit() {
                 BlackHole3D.ShpEdit.startShpEditState();
-                BlackHole3D.ShpEdit.startAddShpState("666");
+            }
+
+            function endEdit() {
+                Shp_Rgn_count++;
+                BlackHole3D.ShpEdit.endShpEditState();
+            }
+            
+            var Shp_Rgn_count = 0;
+            function addShp() {
+                BlackHole3D.ShpEdit.startAddShpState('Shp_' + Shp_Rgn_count);
+            }
+
+            function startShpClip() {
+                BlackHole3D.ShpEdit.startClipShpState();
+            }
+
+            function delAll() {
+                BlackHole3D.ShpEdit.delData([]);
+                BlackHole3D.Geometry.delAllShps();
+            }
+            var shpList = [];
+            var volumeShpList = [];
+            function addVolumeShp() {
+                BlackHole3D.Geometry.delAllShps();
+                shpList = [];
+                volumeShpList = [];
+                shpList = BlackHole3D.ShpEdit.getData([]);
+
+                const layerNum = Number.parseInt(document.getElementById('id_layerNum').value);
+                const layerHeight = Number.parseInt(document.getElementById('id_layerHeight').value);
+                for (let i = 0; i < layerNum; i++) {
+                    // 每层
+                    shpList.forEach((shpInfo) => {
+                        // 每户
+                        let potList = JSON.parse(JSON.stringify(shpInfo.rgnList[0]));
+                        potList.forEach((element) => {
+                            element.push(layerHeight);
+                            element[2] += i * layerHeight;
+                        });
+                        //体积矢量对象
+                        let volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
+                        volumeShpInfo.shpName = shpInfo.shpId + '_volume' + '_layer_' + i;
+                        volumeShpInfo.potList = potList;
+                        volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                        volumeShpInfo.genLine = true;
+                        volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
+                        volumeShpInfo.lineWidth = 1;
+                        BlackHole3D.Geometry.addPolyVolumeShp(volumeShpInfo);
+                        volumeShpList.push(volumeShpInfo);
+                    });
+                }
+                console.log(volumeShpList);
+            }
+
+            function addMonomer() {
+                let monomerList = [];
+                volumeShpList.forEach((volumeShp) => {
+                    let posList_temp = JSON.parse(JSON.stringify(volumeShp.potList))
+                    posList_temp.forEach((el) => el.pop());
+
+                    let monomer = new BlackHole3D.REMonomerInfo();
+                    monomer.monomerId = volumeShp.shpName.replace('_volume', '_monomer');
+                    monomer.dataSetId = 'Shp_Grid';
+                    monomer.rgnList = [posList_temp];
+                    monomer.heightMin = volumeShp.potList[0][2];
+                    monomer.heightMax = volumeShp.potList[0][2] + volumeShp.potList[0][3];
+                    monomer.monomerClr = new BlackHole3D.REColor(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), 114);
+                    monomerList.push(monomer);
+                });
+                console.log(monomerList);
+                BlackHole3D.Monomer.setData(monomerList);
             }
         </script>
     </body>

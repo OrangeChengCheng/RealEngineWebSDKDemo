@@ -49,6 +49,7 @@ body {
     height: 54px;
     overflow-x: hidden;
     flex-shrink: 0;
+    color:#000;
 }
 
 button {
