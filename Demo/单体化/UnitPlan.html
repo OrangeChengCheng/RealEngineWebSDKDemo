@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-04-23 17:20:45
+ * @LastEditTime: 2025-04-27 11:35:38
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -19,7 +19,16 @@
                 <button onclick="startEdit()">开始编辑</button>
                 <button onclick="endEdit()">结束编辑</button>
                 <button onclick="addShp()">添加矢量面（右键结束）</button>
+                <button onclick="addOPF()">拍平</button>
                 <button onclick="startShpClip()">开始切割（右键结束）</button>
+            </div>
+            <div class="btnNew-2">
+                <select class="select" id="del_type">
+                    <option value="0">矢量</option>
+                    <option value="1">拍平</option>
+                    <option value="2">体积</option>
+                    <option value="3">单体化</option>
+                </select>
                 <button onclick="delAll()">删除</button>
                 <span style="margin-left: 10px">分层：</span><input type="text" id="id_layerNum" value="2" style="margin-right: 10px" />
                 <span>层高：</span><input type="text" id="id_layerHeight" value="3" />
@@ -57,6 +66,24 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
+            document.addEventListener('REEditShpFinish', REEditShpFinish); 
+
+            function REEditShpFinish(e) {
+                console.log('-- 编辑矢量操作完成回调事件 --', e);
+            }
+
+            document.addEventListener('REAddShpRgnFinish', REAddShpRgnFinish); 
+
+            function REAddShpRgnFinish(e) {
+                console.log('-- 矢量添加区域完成回调事件 --', e);
+            }
+
+            document.addEventListener('REShpClipFinish', REShpClipFinish); 
+
+            function REShpClipFinish(e) {
+                console.log('-- 矢量切割完成回调事件 --', e);
+            }
+
             function RESystemEngineCreatedCallBack() {
                 loadDataSet();
                 BlackHole3D.Common.setMaxResMemMB(5500);
@@ -68,14 +95,13 @@
                 var dataSetList = [
                     {
                         dataSetId: 'Shp_Grid',
-                        resourcesAddress:
-                            'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
-                            // 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a196ebca342127a3b2a8ecc05210566',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+                        // 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a196ebca342127a3b2a8ecc05210566',
                         useTransInfo: true,
                         transInfo: [
                             [1, 1, 1],
                             [0, 0, 0, 1],
-                            [0.0, 0.0, 0.0],
+                            [9200, 27000, 0.0],
                         ],
                         dataSetCRS: '',
                         dataSetCRSNorth: 0.0,
@@ -92,7 +118,7 @@
                 Shp_Rgn_count++;
                 BlackHole3D.ShpEdit.endShpEditState();
             }
-            
+
             var Shp_Rgn_count = 0;
             function addShp() {
                 BlackHole3D.ShpEdit.startAddShpState('Shp_' + Shp_Rgn_count);
@@ -103,10 +129,48 @@
             }
 
             function delAll() {
-                BlackHole3D.ShpEdit.delData([]);
-                BlackHole3D.Geometry.delAllShps();
+                var type = Number.parseInt(document.getElementById('del_type').value);
+                if (type == 0) {
+                    if (BlackHole3D.ShpEdit.getAllShpId().length > 0) {
+                        BlackHole3D.ShpEdit.delData([]);
+                    }
+                } else if (type == 1) {
+                    if (BlackHole3D.Extrude.getAllExtrudeId().length > 0) {
+                        BlackHole3D.Extrude.delData([]);
+                    }
+                } else if (type == 2) {
+                    BlackHole3D.Geometry.delAllShps();
+                } else if (type == 3) {
+                    if (BlackHole3D.Monomer.getAllMonomerId().length > 0) {
+                        BlackHole3D.Monomer.delData([]);
+                    }
+                }
             }
+
             var shpList = [];
+            function addOPF() {
+                shpList = [];
+                shpList = BlackHole3D.ShpEdit.getData([]);
+                const shpInfo = shpList[0];
+                let rgnList = JSON.parse(JSON.stringify(shpInfo.rgnList));
+                // potList.forEach((element) => {
+                //     element.push(layerHeight);
+                //     element[2] += i * layerHeight;
+                // });
+                console.log(rgnList);
+
+                // 拍平（简易投射）
+                let extrudeInfo_OB_1_2 = new BlackHole3D.REExtrudeInfo();
+                extrudeInfo_OB_1_2.extrudeId = shpInfo.shpId + '_extrude';
+                extrudeInfo_OB_1_2.dataSetIdList = ['Shp_Grid'];
+                extrudeInfo_OB_1_2.rgnList = rgnList;
+                extrudeInfo_OB_1_2.type = 1; // 拍平（简易投射）
+
+                // 创建挤出对象集合
+                let extrudeList_ob = [extrudeInfo_OB_1_2];
+                BlackHole3D.Extrude.setData(extrudeList_ob);
+            }
+
             var volumeShpList = [];
             function addVolumeShp() {
                 BlackHole3D.Geometry.delAllShps();
@@ -129,7 +193,12 @@
                         let volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
                         volumeShpInfo.shpName = shpInfo.shpId + '_volume' + '_layer_' + i;
                         volumeShpInfo.potList = potList;
-                        volumeShpInfo.fenceClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                        volumeShpInfo.fenceClr = new BlackHole3D.REColor(
+                            Math.floor(Math.random() * 256),
+                            Math.floor(Math.random() * 256),
+                            Math.floor(Math.random() * 256),
+                            114
+                        );
                         volumeShpInfo.genLine = true;
                         volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 128);
                         volumeShpInfo.lineWidth = 1;
@@ -143,16 +212,21 @@
             function addMonomer() {
                 let monomerList = [];
                 volumeShpList.forEach((volumeShp) => {
-                    let posList_temp = JSON.parse(JSON.stringify(volumeShp.potList))
+                    let posList_temp = JSON.parse(JSON.stringify(volumeShp.potList));
                     posList_temp.forEach((el) => el.pop());
 
                     let monomer = new BlackHole3D.REMonomerInfo();
                     monomer.monomerId = volumeShp.shpName.replace('_volume', '_monomer');
-                    monomer.dataSetId = 'Shp_Grid';
+                    monomer.dataSetId = '';
                     monomer.rgnList = [posList_temp];
                     monomer.heightMin = volumeShp.potList[0][2];
                     monomer.heightMax = volumeShp.potList[0][2] + volumeShp.potList[0][3];
-                    monomer.monomerClr = new BlackHole3D.REColor(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), 114);
+                    monomer.monomerClr = new BlackHole3D.REColor(
+                        Math.floor(Math.random() * 256),
+                        Math.floor(Math.random() * 256),
+                        Math.floor(Math.random() * 256),
+                        114
+                    );
                     monomerList.push(monomer);
                 });
                 console.log(monomerList);

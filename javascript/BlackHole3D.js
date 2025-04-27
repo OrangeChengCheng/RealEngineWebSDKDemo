@@ -80,6 +80,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             document.addEventListener('REAddMonomerRgnFinish_Web', REAddMonomerRgnFinish_Web); //单体化添加区域完成回调事件
             document.addEventListener('REAddMonomerRgnCheck_Web', REAddMonomerRgnCheck_Web); //单体化添加区域检查回调事件
             document.addEventListener('REEditMonomerFinish_Web', REEditMonomerFinish_Web); //编辑单体化操作完成回调事件
+            document.addEventListener('REEditShpFinish_Web', REEditShpFinish_Web); //编辑矢量操作完成回调事件
+            document.addEventListener('REAddShpRgnFinish_Web', REAddShpRgnFinish_Web); //矢量添加区域完成回调事件
+            document.addEventListener('REShpClipFinish_Web', REShpClipFinish_Web); //矢量切割完成回调事件
+            document.addEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web); //矢量添加区域检查回调事件
         }
         return bool;
     };
@@ -97,6 +101,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             document.removeEventListener('REAddMonomerRgnFinish_Web', REAddMonomerRgnFinish_Web);
             document.removeEventListener('REAddMonomerRgnCheck_Web', REAddMonomerRgnCheck_Web);
             document.removeEventListener('REEditMonomerFinish_Web', REEditMonomerFinish_Web);
+            document.removeEventListener('REEditShpFinish_Web', REEditShpFinish_Web);
+            document.removeEventListener('REAddShpRgnFinish_Web', REAddShpRgnFinish_Web);
+            document.removeEventListener('REShpClipFinish_Web', REShpClipFinish_Web);
+            document.removeEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web);
         }
     }
 
@@ -177,6 +185,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 detail: e.detail,
             });
             document.dispatchEvent(re_event_REEditMonomerFinish);
+        }
+
+        function REEditShpFinish_Web(e) {
+            const re_event_REEditShpFinish = new CustomEvent('REEditShpFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REEditShpFinish);
+        }
+
+        function REAddShpRgnFinish_Web(e) {
+            const re_event_REAddShpRgnFinish = new CustomEvent('REAddShpRgnFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddShpRgnFinish);
+        }
+
+        function REShpClipFinish_Web(e) {
+            const re_event_REShpClipFinish = new CustomEvent('REShpClipFinish', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REShpClipFinish);
+        }
+
+        function REAddShpRgnCheck_Web(e) {
+            const re_event_REAddShpRgnCheck = new CustomEvent('REAddShpRgnCheck', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REAddShpRgnCheck);
         }
     }
 
@@ -12350,6 +12386,132 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetEntityTrackAni(trackAnimInfo.dataSetId, trackAnimInfo.elemId, _cInfo);
     };
 
+    // MARK 动画脚本
+    class REEntityAnimScriptInfo {
+        // 单构件动画脚本信息
+        constructor() {
+            this.playScriptId = null; // 动画脚本标识
+            this.playerSetList = null; // 动画播放器设置集合（REPlayerSetInfo 类型）
+            this.totalTimeLen = 0; // 动画脚本总时长
+        }
+    }
+    ExtModule.REEntityAnimScriptInfo = REEntityAnimScriptInfo;
+
+    class REPlayerSetInfo {
+        // 播放器设置信息
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.elemId = null; // 构件标识
+            this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
+            this.animName = null; // 动画标识，世界空间动画类型，该字段无效
+            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.startTime = 0; // 动画播放开始时间
+            this.timeLen = 0; // 动画播放时长
+            this.playSetList = null; // 动画播放设置集合（REPlaySetInfo 类型）
+        }
+    }
+    ExtModule.REPlayerSetInfo = REPlayerSetInfo;
+
+    class REPlaySetInfo {
+        // 播放设置信息
+        constructor() {
+            this.time = 0.0; // 播放位置（所在整个动画脚本的总时长）
+            this.state = 1; // 当前时刻动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+        }
+    }
+    ExtModule.REPlaySetInfo = REPlaySetInfo;
+
+    /**
+     * 增加一个动画脚本
+     * @param {REEntityAnimScriptInfo} animScriptInfo //动画脚本信息
+     */
+    Module.Entity.addAnimScript = function (animScriptInfo) {
+        if (isEmptyLog(animScriptInfo, 'animScriptInfo')) return;
+        if (isEmptyLog(animScriptInfo.playScriptId, 'playScriptId')) return;
+        if (!checkTypeLog(animScriptInfo.playerSetList, 'playerSetList', RE_Enum.RE_Check_Array)) return;
+
+        let _vector_player_set = new Module.RE_Vector_PLAYER_SET_W();
+        for (let i = 0; i < animScriptInfo.playerSetList.length; i++) {
+            const playerSet = animScriptInfo.playerSetList[i];
+            if (isEmptyLog(playerSet.dataSetId, 'dataSetId')) return;
+            if (isEmptyLog(playerSet.elemId, 'elemId')) return;
+            if (!checkTypeLog(playerSet.playSetList, 'playSetList', RE_Enum.RE_Check_Array)) return;
+
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(playerSet.dataSetId);
+            let _vector_ainm_play_set = new Module.RE_Vector_ANI_PLAY_SET();
+            for (let j = 0; j < playerSet.playSetList.length; j++) {
+                const playSet = playerSet.playSetList[j];
+                let _animPlayState = isEmpty(playSet.state) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(playSet.state);
+                let _cPlaySet = {
+                    m_dTime: playSet.time,
+                    m_eState: _animPlayState,
+                };
+                _vector_ainm_play_set.push_back(_cPlaySet);
+            }
+            let _animLevel = isEmpty(playerSet.animLevel) ? 0 : playerSet.animLevel;
+            let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+            if (_animLevel == 1) {
+                _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+            }
+            let _animPlayMode = isEmpty(playerSet.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(playerSet.animPlayMode);
+            let _startTime = isEmpty(playerSet.startTime) ? 0 : playerSet.startTime;
+            let _timeLen = isEmpty(playerSet.timeLen) ? 0 : playerSet.timeLen;
+            let _cPlayerSet = {
+                m_strProjName: playerSet.dataSetId,
+                m_uEntityID_L32: playerSet.elemId,
+                m_uEntityID_H32: _projid,
+                m_eAniLevel: _eAniLevel,
+                m_strAniName: isEmpty(playerSet.animName) ? '' : playerSet.animName,
+                m_ePlayMode: _animPlayMode,
+                m_dStartTime: _startTime,
+                m_dTimeLen: _timeLen,
+                m_arrPlaySets: _vector_ainm_play_set,
+            };
+            _vector_player_set.push_back(_cPlayerSet);
+        }
+        let _cAnimScript = {
+            m_arrPlayerSets: _vector_player_set,
+            m_dTotalTimeLen: animScriptInfo.totalTimeLen,
+        };
+        Module.RealBIMWeb.AddAnimPlayScript(animScriptInfo.playScriptId, _cAnimScript);
+    };
+
+    /**
+     * 清除动画脚本
+     */
+    Module.Entity.delAnimScript = function () {
+        Module.RealBIMWeb.ClearAnimPlayScript();
+    };
+
+    /**
+     * 设置动画脚本播放状态
+     * @param {String} playScriptId //动画脚本标识
+     * @param {REEntityAnimPlayStateEm} animPlayState //动画脚本播放状态 类型 REEntityAnimPlayStateEm 枚举
+     */
+    Module.Entity.setAnimScriptPlayState = function (playScriptId, animPlayState) {
+        if (isEmptyLog(playScriptId, 'playScriptId')) return;
+        let _animPlayState = isEmpty(animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayState);
+        Module.RealBIMWeb.SetAnimPlayScriptState(playScriptId, _animPlayState);
+    };
+
+    /**
+     * 激活一个动画脚本
+     * @param {String} playScriptId //动画脚本标识
+     */
+    Module.Entity.setAnimScriptActive = function (playScriptId) {
+        if (isEmptyLog(playScriptId, 'playScriptId')) return;
+        Module.RealBIMWeb.ActiveAnimPlayScript(playScriptId);
+    };
+
+    /**
+     * 停止一个动画脚本
+     * @param {String} playScriptId //动画脚本标识
+     */
+    Module.Entity.setAnimScriptStop = function (playScriptId) {
+        if (isEmptyLog(playScriptId, 'playScriptId')) return;
+        Module.RealBIMWeb.StopAnimPlayScript(playScriptId);
+    };
+
     if (hasEntityAniEdit) {
         // MARK 骨骼动画
         class REEntityAnimInfo {
@@ -12526,128 +12688,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             animInfo.boneInfoList = boneInfoList;
             animInfo.selfAnimNameList = selfAnimNameList;
             return animInfo;
-        };
-
-        // MARK 动画脚本
-        class REEntityAnimScriptInfo {
-            // 单构件动画脚本信息
-            constructor() {
-                this.playScriptId = null; // 动画脚本标识
-                this.playerSetList = null; // 动画播放器设置集合（REPlayerSetInfo 类型）
-                this.totalTimeLen = 0; // 动画脚本总时长
-            }
-        }
-        ExtModule.REEntityAnimScriptInfo = REEntityAnimScriptInfo;
-
-        class REPlayerSetInfo {
-            // 播放器设置信息
-            constructor() {
-                this.dataSetId = null; // 数据集标识
-                this.elemId = null; // 构件标识
-                this.animLevel = 0; // 动画级别 0：世界空间动画  1：自身动画
-                this.animName = null; // 动画标识，世界空间动画类型，该字段无效
-                this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
-                this.startTime = 0; // 动画播放开始时间
-                this.timeLen = 0; // 动画播放时长
-                this.playSetList = null; // 动画播放设置集合（REPlaySetInfo 类型）
-            }
-        }
-        ExtModule.REPlayerSetInfo = REPlayerSetInfo;
-
-        class REPlaySetInfo {
-            // 播放设置信息
-            constructor() {
-                this.time = 0.0; // 播放位置（所在整个动画脚本的总时长）
-                this.state = 1; // 当前时刻动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
-            }
-        }
-        ExtModule.REPlaySetInfo = REPlaySetInfo;
-
-        /**
-         * 增加一个动画脚本
-         * @param {REEntityAnimScriptInfo} animScriptInfo //动画脚本信息
-         */
-        Module.Entity.addAnimScript = function (animScriptInfo) {
-            if (isEmptyLog(animScriptInfo, 'animScriptInfo')) return;
-            if (isEmptyLog(animScriptInfo.playScriptId, 'playScriptId')) return;
-            if (!checkTypeLog(animScriptInfo.playerSetList, 'playerSetList', RE_Enum.RE_Check_Array)) return;
-
-            let _vector_player_set = new Module.RE_Vector_PLAYER_SET_W();
-            for (let i = 0; i < animScriptInfo.playerSetList.length; i++) {
-                const playerSet = animScriptInfo.playerSetList[i];
-                if (isEmptyLog(playerSet.dataSetId, 'dataSetId')) return;
-                if (isEmptyLog(playerSet.elemId, 'elemId')) return;
-                if (!checkTypeLog(playerSet.playSetList, 'playSetList', RE_Enum.RE_Check_Array)) return;
-
-                var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(playerSet.dataSetId);
-                let _vector_ainm_play_set = new Module.RE_Vector_ANI_PLAY_SET();
-                for (let j = 0; j < playerSet.playSetList.length; j++) {
-                    const playSet = playerSet.playSetList[j];
-                    let _animPlayState = isEmpty(playerSet.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(playerSet.animPlayState);
-                    let _cPlaySet = {
-                        m_dTime: playSet.time,
-                        m_eState: _animPlayState,
-                    };
-                    _vector_ainm_play_set.push_back(_cPlaySet);
-                }
-                let _animLevel = isEmpty(playerSet.animLevel) ? 0 : playerSet.animLevel;
-                let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
-                if (_animLevel == 1) {
-                    _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
-                }
-                let _animPlayMode = isEmpty(playerSet.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(playerSet.animPlayMode);
-                let _cPlayerSet = {
-                    m_strProjName: playerSet.dataSetId,
-                    m_uEntityID_L32: playerSet.elemId,
-                    m_uEntityID_H32: _projid,
-                    m_eAniLevel: _eAniLevel,
-                    m_strAniName: isEmpty(playerSet.animName) ? '' : playerSet.animName,
-                    m_ePlayMode: _animPlayMode,
-                    m_arrPlaySets: _vector_ainm_play_set,
-                };
-                _vector_player_set.push_back(_cPlayerSet);
-            }
-            let _cAnimScript = {
-                m_arrPlayerSets: _vector_player_set,
-                m_dTotalTimeLen: animScriptInfo.totalTimeLen,
-            };
-            Module.RealBIMWeb.AddAnimPlayScript(animScriptInfo.playScriptId, _cAnimScript);
-        };
-
-        /**
-         * 清除动画脚本
-         */
-        Module.Entity.delAnimScript = function () {
-            Module.RealBIMWeb.ClearAnimPlayScript();
-        };
-
-        /**
-         * 设置动画脚本播放状态
-         * @param {String} playScriptId //动画脚本标识
-         * @param {REEntityAnimPlayStateEm} animPlayState //动画脚本播放状态 类型 REEntityAnimPlayStateEm 枚举
-         */
-        Module.Entity.setAnimScriptPlayState = function (playScriptId, animPlayState) {
-            if (isEmptyLog(playScriptId, 'playScriptId')) return;
-            let _animPlayState = isEmpty(animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animPlayState);
-            Module.RealBIMWeb.SetAnimPlayScriptState(playScriptId, _animPlayState);
-        };
-
-        /**
-         * 激活一个动画脚本
-         * @param {String} playScriptId //动画脚本标识
-         */
-        Module.Entity.setAnimScriptActive = function (playScriptId) {
-            if (isEmptyLog(playScriptId, 'playScriptId')) return;
-            Module.RealBIMWeb.ActiveAnimPlayScript(playScriptId);
-        };
-
-        /**
-         * 停止一个动画脚本
-         * @param {String} playScriptId //动画脚本标识
-         */
-        Module.Entity.setAnimScriptStop = function (playScriptId) {
-            if (isEmptyLog(playScriptId, 'playScriptId')) return;
-            Module.RealBIMWeb.StopAnimPlayScript(playScriptId);
         };
     }
 
@@ -13770,6 +13810,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.DelShpInfo(_vector_shp_id);
         };
 
+        /**
+         * 获取错误绘制的矢量区域的标识集合
+         */
+        Module.ShpEdit.getErrorDrawShpIds = function () {
+            const _vector_shp_id = Module.RealBIMWeb.GetErrorShpName();
+            let _shpIdList = [];
+            for (let i = 0; i < _vector_shp_id.size(); i++) {
+                _shpIdList.push(_vector_shp_id.get(i));
+            }
+            return _shpIdList;
+        };
+
         // MARK 编辑
         /**
          * 进入矢量编辑状态
@@ -13790,7 +13842,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} shpId //矢量唯一标识
          */
         Module.ShpEdit.startAddShpState = function (shpId) {
-            if (Module.ShpEdit.getCurShpId().includes(shpId)) {
+            if (Module.ShpEdit.getAllShpId().includes(shpId)) {
                 logWarn('温馨提示：当前使用接口（ShpEdit.startAddShpState）暂时不支持单个标识包含多个区域的功能！');
                 return;
             }
@@ -15289,6 +15341,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         PAUSE: 'Module.RE_ANIM_STATE.PAUSE', //表示当前正处于暂停状态
         STOPMIN: 'Module.RE_ANIM_STATE.STOPMIN', //表示当前正处于停止状态，播放位置在最小边界处
         STOPMAX: 'Module.RE_ANIM_STATE.STOPMAX', //表示当前正处于停止状态，播放位置在最大边界处
+        FORCEDWORD: 'Module.RE_ANIM_STATE.FORCEDWORD', //0x7fffffff
     };
     ExtModule.REEntityAnimPlayStateEm = REEntityAnimPlayStateEm;
 

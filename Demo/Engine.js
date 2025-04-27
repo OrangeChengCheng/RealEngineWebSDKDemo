@@ -9,6 +9,13 @@ var re_canvas_size = {
     width: window.innerWidth,
     height: window.innerHeight,
 };
+
+function getTopHeight() {
+    let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    let isHeader_2 = document.getElementsByClassName('btnNew-2')?.[0]?.clientHeight === 54 || document.getElementById('btnNew-2'); //若有头部header栏，则减去54px
+    return isHeader ? (isHeader_2 ? 54 + 54 : 54) : 0;
+}
+
 // 页面加载时添加相关监听事件
 window.onload = function () {
     // 若资源未准备好，则等待资源加载完成后再初始化
@@ -22,11 +29,12 @@ window.onload = function () {
         return canvas;
     })();
     BlackHole3D = CreateBlackHoleWebSDK(BlackHole3D);
-    let re_css_isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    // let re_css_isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    let topHeight = getTopHeight();
     // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
     if (BlackHole3D) {
         re_canvas_size.width = window.innerWidth;
-        re_canvas_size.height = window.innerHeight - (re_css_isHeader ? 54 : 0);
+        re_canvas_size.height = window.innerHeight - topHeight;
     }
     onResize(); // 初始化时调用一次，防止页面加载时出现比例问题
     // 开始监听模型加载
@@ -48,11 +56,12 @@ function onBeforeUnload() {
 
 // 图形窗口改变时，需实时传递给引擎，否则模型会变形
 function onResize() {
-    let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
+    // let isHeader = document.getElementsByClassName('btnNew')?.[0]?.clientHeight === 54 || document.getElementById('btnNew'); //若有头部header栏，则减去54px
     // 目标宽高window.innerWidth，window.innerHeight，这里可结合实际场景设置canvas窗口大小
+    let topHeight = getTopHeight();
     if (BlackHole3D) {
         BlackHole3D.m_re_em_window_width = window.innerWidth;
-        BlackHole3D.m_re_em_window_height = window.innerHeight - (isHeader ? 54 : 0);
+        BlackHole3D.m_re_em_window_height = window.innerHeight - topHeight;
     }
 }
 // 模型加载的监听

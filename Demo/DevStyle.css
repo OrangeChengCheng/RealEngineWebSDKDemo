@@ -52,6 +52,18 @@ body {
     color:#000;
 }
 
+.btnNew-2 {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    width: 100%;
+    height: 54px;
+    overflow-x: hidden;
+    flex-shrink: 0;
+    color:#000;
+}
+
 button {
     text-align: center;
     box-sizing: border-box;
@@ -87,6 +99,17 @@ input {
     white-space: nowrap;
     cursor: pointer;
     border: 1px solid #dcdfe6;
+}
+
+.select {
+    cursor: pointer;
+    position: relative;
+    margin-left: 10px;
+    width: 150px;
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid #4e7dff;
+    outline: none;
 }
 
 .custom-loading-container {

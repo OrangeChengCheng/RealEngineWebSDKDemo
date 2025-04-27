@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-03-28 19:40:19
+ * @LastEditTime: 2025-04-24 17:30:29
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -176,14 +176,14 @@
                 BlackHole3D.Entity.setAniInfo(huoche_move_world_anim); // 设置单构件动画信息
 
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('huoche');
-                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayStateInfo.dataSetId = 'huoche';
                 animPlayStateInfo.elemId = 1;
                 animPlayStateInfo.animName = '';
                 animPlayStateInfo.animLevel = 0;
                 animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
                 animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
-                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
             }
             function setHuocheAni_tyre() {
                 // 需要给货车添加自身动画，添加自身动画前，需要先获取货车自身动画信息，在编辑自身动画信息，不然会将货车原本自身动画信息覆盖
@@ -245,14 +245,14 @@
                 BlackHole3D.Entity.setAniInfo(huoche_anim); // 设置单构件动画信息
 
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('huoche');
-                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayStateInfo.dataSetId = 'huoche';
                 animPlayStateInfo.elemId = 1;
                 animPlayStateInfo.animName = 'ani002';
                 animPlayStateInfo.animLevel = 1;
                 animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
                 animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
-                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
             }
             function setZhuagouAni_move() {
                 // 设置抓钩位移动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
@@ -289,14 +289,14 @@
                 BlackHole3D.Entity.setAniInfo(zhuagou_move_world_anim); // 设置单构件动画信息
 
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('zhuagou');
-                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayStateInfo.dataSetId = 'zhuagou';
                 animPlayStateInfo.elemId = 1;
                 animPlayStateInfo.animName = '';
                 animPlayStateInfo.animLevel = 0;
                 animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
                 animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
-                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
             }
             function setZhuagouAni_operate() {
                 // 获取抓钩的动画信息
@@ -418,14 +418,14 @@
 
                 // 设置动画播放状态
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('zhuagou');
-                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayStateInfo.dataSetId = 'zhuagou';
                 animPlayStateInfo.elemId = 1;
                 animPlayStateInfo.animName = 'ani001';
                 animPlayStateInfo.animLevel = 1;
                 animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
                 animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
-                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
             }
             function setHuowuAni_move() {
                 // 设置货物动画信息（世界空间动画可以直接创建动画信息，不需要获取原始动画信息）
@@ -505,14 +505,14 @@
                 BlackHole3D.Entity.setAniInfo(huowu_move_world_anim); // 设置单构件动画信息
 
                 let typeNames = BlackHole3D.Entity.getAllTypeNames('huowu');
-                let animPlayStateInfo = new BlackHole3D.REEntityAnimPlayStateInfo();
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayStateInfo.dataSetId = 'huowu';
                 animPlayStateInfo.elemId = 1;
                 animPlayStateInfo.animName = '';
                 animPlayStateInfo.animLevel = 0;
                 animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
                 animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
-                BlackHole3D.Entity.setAnimPlayState(animPlayStateInfo);
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
             }
             function setAnimScript() {
                 // 设置单构件动画信息

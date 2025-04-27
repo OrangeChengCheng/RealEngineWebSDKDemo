@@ -1,0 +1,192 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-04-25 14:36:37
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="setAnimScript()">动画脚本</button>
+                <button onclick="huocheXiehuo()">货车动画</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'changdi',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                    },
+                    {
+                        dataSetId: 'huoche',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/hc',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                addEntity();
+            }
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                let entityList = [];
+                let typeNames_huoche = BlackHole3D.Entity.getAllTypeNames('huoche');
+                if (typeNames_huoche.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'huoche';
+                    entity.entityType = typeNames_huoche[0];
+                    entity.elemId = 1;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [300.0, 400.0, 2.163];
+                    entityList.push(entity);
+                }
+
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+
+            function huocheXiehuo() {
+                let typeNames = BlackHole3D.Entity.getAllTypeNames('huoche');
+                let animPlayStateInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayStateInfo.dataSetId = 'huoche';
+                animPlayStateInfo.elemId = 1;
+                animPlayStateInfo.animName = 'ani001';
+                animPlayStateInfo.animLevel = 1;
+                animPlayStateInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                animPlayStateInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayStateInfo);
+            }
+            function setAnimScript() {
+                {
+                    let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
+                    trackInfo.dataSetId = 'huoche';
+                    trackInfo.elemId = 1;
+                    trackInfo.trackPointList = [
+                        [268.1516942425886, 412.1152666772725, 2.162647794886439],
+                        [268.37034507350046, 409.84989341814963, 2.162647794886439],
+                        [268.58706670706755, 405.50119880674055, 2.162647794886439],
+                        [273.5447366518252, 403.6194642625328, 2.162647794886439],
+                        [277.773577083437, 399.0003991324121, 2.162647794886439],
+                    ];
+                    trackInfo.pathColsed = false;
+                    trackInfo.speed = 1.0;
+                    trackInfo.selfVect = [0.0, -1.0, 0.0];
+
+                    BlackHole3D.Entity.setTrackAnim(trackInfo);
+                }
+
+                // 创建动画脚本
+                {
+                    let animScriptInfo = new BlackHole3D.REEntityAnimScriptInfo();
+                    animScriptInfo.totalTimeLen = 30.0;
+                    animScriptInfo.playScriptId = 'anim_script_1';
+                    animScriptInfo.playerSetList = [];
+
+                    // 动画脚本 - 货车（路径）
+                    {
+                        let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                        playerSetInfo.dataSetId = 'huoche';
+                        playerSetInfo.elemId = 1;
+                        playerSetInfo.animLevel = 0;
+                        playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+                        playerSetInfo.animName = '';
+                        playerSetInfo.startTime = 0;
+                        playerSetInfo.timeLen = 30;
+                        playerSetInfo.playSetList = [];
+
+                        let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_1.time = 0.0;
+                        playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                        playerSetInfo.playSetList.push(playSetInfo_1);
+
+                        let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_2.time = 10.0;
+                        playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                        playerSetInfo.playSetList.push(playSetInfo_2);
+
+                        let playSetInfo_3 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_3.time = 20.0;
+                        playSetInfo_3.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                        playerSetInfo.playSetList.push(playSetInfo_3);
+
+                        animScriptInfo.playerSetList.push(playerSetInfo);
+                    }
+
+                    // 动画脚本 - 货车（卸货）
+                    {
+                        let playerSetInfo = new BlackHole3D.REPlayerSetInfo();
+                        playerSetInfo.dataSetId = 'huoche';
+                        playerSetInfo.elemId = 1;
+                        playerSetInfo.animLevel = 1;
+                        playerSetInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                        playerSetInfo.animName = 'ani001';
+                        playerSetInfo.startTime = 0;
+                        playerSetInfo.timeLen = 20;
+                        playerSetInfo.playSetList = [];
+
+                        let playSetInfo_1 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_1.time = 0.0;
+                        playSetInfo_1.state = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                        playerSetInfo.playSetList.push(playSetInfo_1);
+
+                        let playSetInfo_2 = new BlackHole3D.REPlaySetInfo();
+                        playSetInfo_2.time = 20.0;
+                        playSetInfo_2.state = BlackHole3D.REEntityAnimPlayStateEm.STOPMIN;
+                        playerSetInfo.playSetList.push(playSetInfo_2);
+
+                        animScriptInfo.playerSetList.push(playerSetInfo);
+                    }
+                    BlackHole3D.Entity.addAnimScript(animScriptInfo);
+                }
+
+                BlackHole3D.Entity.setAnimScriptActive('anim_script_1'); // 激活一个动画脚本
+                BlackHole3D.Entity.setAnimScriptPlayState('anim_script_1', BlackHole3D.REEntityAnimPlayStateEm.PLAY); // 设置脚本播放状态
+            }
+        </script>
+    </body>
+</html>
