@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-04-25 14:36:37
+ * @LastEditTime: 2025-04-27 14:37:31
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -50,6 +50,11 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
+            document.addEventListener('REAnimPlayScriptState', REAnimPlayScriptState);
+
+            function REAnimPlayScriptState(e) {
+                console.log('-- 动画播放脚本状态回调事件 --', e.detail);
+            }
             function RESystemEngineCreatedCallBack() {
                 var dataSetList = [
                     {

@@ -70,6 +70,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
         document.addEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web); //位置编辑的控制点配准模式匹配完成回调事件
+        document.addEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web); //动画播放脚本状态回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -91,6 +92,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     function removeEventListener() {
         document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
         document.removeEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web);
+        document.removeEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -121,6 +123,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_REEditControlPosMatchFinish);
+    }
+
+    function REAnimPlayScriptState_Web(e) {
+        const re_event_REAnimPlayScriptState = new CustomEvent('REAnimPlayScriptState', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REAnimPlayScriptState);
     }
 
     if (hasNewExtrude) {
