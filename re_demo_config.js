@@ -1,7 +1,7 @@
 /*
  * @Author: Lemon C
  * @Date: 2024-06-28 11:19:39
- * @LastEditTime: 2024-06-28 11:21:48
+ * @LastEditTime: 2025-04-28 11:16:28
  */
 BlackHole3D = typeof BlackHole3D !== 'undefined' ? BlackHole3D : {};
 BlackHole3D['canvas'] = (function () {
@@ -29,6 +29,9 @@ window.onload = function (event) {
     document.addEventListener('RESystemEngineCreated', RESystemEngineCreated); //场景初始化监听
     document.addEventListener('REDataSetLoadProgress', REDataSetLoadProgress); //模型加载进度监听
     document.addEventListener('REDataSetLoadFinish', REDataSetLoadFinish); //模型加载完成状态
+    if (typeof addListener === 'function') {
+        addListener(); // 确认存在后调用
+    }
     if (
         typeof BlackHole3D['m_re_em_window_width'] != 'undefined' &&
         typeof BlackHole3D['m_re_em_window_height'] != 'undefined' &&
