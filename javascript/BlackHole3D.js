@@ -1,6 +1,6 @@
 ﻿//版本：v3.2.0.3082
 const isPhoneMode = false;
-const hasNewExtrude = true;
+const hasNewExtrude = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
