@@ -270,6 +270,18 @@ function loadModel() {
         //     dataSetCRSNorth: 0.0,
         // },
         // {
+        //     dataSetId: '倾斜摄影',
+        //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
+        //     useTransInfo: true,
+        //     transInfo: [
+        //         [1, 1, 1],
+        //         [0, 0, 0, 1],
+        //         [0.0, 0.0, 0.0],
+        //     ],
+        //     dataSetCRS: '',
+        //     dataSetCRSNorth: 0.0,
+        // },
+        // {
         //     dataSetId: 'WMS1',
         //     useWMS: true,
         //     wmsInfo: {
