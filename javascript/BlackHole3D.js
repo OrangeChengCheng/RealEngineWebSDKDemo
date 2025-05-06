@@ -8907,6 +8907,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前长度测量的数据显示模式
      */
     Module.Measure.getLengthDataShowType = function () {
+        //TODO:-> 类型没有完善，贴地没有处理 <-
         var _type = Module.RealBIMWeb.GetMeasureLockDir();
         return _type == 4 ? 3 : _type;
     };
@@ -8917,6 +8918,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Measure.setLengthDataShowType = function (type) {
         var _type = type == 3 ? 4 : type;
+        //TODO:-> 类型没有完善，贴地没有处理 <-
         Module.RealBIMWeb.SetMeasureLockDir(_type);
     };
 
@@ -8924,6 +8926,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前面积测量的数据显示模式
      */
     Module.Measure.getAreaDataShowType = function () {
+        //TODO:-> 类型没有完善，贴地没有处理 <-
         return Module.RealBIMWeb.GetAreaProjLockDir();
     };
 
@@ -8932,6 +8935,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} type //显示模式 1:平面上  2：平面投射XY平面
      */
     Module.Measure.setAreaDataShowType = function (type) {
+        //TODO:-> 类型没有完善，贴地没有处理 <-
         Module.RealBIMWeb.SetAreaProjLockDir(type);
     };
 
@@ -8967,8 +8971,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 在屏幕上显示两个点之间的水平距离
-     * @param {dvec3} point1 //表示第一个点的坐标,三元数组
-     * @param {dvec3} point2 //表示第二个点的坐标,三元数组
+     * @param {dvec3} point1 //表示第一个点的坐标, 三元素数组类型
+     * @param {dvec3} point2 //表示第二个点的坐标, 三元素数组类型
      * @param {String} text //显示相应的文字
      */
     Module.Measure.drawHoriDisLine = function (point1, point2, text) {
@@ -8984,8 +8988,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 在图形窗口显示两点之间的直线距离、水平距离、垂直距离
-     * @param {dvec3} point1 //表示第一个点的坐标,三元数组
-     * @param {dvec3} point2 //表示第二个点的坐标,三元数组
+     * @param {dvec3} point1 //表示第一个点的坐标, 三元素数组类型
+     * @param {dvec3} point2 //表示第二个点的坐标, 三元素数组类型
      * @param {Number} mode //显示模式
      */
     Module.Measure.drawDisLine = function (point1, point2, mode) {
@@ -9003,52 +9007,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 获取当前操作的测量类型
      */
     Module.Measure.getMeasureType = function () {
-        var _type = Module.RealBIMWeb.GetMeasureType();
-        switch (_type) {
-            case 4:
-                _type = 3;
-                break;
-            case 8:
-                _type = 4;
-                break;
-            default:
-                break;
-        }
+        let _type = measureU32ToInt(Module.RealBIMWeb.GetMeasureType());
         return _type;
     };
 
     /**
      * 设置当前操作的测量类型
-     * @param {Number} type //操作的测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+     * @param {Number} type //操作的测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
      */
     Module.Measure.setMeasureType = function (type) {
-        var _type = isEmpty(type) ? 1 : type;
-        switch (_type) {
-            case 3:
-                _type = 4;
-                break;
-            case 4:
-                _type = 8;
-                break;
-            default:
-                break;
-        }
+        let _type = isEmpty(type) ? 1 : measureIntToU32(type);
         Module.RealBIMWeb.SetMeasureType(_type);
-    };
-
-    /**
-     * 获取是否是单次测量模式
-     */
-    Module.Measure.getSingleStyleState = function () {
-        return Module.RealBIMWeb.GetSingleMeasureMode();
-    };
-
-    /**
-     * 设置是否是单次测量模式
-     * @param {Boolean} enable //是否允许
-     */
-    Module.Measure.setSingleStyleState = function (enable) {
-        return Module.RealBIMWeb.SetSingleMeasureMode(enable);
     };
 
     /**
@@ -9093,8 +9062,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     class REMeasureInfo {
         constructor() {
-            this.measureType = null; //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
-            this.dataShowType = null; //数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向
+            this.measureType = null; //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
+            this.dataShowType = null; //数据显示类型  1:沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向  4：贴地测量
             this.groupId = null; //组id, 1024以内的id为系统工具栏创建的测量数据的保有数值，如果传递1024以内的值则会对工具栏创建的测量数据进行覆盖
             this.pointList = null; //测量点集合
         }
@@ -9119,21 +9088,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 logParErr('groupId');
                 return;
             }
-            var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureInfo.measureType;
-            switch (_measureType) {
-                case 3:
-                    _measureType = 4;
-                    break;
-                case 4:
-                    _measureType = 8;
-                    break;
-                default:
-                    break;
-            }
+            var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureIntToU32(measureInfo.measureType);
             var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : measureInfo.dataShowType;
-            if (_measureType == 1) {
+            //TODO:-> 类型没有完善，贴地没有处理 <-
+            if (_measureType == 1 || _measureType == 2) {
                 _dataShowType = _dataShowType == 3 ? 4 : _dataShowType;
-            } else if (_measureType == 3) {
+            } else if (_measureType == 5) {
                 _dataShowType = _dataShowType == 3 ? 1 : _dataShowType;
             } else {
                 _dataShowType = 1;
@@ -9163,56 +9123,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 删除一类测量数据
-     * @param {Number} type //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+     * @param {Number} type //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
      */
     Module.Measure.delTypeData = function (type) {
-        var _type = isEmpty(type) ? 1 : type;
-        switch (_type) {
-            case 3:
-                _type = 4;
-                break;
-            case 4:
-                _type = 8;
-                break;
-            default:
-                break;
-        }
+        let _type = isEmpty(type) ? 1 : measureIntToU32(type);
         Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
     };
 
     /**
      * 根据测量类型获取测量数据
-     * @param {Number} measureType //测量类型 1:长度测量  2：角度测量  3：面积测量  4:位置
+     * @param {Number} measureType //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
      */
     Module.Measure.getGroupDataByType = function (measureType) {
-        var _measureType = isEmpty(measureType) ? 1 : measureType;
-        switch (_measureType) {
-            case 3:
-                _measureType = 4;
-                break;
-            case 4:
-                _measureType = 8;
-                break;
-            default:
-                break;
-        }
+        var _measureType = isEmpty(measureType) ? 1 : measureIntToU32(measureType);
         let _vList = Module.RealBIMWeb.GetMeasureGroupByType(_measureType);
         let dataList = [];
         for (let i = 0; i < _vList.size(); i++) {
             const _i_data = _vList.get(i);
             let _data = new Module.REMeasureInfo();
             _data.groupId = _i_data.m_uGroupID;
-            switch (_i_data.m_uMeasureType) {
-                case 4:
-                    _data.measureType = 3;
-                    break;
-                case 8:
-                    _data.measureType = 4;
-                    break;
-                default:
-                    _data.measureType = _i_data.m_uMeasureType;
-                    break;
-            }
+            _data.measureType = measureU32ToInt(_i_data.m_uMeasureType);
+            //TODO:-> 类型没有完善，贴地没有处理 <-
             switch (_i_data.m_uLockDir) {
                 case 4:
                     _data.dataShowType = 3;
@@ -9251,17 +9182,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             const _i_data = _vList.get(i);
             let _data = new Module.REMeasureInfo();
             _data.groupId = _i_data.m_uGroupID;
-            switch (_i_data.m_uMeasureType) {
-                case 4:
-                    _data.measureType = 3;
-                    break;
-                case 8:
-                    _data.measureType = 4;
-                    break;
-                default:
-                    _data.measureType = _i_data.m_uMeasureType;
-                    break;
-            }
+            _data.measureType = measureU32ToInt(_i_data.m_uMeasureType);
+            //TODO:-> 类型没有完善，贴地没有处理 <-
             switch (_i_data.m_uLockDir) {
                 case 4:
                     _data.dataShowType = 3;
@@ -9280,6 +9202,80 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return dataList;
     };
+
+    /**
+     * c++ 测量类型转换 u32->int
+     * @param {Number} type //测量类型
+     */
+    function measureU32ToInt(type) {
+        let _type = 1;
+        switch (_type) {
+            case 1:
+                _type = 1; //单次长度测量
+                break;
+            case 2:
+                _type = 2; //连续长度测量
+                break;
+            case 3:
+                _type = 4; //单次角度测量
+                break;
+            case 4:
+                _type = 8; //连续角度测量
+                break;
+            case 5:
+                _type = 16; //面积测量
+                break;
+            case 6:
+                _type = 32; //位置测量
+                break;
+            case 7:
+                _type = 64; //面间距测量
+                break;
+            case 8:
+                _type = 128; //面角度测量
+                break;
+            default:
+                break;
+        }
+        return _type;
+    }
+
+    /**
+     * c++ 测量类型转换 int->u32
+     * @param {Number} type //测量类型
+     */
+    function measureIntToU32(type) {
+        let _type = 1;
+        switch (_type) {
+            case 1:
+                _type = 1; //单次长度测量
+                break;
+            case 2:
+                _type = 2; //连续长度测量
+                break;
+            case 4:
+                _type = 3; //单次角度测量
+                break;
+            case 8:
+                _type = 4; //连续角度测量
+                break;
+            case 16:
+                _type = 5; //面积测量
+                break;
+            case 32:
+                _type = 6; //位置测量
+                break;
+            case 64:
+                _type = 7; //面间距测量
+                break;
+            case 128:
+                _type = 8; //面角度测量
+                break;
+            default:
+                break;
+        }
+        return _type;
+    }
 
     // MOD-- 电子围栏（Fence）
     Module.Fence = typeof Module.Fence !== 'undefined' ? Module.Fence : {}; //增加 Fence 模块
@@ -14729,6 +14725,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Edit.setExtendBtnVisible = function (visible) {
             logWarn('温馨提示：当前使用接口（Edit.openAffineTransEditWnd）功能已替换为Edit.startEdit，请调整使用');
+        };
+        /**
+         * 获取是否是单次测量模式
+         */
+        Module.Measure.getSingleStyleState = function () {
+            logWarn('温馨提示：当前使用接口（Measure.getSingleStyleState）功能已废弃，功能已合并到Measure.getMeasureType，请调整使用');
+        };
+
+        /**
+         * 设置是否是单次测量模式
+         * @param {Boolean} enable //是否允许
+         */
+        Module.Measure.setSingleStyleState = function (enable) {
+            logWarn('温馨提示：当前使用接口（Measure.setSingleStyleState）功能已废弃，功能已合并到Measure.setMeasureType，请调整使用');
         };
     }
 
