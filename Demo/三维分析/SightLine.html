@@ -1,0 +1,217 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-05-08 17:34:28
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="addViewer()">添加通视观察点</button>
+                <button onclick="addTarget()">添加通视目标点</button>
+                <button onclick="setAttr()">设置属性（可提前设置）</button>
+                <button onclick="addOcc()">添加遮挡点</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'changdi',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {}
+            function addViewer() {
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '观察点1';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_viewer_1';
+                potShpInfo.pos = [310.334622994716, 406.6545212343275, 3.2293477942338527];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_viewer';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视观察点
+                BlackHole3D.Analysis3D.addSightLineViewer('viewer_1', [310.334622994716, 406.6545212343275, 3.2293477942338527]);
+
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '观察点2';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_viewer_2';
+                potShpInfo.pos = [243.04625067787134, 469.7506502838866, 40.71955906887641];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_viewer';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视观察点
+                BlackHole3D.Analysis3D.addSightLineViewer('viewer_2', [243.04625067787134, 469.7506502838866, 40.71955906887641]);
+            }
+            function addTarget() {
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '目标点1';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_target_1';
+                potShpInfo.pos = [343.09427095861145, 353.338787059138, 6.56492630464961];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_target';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视目标点
+                BlackHole3D.Analysis3D.addSightLineTarget('viewer_1', 'target_1', [343.09427095861145, 353.338787059138, 6.56492630464961]);
+
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '目标点2';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_target_2';
+                potShpInfo.pos = [283.23912409673704, 312.4673186258203, 11.888850335907883];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_target';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视目标点
+                BlackHole3D.Analysis3D.addSightLineTarget('viewer_1', 'target_2', [283.23912409673704, 312.4673186258203, 11.888850335907883]);
+
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '目标点3';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_target_3';
+                potShpInfo.pos = [212.0053382985884, 362.485893396342, 16.230244327900508];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_target';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视目标点
+                BlackHole3D.Analysis3D.addSightLineTarget('viewer_1', 'target_3', [212.0053382985884, 362.485893396342, 16.230244327900508]);
+
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '目标点4';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_target_4';
+                potShpInfo.pos = [333.9419280419532, 325.4067511210549, 5.040443518790786];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_target';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视目标点
+                BlackHole3D.Analysis3D.addSightLineTarget('viewer_2', 'target_4', [333.9419280419532, 325.4067511210549, 5.040443518790786]);
+
+                // 矢量点信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '目标点5';
+                shpTextInfo.texBias = [1, 0];
+                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                potShpInfo.shpName = 'shp_target_5';
+                potShpInfo.pos = [227.72854833970933, 405.86386379225684, 7.334777384248101];
+                potShpInfo.potSize = 4;
+                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                potShpInfo.textInfo = shpTextInfo;
+                potShpInfo.groupName = 'group_target';
+                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                // 添加通视目标点
+                BlackHole3D.Analysis3D.addSightLineTarget('viewer_2', 'target_5', [227.72854833970933, 405.86386379225684, 7.334777384248101]);
+            }
+            function setAttr() {
+                BlackHole3D.Analysis3D.setSightLineAttrs(new BlackHole3D.REColor(0, 255, 0, 204), new BlackHole3D.REColor(255, 0, 0, 204));
+            }
+            function addOcc() {
+                const viewIdList = BlackHole3D.Analysis3D.getSightLineAllViewerId();
+                for (let i = 0; i < viewIdList.length; i++) {
+                    const viewerId = viewIdList[i];
+                    const targetIdList = BlackHole3D.Analysis3D.getSightLineAllTargetId(viewerId);
+                    for (let k = 0; k < targetIdList.length; k++) {
+                        const targetId = targetIdList[k];
+                        const targetPos = BlackHole3D.Analysis3D.getSightLineTargetPos(viewerId, targetId);
+                        const occPos = BlackHole3D.Analysis3D.getSightLineTargetOccPos(viewerId, targetId);
+                        if (targetPos.length != 3 || occPos.length != 3) {
+                            continue;
+                        }
+                        if (
+                            !(
+                                targetPos[0].toFixed(6) == occPos[0].toFixed(6) &&
+                                targetPos[1].toFixed(6) == occPos[1].toFixed(6) &&
+                                targetPos[2].toFixed(6) == occPos[2].toFixed(6)
+                            )
+                        ) {
+                            // 矢量点信息
+                            var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                            shpTextInfo.text = '遮挡点';
+                            shpTextInfo.texBias = [1, 0];
+                            var potShpInfo = new BlackHole3D.REPotShpInfo();
+                            potShpInfo.shpName = `shp_occ_${i + 1}_${k + 1}`;
+                            potShpInfo.pos = occPos;
+                            potShpInfo.potSize = 4;
+                            potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                            potShpInfo.textInfo = shpTextInfo;
+                            potShpInfo.groupName = 'group_occ';
+                            BlackHole3D.Geometry.addPotShp(potShpInfo);
+                        }
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

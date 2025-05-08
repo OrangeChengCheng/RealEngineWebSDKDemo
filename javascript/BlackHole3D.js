@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3130
+﻿//版本：v3.2.0.3145
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1515,6 +1515,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MOD-- 相机（Camera）
     Module.Camera = typeof Module.Camera !== 'undefined' ? Module.Camera : {}; //增加 Camera 模块
+
+    // MARK 属性信息
     class RECamLoc {
         // 相机方位信息
         constructor() {
@@ -1525,16 +1527,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.RECamLoc = RECamLoc;
 
-    class REForceCamLoc {
-        // 相机方位信息
-        constructor() {
-            this.camPos = null; //相机位置
-            this.camRotate = [1e30, 1e30, 1e30, 1e30]; //相机的朝向
-            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向（欧拉角）
-            this.force = false; //是否强制相机初始方位
-        }
-    }
-    ExtModule.REForceCamLoc = REForceCamLoc;
+    /**
+     * 获取当前相机的控制模式
+     */
+    Module.Camera.getCamMode = function () {
+        return Module.RealBIMWeb.GetCamMode();
+    };
 
     /**
      * 获取当前加载的所有数据集id
@@ -1549,7 +1547,121 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return camLoc;
     };
 
-    // MARK 设置
+    class REGisCamLoc {
+        // gis相机方位信息
+        constructor() {
+            this.lon = 0; //经度
+            this.lat = 0; //纬度
+            this.height = 0; //高程
+            this.heading = 0; //
+            this.pitch = 0; //
+            this.roll = 0; //
+        }
+    }
+    ExtModule.REGisCamLoc = REGisCamLoc;
+
+    /**
+     * 获取gis相机在目标坐标下转换的相机数据
+     * @param {String} srcCRS //表示源坐标系描述符
+     * @param {String} destCRS //表示目标坐标系描述符
+     * @param {REGisCamLoc} gisCamLoc //gis相机信息
+     */
+    Module.Camera.getCamLocByGISCoord = function (srcCRS, destCRS, gisCamLoc) {
+        var _vGISCoord = [gisCamLoc.lon, gisCamLoc.lat, gisCamLoc.height, 0];
+        var _vCamRotEuler = [gisCamLoc.heading, gisCamLoc.pitch, gisCamLoc.roll];
+        var _camLoc = Module.RealBIMWeb.GetCamLocByGISCoord(srcCRS, destCRS, _vGISCoord, _vCamRotEuler);
+        var _cam_rotate_d = Module.RealBIMWeb.ConvCamRotate_Q2D(_camLoc.m_qCamRotate);
+
+        var camLoc = new RECamLoc();
+        camLoc.camPos = _camLoc.m_vCamPos;
+        camLoc.camRotate = _camLoc.m_qCamRotate;
+        camLoc.camDir = _cam_rotate_d;
+        return camLoc;
+    };
+
+    /**
+     * 获取引擎相机在目标坐标下转换的gis相机数据
+     * @param {String} srcCRS //表示源坐标系描述符
+     * @param {String} destCRS //表示目标坐标系描述符
+     * @param {RECamLoc} camLoc //相机信息
+     */
+    Module.Camera.getGISCoordByCamLoc = function (srcCRS, destCRS, camLoc) {
+        var _camLoc = Module.RealBIMWeb.GetGISCoordByCamLoc(srcCRS, destCRS, camLoc.camPos, camLoc.camRotate);
+
+        var gisCamLoc = new REGisCamLoc();
+        gisCamLoc.lon = _camLoc.m_vCamPos[0];
+        gisCamLoc.lat = _camLoc.m_vCamPos[1];
+        gisCamLoc.height = _camLoc.m_vCamPos[2];
+        gisCamLoc.heading = _camLoc.m_qCamDir[2];
+        gisCamLoc.pitch = _camLoc.m_qCamDir[0];
+        gisCamLoc.roll = _camLoc.m_qCamDir[1];
+        return gisCamLoc;
+    };
+
+    class REAxisInfo {
+        // 轴信息
+        constructor() {
+            this.up = [1e30, 1e30, 1e30]; //上轴向量
+            this.viewLine = [1e30, 1e30, 1e30]; //视角方向
+        }
+    }
+    ExtModule.REAxisInfo = REAxisInfo;
+
+    /**
+     * 获取轴信息转换四元数信息
+     * @param {REAxisInfo} axisInfo //轴信息
+     */
+    Module.Camera.getQuatByAxis = function (axisInfo) {
+        let cAxisInfo = {
+            m_vUp: axisInfo.up,
+            m_vViewLine: axisInfo.viewLine,
+            // m_vViewLine: axisInfo.viewLine.map(item => item * -1.0),
+        };
+        let _qRotate = Module.RealBIMWeb.GetQuatByAxis(cAxisInfo);
+        return _qRotate;
+    };
+
+    /**
+     * 获取四元数信息转换轴信息
+     * @param {dvec4} rotate //四元数信息
+     */
+    Module.Camera.getAxisByQuat = function (rotate) {
+        let _cAxisInfo = Module.RealBIMWeb.GetAxisByQuat(rotate);
+        let axisInfo = new REAxisInfo();
+        axisInfo.up = _cAxisInfo.m_vUp;
+        axisInfo.viewLine = _cAxisInfo.m_vViewLine;
+        return axisInfo;
+    };
+
+    /**
+     * 将相机四元数朝向转换为方向朝向
+     * @param {dvec4} camRotate //相机朝向（四元素数组）
+     */
+    Module.Camera.getConvRotateQ2D = function (camRotate) {
+        return Module.RealBIMWeb.ConvCamRotate_Q2D(camRotate);
+    };
+
+    /**
+     * 将相机方向朝向转换为四元数朝向
+     * @param {dvec4} camDir //相机朝向（三元素数组）
+     */
+    Module.Camera.getConvRotateD2Q = function (camDir) {
+        return Module.RealBIMWeb.ConvCamRotate_D2Q(camDir);
+    };
+
+    // MARK 相机操作
+
+    class REForceCamLoc {
+        // 相机方位信息
+        constructor() {
+            this.camPos = null; //相机位置
+            this.camRotate = [1e30, 1e30, 1e30, 1e30]; //相机的朝向
+            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向（欧拉角）
+            this.force = false; //是否强制相机初始方位
+        }
+    }
+    ExtModule.REForceCamLoc = REForceCamLoc;
+
     /**
      * 调整相机到目标方位
      * @param {RECamLoc} camLoc //相机方位信息
@@ -1571,13 +1683,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (camLoc.camDir[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo_Dir(camLoc.camPos, camLoc.camDir, _delay, _time);
         }
-    };
-
-    /**
-     * 设置固定当前的相机方位（BIM相机）
-     */
-    Module.Camera.setFixCurCam = function () {
-        Module.RealBIMWeb.IsFixMainCam(true);
     };
 
     /**
@@ -1647,25 +1752,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取相机自动动画启用状态
-     */
-    Module.Camera.getAutoCamAnimEnable = function () {
-        return Module.RealBIMWeb.GetAutoCamAnimEnable();
-    };
-
-    /**
-     * 设置相机自动动画参数
-     * @param {dvec3} point //自动旋转的参考中心点坐标，数组形式[x,y,z]
-     * @param {Boolean} speed //旋转一周所用时间，单位为秒
-     * @param {Boolean} rotateEnable //是否开启自动旋转
-     */
-    Module.Camera.setAutoCamAnimParams = function (point, speed, rotateEnable) {
-        var _dRotSpeed = (2 * 3.1415) / speed;
-        Module.RealBIMWeb.SetAutoCamAnimParams(point, _dRotSpeed);
-        Module.RealBIMWeb.SetAutoCamAnimEnable(rotateEnable);
-    };
-
-    /**
      * 重置相机方位
      */
     Module.Camera.resetCamLocate = function () {
@@ -1682,6 +1768,70 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
         Module.RealBIMWeb.TargetToAABB(arrBound, backDepth, _useCustomDir, _locType);
+    };
+
+    /**
+     * 设置相机的强制初始方位 （可以在加载模型之前设置）
+     * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
+     */
+    Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
+        if (isEmptyLog(forceCamLoc, 'forceCamLoc')) return;
+        if (isEmptyLog(forceCamLoc.camPos, 'camPos')) return;
+        if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return;
+
+        var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
+
+        if (forceCamLoc.camRotate[0] != 1e30) {
+            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
+            return;
+        }
+        if (forceCamLoc.camDir[0] != 1e30) {
+            var _cam_rotate_q = Module.RealBIMWeb.ConvCamRotate_D2Q(forceCamLoc.camDir);
+            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _cam_rotate_q);
+            return;
+        }
+    };
+
+    /**
+     * 获取相机的强制初始方位信息
+     */
+    Module.Camera.getCamForcedInitLoc = function () {
+        var _forceInitLoc = Module.RealBIMWeb.GetCamForcedInitLoc();
+        var _cam_rotate_d = Module.RealBIMWeb.ConvCamRotate_Q2D(_forceInitLoc.m_qCamRotate);
+        var forceCamLoc = new REForceCamLoc();
+        forceCamLoc.force = _forceInitLoc.m_bForce;
+        forceCamLoc.camPos = _forceInitLoc.m_vCamPos;
+        forceCamLoc.camRotate = _forceInitLoc.m_qCamRotate;
+        forceCamLoc.camDir = _cam_rotate_d;
+        return forceCamLoc;
+    };
+
+    /**
+     * 设置相机自动动画参数
+     * @param {dvec3} point //自动旋转的参考中心点坐标，数组形式[x,y,z]
+     * @param {Boolean} speed //旋转一周所用时间，单位为秒
+     * @param {Boolean} rotateEnable //是否开启自动旋转
+     */
+    Module.Camera.setAutoCamAnimParams = function (point, speed, rotateEnable) {
+        var _dRotSpeed = (2 * 3.1415) / speed;
+        Module.RealBIMWeb.SetAutoCamAnimParams(point, _dRotSpeed);
+        Module.RealBIMWeb.SetAutoCamAnimEnable(rotateEnable);
+    };
+
+    /**
+     * 获取相机自动动画启用状态
+     */
+    Module.Camera.getAutoCamAnimEnable = function () {
+        return Module.RealBIMWeb.GetAutoCamAnimEnable();
+    };
+
+    // MARK 相机效果
+
+    /**
+     * 设置固定当前的相机方位（BIM相机）
+     */
+    Module.Camera.setFixCurCam = function () {
+        Module.RealBIMWeb.IsFixMainCam(true);
     };
 
     /**
@@ -1770,42 +1920,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置相机的强制初始方位 （可以在加载模型之前设置）
-     * @param {REForceCamLoc} forceCamLoc //强制相机方位信息
-     */
-    Module.Camera.setCamForcedInitLoc = function (forceCamLoc) {
-        if (isEmptyLog(forceCamLoc, 'forceCamLoc')) return;
-        if (isEmptyLog(forceCamLoc.camPos, 'camPos')) return;
-        if (isEmpty(forceCamLoc.camRotate) && isEmpty(forceCamLoc.camDir)) return;
-
-        var _force = isEmpty(forceCamLoc.force) ? false : forceCamLoc.force;
-
-        if (forceCamLoc.camRotate[0] != 1e30) {
-            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, forceCamLoc.camRotate);
-            return;
-        }
-        if (forceCamLoc.camDir[0] != 1e30) {
-            var _camLocConv = Module.RealBIMWeb.GetCamLocConvert(forceCamLoc.camPos, forceCamLoc.camDir);
-            Module.RealBIMWeb.SetCamForcedInitLoc(_force, forceCamLoc.camPos, _camLocConv.m_qCamRotate);
-            return;
-        }
-    };
-
-    /**
-     * 获取相机的强制初始方位信息
-     */
-    Module.Camera.getCamForcedInitLoc = function () {
-        var _forceInitLoc = Module.RealBIMWeb.GetCamForcedInitLoc();
-        var _camLocConv = Module.RealBIMWeb.GetCamLocConvert_Dir(_forceInitLoc.m_vCamPos, _forceInitLoc.m_qCamRotate);
-        var forceCamLoc = new REForceCamLoc();
-        forceCamLoc.force = _forceInitLoc.m_bForce;
-        forceCamLoc.camPos = _forceInitLoc.m_vCamPos;
-        forceCamLoc.camRotate = _forceInitLoc.m_qCamRotate;
-        forceCamLoc.camDir = _camLocConv.m_qCamDir;
-        return forceCamLoc;
-    };
-
-    /**
      * 获取相机在自由移动模式下的速度
      */
     Module.Camera.getFreeCamMoveSpeed = function () {
@@ -1820,97 +1934,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetFreeCamMoveSpeed(speed);
     };
 
-    class REGisCamLoc {
-        // gis相机方位信息
-        constructor() {
-            this.lon = 0; //经度
-            this.lat = 0; //纬度
-            this.height = 0; //高程
-            this.heading = 0; //
-            this.pitch = 0; //
-            this.roll = 0; //
-        }
-    }
-    ExtModule.REGisCamLoc = REGisCamLoc;
-
     /**
-     * 获取gis相机在目标坐标下转换的相机数据
-     * @param {String} srcCRS //表示源坐标系描述符
-     * @param {String} destCRS //表示目标坐标系描述符
-     * @param {REGisCamLoc} gisCamLoc //gis相机信息
+     * 获取相机是否允许位于地形以下
      */
-    Module.Camera.getCamLocByGISCoord = function (srcCRS, destCRS, gisCamLoc) {
-        var _vGISCoord = [gisCamLoc.lon, gisCamLoc.lat, gisCamLoc.height, 0];
-        var _vCamRotEuler = [gisCamLoc.heading, gisCamLoc.pitch, gisCamLoc.roll];
-        var _camLoc = Module.RealBIMWeb.GetCamLocByGISCoord(srcCRS, destCRS, _vGISCoord, _vCamRotEuler);
-        var _camLocConv = Module.RealBIMWeb.GetCamLocConvert_Dir(_camLoc.m_vCamPos, _camLoc.m_qCamRotate);
-
-        var camLoc = new RECamLoc();
-        camLoc.camPos = _camLoc.m_vCamPos;
-        camLoc.camRotate = _camLoc.m_qCamRotate;
-        camLoc.camDir = _camLocConv.m_qCamDir;
-        return camLoc;
+    Module.Camera.getCamBelowTerrain = function () {
+        return Module.RealBIMWeb.GetCamBelowTerrain();
     };
 
     /**
-     * 获取引擎相机在目标坐标下转换的gis相机数据
-     * @param {String} srcCRS //表示源坐标系描述符
-     * @param {String} destCRS //表示目标坐标系描述符
-     * @param {RECamLoc} camLoc //相机信息
+     * 设置相机是否允许位于地形以下
+     * @param {Boolean} enable //是否允许
      */
-    Module.Camera.getGISCoordByCamLoc = function (srcCRS, destCRS, camLoc) {
-        var _camLoc = Module.RealBIMWeb.GetGISCoordByCamLoc(srcCRS, destCRS, camLoc.camPos, camLoc.camRotate);
-
-        var gisCamLoc = new REGisCamLoc();
-        gisCamLoc.lon = _camLoc.m_vCamPos[0];
-        gisCamLoc.lat = _camLoc.m_vCamPos[1];
-        gisCamLoc.height = _camLoc.m_vCamPos[2];
-        gisCamLoc.heading = _camLoc.m_qCamDir[2];
-        gisCamLoc.pitch = _camLoc.m_qCamDir[0];
-        gisCamLoc.roll = _camLoc.m_qCamDir[1];
-        return gisCamLoc;
+    Module.Camera.setCamBelowTerrain = function (enable) {
+        Module.RealBIMWeb.SetCamBelowTerrain(enable);
     };
 
     /**
-     * 获取当前相机的控制模式
+     * 获取相机是否锁定当前朝向
      */
-    Module.Camera.getCamMode = function () {
-        return Module.RealBIMWeb.GetCamMode();
-    };
-
-    class REAxisInfo {
-        // 轴信息
-        constructor() {
-            this.up = [1e30, 1e30, 1e30]; //上轴向量
-            this.viewLine = [1e30, 1e30, 1e30]; //视角方向
-        }
-    }
-    ExtModule.REAxisInfo = REAxisInfo;
-
-    /**
-     * 获取轴信息转换四元数信息
-     * @param {REAxisInfo} axisInfo //轴信息
-     */
-    Module.Camera.getQuatByAxis = function (axisInfo) {
-        let cAxisInfo = {
-            m_vUp: axisInfo.up,
-            m_vViewLine: axisInfo.viewLine,
-            // m_vViewLine: axisInfo.viewLine.map(item => item * -1.0),
-        };
-        let _qRotate = Module.RealBIMWeb.GetQuatByAxis(cAxisInfo);
-        return _qRotate;
+    Module.Camera.getCamLockRotate = function () {
+        return Module.RealBIMWeb.GetCamLockRotate();
     };
 
     /**
-     * 获取四元数信息转换轴信息
-     * @param {dvec4} rotate //四元数信息
+     * 设置相机是否锁定当前朝向
+     * @param {Boolean} lock //是否锁定
      */
-    Module.Camera.getAxisByQuat = function (rotate) {
-        let _cAxisInfo = Module.RealBIMWeb.GetAxisByQuat(rotate);
-        let axisInfo = new REAxisInfo();
-        axisInfo.up = _cAxisInfo.m_vUp;
-        axisInfo.viewLine = _cAxisInfo.m_vViewLine;
-        return axisInfo;
+    Module.Camera.setCamLockRotate = function (lock) {
+        Module.RealBIMWeb.SetCamLockRotate(lock);
     };
 
     // MARK 碰撞检测
@@ -4408,6 +4459,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!isEmpty(_textInfo.textClr)) {
             _textcolor = clrToU32(_textInfo.textClr);
         }
+        var _text = "";
+        if (!isEmpty(_textInfo.text)) {
+            _text = _textInfo.text;
+        }
         var _textbordercolor = 0xff000000;
         if (!isEmpty(_textInfo.textBorderClr)) {
             _textbordercolor = clrToU32(_textInfo.textBorderClr);
@@ -4459,7 +4514,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var textobj = {
             m_strGolFontID: _GolFontID,
             m_bTextWeight: true,
-            m_strText: _textInfo.text,
+            m_strText: _text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
             m_qTextRect: TempTextRect,
@@ -9209,44 +9264,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function measureU32ToInt(type) {
         let _type = 1;
-        switch (_type) {
-            case 1:
-                _type = 1; //单次长度测量
-                break;
-            case 2:
-                _type = 2; //连续长度测量
-                break;
-            case 3:
-                _type = 4; //单次角度测量
-                break;
-            case 4:
-                _type = 8; //连续角度测量
-                break;
-            case 5:
-                _type = 16; //面积测量
-                break;
-            case 6:
-                _type = 32; //位置测量
-                break;
-            case 7:
-                _type = 64; //面间距测量
-                break;
-            case 8:
-                _type = 128; //面角度测量
-                break;
-            default:
-                break;
-        }
-        return _type;
-    }
-
-    /**
-     * c++ 测量类型转换 int->u32
-     * @param {Number} type //测量类型
-     */
-    function measureIntToU32(type) {
-        let _type = 1;
-        switch (_type) {
+        switch (type) {
             case 1:
                 _type = 1; //单次长度测量
                 break;
@@ -9274,6 +9292,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             default:
                 break;
         }
+        return _type;
+    }
+
+    /**
+     * c++ 测量类型转换 int->u32
+     * @param {Number} type //测量类型
+     */
+    function measureIntToU32(type) {
+        let _type = 1;
+
+        switch (type) {
+            case 1:
+                _type = 1; //单次长度测量
+                break;
+            case 2:
+                _type = 2; //连续长度测量
+                break;
+            case 3:
+                _type = 4; //单次角度测量
+                break;
+            case 4:
+                _type = 8; //连续角度测量
+                break;
+            case 5:
+                _type = 16; //面积测量
+                break;
+            case 6:
+                _type = 32; //位置测量
+                break;
+            case 7:
+                _type = 64; //面间距测量
+                break;
+            case 8:
+                _type = 128; //面角度测量
+                break;
+            default:
+                break;
+        }
+
         return _type;
     }
 
@@ -9482,7 +9539,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 let _waterObj = jsonObj['Waters'][i];
                 let waterInfo = new REWaterInfo();
                 waterInfo.waterName = _waterObj['WaterName'];
-                waterInfo.waterClr = rgbaListToClr(_waterObj['Color']);
+                waterInfo.waterClr = clrRGBAListToClr(_waterObj['Color']);
                 waterInfo.blendDist = _waterObj['BlendDist'];
                 waterInfo.visible = _waterObj['Visible'];
                 waterInfo.cornerPoint = _waterObj['Corners'];
@@ -14627,6 +14684,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 三维分析（Analysis3D）
     Module.Analysis3D = typeof Module.Analysis3D !== 'undefined' ? Module.Analysis3D : {}; //增加 Analysis3D 模块
 
+    // MARK 天际线
     /**
      * 设置天际线颜色和透明度 注：需要配合地形限制，才有效果
      * @param {REColor} color //颜色（REColor 类型）, alpha=0 表示禁用
@@ -14642,7 +14700,266 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Analysis3D.getSkylineClr = function () {
         let _color = Module.RealBIMWeb.GetSkylineClr();
-        return rgbaListToClr(_color);
+        return clrRGBAListToClr(_color);
+    };
+
+    // MARK 可视域分析
+
+    class REViewRegionFOVCamInfo {
+        constructor() {
+            this.fisheye = false; //是否为鱼眼球面相机，相机的可视球面可视半径将为farDis
+            this.camPos = [0, 0, 0]; //相机的位置
+            this.camRotate = [0, 0, 0, 1]; //相机的朝向
+            this.camFovY = Math.PI / 6.0; //相机在视点空间Y轴上的视角(弧度)
+            this.nearDis = 0.1; //近裁面距离
+            this.farDis = 1; //远裁面距离
+        }
+    }
+    ExtModule.REViewRegionFOVCamInfo = REViewRegionFOVCamInfo;
+
+    /**
+     * 设置可视域的相机参数 注：基于视场角的透视投影
+     * @param {REViewRegionFOVCamInfo} camInfo //相机参数（REViewRegionFOVCamInfo 类型）
+     */
+    Module.Analysis3D.setViewRegionFovCam = function (camInfo) {
+        if (isEmptyLog(camInfo, 'camInfo')) return;
+
+        let _fisheye = isEmpty(camInfo.fisheye) ? false : camInfo.fisheye;
+        let _camPos = isEmpty(camInfo.camPos) ? [0, 0, 0] : camInfo.camPos;
+        let _camRotate = isEmpty(camInfo.camRotate) ? [0, 0, 0, 1] : camInfo.camRotate;
+        let _camFovY = isEmpty(camInfo.camFovY) ? Math.PI / 6.0 : camInfo.camFovY;
+        let _nearDis = isEmpty(camInfo.nearDis) ? 0.1 : camInfo.nearDis;
+        let _farDis = isEmpty(camInfo.farDis) ? 1 : camInfo.farDis;
+        let _qViewport = [0, 0, 1024, 512];
+        let _dAspect = 2.0;
+        Module.RealBIMWeb.SetViewRegionFovCam(_fisheye, _camPos, _camRotate, _qViewport, _camFovY, _dAspect, _nearDis, _farDis);
+    };
+
+    class REViewRegionFrustumCamInfo {
+        constructor() {
+            this.fisheye = false; //是否为鱼眼球面相机
+            this.camPos = [0, 0, 0]; //相机的位置
+            this.camRotate = [0, 0, 0, 1]; //相机的朝向
+            this.nearRect = [0, 0, 0, 0]; //相机视锥体在近裁面上的矩形区域 【left,right,bottom,top】
+            this.nearDis = 0.1; //近裁面距离
+            this.farDis = 1; //远裁面距离
+        }
+    }
+    ExtModule.REViewRegionFrustumCamInfo = REViewRegionFrustumCamInfo;
+
+    /**
+     * 设置可视域的相机参数 注：基于视椎体的透视投影
+     * @param {REViewRegionFrustumCamInfo} camInfo //相机参数（REViewRegionFrustumCamInfo 类型）
+     */
+    Module.Analysis3D.setViewRegionFrustumCam = function (camInfo) {
+        if (isEmptyLog(camInfo, 'camInfo')) return;
+
+        let _fisheye = isEmpty(camInfo.fisheye) ? false : camInfo.fisheye;
+        let _camPos = isEmpty(camInfo.camPos) ? [0, 0, 0] : camInfo.camPos;
+        let _camRotate = isEmpty(camInfo.camRotate) ? [0, 0, 0, 1] : camInfo.camRotate;
+        let _nearRect = isEmpty(camInfo.nearRect) ? [0, 0, 0, 0] : camInfo.nearRect;
+        let _nearDis = isEmpty(camInfo.nearDis) ? 0.1 : camInfo.nearDis;
+        let _farDis = isEmpty(camInfo.farDis) ? 1 : camInfo.farDis;
+        let _qViewport = [0, 0, 1024, 512];
+        Module.RealBIMWeb.SetViewRegionFrustumCam(_fisheye, _camPos, _camRotate, _qViewport, _nearRect, _nearDis, _farDis);
+    };
+
+    class REViewRegionOrthoCamInfo {
+        constructor() {
+            this.camPos = [0, 0, 0]; //相机的位置
+            this.camRotate = [0, 0, 0, 1]; //相机的朝向
+            this.nearRect = [0, 0, 0, 0]; //相机在近裁面上的矩形区域 【left,right,bottom,top】
+            this.nearDis = 0.1; //近裁面距离
+            this.farDis = 1; //远裁面距离
+        }
+    }
+    ExtModule.REViewRegionOrthoCamInfo = REViewRegionOrthoCamInfo;
+
+    /**
+     * 设置可视域的相机参数 注：基于正交投影
+     * @param {REViewRegionOrthoCamInfo} camInfo //相机参数（REViewRegionOrthoCamInfo 类型）
+     */
+    Module.Analysis3D.setViewRegionOrthoCam = function (camInfo) {
+        if (isEmptyLog(camInfo, 'camInfo')) return;
+
+        let _camPos = isEmpty(camInfo.camPos) ? [0, 0, 0] : camInfo.camPos;
+        let _camRotate = isEmpty(camInfo.camRotate) ? [0, 0, 0, 1] : camInfo.camRotate;
+        let _nearRect = isEmpty(camInfo.nearRect) ? [0, 0, 0, 0] : camInfo.nearRect;
+        let _nearDis = isEmpty(camInfo.nearDis) ? 0.1 : camInfo.nearDis;
+        let _farDis = isEmpty(camInfo.farDis) ? 1 : camInfo.farDis;
+        let _qViewport = [0, 0, 1024, 512];
+        Module.RealBIMWeb.SetViewRegionOrthoCam(_camPos, _camRotate, _qViewport, _nearRect, _nearDis, _farDis);
+    };
+
+    /**
+     * 设置可视域的属性信息 注：设置属性之前效果不可见，属性设置即时生效
+     * @param {REColor} visibleClr //可见区域颜色（REColor 类型）, alpha代表和模型的颜色混合权重，数值越大带代表颜色权重越大
+     * @param {REColor} occludedClr //遮挡区域颜色（REColor 类型）, alpha代表和模型的颜色混合权重，数值越大带代表颜色权重越大
+     */
+    Module.Analysis3D.setViewRegionAttrs = function (visibleClr, occludedClr) {
+        if (isEmptyLog(visibleClr, 'visibleClr')) return;
+        if (isEmptyLog(occludedClr, 'occludedClr')) return;
+
+        let _visibleClr = isEmpty(visibleClr) ? [0, 1, 0, 0.8] : clrToRGBA_List(visibleClr);
+        let _occludedClr = isEmpty(occludedClr) ? [1, 0, 0, 0.8] : clrToRGBA_List(occludedClr);
+        Module.RealBIMWeb.SetViewRegionAttrs(_visibleClr, _occludedClr);
+    };
+
+    // MARK 通视分析
+
+    /**
+     * 加入一个通视观察点 注：若已存在则更新位置信息，一个观察点可以对应多个目标点
+     * @param {String} viewerId //通视观察点标识
+     * @param {dvec3} pos //观察点位置（三元素数组）
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.addSightLineViewer = function (viewerId, pos, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        if (isEmptyLog(pos, 'pos')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_AddAViewer(_viewport, viewerId, pos);
+    };
+
+    /**
+     * 获取所有的通视观察点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.getSightLineAllViewerId = function (viewport = 0) {
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        let _arrNames = Module.RealBIMWeb.SightL_GetAllViewerNames(_viewport);
+        let viewerIdList = [];
+        for (let i = 0; i < _arrNames.size(); ++i) {
+            viewerIdList.push( _arrNames.get(i));
+        }
+        return viewerIdList;
+    };
+
+    /**
+     * 获取一个通视观察点的位置信息 注：绝对值大于1e19表示无效信息
+     * @param {String} viewerId //通视观察点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.getSightLineViewerPos = function (viewerId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_GetAViewerPos(_viewport, viewerId);
+    };
+
+    /**
+     * 删除一个通视观察点
+     * @param {String} viewerId //通视观察点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.delSightLineViewer = function (viewerId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_DelAViewer(_viewport, viewerId);
+    };
+
+    /**
+     * 删除所有的通视观察点
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.delSightLineAllViewer = function (viewport = 0) {
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        Module.RealBIMWeb.SightL_DelAllViewers(_viewport);
+    };
+
+
+    /**
+     * 加入一个通视目标点 注：若已存在则更新位置信息，一个观察点可以对应多个目标点
+     * @param {String} viewerId //通视观察点标识
+     * @param {String} targetId //通视目标点标识
+     * @param {dvec3} pos //目标点位置（三元素数组）
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.addSightLineTarget = function (viewerId, targetId, pos, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        if (isEmptyLog(targetId, 'targetId')) return;
+        if (isEmptyLog(pos, 'pos')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_AddATarget(_viewport, viewerId, targetId, pos);
+    };
+
+    /**
+     * 获取所有的通视目标点标识
+     * @param {String} viewerId //通视观察点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.getSightLineAllTargetId = function (viewerId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        let _arrNames = Module.RealBIMWeb.SightL_GetAllTargetNames(_viewport, viewerId);
+        let targetIdList = [];
+        for (let i = 0; i < _arrNames.size(); ++i) {
+            targetIdList.push( _arrNames.get(i));
+        }
+        return targetIdList;
+    };
+
+    /**
+     * 获取一个通视目标点的位置信息 注：绝对值大于1e19表示无效信息
+     * @param {String} viewerId //通视观察点标识
+     * @param {String} targetId //通视目标点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.getSightLineTargetPos = function (viewerId, targetId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        if (isEmptyLog(targetId, 'targetId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_GetATargetPos(_viewport, viewerId, targetId);
+    };
+
+    /**
+     * 获取一个通视目标点的被遮挡位置信息 注：绝对值大于1e19表示无效信息, 如果无遮挡点则返回数值和目标点位置一致，忽略精度问题
+     * @param {String} viewerId //通视观察点标识
+     * @param {String} targetId //通视目标点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.getSightLineTargetOccPos = function (viewerId, targetId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        if (isEmptyLog(targetId, 'targetId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_GetATargetOccPos(_viewport, viewerId, targetId);
+    };
+
+    /**
+     * 删除一个通视目标点
+     * @param {String} viewerId //通视观察点标识
+     * @param {String} targetId //通视目标点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.delSightLineTarget = function (viewerId, targetId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        if (isEmptyLog(targetId, 'targetId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_DelATarget(_viewport, viewerId, targetId);
+    };
+
+    /**
+     * 删除所有的通视观察点
+     * @param {String} viewerId //通视观察点标识
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.delSightLineAllTarget = function (viewerId, viewport = 0) {
+        if (isEmptyLog(viewerId, 'viewerId')) return;
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        return Module.RealBIMWeb.SightL_DelAllTargets(_viewport, viewerId);
+    };
+
+    /**
+     * 设置通视线的属性信息 注：设置属性之前效果不可见，属性设置即时生效
+     * @param {REColor} visibleClr //可见线颜色（REColor 类型）
+     * @param {REColor} occludedClr //遮挡线颜色（REColor 类型）
+     * @param {Number} viewport //视口索引，默认为0，可不传，多视口模式下可以调节，不同视口的通视分析独立
+     */
+    Module.Analysis3D.setSightLineAttrs = function (visibleClr, occludedClr, viewport = 0) {
+        if (isEmptyLog(visibleClr, 'visibleClr')) return;
+        if (isEmptyLog(occludedClr, 'occludedClr')) return;
+        let _visibleClr = isEmpty(visibleClr) ? [0, 1, 0, 0.8] : clrToRGBA_List(visibleClr);
+        let _occludedClr = isEmpty(occludedClr) ? [1, 0, 0, 0.8] : clrToRGBA_List(occludedClr);
+        let _viewport = isEmpty(viewport) ? 0 : viewport;
+        Module.RealBIMWeb.SightL_SetAttrs(_viewport, _visibleClr, _occludedClr);
     };
 
     // function getName() {
@@ -15046,7 +15363,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * RGBA数组->颜色对象
      * @param {Array} rbga_list
      */
-    function rgbaListToClr(rbga_list) {
+    function clrRGBAListToClr(rbga_list) {
         var _r = Math.floor(rbga_list[0] * 255);
         var _g = Math.floor(rbga_list[1] * 255);
         var _b = Math.floor(rbga_list[2] * 255);

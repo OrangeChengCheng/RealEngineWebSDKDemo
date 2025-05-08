@@ -224,6 +224,7 @@ function loadModel() {
         {
             dataSetId: 'BIM',
             resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+            // resourcesAddress: 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
             useTransInfo: true,
             transInfo: [
                 [1, 1, 1],
