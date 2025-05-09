@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3145
+﻿//版本：v3.2.0.3146
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -4459,7 +4459,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!isEmpty(_textInfo.textClr)) {
             _textcolor = clrToU32(_textInfo.textClr);
         }
-        var _text = "";
+        var _text = '';
         if (!isEmpty(_textInfo.text)) {
             _text = _textInfo.text;
         }
@@ -8590,6 +8590,39 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             nameArr.push(tempArr.get(i));
         }
         return nameArr;
+    };
+
+    // MARK 数据处理
+
+    /**
+     * 注册一个地形自定义路径函数 注：加载wms数据时，可以动态的调整wms资源请求模板
+     * @param {String} funId //函数标识
+     * @param {Function} callback //函数体，参数必须为空，返回值必须为字符串
+     */
+    Module.Terrain.registerPathFunc = function (funId, callback) {
+        if (isEmptyLog(funId, 'funId')) return;
+        if (isEmptyLog(callback, 'callback')) return;
+
+        if (typeof callback === 'function') {
+            Module['m_re_em_rev_temp_terrain_path_func'] = callback;
+        }
+        Module.RealBIMWeb.RegisterATerrainPathFunc(funId);
+    };
+
+    /**
+     * 注销一个地形自定义路径函数
+     * @param {String} funId //函数标识
+     */
+    Module.Terrain.unRegisterPathFunc = function (funId) {
+        if (isEmptyLog(funId, 'funId')) return;
+        return Module.RealBIMWeb.UnRegisterATerrainPathFunc(funId);
+    };
+
+    /**
+     * 注销系统中所有的地形自定义路径函数
+     */
+    Module.Terrain.unRegisterAllPathFunc = function () {
+        Module.RealBIMWeb.UnRegisterAllTerrainPathFuncs();
     };
 
     // MOD-- 360全景（Panorama）
@@ -14829,7 +14862,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _arrNames = Module.RealBIMWeb.SightL_GetAllViewerNames(_viewport);
         let viewerIdList = [];
         for (let i = 0; i < _arrNames.size(); ++i) {
-            viewerIdList.push( _arrNames.get(i));
+            viewerIdList.push(_arrNames.get(i));
         }
         return viewerIdList;
     };
@@ -14865,7 +14898,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SightL_DelAllViewers(_viewport);
     };
 
-
     /**
      * 加入一个通视目标点 注：若已存在则更新位置信息，一个观察点可以对应多个目标点
      * @param {String} viewerId //通视观察点标识
@@ -14892,7 +14924,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _arrNames = Module.RealBIMWeb.SightL_GetAllTargetNames(_viewport, viewerId);
         let targetIdList = [];
         for (let i = 0; i < _arrNames.size(); ++i) {
-            targetIdList.push( _arrNames.get(i));
+            targetIdList.push(_arrNames.get(i));
         }
         return targetIdList;
     };
