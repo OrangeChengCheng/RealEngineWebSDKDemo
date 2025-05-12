@@ -4442,43 +4442,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.addPotShp = function (potShpInfo) {
         if (isEmptyLog(potShpInfo, 'potShpInfo')) return;
         if (isEmptyLog(potShpInfo.shpName, 'shpName')) return;
-        if (isEmptyLog(potShpInfo.textInfo, 'textInfo')) return;
 
-        var _textInfo = potShpInfo.textInfo;
-
-        var _groupName = isEmpty(potShpInfo.groupName) ? '' : potShpInfo.groupName;
-        var _texBias = [0, 0];
-        if (!isEmpty(_textInfo.texBias)) {
-            _texBias = _textInfo.texBias;
-        }
-        var _GolFontID = 'RealBIMFont001';
-        if (!isEmpty(_textInfo.fontName)) {
-            _GolFontID = _textInfo.fontName;
-        }
-        var _textcolor = 0xffffffff;
-        if (!isEmpty(_textInfo.textClr)) {
-            _textcolor = clrToU32(_textInfo.textClr);
-        }
-        var _text = '';
-        if (!isEmpty(_textInfo.text)) {
-            _text = _textInfo.text;
-        }
-        var _textbordercolor = 0xff000000;
-        if (!isEmpty(_textInfo.textBorderClr)) {
-            _textbordercolor = clrToU32(_textInfo.textBorderClr);
-        }
-        var _textBackMode = 0;
-        if (!isEmpty(_textInfo.textBackMode)) {
-            _textBackMode = _textInfo.textBackMode;
-        }
-        var _textBackBorder = 0;
-        if (!isEmpty(_textInfo.textBackBorder)) {
-            _textBackBorder = _textInfo.textBackBorder;
-        }
-        var _textBackClr = 0x00000000;
-        if (!isEmpty(_textInfo.textBackClr)) {
-            _textBackClr = clrToU32(_textInfo.textBackClr);
-        }
+        const _textInfo = isEmpty(potShpInfo.textInfo) ? new REShpTextInfo() : potShpInfo.textInfo;
+        var _texBias = isEmpty(_textInfo.texBias) ? [0, 0] : _textInfo.texBias;
+        var _text = isEmpty(_textInfo.text) ? '' : _textInfo.text;
+        var _GolFontID = isEmpty(_textInfo.fontName) ? 'RealBIMFont001' : _textInfo.fontName;
+        var _textcolor = isEmpty(_textInfo.textClr) ? 0xffffffff : clrToU32(_textInfo.textClr);
+        var _textbordercolor = isEmpty(_textInfo.textBorderClr) ? 0xff000000 : clrToU32(_textInfo.textBorderClr);
+        var _textBackMode = isEmpty(_textInfo.textBackMode) ? 0 : _textInfo.textBackMode;
+        var _textBackBorder = isEmpty(_textInfo.textBackBorder) ? 0 : _textInfo.textBackBorder;
+        var _textBackClr = isEmpty(_textInfo.textBackClr) ? 0x00000000 : clrToU32(_textInfo.textBackClr);
 
         var TempTextRect = [-1, -1, 1, 1];
         var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
@@ -4524,10 +4497,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uTextBackClr: _textBackClr,
         };
 
-        var _bContactSce = false;
-        if (!isEmpty(potShpInfo.contactSce)) _bContactSce = potShpInfo.contactSce;
-        var _uClr = 0xffffffff;
-        if (!isEmpty(potShpInfo.potClr)) _uClr = clrToU32(potShpInfo.potClr);
+        var _groupName = isEmpty(potShpInfo.groupName) ? '' : potShpInfo.groupName;
+        var _shpName = isEmpty(potShpInfo.shpName) ? '' : potShpInfo.shpName;
+        var _pos = isEmpty(potShpInfo.pos) ? [0, 0, 0] : potShpInfo.pos;
+        var _bContactSce = isEmpty(potShpInfo.contactSce) ? false : potShpInfo.contactSce;
+        var _uClr = isEmpty(potShpInfo.potClr) ? 0xffffffff : clrToU32(potShpInfo.potClr);
+        var _scrASDist = isEmpty(potShpInfo.scrASDist) ? -1 : potShpInfo.scrASDist;
+        var _scrVisDist = isEmpty(potShpInfo.scrVisDist) ? -1 : potShpInfo.scrVisDist;
 
         let _vWorRight = [0, 0, 0];
         let _vWorUp = [0, 0, 0];
@@ -4539,14 +4515,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
 
         return Module.RealBIMWeb.AddCustomPotShp(
-            potShpInfo.shpName,
+            _shpName,
             _groupName,
-            potShpInfo.pos,
+            _pos,
             uPotSize,
             _uClr,
             textobj,
-            potShpInfo.scrASDist,
-            potShpInfo.scrVisDist,
+            _scrASDist,
+            _scrVisDist,
             _bContactSce,
             _vWorRight,
             _vWorUp
@@ -4567,6 +4543,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.contactSce = null; //表示矢量是否与场景发生深度遮挡
             this.lineWidth = null; //选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
             this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
+            this.projSce = null; //表示是否投影到地形，默认false
         }
     }
     ExtModule.RELineShpInfo = RELineShpInfo;
@@ -4579,39 +4556,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(lineShpInfo, 'lineShpInfo')) return;
         if (isEmptyLog(lineShpInfo.shpName, 'shpName')) return;
         if (!checkTypeLog(lineShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
-        if (isEmptyLog(lineShpInfo.textInfo, 'textInfo')) return;
 
-        var _textInfo = lineShpInfo.textInfo;
-        var _groupName = isEmpty(lineShpInfo.groupName) ? '' : lineShpInfo.groupName;
-        var _texBias = [0, 0];
-        if (!isEmpty(_textInfo.texBias)) {
-            _texBias = _textInfo.texBias;
-        }
-        var _GolFontID = 'RealBIMFont001';
-        if (!isEmpty(_textInfo.fontName)) {
-            _GolFontID = _textInfo.fontName;
-        }
-        var _textcolor = 0xffffffff;
-        if (!isEmpty(_textInfo.textClr)) {
-            _textcolor = clrToU32(_textInfo.textClr);
-        }
-        var _textbordercolor = 0xff000000;
-        if (!isEmpty(_textInfo.textBorderClr)) {
-            _textbordercolor = clrToU32(_textInfo.textBorderClr);
-        }
-        var _textBackMode = 0;
-        if (!isEmpty(_textInfo.textBackMode)) {
-            _textBackMode = _textInfo.textBackMode;
-        }
-        var _textBackBorder = 0;
-        if (!isEmpty(_textInfo.textBackBorder)) {
-            _textBackBorder = _textInfo.textBackBorder;
-        }
-        var _textBackClr = 0x00000000;
-        if (!isEmpty(_textInfo.textBackClr)) {
-            _textBackClr = clrToU32(_textInfo.textBackClr);
-        }
-
+        const _textInfo = isEmpty(lineShpInfo.textInfo) ? new REShpTextInfo() : lineShpInfo.textInfo;
+        var _texBias = isEmpty(_textInfo.texBias) ? [0, 0] : _textInfo.texBias;
+        var _text = isEmpty(_textInfo.text) ? '' : _textInfo.text;
+        var _GolFontID = isEmpty(_textInfo.fontName) ? 'RealBIMFont001' : _textInfo.fontName;
+        var _textcolor = isEmpty(_textInfo.textClr) ? 0xffffffff : clrToU32(_textInfo.textClr);
+        var _textbordercolor = isEmpty(_textInfo.textBorderClr) ? 0xff000000 : clrToU32(_textInfo.textBorderClr);
+        var _textBackMode = isEmpty(_textInfo.textBackMode) ? 0 : _textInfo.textBackMode;
+        var _textBackBorder = isEmpty(_textInfo.textBackBorder) ? 0 : _textInfo.textBackBorder;
+        var _textBackClr = isEmpty(_textInfo.textBackClr) ? 0x00000000 : clrToU32(_textInfo.textBackClr);
         var _temparrpos = new Module.RE_Vector_dvec3();
         for (var i = 0; i < lineShpInfo.potList.length; ++i) {
             _temparrpos.push_back(lineShpInfo.potList[i]);
@@ -4649,7 +4603,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var textobj = {
             m_strGolFontID: _GolFontID,
             m_bTextWeight: true,
-            m_strText: isEmpty(_textInfo.text) ? '' : _textInfo.text,
+            m_strText: _text,
             m_uTextClr: _textcolor,
             m_uTextBorderClr: _textbordercolor,
             m_qTextRect: TempTextRect,
@@ -4659,21 +4613,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uTextBackClr: _textBackClr,
         };
 
-        var _bContactSce = false;
-        if (!isEmpty(lineShpInfo.contactSce)) _bContactSce = lineShpInfo.contactSce;
-        var _uClr = 0xffffffff;
-        if (!isEmpty(lineShpInfo.lineClr)) _uClr = clrToU32(lineShpInfo.lineClr);
-        var _uFillClr = 0xffffffff;
-        if (!isEmpty(lineShpInfo.fillClr)) _uFillClr = clrToU32(lineShpInfo.fillClr);
-        var _fillState = 0;
-        if (!isEmpty(lineShpInfo.fillState)) _fillState = lineShpInfo.fillState;
-        var _linewidth = 1;
-        if (!isEmpty(lineShpInfo.lineWidth)) _linewidth = lineShpInfo.lineWidth;
-        var _fTextPos = -2;
-        if (!isEmpty(lineShpInfo.textPos)) _fTextPos = lineShpInfo.textPos;
+        var _groupName = isEmpty(lineShpInfo.groupName) ? '' : lineShpInfo.groupName;
+        var _shpName = isEmpty(lineShpInfo.shpName) ? '' : lineShpInfo.shpName;
+        var _bContactSce = isEmpty(lineShpInfo.contactSce) ? false : lineShpInfo.contactSce;
+        var _uClr = isEmpty(lineShpInfo.lineClr) ? 0xffffffff : clrToU32(lineShpInfo.lineClr);
+        var _uFillClr = isEmpty(lineShpInfo.fillClr) ? 0xffffffff : clrToU32(lineShpInfo.fillClr);
+        var _fillState = isEmpty(lineShpInfo.fillState) ? 0 : lineShpInfo.fillState;
+        var _linewidth = isEmpty(lineShpInfo.lineWidth) ? 1 : lineShpInfo.lineWidth;
+        var _fTextPos = isEmpty(lineShpInfo.textPos) ? -2 : lineShpInfo.textPos;
+        var _scrASDist = isEmpty(lineShpInfo.scrASDist) ? -1 : lineShpInfo.scrASDist;
+        var _scrVisDist = isEmpty(lineShpInfo.scrVisDist) ? -1 : lineShpInfo.scrVisDist;
+        var _projSce = isEmpty(lineShpInfo.projSce) ? false : lineShpInfo.projSce;
 
         return Module.RealBIMWeb.AddCustomPolylineShp(
-            lineShpInfo.shpName,
+            _shpName,
             _groupName,
             _temparrpos,
             _fillState,
@@ -4681,10 +4634,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _uFillClr,
             _fTextPos,
             textobj,
-            lineShpInfo.scrASDist,
-            lineShpInfo.scrVisDist,
+            _scrASDist,
+            _scrVisDist,
             _bContactSce,
-            _linewidth
+            _linewidth,
+            _projSce
         );
     };
 
@@ -5082,6 +5036,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return;
         }
         return Module.RealBIMWeb.GetCustomShpAutoScaleDist(groupName);
+    };
+
+    /**
+     * 设置某个组矢量元素是否投影地形 注：仅线（面）矢量有效
+     * @param {String} groupName //矢量组标识
+     * @param {Boolean} projSce //是否投影地形
+     */
+    Module.Geometry.setGroupShpProjSce = function (groupName, projSce) {
+        if (isEmptyLog(groupName, 'groupName')) return;
+        Module.RealBIMWeb.SetCustomShpProjSce(groupName, projSce);
     };
 
     // MOD-- 填挖方（Earthwork）
@@ -12384,13 +12348,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.dataSetId = null; // 数据集标识
             this.elemId = null; // 构件唯一标识
-            this.trackPointList = null; //表示轨迹顶点序列
+            //this.trackPointList = null; //表示轨迹顶点序列
+            this.trackPointList = null; //表示轨迹顶点信息（RETrackPointInfo 类型）
             this.pathColsed = false; //表示路径是否闭合
             this.speed = 1.0; // 表示动画运动速度（单位m/s）
             this.selfVect = [0.0, 0.0, 0.0]; //表示单构件自身姿态正方向
         }
     }
     ExtModule.REEntityTrackAnimInfo = REEntityTrackAnimInfo;
+
+    class RETrackPointInfo {
+        // 轨迹顶点信息
+        constructor() {
+            this.pos = null; // 轨迹顶点坐标
+            this.selfVect = null; // 轨迹顶点对应的单构件自身姿态正方向
+        }
+    }
+    ExtModule.RETrackPointInfo = RETrackPointInfo;
 
     /**
      * 设置单构件轨迹动画信息
@@ -12401,19 +12375,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(trackAnimInfo.dataSetId, 'dataSetId')) return;
         if (isEmptyLog(trackAnimInfo.elemId, 'elemId')) return;
         if (!checkTypeLog(trackAnimInfo.trackPointList, 'trackPointList', RE_Enum.RE_Check_Array)) return;
-        if (!checkTypeLog(trackAnimInfo.selfVect, 'selfVect', RE_Enum.RE_Check_Array)) return;
+        //if (!checkTypeLog(trackAnimInfo.selfVect, 'selfVect', RE_Enum.RE_Check_Array)) return;
         let _pathColsed = isEmpty(trackAnimInfo.pathColsed) ? false : trackAnimInfo.pathColsed;
         let _speed = isEmpty(trackAnimInfo.speed) ? 1.0 : trackAnimInfo.speed;
-        let _selfVect = isEmpty(trackAnimInfo.selfVect) ? [1.0, 0.0, 0.0] : trackAnimInfo.selfVect;
+        //let _selfVect = isEmpty(trackAnimInfo.selfVect) ? [1.0, 0.0, 0.0] : trackAnimInfo.selfVect;
+
         let _vector_track = new Module.RE_Vector_vec3();
+        let _vector_selfVect = new Module.RE_Vector_vec3();
         for (let i = 0; i < trackAnimInfo.trackPointList.length; i++) {
-            _vector_track.push_back(trackAnimInfo.trackPointList[i]);
+            const pointInfo = trackAnimInfo.trackPointList[i];
+            let _pos = isEmpty(pointInfo.pos) ? [0.0, 0.0, 0.0] : pointInfo.pos;
+            let _selfVect = isEmpty(pointInfo.selfVect) ? [1.0, 0.0, 0.0] : pointInfo.selfVect;
+            _vector_track.push_back(_pos);
+            _vector_selfVect.push_back(_selfVect);
         }
         let _cInfo = {
             m_arrTrackPionts: _vector_track,
             m_bPathClosed: _pathColsed,
             m_dSpeed: _speed,
-            m_vSelfVect: _selfVect,
+            m_arrSelfVects: _vector_selfVect,
         };
         Module.RealBIMWeb.SetEntityTrackAni(trackAnimInfo.dataSetId, trackAnimInfo.elemId, _cInfo);
     };

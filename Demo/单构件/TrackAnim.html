@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-04-14 15:44:32
+ * @LastEditTime: 2025-05-12 16:16:37
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -22,6 +22,7 @@
                 <button onclick="setCamBind()">设置相机绑定</button>
                 <button onclick="playAll()">整体动画</button>
                 <button onclick="clearCamBind()">清除相机绑定并结束动画</button>
+                <button onclick="addHuocheAnim()">货车动画</button>
             </div>
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
             <div class="custom-loading-container">
@@ -63,8 +64,13 @@
                     },
                     {
                         dataSetId: 'xiaoren',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_xiaoren',
+                    },
+                    {
+                        dataSetId: 'huoche',
+                        // resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_testani/hc',
                         resourcesAddress:
-                            'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_xiaoren',
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a19bfc351a3b69a8bb7ea6a375ed27a',
                     },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
@@ -91,6 +97,18 @@
                     entityList.push(entity);
                 }
 
+                let typeNames_huoche = BlackHole3D.Entity.getAllTypeNames('huoche');
+                if (typeNames_huoche.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'huoche';
+                    entity.entityType = typeNames_huoche[0];
+                    entity.elemId = 1;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [230.0, 480.0, 2.163];
+                    entityList.push(entity);
+                }
+
                 BlackHole3D.Entity.addEntities(entityList); //添加实例对象
                 BlackHole3D.Entity.exitEditMode(); //结束编辑模式
             }
@@ -101,15 +119,29 @@
                 BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
             }
             function setPathAnimPlay() {
-                let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
-                trackInfo.dataSetId = 'xiaoren';
-                trackInfo.elemId = 1;
-                trackInfo.trackPointList = [
+                // 矢量线
+                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                lineShpInfo.shpName = 'lineShp002';
+                lineShpInfo.potList = [
                     [268.1516942425886, 412.1152666772725, 2.162647794886439],
                     [268.37034507350046, 409.84989341814963, 2.162647794886439],
                     [268.58706670706755, 405.50119880674055, 2.162647794886439],
                     [273.5447366518252, 403.6194642625328, 2.162647794886439],
                     [277.773577083437, 399.0003991324121, 2.162647794886439],
+                ];
+                lineShpInfo.fillState = 0;
+                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
+                trackInfo.dataSetId = 'xiaoren';
+                trackInfo.elemId = 1;
+                trackInfo.trackPointList = [
+                    { pos: [268.1516942425886, 412.1152666772725, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [268.37034507350046, 409.84989341814963, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [268.58706670706755, 405.50119880674055, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [273.5447366518252, 403.6194642625328, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [277.773577083437, 399.0003991324121, 2.163], selfVect: [0.0, -1.0, 0.0] },
                 ];
                 trackInfo.pathColsed = false;
                 trackInfo.speed = 1.0;
@@ -160,7 +192,6 @@
                 animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.STOPMIN;
                 BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
 
-
                 let animPlayInfo2 = new BlackHole3D.REEntitySingleAnimPlayInfo();
                 animPlayInfo2.dataSetId = 'xiaoren';
                 animPlayInfo2.elemId = 1;
@@ -174,6 +205,50 @@
                 setPathAnimPlay();
                 playXiaorenWalk();
                 setCamBind();
+            }
+
+            function addHuocheAnim() {
+                // 矢量线
+                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                lineShpInfo.shpName = 'lineShp001';
+                lineShpInfo.potList = [
+                    [230.0, 480.0, 2.163],
+                    [230.0, 466.0, 2.163],
+                    [280.0, 390.0, 2.163],
+                    [320.0, 390.0, 2.163],
+                    [230.0, 390.0, 2.163],
+                ];
+                lineShpInfo.fillState = 0;
+                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+
+                // 路径动画
+                let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
+                trackInfo.dataSetId = 'huoche';
+                trackInfo.elemId = 1;
+                trackInfo.trackPointList = [
+                    { pos: [230.0, 480.0, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [230.0, 466.0, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [280.0, 390.0, 2.163], selfVect: [0.0, -1.0, 0.0] },
+                    { pos: [320.0, 390.0, 2.163], selfVect: [0.0, 1.0, 0.0] },
+                    { pos: [230.0, 390.0, 2.163], selfVect: [0.0, 1.0, 0.0] },
+                ];
+                trackInfo.pathColsed = false;
+                trackInfo.speed = 10.0;
+                trackInfo.selfVect = [0.0, -1.0, 0.0];
+
+                BlackHole3D.Entity.setTrackAnim(trackInfo);
+
+                // 播放路径动画
+                let animPlayInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+                animPlayInfo.dataSetId = 'huoche';
+                animPlayInfo.elemId = 1;
+                animPlayInfo.animName = '';
+                animPlayInfo.animLevel = 0;
+                animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+                animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
             }
         </script>
     </body>
