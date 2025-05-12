@@ -14978,7 +14978,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置超出限高邻接高度后的颜色
+     * 设置超出限高临界高度后的颜色
      * @param {REColor} color //颜色（REColor 类型）
      */
     Module.Analysis3D.setHeightLimitClr = function (color) {
@@ -14988,7 +14988,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取超出限高邻接高度后的颜色
+     * 获取超出限高临界高度后的颜色
      */
     Module.Analysis3D.getHeightLimitClr = function () {
         let _color = Module.RealBIMWeb.GetHeightLClr();
