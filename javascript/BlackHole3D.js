@@ -14931,6 +14931,70 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SightL_SetAttrs(_viewport, _visibleClr, _occludedClr);
     };
 
+    // MARK 限高分析
+    class REHeightLimitInfo {
+        constructor() {
+            this.centerX = 0; //限高中心点X
+            this.centerY = 0; //限高中心点Y
+            this.radius = 1.0; //限高作用半径
+            this.criticalZ = 1e20; //限高临界高度Z
+        }
+    }
+    ExtModule.REHeightLimitInfo = REHeightLimitInfo;
+
+    /**
+     * 设置限高分析信息
+     * @param {REHeightLimitInfo} info //限高信息（REHeightLimitInfo 类型）
+     */
+    Module.Analysis3D.setHeightLimitInfo = function (info) {
+        if (isEmptyLog(info, 'info')) return;
+
+        let _centerX = isEmpty(info.centerX) ? 0 : info.centerX;
+        let _centerY = isEmpty(info.centerY) ? 0 : info.centerY;
+        let _radius = isEmpty(info.radius) ? 1.0 : info.radius;
+        let _criticalZ = isEmpty(info.criticalZ) ? 1e20 : info.criticalZ;
+        Module.RealBIMWeb.SetHeightLimitInfo([_centerX, _centerY, _radius, _criticalZ]);
+    };
+
+    /**
+     * 获取限高分析信息
+     */
+    Module.Analysis3D.getHeightLimitInfo = function () {
+        let _cLimitHeight = Module.RealBIMWeb.GetHeightLimitInfo();
+        let limitHeight = new REHeightLimitInfo();
+        limitHeight.centerX = _cLimitHeight[0];
+        limitHeight.centerY = _cLimitHeight[1];
+        limitHeight.radius = _cLimitHeight[2];
+        limitHeight.criticalZ = _cLimitHeight[3];
+        return limitHeight;
+    };
+
+    /**
+     * 删除限高分析
+     */
+    Module.Analysis3D.delHeightLimit = function () {
+        Module.RealBIMWeb.SetHeightLimitInfo([0, 0, 1.0, 1e20]);
+        Module.RealBIMWeb.SetHeightLClr([0, 0, 0, 0]);
+    };
+
+    /**
+     * 设置超出限高邻接高度后的颜色
+     * @param {REColor} color //颜色（REColor 类型）
+     */
+    Module.Analysis3D.setHeightLimitClr = function (color) {
+        if (isEmptyLog(color, 'color')) return;
+        let _color = clrToRGBA_List(color);
+        Module.RealBIMWeb.SetHeightLClr(_color);
+    };
+
+    /**
+     * 获取超出限高邻接高度后的颜色
+     */
+    Module.Analysis3D.getHeightLimitClr = function () {
+        let _color = Module.RealBIMWeb.GetHeightLClr();
+        return clrRGBAListToClr(_color);
+    };
+
     // function getName() {
     //     let reg = /\s+at\s(\S+)\s\(/g
     //     let str = new Error().stack.toString()
