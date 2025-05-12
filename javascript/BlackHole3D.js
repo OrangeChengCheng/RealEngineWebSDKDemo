@@ -14944,15 +14944,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置限高分析信息
-     * @param {REHeightLimitInfo} info //限高信息（REHeightLimitInfo 类型）
+     * @param {REHeightLimitInfo} heightlimitInfo //限高信息（REHeightLimitInfo 类型）
      */
-    Module.Analysis3D.setHeightLimitInfo = function (info) {
-        if (isEmptyLog(info, 'info')) return;
+    Module.Analysis3D.setHeightLimitInfo = function (heightlimitInfo) {
+        if (isEmptyLog(heightlimitInfo, 'heightlimitInfo')) return;
 
-        let _centerX = isEmpty(info.centerX) ? 0 : info.centerX;
-        let _centerY = isEmpty(info.centerY) ? 0 : info.centerY;
-        let _radius = isEmpty(info.radius) ? 1.0 : info.radius;
-        let _criticalZ = isEmpty(info.criticalZ) ? 1e20 : info.criticalZ;
+        let _centerX = isEmpty(heightlimitInfo.centerX) ? 0 : heightlimitInfo.centerX;
+        let _centerY = isEmpty(heightlimitInfo.centerY) ? 0 : heightlimitInfo.centerY;
+        let _radius = isEmpty(heightlimitInfo.radius) ? 1.0 : heightlimitInfo.radius;
+        let _criticalZ = isEmpty(heightlimitInfo.criticalZ) ? 1e20 : heightlimitInfo.criticalZ;
         Module.RealBIMWeb.SetHeightLimitInfo([_centerX, _centerY, _radius, _criticalZ]);
     };
 
