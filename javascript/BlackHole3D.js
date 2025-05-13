@@ -1239,6 +1239,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.revertU = 0; // 表示资源内容水平翻转（0，1）
             this.revertV = 0; // 表示资源内容垂直翻转（0，1）
             this.lodRange = [0, 18]; // 表示资源层级范围（二元素数组类型）
+            this.picTransp = false; // 表示资源是否支持透明通道
             this.resLonLatBound = [0, 0, 0, 0]; // 表示地图资源的经纬度范围（四元素数组类型）【lonMin, lonMax, latMin, latMax】
             this.tilingSchemeType = 1; // 切片方案类型（默认3857切片方案）  0：用户自定义  1：WebMercatorTilingScheme（3857切片方案）  2：GeoGraphicTilingScheme（4326切片方案（经纬度切片方案））  3：天地图切片方案
             this.customTilingScheme = null; // 表示用户自定义切片方案（RETilingScheme 类型），只有tilingSchemeType=0生效
@@ -1381,6 +1382,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 const _revertU = isEmpty(_WMSInfo.revertU) ? 0 : _WMSInfo.revertU;
                 const _revertV = isEmpty(_WMSInfo.revertV) ? 0 : _WMSInfo.revertV;
                 const _lodRange = isEmpty(_WMSInfo.lodRange) ? [0, 18] : _WMSInfo.lodRange;
+                const _picTransp = isEmpty(_WMSInfo.picTransp) ? false : _WMSInfo.picTransp;
                 const _resLonLatBound = isEmpty(_WMSInfo.resLonLatBound) ? [0, 0, 0, 0] : _WMSInfo.resLonLatBound;
                 const _tilingSchemeType = isEmpty(_WMSInfo.tilingSchemeType) ? 1 : _WMSInfo.tilingSchemeType;
                 let _cCustomTilingScheme = {
@@ -1449,6 +1451,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uRevertU: _revertU,
                     m_uRevertV: _revertV,
                     m_vLodRange: _lodRange,
+                    m_bPicTransp: _picTransp,
                     m_vResLonLatBound: _resLonLatBound,
                     m_eTilingSchemeType: _m_eTilingSchemeType,
                     m_cCustomTilingScheme: _cCustomTilingScheme,
@@ -3237,6 +3240,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.picPath = null; //标签每一行的纹理路径(要求32 * 32像素，png格式)
             this.text = null; //标签每一行的文字信息
+            this.textClr = null; //文字颜色（REColor 类型）
+            this.borderClr = null; //文字边框颜色（REColor 类型）
             this.onlyText = false; //是否只有文字， 不设置表示默认都有
         }
     }
@@ -3277,21 +3282,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(tagInfoList, 'tagInfoList')) return;
         var _temptags = new Module.RE_Vector_TAG();
         for (let j = 0; j < tagInfoList.length; ++j) {
-            let _tagInfo = tagInfoList[j];
+            const _tagInfo = tagInfoList[j];
             let _texRegions = new Module.RE_Vector_SHP_TEX();
             let _textRegions = new Module.RE_Vector_SHP_TEXT();
             let _lineCount = _tagInfo.infoList.length;
             let _lineHeight = 26;
             let _lineSpace = 3;
             for (let i = 0; i < _lineCount; ++i) {
-                let _needPic = !isEmpty(_tagInfo.infoList[i].onlyText) ? !_tagInfo.infoList[i].onlyText : false;
+                const _tagInfoItem = _tagInfo.infoList[i];
+                let _picPath = isEmpty(_tagInfoItem.picPath) ? '' : _tagInfoItem.picPath;
+                let _needPic = !isEmpty(_tagInfoItem.onlyText) ? !_tagInfoItem.onlyText : false;
                 let _picDefClr = _needPic ? 0xffffffff : 0x00ffffff;
                 let _left = _needPic ? -50 : 0;
                 let _bottom = _lineHeight * (_lineCount - i - 1) + _lineSpace;
                 let _right = _needPic ? -30 : 0;
                 let _top = _lineHeight * (_lineCount - i) - _lineSpace;
                 let obj_t = {
-                    m_strTexPath: isEmpty(_tagInfo.infoList[i].picPath) ? '' : _tagInfo.infoList[i].picPath,
+                    m_strTexPath: _picPath,
                     m_qTexRect: [_left, _bottom, _right, _top],
                     m_uTexClrMult: _picDefClr,
                     m_vMinTexUV: [0.0, 0.0],
@@ -3305,16 +3312,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _texRegions.push_back(obj_t); //纹理矩形区域在2维像素裁剪空间(Y轴向上递增)下相对于定位点的覆盖区域<左，下，右，上>
             }
             for (let i = 0; i < _lineCount; ++i) {
+                const _tagInfoItem = _tagInfo.infoList[i];
                 let _left = 0;
                 let _bottom = _lineHeight * (_lineCount - i - 1) + _lineSpace;
                 let _right = 30;
                 let _top = _lineHeight * (_lineCount - i) - _lineSpace;
+                let _text = isEmpty(_tagInfoItem.text) ? '' : clrToU32(_tagInfoItem.text);
+                let _textClr = isEmpty(_tagInfoItem.textClr) ? 0xffffffff : clrToU32(_tagInfoItem.textClr);
+                let _borderClr = isEmpty(_tagInfoItem.borderClr) ? 0x80000000 : clrToU32(_tagInfoItem.borderClr);
                 let obj_t = {
                     m_strGolFontID: 'RealBIMFont001',
                     m_bTextWeight: true,
-                    m_strText: isEmpty(_tagInfo.infoList[i].text) ? '' : _tagInfo.infoList[i].text,
-                    m_uTextClr: 0xffffffff,
-                    m_uTextBorderClr: 0x80000000,
+                    m_strText: _text,
+                    m_uTextClr: _textClr,
+                    m_uTextBorderClr: _borderClr,
                     m_qTextRect: [_left, _bottom, _right, _top],
                     m_uTextFmtFlag: (1 << 1) /*TEXT_FMT_VCENTER*/ | (1 << 3) /*TEXT_FMT_LEFT*/ | (1 << 6) /*TEXT_FMT_NOCLIP*/,
                     m_uTextBackMode: 0,
