@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3150
+﻿//版本：v3.2.0.3155
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1826,6 +1826,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getAutoCamAnimEnable = function () {
         return Module.RealBIMWeb.GetAutoCamAnimEnable();
+    };
+
+    /**
+     * 退出当前的相机定位操作 注：Camera.setCamLocateTo接口调用方式有效
+     * @param {Number} type //表示相机退出定位后的终止方位在哪（默认为0） 0: 当前方位 1: 定位起始方位 2: 定位最终结束方位
+     */
+    Module.Camera.exitCamLocating = function (type) {
+        let _type = isEmpty(type) ? 0 : type;
+        return Module.RealBIMWeb.ExitCamLocating(_type);
     };
 
     // MARK 相机效果

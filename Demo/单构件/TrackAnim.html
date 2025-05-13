@@ -208,7 +208,7 @@
             }
 
             function addHuocheAnim() {
-                // 矢量线
+                // 添加辅助矢量线
                 var lineShpInfo = new BlackHole3D.RELineShpInfo();
                 lineShpInfo.shpName = 'lineShp001';
                 lineShpInfo.potList = [
@@ -220,7 +220,6 @@
                 ];
                 lineShpInfo.fillState = 0;
                 lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
-
                 BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
 
                 // 路径动画
