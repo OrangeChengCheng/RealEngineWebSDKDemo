@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3155
+﻿//版本：v3.2.0.3157
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -12359,6 +12359,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
         }
         Module.RealBIMWeb.SetEntityAniPlayState(_dataSetId, _elemId, _animName, _eAniLevel, _animPlayMode, _animPlayState);
+    };
+
+    /**
+     * 获取单构件动画的播放时长
+     * @param {String} dataSetId //数据集标识，必填
+     * @param {Number} elemId //构件标识
+     * @param {Number} animLevel //动画级别（默认为0） 0：世界空间动画  1：自身动画
+     * @param {String} animName //动画标识，世界空间动画类型，该字段无效，可不传
+     */
+    Module.Entity.getAnimTimeLen = function (dataSetId, elemId, animLevel, animName) {
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmptyLog(elemId, 'elemId')) return;
+        let _animName = isEmpty(animName) ? '' : animName;
+        let _animLevel = isEmpty(animLevel) ? 0 : animLevel;
+        let _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.WOELD_LEVEL;
+        if (_animLevel == 1) {
+            _eAniLevel = Module.RE_ENTITY_ANI_LEVEL.SELF_LEVEL;
+        }
+        return Module.RealBIMWeb.GetEntityAniTimeLen(dataSetId, elemId, _eAniLevel, _animName);
     };
 
     // MARK 轨迹动画
