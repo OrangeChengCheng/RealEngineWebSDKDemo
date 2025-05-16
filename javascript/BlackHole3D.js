@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3161
+﻿//版本：v3.2.0.3165
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -71,6 +71,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
         document.addEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web); //位置编辑的控制点配准模式匹配完成回调事件
         document.addEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web); //动画播放脚本状态回调事件
+        document.addEventListener('REMeasureFinish_Web', REMeasureFinish_Web); //测量完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -93,6 +94,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
         document.removeEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web);
         document.removeEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web);
+        document.removeEventListener('REMeasureFinish_Web', REMeasureFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -130,6 +132,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_REAnimPlayScriptState);
+    }
+    function REMeasureFinish_Web(e) {
+        let posData = e.detail;
+        if (e.detail.canvasid.length) {
+            let measure_res = Module.Measure.getResultData(e.detail.measureId);
+            posData.measureData = measure_res;
+            const re_event_REMeasureFinish = new CustomEvent('REMeasureFinish', {
+                detail: posData,
+            });
+            document.dispatchEvent(re_event_REMeasureFinish);
+        }
     }
 
     if (hasNewExtrude) {
@@ -1650,6 +1663,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.getConvRotateD2Q = function (camDir) {
         return Module.RealBIMWeb.ConvCamRotate_D2Q(camDir);
+    };
+
+    /**
+     * 获取当前北方向夹角（二维） 注：逆时针范围【0-360】
+     */
+    Module.Camera.getCurNorthAngleXOY = function () {
+        return Module.RealBIMWeb.GetCurNorthAngleXOY();
     };
 
     // MARK 相机操作
@@ -8909,6 +8929,204 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 测量（Measure）
     Module.Measure = typeof Module.Measure !== 'undefined' ? Module.Measure : {}; //增加 Measure 模块
 
+    // MARK 加载
+
+    class REMeasureInfo {
+        constructor() {
+            this.measureType = null; //测量类型 1：单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
+            this.dataShowType = null; //数据显示类型  1：沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向（仅线可用）  4：测量线（面）贴地测量
+            this.groupId = null; //组id, 1024以内的id为系统工具栏创建的测量数据的保有数值，如果传递1024以内的值则会对工具栏创建的测量数据进行覆盖
+            this.pointList = null; //测量点集合
+        }
+    }
+    ExtModule.REMeasureInfo = REMeasureInfo;
+
+    /**
+     * 添加一组测量数据
+     * @param {Array} measureInfoList //测量信息集合 （REMeasureInfo 类型）
+     */
+    Module.Measure.addGroupData = function (measureInfoList) {
+        if (!Module.RealBIMWeb.IsInMeasureMode()) return; //不处于测量模式下无效
+        if (isEmptyLog(measureInfoList, 'measureInfoList')) return;
+
+        let _vevtor_groupList = new Module.RE_Vector_MEASURE_INFO();
+        for (let i = 0; i < measureInfoList.length; i++) {
+            const measureInfo = measureInfoList[i];
+            if (isEmptyLog(measureInfo.groupId, 'groupId')) return;
+            if (isEmptyLog(measureInfo.pointList, 'pointList')) return;
+            if (measureInfo.groupId < 1024) {
+                // 限制用户必须传递大于1024的参数，否则和内部工具参数重叠
+                logParErr('groupId');
+                return;
+            }
+            var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureIntToEm(measureInfo.measureType);
+            var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : convIntToU32(measureInfo.dataShowType);
+            var _pointList = new Module.RE_Vector_dvec3();
+            for (let i = 0; i < measureInfo.pointList.length; i++) {
+                _pointList.push_back(measureInfo.pointList[i]);
+            }
+            _vevtor_groupList.push_back({
+                m_uMeasureType: _measureType,
+                m_uLockDir: _dataShowType,
+                m_uGroupID: measureInfo.groupId,
+                m_arrPts: _pointList,
+            });
+            // Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
+        }
+        Module.RealBIMWeb.AddMeasureGroup(_vevtor_groupList);
+    };
+
+    /**
+     * 删除一组测量数据
+     * @param {Number} groupId //组id
+     */
+    Module.Measure.delGroupData = function (groupId) {
+        Module.RealBIMWeb.RemoveAMeasureGroup(groupId);
+    };
+
+    /**
+     * 删除一类测量数据
+     * @param {Number} type //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
+     */
+    Module.Measure.delTypeData = function (type) {
+        let _type = isEmpty(type) ? 1 : measureIntToEm(type);
+        Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
+    };
+
+    /**
+     * 根据测量类型获取测量数据
+     * @param {Number} measureType //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
+     */
+    Module.Measure.getGroupDataByType = function (measureType) {
+        var _measureType = isEmpty(measureType) ? 1 : measureIntToEm(measureType);
+        let _vList = Module.RealBIMWeb.GetMeasureGroupByType(_measureType);
+        let dataList = [];
+        for (let i = 0; i < _vList.size(); i++) {
+            const _i_data = _vList.get(i);
+            let _data = new Module.REMeasureInfo();
+            _data.groupId = _i_data.m_uGroupID;
+            _data.measureType = convU32ToInt(_i_data.m_eMeasureType.value);
+            _data.dataShowType = convU32ToInt(_i_data.m_uLockDir);
+            let _pointList_temp = [];
+            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
+                const _j_data = _i_data.m_arrPts.get(j);
+                _pointList_temp.push(_j_data);
+            }
+            _data.pointList = _pointList_temp;
+            dataList.push(_data);
+        }
+        return dataList;
+    };
+
+    /**
+     * 根据测量标识获取测量数据
+     * @param {Array} groupIdList //测量标识集合
+     */
+    Module.Measure.getGroupDataByID = function (groupIdList) {
+        var count = groupIdList.length;
+        var _moemory = (count * 4).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _idList = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (let i = 0; i < count; ++i) {
+            var id = groupIdList[i];
+            _idList.set([id], i);
+        }
+        let _vList = Module.RealBIMWeb.GetMeasureGroup(_idList.byteLength, _idList.byteOffset);
+        let dataList = [];
+        for (let i = 0; i < _vList.size(); i++) {
+            const _i_data = _vList.get(i);
+            let _data = new Module.REMeasureInfo();
+            _data.groupId = _i_data.m_uGroupID;
+            _data.measureType = convU32ToInt(_i_data.m_eMeasureType.value);
+            _data.dataShowType = convU32ToInt(_i_data.m_uLockDir);
+            let _pointList_temp = [];
+            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
+                const _j_data = _i_data.m_arrPts.get(j);
+                _pointList_temp.push(_j_data);
+            }
+            _data.pointList = _pointList_temp;
+            dataList.push(_data);
+        }
+        return dataList;
+    };
+
+    /**
+     * 获取测量结果
+     * @param {String} measureId //测量对象标识
+     */
+    Module.Measure.getResultData = function (measureId) {
+        if (isEmptyLog(measureId, 'measureId')) return {};
+        const _cMesureResData = Module.RealBIMWeb.GetMeasureResult(measureId);
+        const mesureType = convU32ToInt(_cMesureResData.m_eMeasureType.value);
+        let posList = [];
+        for (let i = 0; i < _cMesureResData.m_arrPts.size(); i++) {
+            posList.push(_cMesureResData.m_arrPts.get(i));
+        }
+        let norList = [];
+        for (let i = 0; i < _cMesureResData.m_arrNors.size(); i++) {
+            norList.push(_cMesureResData.m_arrNors.get(i));
+        }
+        let resultData = {
+            mesureType: mesureType,
+            dataShowType: convU32ToInt(_cMesureResData.m_uLockDir),
+            posList: posList,
+            unit: _cMesureResData.m_strUnit,
+        };
+        switch (mesureType) {
+            case 1:
+                {
+                    resultData.totalLength = _cMesureResData.m_dTotalLength;
+                    resultData.horiLen = _cMesureResData.m_dHoriLen;
+                    resultData.vertLen = _cMesureResData.m_dVertLen;
+                    resultData.grade = _cMesureResData.m_dVertLen / _cMesureResData.m_dHoriLen;
+                }
+                break;
+            case 2:
+                {
+                    resultData.totalLength = _cMesureResData.m_dTotalLength;
+                    resultData.horiLen = _cMesureResData.m_dHoriLen;
+                    resultData.vertLen = _cMesureResData.m_dVertLen;
+                    resultData.grade = _cMesureResData.m_dVertLen / _cMesureResData.m_dHoriLen;
+                }
+                break;
+            case 3:
+                {
+                    resultData.angleDegree = _cMesureResData.m_dAngleDegree;
+                }
+                break;
+            case 4:
+                {
+                    resultData.angleDegree = _cMesureResData.m_dAngleDegree;
+                }
+                break;
+            case 5:
+                {
+                    resultData.totalArea = _cMesureResData.m_dTotalArea;
+                }
+                break;
+            case 6:
+                {
+                    resultData.position = _cMesureResData.m_vPosition;
+                }
+                break;
+            case 7:
+                {
+                    resultData.planeDist = _cMesureResData.m_dPlaneDist;
+                    resultData.planeAngle = _cMesureResData.m_dPlaneAngle;
+                }
+                break;
+            case 7:
+                {
+                    resultData.planeAngle = _cMesureResData.m_dPlaneAngle;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return resultData;
+    };
+
     // MARK 渲染设置
     /**
      * 设置测量线的颜色
@@ -9130,125 +9348,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.IsInMeasureMode();
     };
 
-    class REMeasureInfo {
-        constructor() {
-            this.measureType = null; //测量类型 1：单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
-            this.dataShowType = null; //数据显示类型  1：沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向（仅线可用）  4：测量线（面）贴地测量
-            this.groupId = null; //组id, 1024以内的id为系统工具栏创建的测量数据的保有数值，如果传递1024以内的值则会对工具栏创建的测量数据进行覆盖
-            this.pointList = null; //测量点集合
-        }
-    }
-    ExtModule.REMeasureInfo = REMeasureInfo;
-
-    /**
-     * 添加一组测量数据
-     * @param {Array} measureInfoList //测量信息集合 （REMeasureInfo 类型）
-     */
-    Module.Measure.addGroupData = function (measureInfoList) {
-        if (!Module.RealBIMWeb.IsInMeasureMode()) return; //不处于测量模式下无效
-        if (isEmptyLog(measureInfoList, 'measureInfoList')) return;
-
-        let _vevtor_groupList = new Module.RE_Vector_MEASURE_INFO();
-        for (let i = 0; i < measureInfoList.length; i++) {
-            const measureInfo = measureInfoList[i];
-            if (isEmptyLog(measureInfo.groupId, 'groupId')) return;
-            if (isEmptyLog(measureInfo.pointList, 'pointList')) return;
-            if (measureInfo.groupId < 1024) {
-                // 限制用户必须传递大于1024的参数，否则和内部工具参数重叠
-                logParErr('groupId');
-                return;
-            }
-            var _measureType = isEmpty(measureInfo.measureType) ? 1 : measureIntToEm(measureInfo.measureType);
-            var _dataShowType = isEmpty(measureInfo.dataShowType) ? 1 : convIntToU32(measureInfo.dataShowType);
-            var _pointList = new Module.RE_Vector_dvec3();
-            for (let i = 0; i < measureInfo.pointList.length; i++) {
-                _pointList.push_back(measureInfo.pointList[i]);
-            }
-            _vevtor_groupList.push_back({
-                m_uMeasureType: _measureType,
-                m_uLockDir: _dataShowType,
-                m_uGroupID: measureInfo.groupId,
-                m_arrPts: _pointList,
-            });
-            // Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
-        }
-        Module.RealBIMWeb.AddMeasureGroup(_vevtor_groupList);
-    };
-
-    /**
-     * 删除一组测量数据
-     * @param {Number} groupId //组id
-     */
-    Module.Measure.delGroupData = function (groupId) {
-        Module.RealBIMWeb.RemoveAMeasureGroup(groupId);
-    };
-
-    /**
-     * 删除一类测量数据
-     * @param {Number} type //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
-     */
-    Module.Measure.delTypeData = function (type) {
-        let _type = isEmpty(type) ? 1 : measureIntToEm(type);
-        Module.RealBIMWeb.RemoveMeasureGroupByType(_type);
-    };
-
-    /**
-     * 根据测量类型获取测量数据
-     * @param {Number} measureType //测量类型 1:单次长度测量  2：连续长度测量  3：单次角度测量  4：连续角度测量  5：面积测量  6：位置测量  7：面间距测量  8：面角度测量
-     */
-    Module.Measure.getGroupDataByType = function (measureType) {
-        var _measureType = isEmpty(measureType) ? 1 : measureIntToEm(measureType);
-        let _vList = Module.RealBIMWeb.GetMeasureGroupByType(_measureType);
-        let dataList = [];
-        for (let i = 0; i < _vList.size(); i++) {
-            const _i_data = _vList.get(i);
-            let _data = new Module.REMeasureInfo();
-            _data.groupId = _i_data.m_uGroupID;
-            _data.measureType = convU32ToInt(_i_data.m_uMeasureType);
-            _data.dataShowType = convU32ToInt(_i_data.m_uLockDir);
-            let _pointList_temp = [];
-            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
-                const _j_data = _i_data.m_arrPts.get(j);
-                _pointList_temp.push(_j_data);
-            }
-            _data.pointList = _pointList_temp;
-            dataList.push(_data);
-        }
-        return dataList;
-    };
-
-    /**
-     * 根据测量标识获取测量数据
-     * @param {Array} groupIdList //测量标识集合
-     */
-    Module.Measure.getGroupDataByID = function (groupIdList) {
-        var count = groupIdList.length;
-        var _moemory = (count * 4).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-        var _idList = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (let i = 0; i < count; ++i) {
-            var id = groupIdList[i];
-            _idList.set([id], i);
-        }
-        let _vList = Module.RealBIMWeb.GetMeasureGroup(_idList.byteLength, _idList.byteOffset);
-        let dataList = [];
-        for (let i = 0; i < _vList.size(); i++) {
-            const _i_data = _vList.get(i);
-            let _data = new Module.REMeasureInfo();
-            _data.groupId = _i_data.m_uGroupID;
-            _data.measureType = convU32ToInt(_i_data.m_uMeasureType);
-            _data.dataShowType = convU32ToInt(_i_data.m_uLockDir);
-            let _pointList_temp = [];
-            for (let j = 0; j < _i_data.m_arrPts.size(); j++) {
-                const _j_data = _i_data.m_arrPts.get(j);
-                _pointList_temp.push(_j_data);
-            }
-            _data.pointList = _pointList_temp;
-            dataList.push(_data);
-        }
-        return dataList;
-    };
-
+    // MARK 辅助
     /**
      * c++ 测量类型转换 int->Em
      * @param {Number} type //测量类型

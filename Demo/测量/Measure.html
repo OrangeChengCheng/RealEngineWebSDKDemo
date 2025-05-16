@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-05-09 15:31:55
+ * @LastEditTime: 2025-05-15 16:10:03
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -62,10 +62,10 @@
         <script type="text/javascript">
             const selectElement = document.getElementById('measure_type');
             selectElement.addEventListener('change', changeHandle);
-            document.addEventListener('REAnimPlayScriptState', REAnimPlayScriptState);
+            document.addEventListener('REMeasureFinish', REMeasureFinish);
 
-            function REAnimPlayScriptState(e) {
-                console.log('-- 动画播放脚本状态回调事件 --', e.detail);
+            function REMeasureFinish(e) {
+                console.log('-- 测量完成回调事件 --', e.detail);
             }
             function RESystemEngineCreatedCallBack() {
                 var dataSetList = [
