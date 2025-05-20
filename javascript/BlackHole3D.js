@@ -3691,7 +3691,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.selfVisDist = null; //锚点自身可视距离(<0.0f表示使用全局可视距离)
             this.texBias = null; //锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
             this.texFocus = null; //牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
-            this.fontName = null; //锚点的字体样式
+            this.fontName = "RealBIMFont001"; //锚点的字体样式
             this.textClr = null; //锚点的字体颜
             this.textBorderClr = null; //锚点的字体边框颜色
             this.textBackClr = null; //锚点的字体背景颜色
@@ -4219,7 +4219,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _textbias = ancLODInfo.mergeStyle.texBias;
         }
         var _GolFontID = 'RealBIMFont001';
-        if (!isEmpty(ancLODInfo.mergeStyle.fontName) || ancLODInfo.mergeStyle.fontName != '') {
+        if (!isEmpty(ancLODInfo.mergeStyle.fontName) && ancLODInfo.mergeStyle.fontName != '') {
             _GolFontID = ancLODInfo.mergeStyle.fontName;
         }
         var _textcolor = 0xff000000;
@@ -4581,7 +4581,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
             this.scrVisDist = null; //表示屏幕空间矢量的可视距离
             this.contactSce = null; //表示矢量是否与场景发生深度遮挡
-            this.lineWidth = null; //选填项；表示线宽，可以设为1或2，单位为像素；默认线宽为1个像素
             this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
             this.projSce = null; //表示是否投影到地形，默认false
         }
@@ -4659,7 +4658,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _uClr = isEmpty(lineShpInfo.lineClr) ? 0xffffffff : clrToU32(lineShpInfo.lineClr);
         var _uFillClr = isEmpty(lineShpInfo.fillClr) ? 0xffffffff : clrToU32(lineShpInfo.fillClr);
         var _fillState = isEmpty(lineShpInfo.fillState) ? 0 : lineShpInfo.fillState;
-        var _linewidth = isEmpty(lineShpInfo.lineWidth) ? 1 : lineShpInfo.lineWidth;
+        var _linewidth = 1;
         var _fTextPos = isEmpty(lineShpInfo.textPos) ? -2 : lineShpInfo.textPos;
         var _scrASDist = isEmpty(lineShpInfo.scrASDist) ? -1 : lineShpInfo.scrASDist;
         var _scrVisDist = isEmpty(lineShpInfo.scrVisDist) ? -1 : lineShpInfo.scrVisDist;
