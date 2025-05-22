@@ -3691,7 +3691,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.selfVisDist = null; //锚点自身可视距离(<0.0f表示使用全局可视距离)
             this.texBias = null; //锚点文字与图片的相对位置, 第一维: -1、0、1分别表示文字在图片的左侧、中间、右侧；第二维: -1、0、1分别表示文字在图片的下侧、中间、上侧；
             this.texFocus = null; //牵引线的顶点相对于图片的像素位置，[0,0]表示位于图片的左下角
-            this.fontName = "RealBIMFont001"; //锚点的字体样式
+            this.fontName = 'RealBIMFont001'; //锚点的字体样式
             this.textClr = null; //锚点的字体颜
             this.textBorderClr = null; //锚点的字体边框颜色
             this.textBackClr = null; //锚点的字体背景颜色
@@ -8936,6 +8936,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.dataShowType = null; //数据显示类型  1：沿线（面）本身方向  2：测量线（面）投射XY平面  3：测量线投射Z方向（仅线可用）  4：测量线（面）贴地测量
             this.groupId = null; //组id, 1024以内的id为系统工具栏创建的测量数据的保有数值，如果传递1024以内的值则会对工具栏创建的测量数据进行覆盖
             this.pointList = null; //测量点集合
+            this.norList = null; //测量点的法线集合（默认空数组，面间距，面夹角测量时有效，和测量点集合一一对应）
         }
     }
     ExtModule.REMeasureInfo = REMeasureInfo;
@@ -8964,11 +8965,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             for (let i = 0; i < measureInfo.pointList.length; i++) {
                 _pointList.push_back(measureInfo.pointList[i]);
             }
+            let _norList = new Module.RE_Vector_dvec3();
+            let norList_count = isEmpty(measureInfo.norList) ? 0 : measureInfo.norList.length;
+            for (let i = 0; i < norList_count; i++) {
+                _norList.push_back(measureInfo.norList[i]);
+            }
             _vevtor_groupList.push_back({
-                m_uMeasureType: _measureType,
+                m_eMeasureType: _measureType,
                 m_uLockDir: _dataShowType,
                 m_uGroupID: measureInfo.groupId,
                 m_arrPts: _pointList,
+                m_arrNors: _norList,
             });
             // Module.RealBIMWeb.AddAMeasureGroup(_measureType, _dataShowType, measureInfo.groupId, _pointList);
         }
@@ -9011,7 +9018,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 const _j_data = _i_data.m_arrPts.get(j);
                 _pointList_temp.push(_j_data);
             }
+            let _norList_temp = [];
+            for (let j = 0; j < _i_data.m_arrNors.size(); j++) {
+                const _j_data = _i_data.m_arrNors.get(j);
+                _norList_temp.push(_j_data);
+            }
             _data.pointList = _pointList_temp;
+            _data.norList = _norList_temp;
             dataList.push(_data);
         }
         return dataList;
@@ -9043,7 +9056,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 const _j_data = _i_data.m_arrPts.get(j);
                 _pointList_temp.push(_j_data);
             }
+            let _norList_temp = [];
+            for (let j = 0; j < _i_data.m_arrNors.size(); j++) {
+                const _j_data = _i_data.m_arrNors.get(j);
+                _norList_temp.push(_j_data);
+            }
             _data.pointList = _pointList_temp;
+            _data.norList = _norList_temp;
             dataList.push(_data);
         }
         return dataList;
@@ -9069,6 +9088,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             mesureType: mesureType,
             dataShowType: convU32ToInt(_cMesureResData.m_uLockDir),
             posList: posList,
+            norList: norList,
             unit: _cMesureResData.m_strUnit,
         };
         switch (mesureType) {
@@ -9114,7 +9134,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     resultData.planeAngle = _cMesureResData.m_dPlaneAngle;
                 }
                 break;
-            case 7:
+            case 8:
                 {
                     resultData.planeAngle = _cMesureResData.m_dPlaneAngle;
                 }
