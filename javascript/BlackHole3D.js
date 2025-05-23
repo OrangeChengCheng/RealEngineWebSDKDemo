@@ -3915,6 +3915,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     function convertAncInfo(ancData) {
         var ancInfo = new REAncInfo();
+        if (!ancData.m_strName.length) {
+            return null;
+        }
         ancInfo.ancName = ancData.m_strName;
         ancInfo.groupName = ancData.m_strGroupName;
         ancInfo.pos = ancData.m_vPos;
