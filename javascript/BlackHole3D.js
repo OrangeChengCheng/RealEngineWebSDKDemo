@@ -2669,6 +2669,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     probeInfo.dataSetId = dataSetId;
                 }
             }
+        } else if (_probeRet.m_uSelActorSubID_L32 == 0xfffffff0) {
+            //辅助元素（包括挤出元素）
+            probeInfo.elemType = 'AuxElem';
+            probeInfo.dataSetId = dataSetId;
         } else {
             //BIM元素
             probeInfo.elemType = 'BIMElem';
@@ -2729,6 +2733,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         probeInfo.dataSetId = dataSetId;
                     }
                 }
+            } else if (_probeRet.m_uSelActorSubID_L32 == 0xfffffff0) {
+                //辅助元素（包括挤出元素）
+                probeInfo.elemType = 'AuxElem';
+                probeInfo.dataSetId = dataSetId;
             } else {
                 //BIM元素
                 probeInfo.elemType = 'BIMElem';
