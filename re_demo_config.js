@@ -71,6 +71,9 @@ function REDataSetLoadProgress(e) {
 //模型加载完成状态
 function REDataSetLoadFinish(e) {
     if (e.detail.succeed) {
+        if (typeof REDataSetLoadFinishCallBack !== 'undefined') {
+            REDataSetLoadFinishCallBack();
+        }
         //模型加载完成！！！
         document.getElementById('canvas').style.display = 'block';
         BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突

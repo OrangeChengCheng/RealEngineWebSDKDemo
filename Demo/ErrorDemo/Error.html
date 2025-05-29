@@ -64,6 +64,9 @@
                 document.addEventListener('REDataSetLoadProgress', REDataSetLoadProgress); //模型加载进度监听
                 document.addEventListener('REDataSetLoadFinish', REDataSetLoadFinish); //模型加载完成状态
 
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+
                 if (
                     typeof BlackHole3D['m_re_em_window_width'] != 'undefined' &&
                     typeof BlackHole3D['m_re_em_window_height'] != 'undefined' &&
@@ -89,8 +92,16 @@
                 document.getElementById('canvas').style.display = 'block';
                 BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
             }
+
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
             //初始化完成后，加载项目
             function RESystemEngineCreated(e) {
+                var worldCRS = 'EPSG:3857';
+                BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS); //设置引擎参考坐标系
+                BlackHole3D.Common.setFakeSphMode(true);
+
                 console.log('当前 WebSDK 运行版本', BlackHole3D.getVersion());
                 console.log('=========================== 场景初始化完成');
                 var isSuccess = e.detail.succeed;
@@ -98,28 +109,130 @@
                     console.log('===========================  场景初始化 --> 成功！！！');
                     var dataSetList = [
                         {
-                            dataSetId: '3a14191abfddb3dd8cbcb87c99d5b614',
+                            dataSetId: '3a19e5b4bdf288568e178761e48cbee5',
                             resourcesAddress:
-                                'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a14191abfddb3dd8cbcb87c99d5b614',
-                            useTransInfo: false,
+                                'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a19e5b4bdf288568e178761e48cbee5',
+                            dataSetCRS: null,
+                            engineOrigin: null,
+                            dataSetCRSNorth: null,
+                            useTransInfo: true,
+                            transInfo: [
+                                [1, 1, 1],
+                                [0, 0, 0, 1],
+                                [0, 0, 0],
+                            ],
                         },
                         // {
-                        //     dataSetId: '3a168dfba4bbd0d134a2ae8a5f3a129e',
+                        //     dataSetId: '3a19e5d71a4b9f0d5907e017c6eca568',
                         //     resourcesAddress:
-                        //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a168dfba4bbd0d134a2ae8a5f3a129e',
-                        //     useTransInfo: false,
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a19e5d71a4b9f0d5907e017c6eca568',
+                        //     dataSetCRS: null,
+                        //     engineOrigin: null,
+                        //     dataSetCRSNorth: null,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [1, 1, 1],
+                        //         [0, 0, 0, 1],
+                        //         [0, 0, 0],
+                        //     ],
                         // },
                         // {
-                        //     dataSetId: '3a168dfbac6663f0387a516b2ef65312',
+                        //     dataSetId: '3a1a1e374464956c169a043d5ddb20fa',
                         //     resourcesAddress:
-                        //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a168dfbac6663f0387a516b2ef65312',
-                        //     useTransInfo: false,
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1a1e374464956c169a043d5ddb20fa',
+                        //     dataSetCRS: null,
+                        //     engineOrigin: null,
+                        //     dataSetCRSNorth: null,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [1, 1, 1],
+                        //         [0, 0, 0, 1],
+                        //         [0, 0, 0],
+                        //     ],
                         // },
                         // {
-                        //     dataSetId: '3a168e4155d744e19034da4026eb26dd',
+                        //     dataSetId: '3a1a234e21543771a1cf0fd6807ea6fb',
                         //     resourcesAddress:
-                        //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a168e4155d744e19034da4026eb26dd',
-                        //     useTransInfo: false,
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a1a234e21543771a1cf0fd6807ea6fb',
+                        //     dataSetCRS: null,
+                        //     engineOrigin: null,
+                        //     dataSetCRSNorth: null,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [1, 1, 1],
+                        //         [0, 0, 0, 1],
+                        //         [0, 0, 0],
+                        //     ],
+                        // },
+                        // {
+                        //     dataSetId: '3a1a1d7d7092903eef0e264bb2ef1759',
+                        //     resourcesAddress:
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1a1d7d7092903eef0e264bb2ef1759',
+                        //     dataSetCRS: 'EPSG:3857',
+                        //     engineOrigin: [13403242.923, 2728679.864, 10],
+                        //     dataSetCRSNorth: 0,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [3.848507465946196, 3.848507465946196, 3.848507465946196],
+                        //         [0, 0, 0, 1],
+                        //         [-38179425.16143699, -7774570.713576614, -38.64167413369441],
+                        //     ],
+                        // },
+                        // {
+                        //     dataSetId: '3a1a235205863a33a63572431bf91b3a',
+                        //     resourcesAddress:
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a1a235205863a33a63572431bf91b3a',
+                        //     dataSetCRS: 'EPSG:3857',
+                        //     engineOrigin: [13403242.923, 2728679.864, 10],
+                        //     dataSetCRSNorth: 0,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [72.5338307443209, 72.5338307443209, 72.5338307443209],
+                        //         [0, 0, 0, 1],
+                        //         [-958785673.1023445, -195195978.9822963, -827.1381851186608],
+                        //     ],
+                        // },
+                        // {
+                        //     dataSetId: '3a1a235207a7e42636180a0ab3858958',
+                        //     resourcesAddress:
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1a235207a7e42636180a0ab3858958',
+                        //     dataSetCRS: 'EPSG:3857',
+                        //     engineOrigin: [13403242.923, 2728679.864, 10],
+                        //     dataSetCRSNorth: 0,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [15.302924770831382, 15.302924770831382, 15.302924770831382],
+                        //         [0, 0, 0, 1],
+                        //         [-191707063.07446125, -39029676.20738641, -149.3950468493339],
+                        //     ],
+                        // },
+                        {
+                            dataSetId: '3a1a23528321eb6785de45060042ac34',
+                            resourcesAddress:
+                                'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1a23528321eb6785de45060042ac34',
+                            dataSetCRS: 'EPSG:3857',
+                            engineOrigin: [13403242.923, 2728679.864, 10],
+                            dataSetCRSNorth: 0,
+                            useTransInfo: true,
+                            transInfo: [
+                                [0.03178342883750512, 0.03178342883750512, 0.03178342883750512],
+                                [0, 0, 0, 1],
+                                [12963035.740114952, 2622788.894548335, -6.443441124576907],
+                            ],
+                        },
+                        // {
+                        //     dataSetId: '3a1a2353a4a34c98a10afddfb984c5e7',
+                        //     resourcesAddress:
+                        //         'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a1a2353a4a34c98a10afddfb984c5e7',
+                        //     dataSetCRS: 'EPSG:3857',
+                        //     engineOrigin: [13403242.923, 2728679.864, 10],
+                        //     dataSetCRSNorth: 0,
+                        //     useTransInfo: true,
+                        //     transInfo: [
+                        //         [6.624568928804039, 6.624568928804039, 6.624568928804039],
+                        //         [0, 0, 0, 1],
+                        //         [-75388637.88508658, -15348367.266421555, -33.51183235933084],
+                        //     ],
                         // },
                     ];
                     BlackHole3D.Model.loadDataSet(dataSetList);
@@ -152,12 +265,55 @@
             function REDataSetLoadFinish(e) {
                 if (e.detail.succeed) {
                     //模型加载完成！！！
-                    // window.BlackHole3D.Graphics.setSysUIPanelVisible(true);
-                    // window.BlackHole3D.Graphics.setGeoCoordVisible(true);
-                    // window.BlackHole3D.Graphics.setViewCubeVisible(true);
+                    addEntity();
                 } else {
                     //模型加载失败！！！
                 }
+            }
+
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                let entityList = [
+                    {
+                        dataSetId: '3a19e5b4bdf288568e178761e48cbee5',
+                        entityType: '1',
+                        elemId: 1,
+                        scale: [83.98430633544922, 83.98430633544922, 83.98430633544922],
+                        rotate: [0, 0, 0, 1],
+                        offset: [13402798.168893723, 2724249.8618218214, 984.6390775574378],
+                        dataSetCRS: null,
+                    },
+                    {
+                        dataSetId: '3a19e5b4bdf288568e178761e48cbee5',
+                        entityType: '1',
+                        elemId: 2,
+                        scale: [71.0526123046875, 71.0526123046875, 71.0526123046875],
+                        rotate: [0, 0, 0, 1],
+                        offset: [13401492.638710417, 2724222.2650016067, 984.2207090155279],
+                        dataSetCRS: null,
+                    },
+                    {
+                        dataSetId: '3a19e5d71a4b9f0d5907e017c6eca568',
+                        entityType: '1',
+                        elemId: 1,
+                        scale: [6218.712890625, 6218.712890625, 6218.71240234375],
+                        rotate: [0, 0, 0.9974591135978699, 0.07124145328998566],
+                        offset: [13401018.89320502, 2724168.583934795, 983.160133159632],
+                        dataSetCRS: null,
+                    },
+                    {
+                        dataSetId: '3a19e5b4bdf288568e178761e48cbee5',
+                        entityType: '1',
+                        elemId: 3,
+                        scale: [1, 1, 1],
+                        rotate: [0, 0, 0, 1],
+                        offset: [13402555.766957676, 2724556.7039270657, 855.8342641966049],
+                        dataSetCRS: null,
+                    },
+                ];
+
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
             }
         </script>
     </body>
