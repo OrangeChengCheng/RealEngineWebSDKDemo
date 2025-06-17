@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3200
+﻿//版本：v3.2.0.3202
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5168,14 +5168,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.dataSetId = null; //数据集标识
             this.elemIdList = null; //构件id集合
-            this.elemClr = new REColor(-1, -1, -1, -1); //构件颜色（REColor 类型）alpha==-1代表只改变颜色不改变透明度
-            this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
-            this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在
-            this.elemEmis = 0; //	表示构件的自发光强度，0~255
-            this.elemEmisPercent = 0; //	表示构件自发光强度所占的权重，0~255
-            this.elemSmooth = 0; //	表示构件的光泽度，0~255
-            this.elemMetal = 0; //	表示构件的金属质感，0~255
-            this.elemSmmePercent = 0; //	表示光泽度和金属质感的权重，0~255
+            // this.elemClr = new REColor(0, 0, 0, 0); //构件颜色（REColor 类型）
+            this.elemClr = null; //构件颜色（REColor 类型）
+            this.clrWeight = null; //颜色权重, 此权重要使用必须配合颜色值存在
+            this.alphaWeight = null; //透明度权重, 此权重要使用必须配合透明度值存在
+            this.elemEmis = null; //	表示构件的自发光强度，0~255
+            this.elemEmisPercent = null; //	表示构件自发光强度所占的权重，0~255
+            this.elemSmooth = null; //	表示构件的光泽度，0~255
+            this.elemMetal = null; //	表示构件的金属质感，0~255
+            this.elemSmmePercent = null; //	表示光泽度和金属质感的权重，0~255
+            this.useNewAlpha = true; // 是否作用设置的透明度信息，默认不使用
+            this.useNewClr = true; // 是否作用设置的颜色信息，默认不使用
+            this.useNewEmis = true; // 是否作用设置的自发光信息，默认不使用
+            this.useNewSmoothMetal = true; // 是否作用设置的光泽度金属性信息，默认不使用
         }
     }
     ExtModule.REElemAttr = REElemAttr;
@@ -5195,22 +5200,39 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _elemScope = elemAttr.elemScope;
         }
 
-        var _clr = 0x000000ff;
-        var _alpha = 0x0080ffff;
-        if (!isEmpty(elemAttr.elemClr)) {
-            if (elemAttr.elemClr.red == -1 || elemAttr.elemClr.green == -1 || elemAttr.elemClr.blue == -1) {
-                //不调整颜色
-                _clr = 0x000000ff;
-            } else {
-                _clr = clrToU32_W_WBGR(elemAttr.elemClr, elemAttr.clrWeight);
-            }
+        var _clr = 0x00000000;
+        var _alpha = 0x00000000;
+        const _clrWeight = isEmpty(elemAttr.clrWeight) ? 255 : elemAttr.clrWeight;
+        const _alphaWeight = isEmpty(elemAttr.alphaWeight) ? 255 : elemAttr.alphaWeight;
 
-            if (elemAttr.elemClr.alpha == -1) {
-                //不改变透明度
-                _alpha = 0x0080ff00;
-            } else {
-                _alpha = alphaToU32_WA_UseCA(elemAttr.elemClr.alpha, elemAttr.alphaWeight, true, true);
-            }
+        var _useNewAlpha = isEmpty(elemAttr.useNewAlpha) ? true : elemAttr.useNewAlpha;
+        var _useNewClr = isEmpty(elemAttr.useNewClr) ? true : elemAttr.useNewClr;
+        var _useNewEmis = isEmpty(elemAttr.useNewEmis) ? true : elemAttr.useNewEmis;
+        var _useNewSmoothMetal = isEmpty(elemAttr.useNewSmoothMetal) ? true : elemAttr.useNewSmoothMetal;
+        if (isEmpty(elemAttr.elemClr)) {
+            _useNewAlpha = false;
+            _useNewClr = false;
+        }
+        if (isEmpty(elemAttr.elemEmis) && isEmpty(elemAttr.elemEmisPercent)) {
+            _useNewEmis = false;
+        }
+        if (isEmpty(elemAttr.elemSmooth) && isEmpty(elemAttr.elemMetal) && isEmpty(elemAttr.elemSmmePercent)) {
+            _useNewSmoothMetal = false;
+        }
+
+        if (!isEmpty(elemAttr.elemClr)) {
+            _clr = clrToU32_W_WBGR(elemAttr.elemClr, _clrWeight);
+            _alpha = clrToU32_AlphaW_Use_a_c_e_sm(
+                elemAttr.elemClr.alpha,
+                _alphaWeight,
+                _useNewAlpha,
+                _useNewClr,
+                _useNewEmis,
+                _useNewSmoothMetal
+            );
+        } else {
+            _clr = clrToU32_W_WBGR(new REColor(0, 0, 0, 0), _clrWeight);
+            _alpha = clrToU32_AlphaW_Use_a_c_e_sm(0, _alphaWeight, false, false, _useNewEmis, _useNewSmoothMetal);
         }
         var _pbr = convPBR(elemAttr);
 
@@ -5288,7 +5310,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             elemAttrInfo.elemSmooth = uElemSmooth;
             elemAttrInfo.elemMetal = uElemMeta;
             elemAttrInfo.elemSmmePercent = parseInt(conv32_hex16(clrinfoarr[i + 5]).substring(0, 2), 16);
-            elemAttrList.push(elemAttrInfo);
+            elemAttrInfo.useNewAlpha = null;
+            elemAttrInfo.useNewClr = null;
+            elemAttrInfo.useNewEmis = null;
+            elemAttrInfo.useNewSmoothMetal = null;
+
+            elemAttrList.push(removeEmptyProperty(elemAttrInfo));
         }
         return elemAttrList;
     };
@@ -5415,7 +5442,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!isEmpty(elemScope)) {
             _elemScope = elemScope;
         }
-        var _alpha = alphaToU32_WA_UseCA(elemAlpha, _alphaWeight, false, true);
+        var _alpha = clrToU32_AlphaW_Use_a_c_e_sm(elemAlpha, _alphaWeight, true, false, false, false);
         var _clr = 0x000000ff;
         var _pbr = 0x00000000;
 
@@ -15420,7 +15447,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ) {
             var intclrper = Math.round(weight);
             var newclrper = intclrper > 15 ? intclrper.toString(16) : '0' + intclrper.toString(16);
-            var clrinfo = '0x' + newclrper + '0000ff';
+            var clrinfo = '0x' + newclrper + '000000';
             var clr = parseInt(clrinfo);
             return clr;
         }
@@ -15502,12 +15529,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return { int_A, int_W };
     }
 
-    function alphaToU32_WA_UseCA(alpha, weight, useNewClr, useNewAlpha) {
-        var _useNewClrHex = useNewClr ? 'ff' : '00'; //使用新的颜色
+    /**
+     * 透明度及是否使用参数->U32
+     * @param {Number} alpha_W
+     */
+    function clrToU32_AlphaW_Use_a_c_e_sm(alpha, weight, useNewAlpha, useNewClr, useNewEmis, useNewSmoothMetal) {
+        // function alphaToU32_WA_UseCA(alpha, weight, useNewClr, useNewAlpha, useNewEmis, useNewSmoothMetal) {
         var _useNewAlphaHex = useNewAlpha ? 'ff' : '00'; //使用新的透明度
+        var _useNewAtrr_c_e_sm = '00'; //默认使用新颜色、新自发光、新光泽度金属性
+        if (useNewClr && !useNewEmis && !useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '01';
+        } else if (!useNewClr && useNewEmis && !useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '02';
+        } else if (useNewClr && useNewEmis && !useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '03';
+        } else if (!useNewClr && !useNewEmis && useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '04';
+        } else if (useNewClr && !useNewEmis && useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '05';
+        } else if (!useNewClr && useNewEmis && useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '06';
+        } else if (useNewClr && useNewEmis && useNewSmoothMetal) {
+            _useNewAtrr_c_e_sm = '07';
+        }
+
         if (isEmpty(alpha)) {
             var clrHEX_W = weight.toString(16);
-            var clrHEX_WA = '0x' + clrHEX_W + 'ff' + _useNewClrHex + _useNewAlphaHex;
+            var clrHEX_WA = '0x' + clrHEX_W + 'ff' + _useNewAtrr_c_e_sm + _useNewAlphaHex;
             var intClr_WA = parseInt(clrHEX_WA);
             return intClr_WA;
         }
@@ -15515,7 +15563,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var clrHEX_A = int_A > 15 ? int_A.toString(16) : '0' + int_A.toString(16);
         var int_W = Math.round(weight);
         var clrHEX_W = int_W > 15 ? int_W.toString(16) : '0' + int_W.toString(16);
-        var clrHEX_WA = '0x' + clrHEX_W + clrHEX_A + _useNewClrHex + _useNewAlphaHex;
+        var clrHEX_WA = '0x' + clrHEX_W + clrHEX_A + _useNewAtrr_c_e_sm + _useNewAlphaHex;
         var intClr_WA = parseInt(clrHEX_WA);
         return intClr_WA;
     }
