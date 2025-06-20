@@ -1,0 +1,250 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-06-20 12:32:39
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            var dataSetList = [];
+            function RESystemEngineCreatedCallBack() {
+                BlackHole3D.Coordinate.setEngineWorldCRS('EPSG:3857');
+                dataSetList = [
+                    {
+                        dataSetId: 'res_osgb',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_osgb',
+                        rotate: [0, 0, -2.1949882036087044e-9, 1],
+                        scale: [1, 1, 1],
+                        offset: [-4.5552606309229304e-7, -5.527935797999817e-7, 0],
+                        dataSetCRS: 'ENU:27.5571,109.93271',
+                        dataSetCRSNorth: 0,
+                        engineOrigin: [0, 0, 0],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+038" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+038" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+038" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+038"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+038" InitCamZFar ="1.0000e+038"  InitCamPos ="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate ="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <HugeModel Path="!(MAC1)!(CurDir).\\hugemodel_unver\\newregion001_[obj[merge_id_[0_0_0]d]]\\total.hugemodel!(MAC2)" Name="newregion001_[Obj[merge_id_[0_0_0]d]]"    Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"    UsingSSE="0" DivideSSE="10.000000" LoadSSE="10.000000" UnloadSSE="8.000000"    ShadowCaster="0" ShadowReceiver="0" ShadowTreeMaxDepth="0"    RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 1.000000" RenderParam1="1.000000 1.000000 1.000000 0.000000"    TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 11,
+                        terrainLayerLev: 0,
+                    },
+                    {
+                        dataSetId: 'res_rs',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_rs',
+                        rotate: [0, 0, 0, 1],
+                        scale: [1, 1, 1],
+                        offset: [0, 0, 0],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0,
+                        engineOrigin: [0, 0, 0],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8"?><TotalSce InitAmbientLUpperClr="2.000000 2.000000 2.000000" InitAmbientLLowerClr="1.300000 1.300000 1.300000" InitDirectLClr="8.000000 8.000000 8.000000" InitDirectLDir="0.592153 -0.500000 0.631945" CSMSplitNum="4" SMTexSize="1024" ShadowMaxDist="1.0000e+038" DepthBiasRatio="0.004000" FilterKernelSize="3.000000" ShadowQuality="3" ASMinDist_Anchor="500.000000" ASMinDist_MeasureLine="500.000000" ASMinDist_Tag="4000.000000" CamParamViewer_MoveCoef="5.000000" CamParamViewer_RotateCoef="0.003600" CamParamDragMove_DefaultPlaneH="1.0000e+038" CamParamDragMove_MaxDragAngle="1.483600" CamParamDragMove_MaxDragHoriDist="1.0000e+038" CamParamDragMove_FadeoutTime="2.000000" CamParamRotAround_RotateCoef="0.002600" CamParamForward_MinAbsCoef="0.500000" CamParamForward_MaxAbsCoef="200.000000" CamParamForward_MoveCoef="1.0000e+038" CamParamDragView_DefaultDragDist="50.000000" CamParamRotCamera_RotateCoef="0.003600" InitCamLoc="0" DefaultBackgroundEnable="0" InitCamZNear="1.0000e+038" InitCamZFar="1.0000e+038" InitCamPos="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds" Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds" Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.0,9000.0" ClrLODNum="23">      <Proj Type="flat">        <ProjFlat Base="-20037508.342789,-20037508.342789" Size="40075016.685578,40075016.685578" RootNum="2,2" WorCRS="EPSG:3857" WorCRSScale="1.000000,1.000000" SelfCRS="EPSG:3857" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000" />        <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1" />        <ProjSphCube Type="asc" Radius="6371000.000000" />      </Proj>      <Layer ResType="imgpic" Name="dom06" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="0" BiasRootXY="0,0" BiasLOD="0" CustomBV="12441179.181088 4475251.299572 -1000.000000 12467341.581088 4500148.899572 9000.000000" FmtStr="!(CurDir).\\terrdompak\\data\\%1%{%d}\\[%1%{%d},%2%{%d},%3%{%d}]%S%.dds">        <Rect LODRange="17,17,1" XYBound="212453,160346,212626,160509" />        <Rect LODRange="16,16,1" XYBound="106226,80173,106313,80255" />        <Rect LODRange="15,15,1" XYBound="53113,40086,53157,40128" />        <Rect LODRange="14,14,1" XYBound="26556,20043,26579,20064" />        <Rect LODRange="13,13,1" XYBound="13278,10021,13290,10032" />        <Rect LODRange="12,12,1" XYBound="6639,5010,6645,5016" />        <Rect LODRange="11,11,1" XYBound="3319,2505,3323,2508" />        <Rect LODRange="10,10,1" XYBound="1659,1252,1662,1254" />        <Rect LODRange="9,9,1" XYBound="829,626,831,627" />        <Rect LODRange="8,8,1" XYBound="414,313,416,314" />        <Rect LODRange="7,7,1" XYBound="207,156,208,157" />      </Layer>      <Layer ResType="height" Name="dom06" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="0" BiasRootXY="0,0" BiasLOD="0" CustomBV="12441179.181088 4475251.299572 -1000.000000 12467341.581088 4500148.899572 9000.000000" FmtStr="!(CurDir).\\terrdempak\\data\\%1%{%d}\\[%1%{%d},%2%{%d},%3%{%d}]%S%.dds">        <Rect LODRange="13,13,1" XYBound="13277,10020,13291,10033" />        <Rect LODRange="12,12,1" XYBound="6638,5010,6646,5017" />        <Rect LODRange="11,11,1" XYBound="3319,2505,3323,2509" />        <Rect LODRange="10,10,1" XYBound="1659,1252,1662,1255" />        <Rect LODRange="9,9,1" XYBound="829,626,831,628" />        <Rect LODRange="8,8,1" XYBound="414,313,416,314" />        <Rect LODRange="7,7,1" XYBound="207,156,208,157" />      </Layer>    </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">    <OutVersionSet>      <OutVer OuterID="0" InnerID="0" />    </OutVersionSet>    <InnerVersionSet>      <InnerVer InnerID="0" FullCache="1" GPURCache="0" />    </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 13,
+                        terrainLayerLev: 1,
+                    },
+                    {
+                        dataSetId: 're_wmts',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/re_wmts',
+                        rotate: [0, 0, 0, 1],
+                        scale: [1, 1, 1],
+                        offset: [0, 0, 0],
+                        dataSetCRS: '',
+                        dataSetCRSNorth: 0,
+                        engineOrigin: [0, 0, 0],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8"?><TotalSce InitAmbientLUpperClr="2.000000 2.000000 2.000000" InitAmbientLLowerClr="1.300000 1.300000 1.300000" InitDirectLClr="8.000000 8.000000 8.000000" InitDirectLDir="0.592153 -0.500000 0.631945" CSMSplitNum="4" SMTexSize="1024" ShadowMaxDist="1.0000e+038" DepthBiasRatio="0.004000" FilterKernelSize="3.000000" ShadowQuality="3" ASMinDist_Anchor="500.000000" ASMinDist_MeasureLine="500.000000" ASMinDist_Tag="4000.000000" CamParamViewer_MoveCoef="5.000000" CamParamViewer_RotateCoef="0.003600" CamParamDragMove_DefaultPlaneH="1.0000e+038" CamParamDragMove_MaxDragAngle="1.483600" CamParamDragMove_MaxDragHoriDist="1.0000e+038" CamParamDragMove_FadeoutTime="2.000000" CamParamRotAround_RotateCoef="0.002600" CamParamForward_MinAbsCoef="0.500000" CamParamForward_MaxAbsCoef="200.000000" CamParamForward_MoveCoef="1.0000e+038" CamParamDragView_DefaultDragDist="50.000000" CamParamRotCamera_RotateCoef="0.003600" InitCamLoc="0" DefaultBackgroundEnable="0" InitCamZNear="1.0000e+038" InitCamZFar="1.0000e+038" InitCamPos="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.0,9000.0" ClrLODNum="23">      <Proj Type="flat">        <ProjFlat Base="-20037508.342789,-20037508.342789" Size="40075016.685578,40075016.685578" RootNum="2,2" WorCRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs" WorCRSScale="1.000000,1.000000" SelfCRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000" />        <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1" />        <ProjSphCube Type="asc" Radius="6371000.000000" />      </Proj>      <Layer Name="天地图影像图-Web墨卡托" ResType="imgpic" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="1" BiasRootXY="0,0" BiasLOD="1" FmtStr_App="https://t0.tianditu.gov.cn/DataServer?T=img_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=6a3c4b75a7ee108f0d81b66545bd0005" FmtStr_Web="https://t0.tianditu.gov.cn/DataServer?T=img_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=77bea377d5702f44536cb4420cebcfad">        <Rect LODRange="0,17,1" XYBound="0,0,2,2" />      </Layer>    </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\">    <OutVersionSet>      <OutVer OuterID="0" InnerID="0" />    </OutVersionSet>    <InnerVersionSet>      <InnerVer InnerID="0" FullCache="1" />    </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 10,
+                        terrainLayerLev: 2,
+                    },
+                    {
+                        dataSetId: 'res_hushizhan',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_hushizhan',
+                        dataSetCRS: 'ENU:34.750389,113.681205',
+                        engineOrigin: [0, 0, 0],
+                        dataSetCRSNorth: 0,
+                        useTransInfo: true,
+                        transInfo: [
+                            [0.9999975729705741, 0.9999975729705741, 0.9999975729705741],
+                            [0, 0, 8.9317583366695e-7, 0.9999999999996011],
+                            [16.44757767234782, 22.396391481814167, -6.661338147750939e-16],
+                        ],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a80270a30718e2b265d10a9bd352e/total.hugemodel!(MAC2)" Name="3a1a80270a30718e2b265d10a9bd352e"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 0,
+                        terrainLayerLev: 0,
+                    },
+                    {
+                        dataSetId: 'rs_jianchashi',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/rs_jianchashi',
+                        dataSetCRS: 'ENU:34.750389,113.681205',
+                        engineOrigin: [0, 0, 0],
+                        dataSetCRSNorth: 0,
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 8.534541187389777e-17, 1],
+                            [-1.164903284944785e-9, -1.4162306882781195e-9, 0],
+                        ],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a802710356fa60730e927dfc913a9/total.hugemodel!(MAC2)" Name="3a1a802710356fa60730e927dfc913a9"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 0,
+                        terrainLayerLev: 0,
+                    },
+                    {
+                        dataSetId: 'res_ctshi',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_ctshi',
+                        dataSetCRS: 'ENU:34.750389,113.681205',
+                        engineOrigin: [0, 0, 0],
+                        dataSetCRSNorth: 0,
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0, 0, 0],
+                        ],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a802721611eb0227dbeccc745e636/total.hugemodel!(MAC2)" Name="3a1a802721611eb0227dbeccc745e636"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        dataSetType: 0,
+                        terrainLayerLev: 0,
+                    },
+                ];
+
+                // dataSetList = [
+                //     {
+                //         dataSetId: 'res_osgb',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_osgb',
+                //         rotate: [0, 0, -2.1949882036087044e-9, 1],
+                //         scale: [1, 1, 1],
+                //         offset: [-4.5552606309229304e-7, -5.527935797999817e-7, 0],
+                //         dataSetCRS: 'ENU:27.5571,109.93271',
+                //         dataSetCRSNorth: 0,
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+038" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+038" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+038" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+038"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+038" InitCamZFar ="1.0000e+038"  InitCamPos ="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate ="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <HugeModel Path="!(MAC1)!(CurDir).\\hugemodel_unver\\newregion001_[obj[merge_id_[0_0_0]d]]\\total.hugemodel!(MAC2)" Name="newregion001_[Obj[merge_id_[0_0_0]d]]"    Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"    UsingSSE="0" DivideSSE="10.000000" LoadSSE="10.000000" UnloadSSE="8.000000"    ShadowCaster="0" ShadowReceiver="0" ShadowTreeMaxDepth="0"    RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 1.000000" RenderParam1="1.000000 1.000000 1.000000 0.000000"    TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 11,
+                //         terrainLayerLev: 0,
+                //     },
+                //     {
+                //         dataSetId: 'res_rs',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_rs',
+                //         rotate: [0, 0, 0, 1],
+                //         scale: [1, 1, 1],
+                //         offset: [0, 0, 0],
+                //         dataSetCRS: '',
+                //         dataSetCRSNorth: 0,
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8"?><TotalSce InitAmbientLUpperClr="2.000000 2.000000 2.000000" InitAmbientLLowerClr="1.300000 1.300000 1.300000" InitDirectLClr="8.000000 8.000000 8.000000" InitDirectLDir="0.592153 -0.500000 0.631945" CSMSplitNum="4" SMTexSize="1024" ShadowMaxDist="1.0000e+038" DepthBiasRatio="0.004000" FilterKernelSize="3.000000" ShadowQuality="3" ASMinDist_Anchor="500.000000" ASMinDist_MeasureLine="500.000000" ASMinDist_Tag="4000.000000" CamParamViewer_MoveCoef="5.000000" CamParamViewer_RotateCoef="0.003600" CamParamDragMove_DefaultPlaneH="1.0000e+038" CamParamDragMove_MaxDragAngle="1.483600" CamParamDragMove_MaxDragHoriDist="1.0000e+038" CamParamDragMove_FadeoutTime="2.000000" CamParamRotAround_RotateCoef="0.002600" CamParamForward_MinAbsCoef="0.500000" CamParamForward_MaxAbsCoef="200.000000" CamParamForward_MoveCoef="1.0000e+038" CamParamDragView_DefaultDragDist="50.000000" CamParamRotCamera_RotateCoef="0.003600" InitCamLoc="0" DefaultBackgroundEnable="0" InitCamZNear="1.0000e+038" InitCamZFar="1.0000e+038" InitCamPos="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds" Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds" Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.0,9000.0" ClrLODNum="23">      <Proj Type="flat">        <ProjFlat Base="-20037508.342789,-20037508.342789" Size="40075016.685578,40075016.685578" RootNum="2,2" WorCRS="EPSG:3857" WorCRSScale="1.000000,1.000000" SelfCRS="EPSG:3857" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000" />        <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1" />        <ProjSphCube Type="asc" Radius="6371000.000000" />      </Proj>      <Layer ResType="imgpic" Name="dom06" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="0" BiasRootXY="0,0" BiasLOD="0" CustomBV="12441179.181088 4475251.299572 -1000.000000 12467341.581088 4500148.899572 9000.000000" FmtStr="!(CurDir).\\terrdompak\\data\\%1%{%d}\\[%1%{%d},%2%{%d},%3%{%d}]%S%.dds">        <Rect LODRange="17,17,1" XYBound="212453,160346,212626,160509" />        <Rect LODRange="16,16,1" XYBound="106226,80173,106313,80255" />        <Rect LODRange="15,15,1" XYBound="53113,40086,53157,40128" />        <Rect LODRange="14,14,1" XYBound="26556,20043,26579,20064" />        <Rect LODRange="13,13,1" XYBound="13278,10021,13290,10032" />        <Rect LODRange="12,12,1" XYBound="6639,5010,6645,5016" />        <Rect LODRange="11,11,1" XYBound="3319,2505,3323,2508" />        <Rect LODRange="10,10,1" XYBound="1659,1252,1662,1254" />        <Rect LODRange="9,9,1" XYBound="829,626,831,627" />        <Rect LODRange="8,8,1" XYBound="414,313,416,314" />        <Rect LODRange="7,7,1" XYBound="207,156,208,157" />      </Layer>      <Layer ResType="height" Name="dom06" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="0" BiasRootXY="0,0" BiasLOD="0" CustomBV="12441179.181088 4475251.299572 -1000.000000 12467341.581088 4500148.899572 9000.000000" FmtStr="!(CurDir).\\terrdempak\\data\\%1%{%d}\\[%1%{%d},%2%{%d},%3%{%d}]%S%.dds">        <Rect LODRange="13,13,1" XYBound="13277,10020,13291,10033" />        <Rect LODRange="12,12,1" XYBound="6638,5010,6646,5017" />        <Rect LODRange="11,11,1" XYBound="3319,2505,3323,2509" />        <Rect LODRange="10,10,1" XYBound="1659,1252,1662,1255" />        <Rect LODRange="9,9,1" XYBound="829,626,831,628" />        <Rect LODRange="8,8,1" XYBound="414,313,416,314" />        <Rect LODRange="7,7,1" XYBound="207,156,208,157" />      </Layer>    </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">    <OutVersionSet>      <OutVer OuterID="0" InnerID="0" />    </OutVersionSet>    <InnerVersionSet>      <InnerVer InnerID="0" FullCache="1" GPURCache="0" />    </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 13,
+                //         terrainLayerLev: 1,
+                //     },
+                //     {
+                //         dataSetId: 're_wmts',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/re_wmts',
+                //         rotate: [0, 0, 0, 1],
+                //         scale: [1, 1, 1],
+                //         offset: [0, 0, 0],
+                //         dataSetCRS: '',
+                //         dataSetCRSNorth: 0,
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8"?><TotalSce InitAmbientLUpperClr="2.000000 2.000000 2.000000" InitAmbientLLowerClr="1.300000 1.300000 1.300000" InitDirectLClr="8.000000 8.000000 8.000000" InitDirectLDir="0.592153 -0.500000 0.631945" CSMSplitNum="4" SMTexSize="1024" ShadowMaxDist="1.0000e+038" DepthBiasRatio="0.004000" FilterKernelSize="3.000000" ShadowQuality="3" ASMinDist_Anchor="500.000000" ASMinDist_MeasureLine="500.000000" ASMinDist_Tag="4000.000000" CamParamViewer_MoveCoef="5.000000" CamParamViewer_RotateCoef="0.003600" CamParamDragMove_DefaultPlaneH="1.0000e+038" CamParamDragMove_MaxDragAngle="1.483600" CamParamDragMove_MaxDragHoriDist="1.0000e+038" CamParamDragMove_FadeoutTime="2.000000" CamParamRotAround_RotateCoef="0.002600" CamParamForward_MinAbsCoef="0.500000" CamParamForward_MaxAbsCoef="200.000000" CamParamForward_MoveCoef="1.0000e+038" CamParamDragView_DefaultDragDist="50.000000" CamParamRotCamera_RotateCoef="0.003600" InitCamLoc="0" DefaultBackgroundEnable="0" InitCamZNear="1.0000e+038" InitCamZFar="1.0000e+038" InitCamPos="1.0000e+038 1.0000e+038 1.0000e+038" InitCamRotate="1.0000e+038 1.0000e+038 1.0000e+038 1.0000e+038">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.0,9000.0" ClrLODNum="23">      <Proj Type="flat">        <ProjFlat Base="-20037508.342789,-20037508.342789" Size="40075016.685578,40075016.685578" RootNum="2,2" WorCRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs" WorCRSScale="1.000000,1.000000" SelfCRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000" />        <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1" />        <ProjSphCube Type="asc" Radius="6371000.000000" />      </Proj>      <Layer Name="天地图影像图-Web墨卡托" ResType="imgpic" LayerID="1" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0" RevertResX="0" RevertResY="1" BiasRootXY="0,0" BiasLOD="1" FmtStr_App="https://t0.tianditu.gov.cn/DataServer?T=img_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=6a3c4b75a7ee108f0d81b66545bd0005" FmtStr_Web="https://t0.tianditu.gov.cn/DataServer?T=img_w&amp;x=%2%{%d}&amp;y=%3%{%d}&amp;l=%1%{%d}&amp;tk=77bea377d5702f44536cb4420cebcfad">        <Rect LODRange="0,17,1" XYBound="0,0,2,2" />      </Layer>    </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\">    <OutVersionSet>      <OutVer OuterID="0" InnerID="0" />    </OutVersionSet>    <InnerVersionSet>      <InnerVer InnerID="0" FullCache="1" />    </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 10,
+                //         terrainLayerLev: 2,
+                //     },
+                //     {
+                //         dataSetId: 'res_hushizhan',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_hushizhan',
+                //         dataSetCRS: 'ENU:34.750389,113.681205',
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetCRSNorth: 0,
+                //         rotate: [0, 0, 8.9317583366695e-7, 0.9999999999996011],
+                //         scale: [0.9999975729705741, 0.9999975729705741, 0.9999975729705741],
+                //         offset: [16.44757767234782, 22.396391481814167, -6.661338147750939e-16],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a80270a30718e2b265d10a9bd352e/total.hugemodel!(MAC2)" Name="3a1a80270a30718e2b265d10a9bd352e"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 0,
+                //         terrainLayerLev: 0,
+                //     },
+                //     {
+                //         dataSetId: 'rs_jianchashi',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/rs_jianchashi',
+                //         dataSetCRS: 'ENU:34.750389,113.681205',
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetCRSNorth: 0,
+                //         rotate: [0, 0, 8.534541187389777e-17, 1],
+                //         scale: [1, 1, 1],
+                //         offset: [-1.164903284944785e-9, -1.4162306882781195e-9, 0],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a802710356fa60730e927dfc913a9/total.hugemodel!(MAC2)" Name="3a1a802710356fa60730e927dfc913a9"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 0,
+                //         terrainLayerLev: 0,
+                //     },
+                //     {
+                //         dataSetId: 'res_ctshi',
+                //         resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=scene/res_ctshi',
+                //         dataSetCRS: 'ENU:34.750389,113.681205',
+                //         engineOrigin: [0, 0, 0],
+                //         dataSetCRSNorth: 0,
+                //         rotate: [0, 0, 0, 1],
+                //         scale: [1, 1, 1],
+                //         offset: [0, 0, 0],
+                //         dataSetSGContent:
+                //             '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7" GPURMode="1">   <OutVersionSet>  <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>  <InnerVer InnerID="0" FullCache="1" GPURCache="0">      <HugeModel Path="!(MAC1)!(CurDir)./hugemodel/hlod_cache/0/3a1a802721611eb0227dbeccc745e636/total.hugemodel!(MAC2)" Name="3a1a802721611eb0227dbeccc745e636"      Scale="1.000000 1.000000 1.000000" Rotate="0.000000 0.000000 0.000000 1.000000" Offset="0.000000 0.000000 0.000000"      UsingSSE="1" DivideSSE="5.000000" LoadSSE="5.000000" UnloadSSE="4.000000"      ShadowCaster="1" ShadowReceiver="1" ShadowTreeMaxDepth="20"      RenderOrder="10" HOQEnable="1" RenderParam0="1.000000 1.000000 1.000000 4.999900" RenderParam1="1.000000 1.000000 1.000000 -1.000000"      TexArrayMip="0" TexArrayW="0" TexArrayH="0" TexArrayD="0" TexArrayFmt="DXT1"/>  </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                //         dataSetType: 0,
+                //         terrainLayerLev: 0,
+                //     },
+                // ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                dataSetList.forEach((element) => {
+                    if (element.terrainLayerLev > 0) {
+                        let unitIDs = BlackHole3D.Terrain.getAllUnitNames(element.dataSetId);
+                        BlackHole3D.Terrain.setUnitLayerlev(element.dataSetId, unitIDs[0], BlackHole3D.RETerrResEm.ALL, element.terrainLayerLev);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
