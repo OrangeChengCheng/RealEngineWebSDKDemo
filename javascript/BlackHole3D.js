@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3207
+﻿//版本：v3.2.0.3213
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5222,14 +5222,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         if (!isEmpty(elemAttr.elemClr)) {
             _clr = clrToU32_W_WBGR(elemAttr.elemClr, _clrWeight);
-            _alpha = clrToU32_AlphaW_Use_a_c_e_sm(
-                elemAttr.elemClr.alpha,
-                _alphaWeight,
-                _useNewAlpha,
-                _useNewClr,
-                _useNewEmis,
-                _useNewSmoothMetal
-            );
+            _alpha = clrToU32_AlphaW_Use_a_c_e_sm(elemAttr.elemClr.alpha, _alphaWeight, _useNewAlpha, _useNewClr, _useNewEmis, _useNewSmoothMetal);
         } else {
             _clr = clrToU32_W_WBGR(new REColor(0, 0, 0, 0), _clrWeight);
             _alpha = clrToU32_AlphaW_Use_a_c_e_sm(0, _alphaWeight, false, false, _useNewEmis, _useNewSmoothMetal);
@@ -9584,6 +9577,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _tempfencepots.push_back(_obj);
         }
         return Module.RealBIMWeb.SetSceFenceInfos(_tempfencepots);
+    };
+
+    /**
+     * 检测目标位置是否在任何一个围栏内
+     * @param {dvec3} point //目标点坐标（三元素数组）
+     */
+    Module.Fence.getPotInAnyFence = function (point) {
+        if (isEmptyLog(point, 'point')) return;
+        return Module.RealBIMWeb.IsInAnyFences(point);
     };
 
     // MOD-- 水面（Water）

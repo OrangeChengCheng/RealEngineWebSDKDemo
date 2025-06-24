@@ -70,17 +70,32 @@
                 // BlackHole3D.Camera.setCamForcedInitLoc(forceCamLoc);
 
                 var dataSetList = [
+                    // {
+                    //     dataSetId: '水面渲染',
+                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0.0, 0.0, 0.0],
+                    //     ],
+                    //     dataSetCRS: '',
+                    //     dataSetCRSNorth: 0.0,
+                    // },
                     {
-                        dataSetId: '水面渲染',
-                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        dataSetId: '3a141f43-14c4-a5da-8125-6c9219dc9643',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a141f4314c4a5da81256c9219dc9643',
                         useTransInfo: true,
                         transInfo: [
                             [1, 1, 1],
                             [0, 0, 0, 1],
                             [0.0, 0.0, 0.0],
                         ],
-                        dataSetCRS: '',
-                        dataSetCRSNorth: 0.0,
+                        dataSetCRS: 'ENU:34.717607,113.674678',
+                        dataSetCRSNorth: 90,
+                        engineOrigin: [100, 100, 100],
+                        dataSetSGContent: '',
                     },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList);
