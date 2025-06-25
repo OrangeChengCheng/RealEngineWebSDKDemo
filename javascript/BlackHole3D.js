@@ -5268,11 +5268,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // // 使用分片包装器处理接口
-    // Module.BIM.setElemAttr = sharding_createShardingConstuctor(Module.BIM.setElemAttr, {
-    //     idPath: 'elemIdList',
-    //     argIndex: 'elemAttr',
-    // });
+    // 使用分片包装器处理接口
+    Module.BIM.setElemAttr = sharding_createShardingConstuctor(Module.BIM.setElemAttr, {
+        idPath: 'elemIdList',
+        argIndex: 'elemAttr',
+    });
 
     /**
      * 获取当前构件设置的混合属性
