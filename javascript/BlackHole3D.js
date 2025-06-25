@@ -2645,6 +2645,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, probeEnable, _elemScope);
         }
     };
+    // 使用分片包装器处理接口
+    Module.Probe.setElemsCanProbe = sharding_createShardingConstuctor(Module.Probe.setElemsCanProbe, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 获取当前选中点相关参数
@@ -4903,6 +4908,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         return potsNotInElems;
     };
+    // 使用分片包装器处理接口
+    Module.Geometry.getPotsNotInElems = sharding_createShardingConstuctor(Module.Geometry.getPotsNotInElems, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 删除某个组的所有自定义矢量对象
@@ -5258,6 +5268,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // // 使用分片包装器处理接口
+    // Module.BIM.setElemAttr = sharding_createShardingConstuctor(Module.BIM.setElemAttr, {
+    //     idPath: 'elemIdList',
+    //     argIndex: 'elemAttr',
+    // });
 
     /**
      * 获取当前构件设置的混合属性
@@ -5312,6 +5327,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return elemAttrList;
     };
+    // 使用分片包装器处理接口
+    Module.BIM.getElemAttr = sharding_createShardingConstuctor(Module.BIM.getElemAttr, {
+        idPath: '',
+        argIndex: 1,
+        hasReturnValue: true,
+    });
 
     /**
      * 设置构件颜色 ------------(新接口代替废弃)
@@ -5377,6 +5398,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemClr = sharding_createShardingConstuctor(Module.BIM.setElemClr, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 获取当前构件设置的颜色 ------------(新接口代替废弃)
@@ -5416,6 +5442,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return elemClrList;
     };
+    // 使用分片包装器处理接口
+    Module.BIM.getElemClr = sharding_createShardingConstuctor(Module.BIM.getElemClr, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 单独改变构件集合透明度信息，颜色保持不变
@@ -5468,6 +5499,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemAlpha = sharding_createShardingConstuctor(Module.BIM.setElemAlpha, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 恢复构件的默认属性
@@ -5516,102 +5552,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-
-    /**
-     * 设置构件混合属性 ------------(新接口代替废弃)
-     * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
-     */
-    Module.BIM.setElemBlendAttr = function (elemBlendAttr) {
-        if (isEmptyLog(elemBlendAttr, 'elemBlendAttr')) return;
-        if (isEmptyLog(elemBlendAttr.dataSetId, 'dataSetId')) return;
-        // if (isEmptyLog(elemBlendAttr.elemClr, "elemClr")) return;
-
-        var _elemScope = 0;
-        if (!isEmpty(elemBlendAttr.elemScope)) {
-            _elemScope = elemBlendAttr.elemScope;
-        }
-
-        var _clr = clrToU32_W_WBGR(elemBlendAttr.elemClr, elemBlendAttr.clrWeight);
-        var _alpha = alphaToU32_WA(elemBlendAttr.elemClr.alpha, elemBlendAttr.alphaWeight);
-        var _pbr = convPBR(elemBlendAttr);
-
-        if (elemBlendAttr.dataSetId == '') {
-            //多数据集设置
-            var _moemory = (24).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory);
-            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
-        } else {
-            //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(elemBlendAttr.dataSetId);
-            var _count = elemBlendAttr.elemIdList.length;
-            if (_count == 0) {
-                //如果构件ID集合为空，则默认为改变所有构件的信息
-                var _moemory = (24).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
-            } else {
-                var _moemory = (_count * 24).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (let i = 0; i < _count; ++i) {
-                    _clrs.set([elemBlendAttr.elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
-                }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(elemBlendAttr.dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
-            }
-        }
-    };
-
-    /**
-     * 恢复构件的默认属性 ------------(新接口代替废弃)
-     * @param {String} dataSetId //数据集标识
-     * @param {Array} elemIdList //构件id集合
-     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-     */
-    Module.BIM.resetElemBlendAttr = function (dataSetId, elemIdList, elemScope) {
-        if (isEmptyLog(dataSetId, 'dataSetId')) return;
-        if (isEmptyLog(elemIdList, 'elemIdList')) return;
-
-        var _elemScope = 0;
-        if (!isEmpty(elemScope)) {
-            _elemScope = elemScope;
-        }
-        var _clr = 0x000000ff;
-        var _alpha = 0x0080ffff;
-        var _pbr = 0x00000000;
-
-        if (dataSetId == '') {
-            //多数据集设置
-            var _moemory = (24).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            _clrs.set([0, 0, _alpha, 0, _clr, _pbr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
-        } else {
-            //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-            var _count = elemIdList.length;
-            if (_count == 0) {
-                //如果构件ID集合为空，则默认为改变所有构件的信息
-                var _moemory = (24).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                _clrs.set([0, _projid, _alpha, 0, _clr, _pbr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
-            } else {
-                var _moemory = (_count * 24).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (let i = 0; i < _count; ++i) {
-                    _clrs.set([elemIdList[i], _projid, _alpha, 0, _clr, _pbr], i * 6);
-                }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfosExt(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
-            }
-        }
-    };
+    // 使用分片包装器处理接口
+    Module.BIM.resetElemAttr = sharding_createShardingConstuctor(Module.BIM.resetElemAttr, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 根据id判断一个构件是否被设为透明
@@ -5688,6 +5633,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         aabbList.push(_bvTemp[1][2]); //Zmax
         return aabbList;
     };
+    // 使用分片包装器处理接口
+    Module.BIM.getElemTotalBV = sharding_createShardingConstuctor(Module.BIM.getElemTotalBV, {
+        idPath: '',
+        argIndex: 1,
+        hasReturnValue: true,
+        mergeFn: (results) => {
+            // 自定义合并逻辑，包围盒求和
+            if (results.length === 0) {
+                return [0, 0, 0, 0, 0];
+            }
+            const merged = [...results[0]];
+            for (let i = 1; i < results.length; i++) {
+                const current = results[i];
+                if (current.length !== 6) {
+                    return [0, 0, 0, 0, 0];
+                }
+                merged[0] = Math.min(merged[0], current[0]); // xMin
+                merged[1] = Math.max(merged[1], current[1]); // xMax
+                merged[2] = Math.min(merged[2], current[2]); // yMin
+                merged[3] = Math.max(merged[3], current[3]); // yMax
+                merged[4] = Math.min(merged[4], current[4]); // zMin
+                merged[5] = Math.max(merged[5], current[5]); // zMax
+            }
+            return merged;
+        },
+    });
 
     /**
      * 获取模型的包围盒信息
@@ -5961,6 +5932,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         // }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.addToSelElems = sharding_createShardingConstuctor(Module.BIM.addToSelElems, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 从当前选择集合删除构件
@@ -5985,6 +5961,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.RemoveFromSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.delFromSelElems = sharding_createShardingConstuctor(Module.BIM.delFromSelElems, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 清空选择集中的所有构件
@@ -6193,6 +6174,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, enable, _elemScope);
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemsValidState = sharding_createShardingConstuctor(Module.BIM.setElemsValidState, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 设置项目的自动加载/卸载距离阈值
@@ -6250,6 +6236,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemDepthBias = sharding_createShardingConstuctor(Module.BIM.setElemDepthBias, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 设置模型场景节点的仿射变换信息
@@ -6393,6 +6384,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemUVAnimAttr = sharding_createShardingConstuctor(Module.BIM.setElemUVAnimAttr, {
+        idPath: 'elemIdList',
+        argIndex: 'elemUVAnim',
+    });
 
     /**
      * 设置构件UV的显示和隐藏
@@ -6429,6 +6425,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemUVVisible = sharding_createShardingConstuctor(Module.BIM.setElemUVVisible, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     // MARK 骨骼动画
 
@@ -6493,6 +6494,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.BIM.setElemToBone = sharding_createShardingConstuctor(Module.BIM.setElemToBone, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 获取系统中的全局元素骨骼总数
@@ -12047,6 +12053,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         Module.RealBIMWeb.RemoveCurContPipeSubElem(_elemIds.byteLength, _elemIds.byteOffset);
     };
+    // 使用分片包装器处理接口
+    Module.Pipe.removeCurContPipeSubElem = sharding_createShardingConstuctor(Module.Pipe.removeCurContPipeSubElem, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 获取当前连续管道的构件ID集合
@@ -12201,6 +12212,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+    // 使用分片包装器处理接口
+    Module.Entity.delEntities = sharding_createShardingConstuctor(Module.Entity.delEntities, {
+        idPath: '',
+        argIndex: 2,
+    });
 
     // MARK 编辑
     /**
@@ -12335,6 +12351,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return entityTransList;
     };
+    // 使用分片包装器处理接口
+    Module.Entity.getTransInfo = sharding_createShardingConstuctor(Module.Entity.getTransInfo, {
+        idPath: '',
+        argIndex: 1,
+    });
 
     /**
      * 设置实例的仿射变换信息
@@ -12487,6 +12508,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             );
         }
     };
+    // 使用分片包装器处理接口
+    Module.Entity.setAnimPlayMode = sharding_createShardingConstuctor(Module.Entity.setAnimPlayMode, {
+        idPath: 'elemIdList',
+        argIndex: 'animPlayModeInfo',
+    });
 
     class REEntitySingleAnimPlayInfo {
         constructor() {
@@ -15229,6 +15255,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // MOD-- 废弃替换接口
     if (discardHint) {
         /**
+         * 设置构件混合属性
+         * @param {REElemBlendAttr} elemBlendAttr //构件的混合属性
+         */
+        Module.BIM.setElemBlendAttr = function (elemBlendAttr) {
+            logWarn('温馨提示：当前使用接口（BIM.setElemBlendAttr）功能已替换为BIM.setElemAttr，请调整使用');
+        };
+        /**
+         * 恢复构件的默认属性
+         * @param {String} dataSetId //数据集标识
+         * @param {Array} elemIdList //构件id集合
+         * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+         */
+        Module.BIM.resetElemBlendAttr = function (dataSetId, elemIdList, elemScope) {
+            logWarn('温馨提示：当前使用接口（BIM.resetElemBlendAttr）功能已替换为BIM.resetElemAttr，请调整使用');
+        };
+        /**
          * 停止闪烁
          * @param {String} ancName //锚点的名称
          */
@@ -15794,6 +15836,184 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 break;
         }
         return _type;
+    }
+
+    /**
+     * 创建支持嵌套ID列表分片处理的函数包装器
+     * @param {Function} originalFn - 需要被包装的原始函数
+     * @param {Object} options - 配置选项
+     * @param {string} [options.idPath=''] - ID列表的路径（如'param.ids'）
+     *                                      - 当ID列表是函数的直接参数时，留空
+     *                                      - 当ID列表嵌套在对象中时，使用点号表示路径
+     * @param {number} [options.batchSize=500000] - 每批处理的ID数量 默认50万构件
+     * @param {number|string} [options.argIndex=0] - 目标参数的位置或名称
+     *                                            - 数字表示参数索引（从0开始）
+     *                                            - 字符串表示参数名称（需函数定义有明确名称）
+     * @param {boolean} [options.hasReturnValue=true] - 函数是否有返回值
+     *                                                - 对于SET类型接口，通常为false
+     *                                                - 对于GET类型接口，通常为true
+     * @param {Function} [options.mergeFn=defaultMergeFn] - 结果合并函数
+     *                                                    - 用于合并多个批次的返回值
+     *                                                    - 仅在hasReturnValue为true时生效
+     * @returns {Function} - 包装后的函数，调用方式与原函数完全一致
+     */
+    function sharding_createShardingConstuctor(originalFn, options) {
+        const { idPath = '', batchSize = 500000, argIndex = 0, hasReturnValue = true, mergeFn = sharding_defaultMergeFn } = options;
+
+        return function (...args) {
+            // 获取目标参数（根据索引或名称）
+            let targetArg;
+            if (typeof argIndex === 'number') {
+                targetArg = args[argIndex]; // 通过索引获取参数
+            } else {
+                const paramNames = sharding_getParamNames(originalFn);
+                const index = paramNames.indexOf(argIndex);
+                if (index === -1) {
+                    console.warn(`未找到名为 "${argIndex}" 的参数`);
+                    return originalFn(...args);
+                }
+                targetArg = args[index]; // 通过名称获取参数
+            }
+
+            // 获取ID列表（支持直接参数和嵌套对象）
+            let idList;
+            if (idPath === '') {
+                idList = targetArg; // 直接参数场景
+            } else {
+                idList = sharding_getNestedProperty(targetArg, idPath); // 嵌套参数场景
+            }
+
+            // 如果ID列表不存在或无需分片，直接调用原函数
+            if (!idList || !Array.isArray(idList) || idList.length <= batchSize) {
+                return originalFn(...args);
+            }
+
+            // 分片处理ID列表
+            const batches = [];
+            for (let i = 0; i < idList.length; i += batchSize) {
+                batches.push(idList.slice(i, i + batchSize));
+            }
+
+            // 保存原始ID列表，用于后续恢复
+            const originalIdList = idList.slice();
+
+            // 用于存储各批次的返回值（仅在有返回值时使用）
+            const results = [];
+
+            // 依次处理每个批次
+            for (const batch of batches) {
+                // 更新当前批次的ID列表
+                if (idPath === '') {
+                    args[argIndex] = batch; // 直接参数场景
+                } else {
+                    sharding_setNestedProperty(targetArg, idPath, batch); // 嵌套参数场景
+                }
+
+                // 调用原函数并获取结果
+                const result = originalFn(...args);
+
+                // 仅在需要返回值时收集结果
+                if (hasReturnValue) {
+                    results.push(result);
+                }
+            }
+
+            // 恢复原始参数，确保不影响后续调用
+            if (idPath === '') {
+                args[argIndex] = originalIdList;
+            } else {
+                sharding_setNestedProperty(targetArg, idPath, originalIdList);
+            }
+
+            // 根据配置决定是否返回合并后的结果
+            if (!hasReturnValue) {
+                return; // 无返回值（如SET类型接口）
+            }
+
+            // 合并所有批次的结果并返回
+            return mergeFn(results);
+        };
+    }
+
+    /**
+     * 默认的结果合并函数
+     * @param {Array} results - 各批次的返回值数组
+     * @returns {*} - 合并后的结果
+     *              - 布尔值数组：所有为true时返回true，否则false
+     *              - 对象数组：合并为一个对象（后面的覆盖前面的）
+     *              - 其他类型：返回最后一个结果
+     */
+    function sharding_defaultMergeFn(results) {
+        // 处理布尔值结果（所有为true才返回true）
+        if (results.every((result) => typeof result === 'boolean')) {
+            return results.every(Boolean);
+        }
+
+        // 处理数组结果（合并为一个数组）
+        if (results.every((result) => Array.isArray(result))) {
+            return results.flat();
+        }
+
+        // 处理对象结果（合并为一个对象）
+        if (results.every((result) => typeof result === 'object' && result !== null)) {
+            return Object.assign({}, ...results);
+        }
+
+        // 其他情况返回最后一个结果
+        return results[results.length - 1];
+    }
+
+    /**
+     * 辅助函数：获取函数的参数名称
+     * @param {Function} fn - 目标函数
+     * @returns {Array<string>} - 参数名称数组
+     */
+    function sharding_getParamNames(fn) {
+        const funcStr = fn.toString();
+        const paramMatch = funcStr.match(/\(([^)]*)\)/);
+        if (!paramMatch || !paramMatch[1]) return [];
+
+        return paramMatch[1]
+            .split(',')
+            .map((param) =>
+                param
+                    .trim()
+                    .replace(/\/\*.*\*\//, '')
+                    .trim()
+            )
+            .filter((param) => param);
+    }
+
+    /**
+     * 辅助函数：通过路径获取嵌套对象的属性
+     * @param {Object} obj - 目标对象
+     * @param {string} path - 属性路径（如'parent.child.key'）
+     * @returns {*} - 属性值，若路径不存在则返回undefined
+     */
+    function sharding_getNestedProperty(obj, path) {
+        if (!obj || typeof obj !== 'object') return undefined;
+
+        return path.split('.').reduce((current, key) => {
+            return current && current[key];
+        }, obj);
+    }
+
+    /**
+     * 辅助函数：通过路径设置嵌套对象的属性
+     * @param {Object} obj - 目标对象
+     * @param {string} path - 属性路径（如'parent.child.key'）
+     * @param {*} value - 要设置的值
+     */
+    function sharding_setNestedProperty(obj, path, value) {
+        if (!obj || typeof obj !== 'object') return;
+
+        const keys = path.split('.');
+        const lastKey = keys.pop();
+
+        keys.reduce((current, key) => {
+            current[key] = current[key] || {};
+            return current[key];
+        }, obj)[lastKey] = value;
     }
 
     /**
