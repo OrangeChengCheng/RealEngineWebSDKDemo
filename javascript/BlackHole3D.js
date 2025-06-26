@@ -4,6 +4,7 @@ const hasNewExtrude = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
+const sharding = true;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
     var Module = typeof ExtModule !== 'undefined' ? ExtModule : {};
@@ -2645,11 +2646,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetHugeObjSubElemProbeMasks(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, probeEnable, _elemScope);
         }
     };
-    // 使用分片包装器处理接口
-    Module.Probe.setElemsCanProbe = sharding_createShardingConstuctor(Module.Probe.setElemsCanProbe, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Probe.setElemsCanProbe = sharding_createShardingConstuctor(Module.Probe.setElemsCanProbe, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 获取当前选中点相关参数
@@ -4908,11 +4911,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         return potsNotInElems;
     };
-    // 使用分片包装器处理接口
-    Module.Geometry.getPotsNotInElems = sharding_createShardingConstuctor(Module.Geometry.getPotsNotInElems, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Geometry.getPotsNotInElems = sharding_createShardingConstuctor(Module.Geometry.getPotsNotInElems, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 删除某个组的所有自定义矢量对象
@@ -5268,11 +5273,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemAttr = sharding_createShardingConstuctor(Module.BIM.setElemAttr, {
-        idPath: 'elemIdList',
-        argIndex: 'elemAttr',
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemAttr = sharding_createShardingConstuctor(Module.BIM.setElemAttr, {
+            idPath: 'elemIdList',
+            argIndex: 'elemAttr',
+        });
+    }
 
     /**
      * 获取当前构件设置的混合属性
@@ -5327,12 +5334,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return elemAttrList;
     };
-    // 使用分片包装器处理接口
-    Module.BIM.getElemAttr = sharding_createShardingConstuctor(Module.BIM.getElemAttr, {
-        idPath: '',
-        argIndex: 1,
-        hasReturnValue: true,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.getElemAttr = sharding_createShardingConstuctor(Module.BIM.getElemAttr, {
+            idPath: '',
+            argIndex: 1,
+            hasReturnValue: true,
+        });
+    }
 
     /**
      * 设置构件颜色 ------------(新接口代替废弃)
@@ -5398,11 +5407,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemClr = sharding_createShardingConstuctor(Module.BIM.setElemClr, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemClr = sharding_createShardingConstuctor(Module.BIM.setElemClr, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 获取当前构件设置的颜色 ------------(新接口代替废弃)
@@ -5442,11 +5453,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return elemClrList;
     };
-    // 使用分片包装器处理接口
-    Module.BIM.getElemClr = sharding_createShardingConstuctor(Module.BIM.getElemClr, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.getElemClr = sharding_createShardingConstuctor(Module.BIM.getElemClr, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 单独改变构件集合透明度信息，颜色保持不变
@@ -5499,11 +5512,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemAlpha = sharding_createShardingConstuctor(Module.BIM.setElemAlpha, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemAlpha = sharding_createShardingConstuctor(Module.BIM.setElemAlpha, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 恢复构件的默认属性
@@ -5552,11 +5567,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.resetElemAttr = sharding_createShardingConstuctor(Module.BIM.resetElemAttr, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.resetElemAttr = sharding_createShardingConstuctor(Module.BIM.resetElemAttr, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 根据id判断一个构件是否被设为透明
@@ -5633,32 +5650,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         aabbList.push(_bvTemp[1][2]); //Zmax
         return aabbList;
     };
-    // 使用分片包装器处理接口
-    Module.BIM.getElemTotalBV = sharding_createShardingConstuctor(Module.BIM.getElemTotalBV, {
-        idPath: '',
-        argIndex: 1,
-        hasReturnValue: true,
-        mergeFn: (results) => {
-            // 自定义合并逻辑，包围盒求和
-            if (results.length === 0) {
-                return [0, 0, 0, 0, 0];
-            }
-            const merged = [...results[0]];
-            for (let i = 1; i < results.length; i++) {
-                const current = results[i];
-                if (current.length !== 6) {
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.getElemTotalBV = sharding_createShardingConstuctor(Module.BIM.getElemTotalBV, {
+            idPath: '',
+            argIndex: 1,
+            hasReturnValue: true,
+            mergeFn: (results) => {
+                // 自定义合并逻辑，包围盒求和
+                if (results.length === 0) {
                     return [0, 0, 0, 0, 0];
                 }
-                merged[0] = Math.min(merged[0], current[0]); // xMin
-                merged[1] = Math.max(merged[1], current[1]); // xMax
-                merged[2] = Math.min(merged[2], current[2]); // yMin
-                merged[3] = Math.max(merged[3], current[3]); // yMax
-                merged[4] = Math.min(merged[4], current[4]); // zMin
-                merged[5] = Math.max(merged[5], current[5]); // zMax
-            }
-            return merged;
-        },
-    });
+                const merged = [...results[0]];
+                for (let i = 1; i < results.length; i++) {
+                    const current = results[i];
+                    if (current.length !== 6) {
+                        return [0, 0, 0, 0, 0];
+                    }
+                    merged[0] = Math.min(merged[0], current[0]); // xMin
+                    merged[1] = Math.max(merged[1], current[1]); // xMax
+                    merged[2] = Math.min(merged[2], current[2]); // yMin
+                    merged[3] = Math.max(merged[3], current[3]); // yMax
+                    merged[4] = Math.min(merged[4], current[4]); // zMin
+                    merged[5] = Math.max(merged[5], current[5]); // zMax
+                }
+                return merged;
+            },
+        });
+    }
 
     /**
      * 获取模型的包围盒信息
@@ -5932,11 +5951,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.AddToSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         // }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.addToSelElems = sharding_createShardingConstuctor(Module.BIM.addToSelElems, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.addToSelElems = sharding_createShardingConstuctor(Module.BIM.addToSelElems, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 从当前选择集合删除构件
@@ -5961,11 +5982,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.RemoveFromSelElemIDs(_elemIds.byteLength, _elemIds.byteOffset);
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.delFromSelElems = sharding_createShardingConstuctor(Module.BIM.delFromSelElems, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.delFromSelElems = sharding_createShardingConstuctor(Module.BIM.delFromSelElems, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 清空选择集中的所有构件
@@ -6174,11 +6197,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             Module.RealBIMWeb.SetHugeObjSubElemValidStates(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, enable, _elemScope);
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemsValidState = sharding_createShardingConstuctor(Module.BIM.setElemsValidState, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemsValidState = sharding_createShardingConstuctor(Module.BIM.setElemsValidState, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 设置项目的自动加载/卸载距离阈值
@@ -6236,11 +6261,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemDepthBias = sharding_createShardingConstuctor(Module.BIM.setElemDepthBias, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemDepthBias = sharding_createShardingConstuctor(Module.BIM.setElemDepthBias, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 设置模型场景节点的仿射变换信息
@@ -6384,11 +6411,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemUVAnimAttr = sharding_createShardingConstuctor(Module.BIM.setElemUVAnimAttr, {
-        idPath: 'elemIdList',
-        argIndex: 'elemUVAnim',
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemUVAnimAttr = sharding_createShardingConstuctor(Module.BIM.setElemUVAnimAttr, {
+            idPath: 'elemIdList',
+            argIndex: 'elemUVAnim',
+        });
+    }
 
     /**
      * 设置构件UV的显示和隐藏
@@ -6425,11 +6454,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemUVVisible = sharding_createShardingConstuctor(Module.BIM.setElemUVVisible, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemUVVisible = sharding_createShardingConstuctor(Module.BIM.setElemUVVisible, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     // MARK 骨骼动画
 
@@ -6494,11 +6525,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.BIM.setElemToBone = sharding_createShardingConstuctor(Module.BIM.setElemToBone, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.BIM.setElemToBone = sharding_createShardingConstuctor(Module.BIM.setElemToBone, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 获取系统中的全局元素骨骼总数
@@ -12053,11 +12086,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         Module.RealBIMWeb.RemoveCurContPipeSubElem(_elemIds.byteLength, _elemIds.byteOffset);
     };
-    // 使用分片包装器处理接口
-    Module.Pipe.removeCurContPipeSubElem = sharding_createShardingConstuctor(Module.Pipe.removeCurContPipeSubElem, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Pipe.removeCurContPipeSubElem = sharding_createShardingConstuctor(Module.Pipe.removeCurContPipeSubElem, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 获取当前连续管道的构件ID集合
@@ -12212,11 +12247,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-    // 使用分片包装器处理接口
-    Module.Entity.delEntities = sharding_createShardingConstuctor(Module.Entity.delEntities, {
-        idPath: '',
-        argIndex: 2,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Entity.delEntities = sharding_createShardingConstuctor(Module.Entity.delEntities, {
+            idPath: '',
+            argIndex: 2,
+        });
+    }
 
     // MARK 编辑
     /**
@@ -12351,11 +12388,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return entityTransList;
     };
-    // 使用分片包装器处理接口
-    Module.Entity.getTransInfo = sharding_createShardingConstuctor(Module.Entity.getTransInfo, {
-        idPath: '',
-        argIndex: 1,
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Entity.getTransInfo = sharding_createShardingConstuctor(Module.Entity.getTransInfo, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
 
     /**
      * 设置实例的仿射变换信息
@@ -12508,11 +12547,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             );
         }
     };
-    // 使用分片包装器处理接口
-    Module.Entity.setAnimPlayMode = sharding_createShardingConstuctor(Module.Entity.setAnimPlayMode, {
-        idPath: 'elemIdList',
-        argIndex: 'animPlayModeInfo',
-    });
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Entity.setAnimPlayMode = sharding_createShardingConstuctor(Module.Entity.setAnimPlayMode, {
+            idPath: 'elemIdList',
+            argIndex: 'animPlayModeInfo',
+        });
+    }
 
     class REEntitySingleAnimPlayInfo {
         constructor() {
