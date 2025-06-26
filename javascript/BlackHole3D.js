@@ -5357,124 +5357,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
-     * 设置构件颜色 ------------(新接口代替废弃)
-     * @param {String} dataSetId //数据集标识
-     * @param {Array} elemIdList //构件id集合
-     * @param {REColor} elemClr //构件颜色（REColor 类型）
-     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
-     */
-    Module.BIM.setElemClr = function (dataSetId, elemIdList, elemClr, elemScope) {
-        if (isEmptyLog(dataSetId, 'dataSetId')) return;
-        if (isEmptyLog(elemIdList, 'elemIdList')) return;
-        if (isEmptyLog(elemClr, 'elemClr')) return;
-        var _elemScope = 0;
-        if (!isEmpty(elemScope)) {
-            _elemScope = elemScope;
-        }
-        var _clr = clrToU32_WBGR(elemClr);
-
-        if (dataSetId == '') {
-            //多数据集设置
-            if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
-                logErr('设置所有数据集的构件颜色需要包含透明度！');
-                return;
-            }
-            var _alpha = alphaToU32_WA(elemClr.alpha);
-            var _moemory = (16).toString();
-            Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-            var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-            _clrs.set([0, 0, _alpha, _clr], 0);
-            Module.RealBIMWeb.SetHugeObjSubElemClrInfos('', '', 0xffffffff, _clrs.byteOffset, _elemScope);
-        } else {
-            //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-            var _count = elemIdList.length;
-            if (_count == 0) {
-                //如果构件ID集合为空，则默认为改变所有构件的信息
-                if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
-                    logErr('设置数据集内所有构件颜色需要包含透明度！');
-                    return;
-                }
-                var _alpha = alphaToU32_WA(elemClr.alpha);
-                var _moemory = (16).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                _clrs.set([0, _projid, _alpha, _clr], 0);
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, '', 0xffffffff, _clrs.byteOffset, _elemScope);
-            } else {
-                var _elemAttrInfo = Module.BIM.getElemClr(dataSetId, elemIdList);
-                var _moemory = (_count * 16).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (let i = 0; i < _count; ++i) {
-                    var _alpha;
-                    if (isEmpty(elemClr.alpha) || elemClr.alpha == -1) {
-                        //单独设置颜色不改变透明度
-                        _alpha = alphaToU32_WA(_elemAttrInfo[i].elemClr.alpha);
-                    } else {
-                        _alpha = alphaToU32_WA(elemClr.alpha);
-                    }
-                    _clrs.set([elemIdList[i], _projid, _alpha, _clr], i * 4);
-                }
-                Module.RealBIMWeb.SetHugeObjSubElemClrInfos(dataSetId, '', _clrs.byteLength, _clrs.byteOffset, _elemScope);
-            }
-        }
-    };
-    if (sharding) {
-        // 使用分片包装器处理接口
-        Module.BIM.setElemClr = sharding_createShardingConstuctor(Module.BIM.setElemClr, {
-            idPath: '',
-            argIndex: 1,
-        });
-    }
-
-    /**
-     * 获取当前构件设置的颜色 ------------(新接口代替废弃)
-     * @param {String} dataSetId //数据集标识
-     * @param {Array} elemIdList //构件id集合
-     */
-    Module.BIM.getElemClr = function (dataSetId, elemIdList) {
-        if (isEmpty(dataSetId) || dataSetId == '') {
-            logParErr('dataSetId');
-            return;
-        }
-        if (isEmpty(elemIdList) || elemIdList.length == 0) {
-            logParErr('elemIdList');
-            return;
-        }
-
-        var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-        var _count = elemIdList.length;
-        var _moemory = (_count * 16).toString();
-        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-        var _clrs = Module.RealBIMWeb.GetHeapView_U32(0);
-        for (let i = 0; i < _count; ++i) {
-            var eleid = elemIdList[i];
-            _clrs.set([eleid, _projid, 0x00000000, 0x00000000], i * 4);
-        }
-        var clrinfoarr = Module.RealBIMWeb.GetHugeObjSubElemClrInfos(dataSetId, '', _clrs.byteLength, _clrs.byteOffset);
-        var elemClrList = [];
-        for (var i = 0; i < clrinfoarr.length; i += 4) {
-            let elemClrInfo = {};
-            elemClrInfo.elemId = clrinfoarr[i];
-            let red = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(6, 8), 16);
-            let green = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(4, 6), 16);
-            let blue = parseInt(conv32_hex16(clrinfoarr[i + 3]).substring(2, 4), 16);
-            let alpha = parseInt(conv32_hex16(clrinfoarr[i + 2]).substring(2, 4), 16);
-            elemClrInfo.elemClr = new REColor(red, green, blue, alpha);
-            elemClrList.push(elemClrInfo);
-        }
-        return elemClrList;
-    };
-    if (sharding) {
-        // 使用分片包装器处理接口
-        Module.BIM.getElemClr = sharding_createShardingConstuctor(Module.BIM.getElemClr, {
-            idPath: '',
-            argIndex: 1,
-        });
-    }
-
-    /**
      * 单独改变构件集合透明度信息，颜色保持不变
      * @param {String} dataSetId //数据集标识
      * @param {Array} elemIdList //构件id集合
@@ -15323,6 +15205,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.BIM.resetElemBlendAttr = function (dataSetId, elemIdList, elemScope) {
             logWarn('温馨提示：当前使用接口（BIM.resetElemBlendAttr）功能已替换为BIM.resetElemAttr，请调整使用');
+        };
+        /**
+         * 设置构件颜色
+         * @param {String} dataSetId //数据集标识
+         * @param {Array} elemIdList //构件id集合
+         * @param {REColor} elemClr //构件颜色（REColor 类型）
+         * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+         */
+        Module.BIM.setElemClr = function (dataSetId, elemIdList, elemClr, elemScope) {
+            logWarn('温馨提示：当前使用接口（BIM.setElemClr）功能已替换为BIM.setElemAttr，请调整使用');
+        };
+        /**
+         * 获取当前构件设置的颜色
+         * @param {String} dataSetId //数据集标识
+         * @param {Array} elemIdList //构件id集合
+         */
+        Module.BIM.getElemClr = function (dataSetId, elemIdList) {
+            logWarn('温馨提示：当前使用接口（BIM.getElemClr）功能已替换为BIM.getElemAttr，请调整使用');
         };
         /**
          * 停止闪烁
