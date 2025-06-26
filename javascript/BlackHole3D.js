@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3217
+﻿//版本：v3.2.0.3220
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -73,6 +73,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web); //位置编辑的控制点配准模式匹配完成回调事件
         document.addEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web); //动画播放脚本状态回调事件
         document.addEventListener('REMeasureFinish_Web', REMeasureFinish_Web); //测量完成回调事件
+        document.addEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web); //范围选择构件完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -96,6 +97,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web);
         document.removeEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web);
         document.removeEventListener('REMeasureFinish_Web', REMeasureFinish_Web);
+        document.removeEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -143,6 +145,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 detail: posData,
             });
             document.dispatchEvent(re_event_REMeasureFinish);
+        }
+    }
+    function REElemSelRegFinish_Web(e) {
+        let posData = e.detail;
+        if (e.detail.canvasid.length) {
+            const elemids = Array.from(e.detail.elemids);
+            posData.elemids = elemids;
+            const re_event_REElemSelRegFinish = new CustomEvent('REElemSelRegFinish', {
+                detail: posData,
+            });
+            document.dispatchEvent(re_event_REElemSelRegFinish);
         }
     }
 
