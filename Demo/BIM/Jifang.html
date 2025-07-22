@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-05-09 11:39:57
+ * @LastEditTime: 2025-07-17 10:49:53
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -51,9 +51,41 @@
         <script type="text/javascript">
             function RESystemEngineCreatedCallBack() {
                 var dataSetList = [
+                    // {
+                    //     dataSetId: 'res_jifang',
+                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                    // },
+                    // {
+                    //     dataSetId: '3a1b2331138f89a40473e7a73856f2e5',
+                    //     resourcesAddress:
+                    //         'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1b2331138f89a40473e7a73856f2e5',
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0.0, 0.0, 15.0],
+                    //     ],
+                    //     dataSetSGContent:
+                    //         '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.000000,9000.000000" ClrLODNum="23">  <Proj Type="flat">   <ProjFlat Base="12662043.453292,4137728.562917" Size="324.646938,324.646938"       RootNum="1,1" WorCRS="EPSG:3857" WorCRSScale="1.000000,1.000000"       SelfCRS="EPSG:3857" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000"/>   <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1"/>   <ProjSphCube Type="asc" Radius="6371000.000000"/>  </Proj>  <Layer Name="3a1b2331138f89a40473e7a73856f2e5_250716101643" ResType="imgshp" LayerID="0" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0"   CustomBV="12662043.453761 4137728.566396 0 12662368.100229 4137850.686618 1" ShpStyleName="" RevertResX="0" RevertResY="0" ResID="3a1b2331138f89a40473e7a73856f2e5_250716101643"    BiasRootXY="0,0" BiasLOD="0" FmtStr="!(CurDir).\\terrain\\3a1b2331138f89a40473e7a73856f2e5_250716101643\\shp[%1%{%d},%2%{%d},%3%{%d}].pageshp"  >   <Rect LODRange="0,0,1" XYBound="0,0,1,1"/>   <Rect LODRange="1,1,1" XYBound="0,0,2,1"/>   <Rect LODRange="2,2,1" XYBound="0,0,4,2"/>   <Rect LODRange="3,3,1" XYBound="0,0,8,3"/>  </Layer> </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">   <OutVersionSet>   <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>   <InnerVer InnerID="0" FullCache="1" GPURCache="0">   </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                    //     terrSuffix: '3a1b2331138f89a40473e7a73856f2e5',
+                    // },
                     {
-                        dataSetId: 'res_jifang',
-                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        dataSetId: '3a1b2331138f89a40473e7a73856f2e5',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1b2331138f89a40473e7a73856f2e5',
+                        dataSetCRS: null,
+                        engineOrigin: null,
+                        dataSetCRSNorth: null,
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0, 0, 0],
+                        ],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.000000,9000.000000" ClrLODNum="23">  <Proj Type="flat">   <ProjFlat Base="12662043.453292,4137728.562917" Size="324.646938,324.646938"       RootNum="1,1" WorCRS="EPSG:3857" WorCRSScale="1.000000,1.000000"       SelfCRS="EPSG:3857" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000"/>   <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1"/>   <ProjSphCube Type="asc" Radius="6371000.000000"/>  </Proj>  <Layer Name="3a1b2331138f89a40473e7a73856f2e5_250716101643" ResType="imgshp" LayerID="0" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0"   CustomBV="12662043.453761 4137728.566396 0 12662368.100229 4137850.686618 1" ShpStyleName="" RevertResX="0" RevertResY="0" ResID="3a1b2331138f89a40473e7a73856f2e5_250716101643"    BiasRootXY="0,0" BiasLOD="0" FmtStr="!(CurDir).\\terrain\\3a1b2331138f89a40473e7a73856f2e5_250716101643\\shp[%1%{%d},%2%{%d},%3%{%d}].pageshp"  >   <Rect LODRange="0,0,1" XYBound="0,0,1,1"/>   <Rect LODRange="1,1,1" XYBound="0,0,2,1"/>   <Rect LODRange="2,2,1" XYBound="0,0,4,2"/>   <Rect LODRange="3,3,1" XYBound="0,0,8,3"/>  </Layer> </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">   <OutVersionSet>   <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>   <InnerVer InnerID="0" FullCache="1" GPURCache="0">   </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        groundDisplay: false,
+                        terrSuffix: '3a1b2331138f89a40473e7a73856f2e5',
                     },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
@@ -69,7 +101,6 @@
                 // BlackHole3D.Terrain.registerPathFunc('func_1', () => {
                 //     return 'dshjfsdjlkflksd';
                 // });
-                
 
                 // 创建可更新的回调
                 const createUpdatableCallback = (initialValue) => {

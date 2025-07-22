@@ -170,10 +170,12 @@ function REDataSetLoadProgress(e) {
 }
 
 function RESystemSelShpElement(e) {
+    console.log('-- 鼠标探测矢量元素事件 --', e);
     console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
 }
 
 function RESystemSelElement(e) {
+    console.log('-- 鼠标探测模型事件 --', e);
     console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
 
     // var probe = BlackHole3D.Probe.getCurCombProbeRet();
