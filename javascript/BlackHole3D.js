@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3231
+﻿//版本：v3.2.0.3250
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -2008,6 +2008,61 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Camera.setCamLockRotate = function (lock) {
         Module.RealBIMWeb.SetCamLockRotate(lock);
+    };
+
+    class RECamFollowInfo {
+        // 相机跟随信息
+        constructor() {
+            this.dataSetId = ''; //数据集标识
+            this.elemId = 0; //构件标识
+            this.gradeAbility = 0.5; //构件爬升能力，限制构件在遇到障碍是爬升的最大高度限制
+        }
+    }
+    ExtModule.RECamFollowInfo = RECamFollowInfo;
+
+    /**
+     * 设置相机是否锁定当前朝向
+     * @param {RECamFollowInfo} camFollowInfo //相机跟随信息（RECamFollowInfo 类型）
+     */
+    Module.Camera.setCamFollowElem = function (camFollowInfo) {
+        if (isEmptyLog(camFollowInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(camFollowInfo.elemId, 'elemId')) return;
+        const cCamFollowInfo = {
+            m_bFollow: true,
+            m_wstrProjName: camFollowInfo.dataSetId,
+            m_uEntityID: camFollowInfo.elemId,
+            m_dGradeAbility: isEmpty(camFollowInfo.gradeAbility) ? 0.5 : camFollowInfo.gradeAbility,
+        };
+        return Module.RealBIMWeb.SetCamFollowEntityInfo(cCamFollowInfo);
+    };
+
+    /**
+     * 获取相机是否锁定当前朝向
+     */
+    Module.Camera.getCamFollowElem = function () {
+        const cCamFollowInfo = Module.RealBIMWeb.GetCamFollowEntityInfo();
+        let camFollowInfo = new RECamFollowInfo();
+        camFollowInfo.dataSetId = cCamFollowInfo.m_wstrProjName;
+        camFollowInfo.elemId = cCamFollowInfo.m_uEntityID;
+        camFollowInfo.gradeAbility = cCamFollowInfo.m_dGradeAbility;
+        if (cCamFollowInfo.m_bFollow) {
+            return camFollowInfo;
+        } else {
+            return null;
+        }
+    };
+
+    /**
+     * 取消相机是否锁定当前朝向
+     */
+    Module.Camera.cancelCamFollowElem = function () {
+        const cCamFollowInfo = {
+            m_bFollow: false,
+            m_wstrProjName: "",
+            m_uEntityID: 0,
+            m_dGradeAbility: 0.5,
+        };
+        return Module.RealBIMWeb.SetCamFollowEntityInfo(cCamFollowInfo);
     };
 
     // MARK 碰撞检测
