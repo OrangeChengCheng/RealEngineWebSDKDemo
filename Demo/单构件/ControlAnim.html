@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+        <style>
+            .container {
+                position: relative;
+                display: flex;
+                color: red;
+                align-items: center;
+                margin-top: 20px;
+            }
+
+            .text {
+                position: relative;
+                height: 100%;
+                margin-right: 20px;
+            }
+
+            .progress-container {
+                position: relative;
+                width: 400px;
+                height: 20px;
+                background: #eee;
+                border-radius: 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+            }
+
+            .progress-bar {
+                height: 100%;
+                background: #4caf50;
+                border-radius: 10px 0 0 10px;
+                width: 0%;
+                transition: width 0.2s ease;
+            }
+
+            .progress-handle {
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 16px;
+                height: 16px;
+                background: #2196f3;
+                border-radius: 50%;
+                pointer-events: none;
+            }
+
+            .containerBtn {
+                position: relative;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn">
+                <div class="container">
+                    <div class="text">基座</div>
+                    <div class="progress-container" id="progressContainer1">
+                        <div class="progress-bar" id="progressBar1"></div>
+                        <div class="progress-handle" id="progressHandle1"></div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="text">大臂</div>
+                    <div class="progress-container" id="progressContainer2">
+                        <div class="progress-bar" id="progressBar2"></div>
+                        <div class="progress-handle" id="progressHandle2"></div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="text">小臂</div>
+                    <div class="progress-container" id="progressContainer3">
+                        <div class="progress-bar" id="progressBar3"></div>
+                        <div class="progress-handle" id="progressHandle3"></div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="text">爪臂</div>
+                    <div class="progress-container" id="progressContainer4">
+                        <div class="progress-bar" id="progressBar4"></div>
+                        <div class="progress-handle" id="progressHandle4"></div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="text">探头</div>
+                    <div class="progress-container" id="progressContainer5">
+                        <div class="progress-bar" id="progressBar5"></div>
+                        <div class="progress-handle" id="progressHandle5"></div>
+                    </div>
+                </div>
+                <div class="containerBtn">
+                    <button id="btn_huoche" onclick="PalyAllAnim()">同时播放</button>
+                    <button id="btn_huoche" onclick="StopAllAnim()">停止播放</button>
+                </div>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="../config.js"></script>
+
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            //初始化完成后，加载项目
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'changdi',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                    },
+                    {
+                        dataSetId: 'jxb',
+                        resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=res_ani/003',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinish() {
+                console.log('addEntity');
+                addEntity();
+                // 设置阴影效果
+                var shadowInfo = BlackHole3D.Common.getShadowInfo();
+                shadowInfo.hiResoDist = 30.0;
+                BlackHole3D.Common.setShadowInfo(shadowInfo);
+
+                //相机定位
+                var camLoc = new BlackHole3D.RECamLoc();
+                camLoc.camPos = [264.7701652748594, 412.17167401028956, 2.442207315756973];
+                camLoc.camRotate = [0.527898220023297, -0.4729960852497858, -0.4707294064623421, 0.5253684407406132];
+                //camLoc.camDir = [0.9939888631363754,0.10937579650948334,0.004803654730775931];
+                var locDelay = 0.5;
+                var locTime = 1;
+                BlackHole3D.Camera.setCamLocateTo(camLoc, locDelay, locTime);
+            }
+
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                let entityList = [];
+                let typeNames_jxb = BlackHole3D.Entity.getAllTypeNames('jxb');
+                console.log('typeNames_jxb', typeNames_jxb[0]);
+                if (typeNames_jxb.length) {
+                    let entity = new BlackHole3D.REEntityInfo();
+                    entity.dataSetId = 'jxb';
+                    entity.entityType = typeNames_jxb[0];
+                    console.log('typeNames_jxb', typeNames_jxb[0]);
+                    entity.elemId = 1;
+                    entity.scale = [1.0, 1.0, 1.0];
+                    entity.rotate = [0.0, 0.0, 0.0, 1.0];
+                    entity.offset = [268.1516942425886, 412.1152666772725, 2.162647794886439];
+                    entityList.push(entity);
+                }
+
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+
+            {
+                for (let i = 0; i < 5; i++) {
+                    let isDragging = '';
+                    const container = document.getElementById(`progressContainer${i + 1}`);
+                    const bar = document.getElementById(`progressBar${i + 1}`);
+                    const handle = document.getElementById(`progressHandle${i + 1}`);
+
+                    function setProgress(percent) {
+                        percent = Math.max(0, Math.min(100, percent)); // 限制 0~100%
+                        bar.style.width = percent + '%';
+                        handle.style.left = percent + '%';
+                    }
+
+                    container.addEventListener('mousedown', function (e) {
+                        isDragging = e.target.id;
+                        //console.log(BlackHole3D.Camera.getCamLocate());
+                    });
+
+                    container.addEventListener('mousemove', (e) => {
+                        if (isDragging.length > 0) {
+                            updateProgress(e);
+                        }
+                    });
+
+                    container.addEventListener('mouseup', () => {
+                        isDragging = '';
+                    });
+
+                    const updateProgress = (event) => {
+                        const rect = container.getBoundingClientRect();
+                        const offsetX = event.clientX - rect.left;
+                        const percent = (offsetX / rect.width) * 100;
+                        setProgress(percent);
+                        // console.log("进度", percent);
+                        //console.log(event.target.id);
+                        let animNameList = BlackHole3D.Entity.getAnimCtlGroupNames('jxb', '1');
+                        //console.log(animNameList[0]);
+                        if (event.target.id == 'progressContainer1' || event.target.id == 'progressBar1') {
+                            BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[1], percent / 100.0); //console.log(animNameList[1]);
+                        } else if (event.target.id == 'progressContainer2' || event.target.id == 'progressBar2') {
+                            BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[0], percent / 100.0); //console.log(animNameList[0]);
+                        } else if (event.target.id == 'progressContainer3' || event.target.id == 'progressBar3') {
+                            BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[3], percent / 100.0); //console.log(animNameList[3]);
+                        } else if (event.target.id == 'progressContainer4' || event.target.id == 'progressBar4') {
+                            BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[2], percent / 100.0); //console.log(animNameList[2]);
+                        } else if (event.target.id == 'progressContainer5' || event.target.id == 'progressBar5') {
+                            BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[4], percent / 100.0); //console.log(animNameList[4]);
+                        }
+                    };
+                }
+            }
+
+            function PalyAllAnim() {
+                for (let i = 0; i < 5; i++) {
+                    const container = document.getElementById(`progressContainer${i + 1}`);
+                    const bar = document.getElementById(`progressBar${i + 1}`);
+                    const handle = document.getElementById(`progressHandle${i + 1}`);
+                    bar.style.width = '0%';
+                    handle.style.left = '0%';
+                }
+
+                let animNameList = BlackHole3D.Entity.getAnimCtlGroupNames('jxb', '1');
+
+                for (let i = 0; i < animNameList.length; i++) {
+                    //BlackHole3D.RealBIMWeb.SetEntityAnimCtlByGroup('jxb', 1, animNameList[i], BlackHole3D.RealBIMWeb.RE_ANIM_PLAY.ONCE, BlackHole3D.RealBIMWeb.RE_ANIM_STATE.PLAY, [0.0, 1.0], 1.0);
+                    BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[i], 0);
+                    let animCtlInfo = new BlackHole3D.REAnimCtlInfo();
+                    animCtlInfo.dataSetId = 'jxb';
+                    animCtlInfo.elemId = 1;
+                    animCtlInfo.groupName = animNameList[i];
+                    animCtlInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                    animCtlInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+                    animCtlInfo.bound = [0, 1];
+                    animCtlInfo.speed = 0.2;
+                    BlackHole3D.Entity.setAnimCtlByGroup(animCtlInfo);
+                    // BlackHole3D.RealBIMWeb.SetEntityAnimCtlByGroup(
+                    //     'jxb',
+                    //     1,
+                    //     animNameList[i],
+                    //     eval('BlackHole3D.RE_ANIM_PLAY.REPEATTURN'),
+                    //     eval('BlackHole3D.RE_ANIM_STATE.PLAY'),
+                    //     [0.0, 1.0],
+                    //     0.2
+                    // );
+                }
+            }
+
+            function StopAllAnim() {
+                let animNameList = BlackHole3D.Entity.getAnimCtlGroupNames('jxb', '1');
+                for (let i = 0; i < animNameList.length; i++) {
+                    const container = document.getElementById(`progressContainer${i + 1}`);
+                    const bar = document.getElementById(`progressBar${i + 1}`);
+                    const handle = document.getElementById(`progressHandle${i + 1}`);
+                    let fPos = 0;
+                    if (i == 0) {
+                        fPos = BlackHole3D.Entity.getAnimPosByGroup('jxb', 1, animNameList[i]);
+                    } else if (i == 1) {
+                        fPos = BlackHole3D.Entity.getAnimPosByGroup('jxb', 1, animNameList[i]);
+                    } else if (i == 2) {
+                        fPos = BlackHole3D.Entity.getAnimPosByGroup('jxb', 1, animNameList[i]);
+                    } else if (i == 3) {
+                        fPos = BlackHole3D.Entity.getAnimPosByGroup('jxb', 1, animNameList[i]);
+                    } else if (i == 4) {
+                        fPos = BlackHole3D.Entity.getAnimPosByGroup('jxb', 1, animNameList[i]);
+                    }
+                    fPos = fPos * 100;
+                    bar.style.width = fPos + '%';
+                    handle.style.left = fPos + '%';
+                }
+
+                for (let i = 0; i < animNameList.length; i++) {
+                    //BlackHole3D.RealBIMWeb.SetEntityAnimCtlByGroup('jxb', 1, animNameList[i], BlackHole3D.RealBIMWeb.RE_ANIM_PLAY.ONCE, BlackHole3D.RealBIMWeb.RE_ANIM_STATE.PLAY, [0.0, 1.0], 1.0);
+                    //BlackHole3D.Entity.setAnimPosByGroup('jxb', 1, animNameList[i], 0);
+                    let animCtlInfo = new BlackHole3D.REAnimCtlInfo();
+                    animCtlInfo.dataSetId = 'jxb';
+                    animCtlInfo.elemId = 1;
+                    animCtlInfo.groupName = animNameList[i];
+                    animCtlInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.REPEATTURN;
+                    animCtlInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PAUSE;
+                    animCtlInfo.bound = [0, 1];
+                    animCtlInfo.speed = 0.2;
+                    BlackHole3D.Entity.setAnimCtlByGroup(animCtlInfo);
+                    // BlackHole3D.RealBIMWeb.SetEntityAnimCtlByGroup(
+                    //     'jxb',
+                    //     1,
+                    //     animNameList[i],
+                    //     eval('BlackHole3D.RE_ANIM_PLAY.REPEATTURN'),
+                    //     eval('BlackHole3D.RE_ANIM_STATE.PAUSE'),
+                    //     [0.0, 1.0],
+                    //     0.2
+                    // );
+                }
+            }
+        </script>
+    </body>
+</html>

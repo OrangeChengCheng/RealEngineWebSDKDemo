@@ -2137,7 +2137,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             const _cFindEntity = _arrEntityList.find((item) => item.elemId === _cTPPFollowInfo.m_uEntityID);
             const entityPos = _cFindEntity.offset;
             // 计算方向向量（从pos1到pos2）
-            const dir = [_pos[0] - entityPos[0], _pos[1] - entityPos[1], _pos[2] - (entityPos[2] + _cSphereColliderInfo.m_dRadius)];//高度需要处理半径
+            const dir = [_pos[0] - entityPos[0], _pos[1] - entityPos[1], _pos[2] - (entityPos[2] + _cSphereColliderInfo.m_dRadius)]; //高度需要处理半径
             // 计算偏移距离（两点之间的直线距离）
             const offset = Math.sqrt(dir[0] ** 2 + dir[1] ** 2 + dir[2] ** 2);
             const cSphereColliderInfo = {
@@ -2220,7 +2220,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 获取是否在第三人称状态
      */
-    Module.Camera.GetIsTPP = function () {
+    Module.Camera.getIsTPP = function () {
         return Module.RealBIMWeb.GetIsTPP();
     };
 
@@ -12899,6 +12899,96 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Entity.setAnimScriptStop = function (playScriptId) {
         if (isEmptyLog(playScriptId, 'playScriptId')) return;
         Module.RealBIMWeb.StopAnimPlayScript(playScriptId);
+    };
+
+    // MARK 动画控制
+
+    /**
+     * 获取动画控制组名称
+     * @param {String} dataSetId //数据集标识
+     * @param {String} entityType //实例类型名称
+     */
+    Module.Entity.getAnimCtlGroupNames = function (dataSetId, entityType) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(entityType, 'entityType')) return;
+        const arrGroupNames = Module.RealBIMWeb.GetEntityAnimCtlGroupNameList(dataSetId, entityType);
+        let animCtlGroupNameList = [];
+        for (let i = 0; i < arrGroupNames.size(); i++) {
+            animCtlGroupNameList.push(arrGroupNames.get(i));
+        }
+        return animCtlGroupNameList;
+    };
+
+    class REAnimCtlInfo {
+        // 单构件动画信息
+        constructor() {
+            this.dataSetId = null; // 数据集标识
+            this.elemId = null; // 构件唯一标识
+            this.groupName = null; // 组名称
+            this.animPlayMode = 4; // 动画的播放模式 类型 REEntityAnimPlayModeEm 枚举
+            this.animPlayState = 1; // 动画的播放状态 类型 REEntityAnimPlayStateEm 枚举
+            this.bound = [0, 1]; //动画播放区间（二元素数组）
+            this.speed = 1.0; //动画播放速度
+        }
+    }
+    ExtModule.REAnimCtlInfo = REAnimCtlInfo;
+
+    /**
+     * 设置一组动画控制
+     * @param {REAnimCtlInfo} animCtlInfo //动画控制信息（REAnimCtlInfo 类型）
+     */
+    Module.Entity.setAnimCtlByGroup = function (animCtlInfo) {
+        if (isEmptyLog(animCtlInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(animCtlInfo.elemId, 'elemId')) return;
+        if (isEmptyLog(animCtlInfo.groupName, 'groupName')) return;
+
+        let _dataSetId = isEmpty(animCtlInfo.dataSetId) ? '' : animCtlInfo.dataSetId;
+        let _elemId = isEmpty(animCtlInfo.elemId) ? 0 : animCtlInfo.elemId;
+        let _groupName = isEmpty(animCtlInfo.groupName) ? '' : animCtlInfo.groupName;
+        let _animPlayMode = isEmpty(animCtlInfo.animPlayMode) ? eval(REEntityAnimPlayModeEm.REPEATTURN) : eval(animCtlInfo.animPlayMode);
+        let _animPlayState = isEmpty(animCtlInfo.animPlayState) ? eval(REEntityAnimPlayStateEm.PAUSE) : eval(animCtlInfo.animPlayState);
+        let _bound = isEmpty(animCtlInfo.bound) ? [0, 1] : animCtlInfo.bound;
+        let _speed = isEmpty(animCtlInfo.speed) ? 1.0 : animCtlInfo.speed;
+
+        Module.RealBIMWeb.SetEntityAnimCtlByGroup(_dataSetId, _elemId, _groupName, _animPlayMode, _animPlayState, _bound, _speed);
+    };
+
+    /**
+     * 设置一组动画位置
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} elemId //构件唯一标识
+     * @param {String} groupName //组名称
+     * @param {Number} pos //动画播放位置
+     */
+    Module.Entity.setAnimPosByGroup = function (dataSetId, elemId, groupName, pos) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemId, 'elemId')) return;
+        if (isEmptyLog(groupName, 'groupName')) return;
+
+        let _dataSetId = isEmpty(dataSetId) ? '' : dataSetId;
+        let _elemId = isEmpty(elemId) ? 0 : elemId;
+        let _groupName = isEmpty(groupName) ? '' : groupName;
+        let _pos = isEmpty(pos) ? 0 : pos;
+
+        Module.RealBIMWeb.SetEntityAnimPosByGroup(_dataSetId, _elemId, _groupName, _pos);
+    };
+
+    /**
+     * 获取一组动画位置
+     * @param {String} dataSetId //数据集标识
+     * @param {Number} elemId //构件唯一标识
+     * @param {String} groupName //组名称
+     */
+    Module.Entity.getAnimPosByGroup = function (dataSetId, elemId, groupName) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemId, 'elemId')) return;
+        if (isEmptyLog(groupName, 'groupName')) return;
+
+        let _dataSetId = isEmpty(dataSetId) ? '' : dataSetId;
+        let _elemId = isEmpty(elemId) ? 0 : elemId;
+        let _groupName = isEmpty(groupName) ? '' : groupName;
+
+        return Module.RealBIMWeb.GetEntityAnimPosByGroup(_dataSetId, _elemId, _groupName);
     };
 
     if (hasEntityAniEdit) {
