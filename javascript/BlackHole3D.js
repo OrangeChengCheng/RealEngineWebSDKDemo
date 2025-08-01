@@ -74,6 +74,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web); //动画播放脚本状态回调事件
         document.addEventListener('REMeasureFinish_Web', REMeasureFinish_Web); //测量完成回调事件
         document.addEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web); //范围选择构件完成回调事件
+        document.addEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web); //创建单构件对象并进入第三人称漫游完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -98,6 +99,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web);
         document.removeEventListener('REMeasureFinish_Web', REMeasureFinish_Web);
         document.removeEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web);
+        document.removeEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -157,6 +159,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             });
             document.dispatchEvent(re_event_REElemSelRegFinish);
         }
+    }
+    function RECreateTPPFinish_Web(e) {
+        const re_event_RECreateTPPFinish = new CustomEvent('RECreateTPPFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RECreateTPPFinish);
     }
 
     if (hasNewExtrude) {
@@ -2010,59 +2018,210 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetCamLockRotate(lock);
     };
 
-    class RECamFollowInfo {
-        // 相机跟随信息
+    // MARK 第三人称漫游
+    class RETPPInfo {
+        // 第三人称漫游信息
+        constructor() {
+            this.dataSetId = ''; //数据集标识
+            this.entityType = ''; //实例类型名称
+            this.useEntityPos = false; //是否用自定义单构件位置
+            this.entityPos = [0, 0, 0]; //自定义单构件位置
+            this.useCustomCam = false; //是否用自定义相机信息
+            this.camPos = [0, 0, 0]; //相机的位置（三元素数组）
+            this.camRotate = [0, 0, 0, 1]; //相机朝向（四元素数组）
+        }
+    }
+    ExtModule.RETPPInfo = RETPPInfo;
+
+    /**
+     * 创建单构件对象并进入第三人称漫游
+     * @param {RETPPInfo} tppInfo //第三人称漫游信息（RETPPInfo 类型）
+     */
+    Module.Camera.createTpp = function (tppInfo) {
+        if (isEmptyLog(tppInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(tppInfo.entityType, 'entityType')) return;
+
+        let _useEntityPos = isEmpty(tppInfo.useEntityPos) ? false : tppInfo.useEntityPos;
+        let _entityPos = isEmpty(tppInfo.entityPos) ? [0, 0, 0] : tppInfo.entityPos;
+        let _useCustomCam = isEmpty(tppInfo.useCustomCam) ? false : tppInfo.useCustomCam;
+        let _camPos = isEmpty(tppInfo.camPos) ? [0, 0, 0] : tppInfo.camPos;
+        let _camRotate = isEmpty(tppInfo.camRotate) ? [0, 0, 0, 1] : tppInfo.camRotate;
+
+        Module.RealBIMWeb.CreateTPP(tppInfo.dataSetId, tppInfo.entityType, _useEntityPos, _entityPos, _useCustomCam, _camPos, _camRotate);
+    };
+
+    /**
+     * 退出第三人称漫游
+     * @param {Boolean} delEntity //是否删除当前绑定的单构件
+     */
+    Module.Camera.delTPP = function (delEntity) {
+        let _delEntity = isEmpty(delEntity) ? false : delEntity;
+        Module.RealBIMWeb.DelTPP(_delEntity);
+    };
+
+    /**
+     * 设置运动模式的动画名称
+     * @param {String} animName //动画标识
+     */
+    Module.Camera.setTPPSportAnimName = function (animName) {
+        return Module.RealBIMWeb.SetTPPSportAniName(animName);
+    };
+
+    /**
+     * 获取运动模式的动画名称
+     */
+    Module.Camera.getTPPSportAnimName = function () {
+        return Module.RealBIMWeb.GetTPPSportAniName();
+    };
+
+    /**
+     * 设置空闲模式的动画名称
+     * @param {String} animName //动画标识
+     */
+    Module.Camera.setTPPIdleAniName = function (animName) {
+        return Module.RealBIMWeb.SetTPPIdleAniName(animName);
+    };
+
+    /**
+     * 获取空闲模式的动画名称
+     */
+    Module.Camera.getTPPIdleAniName = function () {
+        return Module.RealBIMWeb.GetTPPIdleAniName();
+    };
+
+    /**
+     * 设置单构件的爬坡能力
+     * @param {number} gradeAbility //表示单构件的爬升能力,>=0表示绝对高度；<0表示相对于视点包围球半径的倍数的负数
+     */
+    Module.Camera.setTPPGradeAbility = function (gradeAbility) {
+        Module.RealBIMWeb.SetTPPGradeAbility(gradeAbility);
+    };
+
+    /**
+     * 获取单构件的爬升能力
+     */
+    Module.Camera.getTPPGradeAbility = function () {
+        return Module.RealBIMWeb.GetTPPGradeAbility();
+    };
+
+    class RETPPSphereColliderInfo {
+        // 相机跟随碰撞球信息
+        constructor() {
+            this.radius = 0.5; //碰撞球半径
+            this.useCustomPos = false; //是否自定义碰撞球的球心位置
+            this.pos = [0, 0, 0]; //球心坐标 （三元素数组）
+        }
+    }
+    ExtModule.RETPPSphereColliderInfo = RETPPSphereColliderInfo;
+
+    /**
+     * 设置碰撞球信息
+     * @param {RETPPSphereColliderInfo} sphereColliderInfo //碰撞球信息（RETPPSphereColliderInfo 类型）
+     */
+    Module.Camera.setTPPSphereCollider = function (sphereColliderInfo) {
+        let _radius = isEmpty(sphereColliderInfo.radius) ? 0.5 : sphereColliderInfo.radius;
+        let _useCustomPos = isEmpty(sphereColliderInfo.useCustomPos) ? false : sphereColliderInfo.useCustomPos;
+        let _pos = isEmpty(sphereColliderInfo.pos) ? [0, 0, 0] : sphereColliderInfo.pos;
+        if (!_useCustomPos) {
+            const cSphereColliderInfo = {
+                m_dRadius: _radius,
+                m_bUseCustom: _useCustomPos,
+                m_vDir: [0, 0, 0],
+                m_dOffset: 0,
+            };
+            Module.RealBIMWeb.SetTPPSphereCollider(cSphereColliderInfo);
+        } else {
+            const _cSphereColliderInfo = Module.RealBIMWeb.GetTPPSphereCollider();
+            const _cTPPFollowInfo = Module.RealBIMWeb.GetTPPCurEntityInfo();
+            const _arrEntityList = BlackHole3D.Entity.getEntitys(_cTPPFollowInfo.m_wstrProjName, '');
+            const _cFindEntity = _arrEntityList.find((item) => item.elemId === _cTPPFollowInfo.m_uEntityID);
+            const entityPos = _cFindEntity.offset;
+            // 计算方向向量（从pos1到pos2）
+            const dir = [_pos[0] - entityPos[0], _pos[1] - entityPos[1], _pos[2] - (entityPos[2] + _cSphereColliderInfo.m_dRadius)];//高度需要处理半径
+            // 计算偏移距离（两点之间的直线距离）
+            const offset = Math.sqrt(dir[0] ** 2 + dir[1] ** 2 + dir[2] ** 2);
+            const cSphereColliderInfo = {
+                m_dRadius: _radius,
+                m_bUseCustom: _useCustomPos,
+                m_vDir: dir,
+                m_dOffset: offset,
+            };
+            Module.RealBIMWeb.SetTPPSphereCollider(cSphereColliderInfo);
+        }
+    };
+
+    /**
+     * 获取碰撞球信息
+     */
+    Module.Camera.getTPPSphereCollider = function () {
+        const _cSphereColliderInfo = Module.RealBIMWeb.GetTPPSphereCollider();
+        const _cTPPFollowInfo = Module.RealBIMWeb.GetTPPCurEntityInfo();
+        const _arrEntityList = BlackHole3D.Entity.getEntitys(_cTPPFollowInfo.m_wstrProjName, '');
+        const _cFindEntity = _arrEntityList.find((item) => item.elemId === _cTPPFollowInfo.m_uEntityID);
+
+        if (_cFindEntity) {
+            const dir = _cSphereColliderInfo.m_vDir;
+            const offset = _cSphereColliderInfo.m_dOffset;
+            const entityPos = _cFindEntity.offset;
+            // 计算偏移向量（单位方向向量 × 偏移距离）
+            const offsetVector = [dir[0] * offset, dir[1] * offset, dir[2] * offset];
+            // 计算新坐标（原始坐标 + 偏移向量）高度需要处理半径
+            const newPos = [
+                entityPos[0] + offsetVector[0],
+                entityPos[1] + offsetVector[1],
+                entityPos[2] + offsetVector[2] + _cSphereColliderInfo.m_dRadius,
+            ];
+
+            let _sphereColliderInfo = new RETPPSphereColliderInfo();
+            _sphereColliderInfo.radius = _cSphereColliderInfo.m_dRadius;
+            _sphereColliderInfo.useCustomPos = _cSphereColliderInfo.m_bUseCustom;
+            _sphereColliderInfo.pos = newPos;
+            return _sphereColliderInfo;
+        }
+
+        return null;
+    };
+
+    class RETPPFollowInfo {
+        // 相机跟随碰撞球信息
         constructor() {
             this.dataSetId = ''; //数据集标识
             this.elemId = 0; //构件标识
-            this.gradeAbility = 0.5; //构件爬升能力，限制构件在遇到障碍是爬升的最大高度限制
         }
     }
-    ExtModule.RECamFollowInfo = RECamFollowInfo;
+    ExtModule.RETPPFollowInfo = RETPPFollowInfo;
 
     /**
-     * 设置相机是否锁定当前朝向
-     * @param {RECamFollowInfo} camFollowInfo //相机跟随信息（RECamFollowInfo 类型）
+     * 设置相机跟随构件信息
+     * @param {RETPPFollowInfo} tppFollowInfo //相机跟随信息（RETPPFollowInfo 类型）
      */
-    Module.Camera.setCamFollowElem = function (camFollowInfo) {
-        if (isEmptyLog(camFollowInfo.dataSetId, 'dataSetId')) return;
-        if (isEmptyLog(camFollowInfo.elemId, 'elemId')) return;
-        const cCamFollowInfo = {
+    Module.Camera.setCamTPPElem = function (tppFollowInfo) {
+        if (isEmptyLog(tppFollowInfo.dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(tppFollowInfo.elemId, 'elemId')) return;
+        const cTPPFollowInfo = {
             m_bFollow: true,
-            m_wstrProjName: camFollowInfo.dataSetId,
-            m_uEntityID: camFollowInfo.elemId,
-            m_dGradeAbility: isEmpty(camFollowInfo.gradeAbility) ? 0.5 : camFollowInfo.gradeAbility,
+            m_wstrProjName: tppFollowInfo.dataSetId,
+            m_uEntityID: tppFollowInfo.elemId,
         };
-        return Module.RealBIMWeb.SetCamFollowEntityInfo(cCamFollowInfo);
+        return Module.RealBIMWeb.SetTPPEntityInfo(cTPPFollowInfo);
     };
 
     /**
-     * 获取相机是否锁定当前朝向
+     * 获取相机跟随构件信息
      */
-    Module.Camera.getCamFollowElem = function () {
-        const cCamFollowInfo = Module.RealBIMWeb.GetCamFollowEntityInfo();
-        let camFollowInfo = new RECamFollowInfo();
-        camFollowInfo.dataSetId = cCamFollowInfo.m_wstrProjName;
-        camFollowInfo.elemId = cCamFollowInfo.m_uEntityID;
-        camFollowInfo.gradeAbility = cCamFollowInfo.m_dGradeAbility;
-        if (cCamFollowInfo.m_bFollow) {
-            return camFollowInfo;
-        } else {
-            return null;
-        }
+    Module.Camera.getCamTPPElem = function () {
+        const cTPPFollowInfo = Module.RealBIMWeb.GetTPPCurEntityInfo();
+        let _tppFollowInfo = new RETPPFollowInfo();
+        _tppFollowInfo.dataSetId = cTPPFollowInfo.m_wstrProjName;
+        _tppFollowInfo.elemId = cTPPFollowInfo.m_uEntityID;
+        return _tppFollowInfo;
     };
 
     /**
-     * 取消相机是否锁定当前朝向
+     * 获取是否在第三人称状态
      */
-    Module.Camera.cancelCamFollowElem = function () {
-        const cCamFollowInfo = {
-            m_bFollow: false,
-            m_wstrProjName: "",
-            m_uEntityID: 0,
-            m_dGradeAbility: 0.5,
-        };
-        return Module.RealBIMWeb.SetCamFollowEntityInfo(cCamFollowInfo);
+    Module.Camera.GetIsTPP = function () {
+        return Module.RealBIMWeb.GetIsTPP();
     };
 
     // MARK 碰撞检测

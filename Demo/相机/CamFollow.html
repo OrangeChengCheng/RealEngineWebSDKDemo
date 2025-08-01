@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-07-22 15:23:20
+ * @LastEditTime: 2025-08-01 12:11:41
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -16,7 +16,8 @@
     <body>
         <div id="canvas-cntrNew">
             <div class="btnNew">
-                <button onclick="camFollow()">绑定相机</button>
+                <button onclick="bindEntity()">绑定已有单构件</button>
+                <button onclick="createTPP()">创建单构件并进入模式</button>
             </div>
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
             <div class="custom-loading-container">
@@ -49,6 +50,34 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
+            document.addEventListener('RECreateTPPFinish', RECreateTPPFinish);
+
+            function RECreateTPPFinish(e) {
+                console.log('-- 创建单构件对象并进入第三人称漫游完成回调事件 --', e);
+                if (!e.detail.succeed) {
+                    let error = '';
+                    switch (e.detail.result) {
+                        case 1:
+                            error = '单构件模板数据集加载失败';
+                            break;
+                        case 2:
+                            error = '单构件模板类型不存在';
+                            break;
+                        case 3:
+                            error = '当前相机正下方空间探测失败，无法选中';
+                            break;
+                        case 4:
+                            error = '单构件对象添加失败';
+                            break;
+                        case 5:
+                            error = '当前已存在第三人称漫游';
+                            break;
+                        default:
+                            break;
+                    }
+                    alert(`创建第三人称漫游失败, 失败原因：（${error}）`);
+                }
+            }
             function RESystemEngineCreatedCallBack() {
                 var dataSetList = [
                     {
@@ -89,12 +118,22 @@
                 BlackHole3D.Entity.exitEditMode(); //结束编辑模式
             }
 
-            function camFollow() {
-                let camFollowInfo = new BlackHole3D.RECamFollowInfo();
-                camFollowInfo.dataSetId = 'renwu';
-                camFollowInfo.elemId = 1;
-                camFollowInfo.gradeAbility = 0.7;
-                BlackHole3D.Camera.setCamFollowElem(camFollowInfo);
+            function bindEntity() {
+                let _tppFollowInfo = new BlackHole3D.RETPPFollowInfo();
+                _tppFollowInfo.dataSetId = 'renwu';
+                _tppFollowInfo.elemId = 1;
+                BlackHole3D.Camera.setCamTPPElem(_tppFollowInfo);
+            }
+
+            function createTPP() {
+                let typeNames_renwu = BlackHole3D.Entity.getAllTypeNames('renwu');
+                let ttpInfo = new BlackHole3D.RETPPInfo();
+                ttpInfo.dataSetId = 'renwu';
+                ttpInfo.entityType = typeNames_renwu[0];
+                BlackHole3D.Camera.createTpp(ttpInfo);
+
+
+                
             }
         </script>
     </body>
