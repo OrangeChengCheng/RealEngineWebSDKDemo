@@ -3925,8 +3925,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.pos = null; //锚点的位置
             this.picPath = null; //锚点的纹理路径
             this.textInfo = null; //锚点的文字
-            this.picWidth = null; //锚点图片的宽度
-            this.picHeight = null; //锚点图片的高度
+            this.picWidth = null; //锚点图片的宽度, 如果用于闪烁锚点效果，该值为闪烁锚点图片像素/闪烁个数
+            this.picHeight = null; //锚点图片的高度, 如果用于闪烁锚点效果，该值为闪烁锚点图片像素/闪烁个数
             this.linePos = null; //锚点指引线的终点坐标(2维像素裁剪空间下相对于定位点的坐标) (Y轴向上递增)，即起始点相对pos点为[0,0], 最终点为相对[x,y]
             this.lineClr = null; //指引线的颜色
             this.ancSize = null; //锚点的覆盖范围参考值，大于等于0，可设为锚点图片的最大尺寸，该值越大，则相机定位到锚点时后退距离越大
@@ -4236,113 +4236,119 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         for (let i = 0; i < ancList.length; i++) {
             let ancInfo = ancList[i];
 
-            var _groupname = 'DefaultGroup';
-            if (!isEmpty(ancInfo.groupName)) {
-                _groupname = ancInfo.groupName;
-            }
-            var _uselod = false;
-            if (!isEmpty(ancInfo.useLod)) {
-                _uselod = ancInfo.useLod;
-            }
-            var _animobjname = '';
-            if (!isEmpty(ancInfo.animObjName)) {
-                _animobjname = ancInfo.animObjName;
-            }
-            var _animboneid = 0;
-            if (!isEmpty(ancInfo.animBoneID)) {
-                _animboneid = ancInfo.animBoneID;
-            }
-            var _linepos = [0, 0];
-            if (!isEmpty(ancInfo.linePos)) {
-                _linepos = ancInfo.linePos;
-            }
-            var _lineclr = 0x00000000;
-            if (!isEmpty(ancInfo.lineClr)) {
-                _lineclr = clrToU32(ancInfo.lineClr);
-            }
-            var _size = 0;
-            if (!isEmpty(ancInfo.ancSize)) {
-                _size = ancInfo.ancSize;
-            }
-            var _selfASDist = -1;
-            if (!isEmpty(ancInfo.selfAutoScaleDist)) {
-                _selfASDist = ancInfo.selfAutoScaleDist;
-            }
-            var _selfVisDist = -1;
-            if (!isEmpty(ancInfo.selfVisDist)) {
-                _selfVisDist = ancInfo.selfVisDist;
-            }
-            var _textbias = [1, 0];
-            if (!isEmpty(ancInfo.texBias)) {
-                _textbias = ancInfo.texBias;
-            }
-            var _texfocus = [0, 0];
-            if (!isEmpty(ancInfo.texFocus)) {
-                _texfocus = ancInfo.texFocus;
-            }
-            var _GolFontID = 'RealBIMFont001';
-            if (!isEmpty(ancInfo.fontName)) {
-                _GolFontID = ancInfo.fontName;
-            }
-            var _textcolor = 0xff000000;
-            if (!isEmpty(ancInfo.textClr)) {
-                _textcolor = clrToU32(ancInfo.textClr);
-            }
-            var _textbordercolor = 0xff000000;
-            if (!isEmpty(ancInfo.textBorderClr)) {
-                _textbordercolor = clrToU32(ancInfo.textBorderClr);
-            }
-            var _textBackMode = 0;
-            if (!isEmpty(ancInfo.textBackMode)) {
-                _textBackMode = ancInfo.textBackMode;
-            }
-            var _textBackBorder = 0;
-            if (!isEmpty(ancInfo.textBackBorder)) {
-                _textBackBorder = ancInfo.textBackBorder;
-            }
-            var _textBackClr = 0x00000000;
-            if (!isEmpty(ancInfo.textBackClr)) {
-                _textBackClr = clrToU32(ancInfo.textBackClr);
-            }
-            var _picNum = 1;
-            if (!isEmpty(ancInfo.picNum)) {
-                _picNum = ancInfo.picNum;
-            }
-            var _playFrame = 0;
-            if (!isEmpty(ancInfo.playFrame)) {
-                _playFrame = ancInfo.playFrame;
-            }
+            var _groupname = isEmpty(ancInfo.groupName) ? 'DefaultGroup' : ancInfo.groupName;
+            var _textInfo = isEmpty(ancInfo.textInfo) ? '' : ancInfo.textInfo;
+            var _uselod = isEmpty(ancInfo.useLod) ? false : ancInfo.useLod;
+            var _animobjname = isEmpty(ancInfo.animObjName) ? '' : ancInfo.animObjName;
+            var _animboneid = isEmpty(ancInfo.animBoneID) ? 0 : ancInfo.animBoneID;
+            var _linepos = isEmpty(ancInfo.linePos) ? [0, 0] : ancInfo.linePos;
+            var _lineclr = isEmpty(ancInfo.lineClr) ? 0x00000000 : clrToU32(ancInfo.lineClr);
+            var _size = isEmpty(ancInfo.ancSize) ? 0 : ancInfo.ancSize;
+            var _selfASDist = isEmpty(ancInfo.selfAutoScaleDist) ? -1 : ancInfo.selfAutoScaleDist;
+            var _selfVisDist = isEmpty(ancInfo.selfVisDist) ? -1 : ancInfo.selfVisDist;
+            var _texBias = isEmpty(ancInfo.texBias) ? [1, 0] : ancInfo.texBias;
+            var _texfocus = isEmpty(ancInfo.texFocus) ? [0, 0] : ancInfo.texFocus;
+            var _GolFontID = isEmpty(ancInfo.fontName) ? 'RealBIMFont001' : ancInfo.fontName;
+            var _textcolor = isEmpty(ancInfo.textClr) ? 0xff000000 : clrToU32(ancInfo.textClr);
+            var _textbordercolor = isEmpty(ancInfo.textBorderClr) ? 0xff000000 : clrToU32(ancInfo.textBorderClr);
+            var _textBackMode = isEmpty(ancInfo.textBackMode) ? 0 : ancInfo.textBackMode;
+            var _textBackBorder = isEmpty(ancInfo.textBackBorder) ? 0 : ancInfo.textBackBorder;
+            var _textBackPadding = isEmpty(ancInfo.textBackPadding) ? 0 : ancInfo.textBackPadding;
+            var _textBackClr = isEmpty(ancInfo.textBackClr) ? 0x00000000 : clrToU32(ancInfo.textBackClr);
+            var _picNum = isEmpty(ancInfo.picNum) ? 1 : ancInfo.picNum;
+            var _playFrame = isEmpty(ancInfo.playFrame) ? 0 : ancInfo.playFrame;
+            var _textOffset = (() => {
+                const _textOffsetReg = new RegExp('[\\u4E00-\\u9FFF]+', 'g'); //检测字符串中是否包含中文字符
+                return _textOffsetReg.test(_textInfo) ? [0, 0] : [0, 2];
+            })();
 
-            var TempTextRect = [0, 0, 1, 1];
-            var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
-            if (_textbias[0] < 0) {
-                TempTextRect[0] = _linepos[0] - 1 - _texfocus[0];
-                TempTextRect[2] = _linepos[0] - _texfocus[0];
-                TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
-            } else if (_textbias[0] == 0) {
-                //TempTextRect[0] =_linepos[0]-_texfocus[0]; TempTextRect[2] =_linepos[0]+1-_texfocus[0]; TempTextFmtFlag |=0x8/*TEXT_FMT_LEFT*/;
-                TempTextRect[0] = _linepos[0] - _texfocus[0];
-                TempTextRect[2] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
-                TempTextFmtFlag |= 0x10 /*TEXT_FMT_HCENTER*/;
-            } else {
-                TempTextRect[0] = ancInfo.picWidth + _linepos[0] - _texfocus[0];
-                TempTextRect[2] = ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0];
-                TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
+            // 文字相对区域对齐方式
+            var _textFmtFlag = 128 + 64; /*TEXT_FMT_NOCLIP | TEXT_FMT_SINGLELINE*/
+            // 文字区域
+            var _texRect_min = [0, 0];
+            var _texRect_max = [0, 0];
+            if (_texBias[0] < 0 && _texBias[1] > 0) {
+                // 文字在图片->左上
+                _texRect_min = [
+                    _linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] < 0 && _texBias[1] == 0) {
+                // 文字在图片->左中
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding, ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] < 0 && _texBias[1] < 0) {
+                // 文字在图片->左下
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
+                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] == 0 && _texBias[1] > 0) {
+                // 文字在图片->中上
+                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] == 0 && _texBias[1] == 0) {
+                // 文字在图片->中中
+                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] == 0 && _texBias[1] < 0) {
+                // 文字在图片->中下
+                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
+                _texRect_max = [ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] > 0 && _texBias[1] > 0) {
+                // 文字在图片->右上
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] > 0 && _texBias[1] == 0) {
+                // 文字在图片->右中
+                _texRect_min = [ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+            } else if (_texBias[0] > 0 && _texBias[1] < 0) {
+                // 文字在图片->右下
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
+                    _linepos[1] - _texfocus[1] - _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
             }
-            if (_textbias[1] < 0) {
-                TempTextRect[1] = _linepos[1] - 1 - _texfocus[1];
-                TempTextRect[3] = _linepos[1] - _texfocus[1];
-                TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
-            } else if (_textbias[1] == 0) {
-                //TempTextRect[1] =_linepos[1]-_texfocus[1]; TempTextRect[3] =_linepos[1]+1-_texfocus[1]; TempTextFmtFlag |=0x1/*TEXT_FMT_BOTTOM*/;
-                TempTextRect[1] = _linepos[1] - _texfocus[1];
-                TempTextRect[3] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
-                TempTextFmtFlag |= 0x2 /*TEXT_FMT_VCENTER*/;
-            } else {
-                TempTextRect[1] = ancInfo.picHeight + _linepos[1] - _texfocus[1];
-                TempTextRect[3] = ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1];
-                TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
-            }
+            var _textRect_combine = [..._texRect_min, ..._texRect_max];
 
             var tempobj = {
                 m_strGroupName: _groupname,
@@ -4376,11 +4382,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_cTextRegion: {
                     m_strGolFontID: _GolFontID,
                     m_bTextWeight: true,
-                    m_strText: ancInfo.textInfo,
+                    m_strText: _textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
-                    m_qTextRect: TempTextRect,
-                    m_uTextFmtFlag: TempTextFmtFlag,
+                    m_qTextRect: [
+                        _textRect_combine[0] + _textOffset[0],
+                        _textRect_combine[1] + _textOffset[1],
+                        _textRect_combine[2] + _textOffset[0],
+                        _textRect_combine[3] + _textOffset[1],
+                    ],
+                    m_uTextFmtFlag: _textFmtFlag,
                     m_uTextBackMode: _textBackMode,
                     m_sTextBackBorder: _textBackBorder,
                     m_uTextBackClr: _textBackClr,
