@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3275
+﻿//版本：v3.2.0.3284
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -2078,14 +2078,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置空闲模式的动画名称
      * @param {String} animName //动画标识
      */
-    Module.Camera.setTPPIdleAniName = function (animName) {
+    Module.Camera.setTPPIdleAnimName = function (animName) {
         return Module.RealBIMWeb.SetTPPIdleAniName(animName);
     };
 
     /**
      * 获取空闲模式的动画名称
      */
-    Module.Camera.getTPPIdleAniName = function () {
+    Module.Camera.getTPPIdleAnimName = function () {
         return Module.RealBIMWeb.GetTPPIdleAniName();
     };
 
@@ -3933,7 +3933,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.selfAutoScaleDist = null; //锚点自身自动缩放距离(<0.0f表示使用全局自动缩放距离)
             this.selfVisDist = null; //锚点自身可视距离(<0.0f表示使用全局可视距离)
             this.texBias = null; //锚点文字与图片的相对位置, 二元素数组[x，y], x取值（-1、0、1）分别表示文字在图片的左侧、中间、右侧；y取值（-1、0、1）分别表示文字在图片的下侧、中间、上侧；
-            this.texFocus = null; //牵引线的最终顶点相对于图片的像素位置，二元素数组[x，y], [0,0]表示位于图片的左下角, [picWidth/2,0]表示位于图片中下
+            this.texFocus = null; //牵引线的最终顶点相对于图片的像素位置，需要配合ancSize使用，二元素数组[x，y], [0,0]表示位于图片的左下角, [picWidth/2,0]表示位于图片中下
             this.fontName = 'RealBIMFont001'; //锚点的字体样式
             this.textClr = null; //锚点的字体颜
             this.textBorderClr = null; //锚点的字体边框颜色
