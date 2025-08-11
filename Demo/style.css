@@ -224,3 +224,41 @@ input {
     font-size: 14px;
     text-align: center;
 }
+
+.loading-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    /* 默认隐藏 */
+    display: none;
+    z-index: 1000;
+}
+
+.loading-area.active {
+    /* 显示状态 */
+    display: flex;
+}
+
+.loading-img {
+    position: relative;
+    margin-bottom: 10px;
+    width: 60px;
+    height: 60px;
+    animation: loading-rotate 2s linear infinite;
+}
+
+@keyframes loading-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
