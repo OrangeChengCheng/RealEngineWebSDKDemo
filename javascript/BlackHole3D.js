@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3292
+﻿//版本：v3.2.0.3300
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5944,11 +5944,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _attrvalid = _curattr.m_bAttrValid;
         var _selAlpha = _curattr.m_vAlphaBlend;
         var _selProbeMask = _curattr.m_uProbeMask;
-        let _clrWeight = isEmpty(_curattr.m_qClrBlend) ? 1.0 : _curattr.m_qClrBlend[3];
+        let _clrWeight = 1.0;
         var obj_attr = {
             m_bAttrValid: _attrvalid,
             m_qClrBlend: [elemClr.red / 255, elemClr.green / 255, elemClr.blue / 255, _clrWeight],
-            m_vAlphaBlend: _selAlpha,
+            m_vAlphaBlend: [elemClr.alpha / 255, _selAlpha[1]],
             m_uProbeMask: _selProbeMask,
         };
         return Module.RealBIMWeb.SetSelElemsAttr(obj_attr);
