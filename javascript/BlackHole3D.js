@@ -5849,7 +5849,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.elemClr = new REColor(255, 0, 0, 255); //元素颜色（REColor 类型）
             this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在
             this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在
-            this.probeMask = 1; //探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
+            this.probeMask = 1; //探测掩码（是否可以穿透选中，1: 不能穿透，0: 允许穿透, 穿透模式需要配合Ctrl键或多选模式操作）
             this.attrValid = true; //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
         }
     }
@@ -5910,9 +5910,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置选择集的颜色、透明度、探测掩码（即是否可以被选中）
+     * 设置选择集的颜色、透明度、探测掩码（即是否可以穿透选中）
      * @param {REColor} elemClr //构件颜色（REColor 类型）
-     * @param {Number} probeMask //探测掩码（即是否可以被选中，为0不可被选中，为1可以被选中）
+     * @param {Number} probeMask //探测掩码（是否可以穿透选中，1: 不能穿透，0: 允许穿透, 穿透模式需要配合Ctrl键或多选模式操作）
      * @param {Boolean} attrValid //表示属性信息是否有效，若无效则选择集合将不采用该全局属性信息；默认有效（true）
      */
     Module.BIM.setSelElemsAttr = function (elemClr, probeMask, attrValid) {
