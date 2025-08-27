@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, user-scalable=0"
+    />
+    <title>demo</title>
+    <link
+      rel="stylesheet"
+      href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css"
+    />
+  </head>
+  <body>
+    <div id="canvas-cntrNew">
+      <canvas
+        id="canvas"
+        style="width: 100%; height: 100%"
+        oncontextmenu="event.preventDefault()"
+        tabindex="1"
+      ></canvas>
+      <div class="custom-loading-container">
+        <div class="loading-box">
+          <div class="icon-box">
+            <img
+              src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif"
+            />
+          </div>
+          <div class="common-global-progress-box">
+            <div class="custom-progress-box">
+              <div class="progress-bar">
+                <div class="progress-bar-outer">
+                  <div class="progress-bar-inner"></div>
+                </div>
+              </div>
+            </div>
+            <div class="custom-text"></div>
+          </div>
+          <div class="process-info-box"></div>
+        </div>
+      </div>
+    </div>
+    <script
+      async
+      type="text/javascript"
+      src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"
+    ></script>
+    <script
+      async
+      type="text/javascript"
+      src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"
+    ></script>
+    <script
+      async
+      type="text/javascript"
+      src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"
+    ></script>
+
+    <!-- 引擎初始化 -->
+    <script type="text/javascript">
+      var curRotateTime = 0; // 旋转点击的次数
+      var curScaleTime = 0; // 缩放点击的次数
+      var curOffsetTime = 0; // 平移点击的次数
+      var pot3 = [ // 这个点位组也不行
+        [12064440.336, 3639174.895, 225],
+        [12064374.739, 3639166.097, 226],
+        [12064290.647, 3639170.567, 225],
+        [12064290.647, 3639170.567, 225],
+        [12064295.631, 3639209.156, 225],
+        [12064363.015, 3639211.21, 226],
+      ];
+      var pot4 = [ // 这个点位组也不行
+        [12064440.336, 3639174.895, 225],
+        [12064441.574, 3639235.626, 225],
+        [12064440.778, 3639308.984, 225],
+        [12064440.778, 3639308.984, 225],
+        [12064337.558, 3639298.602, 225],
+        [12064339.221, 3639378.814, 227],
+        [12064339.221, 3639378.814, 227],
+        [12064311.393, 3639379.321, 229],
+      ];
+      //场景初始化成功，执行模型加载
+      var dataSetId = "3a1302ebf45d985e13bab65cce241ff2";
+      //场景初始化成功，执行模型加载
+      var dataSetList = [
+        {
+          dataSetId: "3a1bbda42427ba4f325553e445896fa4",
+          resourcesAddress:
+            "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1bbda42427ba4f325553e445896fa4",
+          useTransInfo: false,
+        },
+        {
+          dataSetId: "3a1bf72c039e95831e1cebb4c27f3500",
+          resourcesAddress:
+            "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1bf72c039e95831e1cebb4c27f3500",
+          components: [
+            {
+              id: 51,
+              dataSetId: "3a1bb880-6260-18b4-baf6-5cf4d889d6e9",
+              entityType: "5",
+              scale: [1, 1, 1],
+              offset: [
+                12064446.877757812, 3638950.8889676505, 225.49300550155144,
+              ],
+              rotate: [0, 0, 0.4728054404258728, 0.8811668753623962],
+            },
+            {
+              id: 61,
+              entityType: "6",
+              dataSetId: "3a1bb8ab-a830-c239-4b7f-9f2cb454a2dc",
+              scale: [1, 1, 1],
+              offset: [
+                12064431.673668068, 3638952.2010881375, 243.27820251226478,
+              ],
+              rotate: [0, 0, 0, 1],
+            },
+          ],
+        },
+      ];
+
+      function REDataSetLoadFinishCallBack() {
+        document.addEventListener("REAddEntityFinish", REAddEntityFinish);
+        addEntities();
+      }
+      function addEntities() {
+        // 可根据业务需求，更改这里方法
+        BlackHole3D.Entity.enterEditMode(); //进入编辑模式
+
+        var entityList = [];
+        var _dataSetId = dataSetList[1].dataSetId;
+        dataSetList[1].components.forEach((elem) => {
+          let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+          entity.dataSetId = _dataSetId;
+          entity.entityType = elem.entityType;
+          entity.elemId = elem.id; //自定义构件id，不可重复，重复添加失败
+          entity.scale = elem.scale; // 偏移信息，接口获取
+          entity.rotate = elem.rotate; // 偏移信息，接口获取
+          entity.offset = elem.offset; // 偏移信息，接口获取
+          entity.dataSetCRS = "EPSG:3857"; // 坐标系标识,接口获取
+          entityList.push(entity);
+        });
+        BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+        BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+      }
+      function AddLine(potList) {
+        //矢量文字信息
+        var shpTextInfo = new BlackHole3D.REShpTextInfo();
+        shpTextInfo.text = "停车场";
+        shpTextInfo.texBias = [0, 0];
+        shpTextInfo.fontName = "RealBIMFont001";
+        shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+        shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+        shpTextInfo.textBackMode = 2;
+        shpTextInfo.textBackBorder = 2;
+        shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+        //矢量线信息
+        var lineShpInfo = new BlackHole3D.RELineShpInfo();
+        lineShpInfo.shpName = "lineShp001";
+        lineShpInfo.potList = potList;
+        lineShpInfo.fillState = 0;
+        lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+        lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+        lineShpInfo.textPos = -2;
+        lineShpInfo.lineWidth = 2;
+        lineShpInfo.textInfo = shpTextInfo;
+        var addlineShpBool = BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+        console.log(addlineShpBool);
+      }
+      function REAddEntityFinish() {
+        AddLine(pot4);
+        let _dataSetId = dataSetList[1].dataSetId;
+        let trackInfo = new BlackHole3D.REEntityTrackAnimInfo();
+        trackInfo.dataSetId = _dataSetId;
+        trackInfo.elemId = 51;
+        trackInfo.trackPointList = pot4.map((pos) => {
+          return { pos, selfVect: [1.0, 0.0, 0.0] };
+        });
+        trackInfo.pathColsed = false;
+        trackInfo.speed = 10.0;
+        BlackHole3D.Entity.setTrackAnim(trackInfo);
+        // 播放路径动画
+        let animPlayInfo = new BlackHole3D.REEntitySingleAnimPlayInfo();
+        animPlayInfo.dataSetId = _dataSetId;
+        animPlayInfo.elemId = 51;
+        animPlayInfo.animName = "wave";
+        animPlayInfo.animLevel = 0;
+        animPlayInfo.animPlayMode = BlackHole3D.REEntityAnimPlayModeEm.ONCE;
+        animPlayInfo.animPlayState = BlackHole3D.REEntityAnimPlayStateEm.PLAY;
+        BlackHole3D.Entity.setAnimPlayModeSingle(animPlayInfo);
+      }
+    </script>
+  </body>
+</html>

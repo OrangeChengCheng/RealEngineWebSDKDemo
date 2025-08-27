@@ -161,7 +161,7 @@ function loadPan() {
         {
             "dataSetId": "pan01",
             // "resourcesAddress": "https://yingshi-bim-demo-api.bosch-smartlife.com:8088/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res02&path=3a078ce7d766a927f0f4147af5ebe82e",
-            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res14&path=3a0c13733a5a99e08f2b94ff8f593c39",
+            "resourcesAddress": "https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a167e9186c8898479f21edc32cd9dae",
         },
         // {
         //     "dataSetId": "pan01",
