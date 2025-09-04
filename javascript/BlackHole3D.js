@@ -9213,7 +9213,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} measureInfoList //测量信息集合 （REMeasureInfo 类型）
      */
     Module.Measure.addGroupData = function (measureInfoList) {
-        if (!Module.RealBIMWeb.IsInMeasureMode()) return; //不处于测量模式下无效
         if (isEmptyLog(measureInfoList, 'measureInfoList')) return;
 
         let _vevtor_groupList = new Module.RE_Vector_MEASURE_INFO();
