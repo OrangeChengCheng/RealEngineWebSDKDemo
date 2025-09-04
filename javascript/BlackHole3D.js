@@ -8510,6 +8510,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         const terrId = Module.Terrain.getDataSetTerrId(dataSetId);
         if (!terrId.length) return;
         const cClrInfo = Module.RealBIMWeb.GetTerrInstClrInfo(terrId);
+        if (cClrInfo.m_uDestAlpha == 0 && cClrInfo.m_uDestAlphaAmp == 0) {
+            return 255;
+        }
         return cClrInfo.m_uDestAlpha;
     };
 
