@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3300
+﻿//版本：v3.2.0.3322
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -3934,17 +3934,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.selfVisDist = null; //锚点自身可视距离(<0.0f表示使用全局可视距离)
             this.texBias = null; //锚点文字与图片的相对位置, 二元素数组[x，y], x取值（-1、0、1）分别表示文字在图片的左侧、中间、右侧；y取值（-1、0、1）分别表示文字在图片的下侧、中间、上侧；
             this.texFocus = null; //牵引线的最终顶点相对于图片的像素位置，需要配合ancSize使用，二元素数组[x，y], [0,0]表示位于图片的左下角, [picWidth/2,0]表示位于图片中下
-            this.fontName = 'RealBIMFont001'; //锚点的字体样式
+            this.fontName = null; //锚点的字体样式
             this.textClr = null; //锚点的字体颜
             this.textBorderClr = null; //锚点的字体边框颜色
             this.textBackClr = null; //锚点的字体背景颜色
-            this.textBackPadding = null; //锚点的字体背景内容边距，默认为0
             this.textBackMode = null; //表示文字背景的处理模式 0：禁用文字背景 1：文字背景对应文字排版后返回的最终矩形区域 2：文字背景对应整体文字实际覆盖的矩形区域
             this.useLod = null; //是否允许聚合（只有uselod设为true，并且设置了有效的聚合参数 setAncLODInfo 后，锚点会自动聚合，同时锚点自动缩放和可视距离参数无效）
             this.animObjName = null; //锚点关联的动画对象名称(仅当 useLod==false时有效)
             this.animBoneID = null; //锚点关联的骨骼在动画对象内的ID(仅当 useLod==false时有效)
             this.picNum = null; //闪烁时循环播放的图片个数
             this.playFrame = null; //闪烁的帧率，即1秒钟闪几下
+            this.textBackPadding = null; //锚点的字体背景内容边距，默认为0
+            this.textBackRadius = null; //文字背景圆角半径的大小
+            this.textBackPaddingRect = null; //文字背景边距，[left,bottom,right,top]
+            this.textBackClrFadeDir = null; //文字背景颜色渐变方向 0: 不渐变 1: 从上往下渐变 2: 从左往右渐变
+            this.textBackFadeFinalClr = null; //文字背景颜色最终的渐变色，起始渐变色为textBackClr, textBackClrFadeDir !=0 有效
             // this.textOffset = null;//文字偏移像素 [x,y] x:左右偏移，正数向右，负数向左， y:上下偏移，正数向上，负数向下
         }
     }
@@ -3979,98 +3983,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _textBackMode = isEmpty(ancInfo.textBackMode) ? 0 : ancInfo.textBackMode;
             var _textBackPadding = isEmpty(ancInfo.textBackPadding) ? 0 : ancInfo.textBackPadding;
             var _textBackClr = isEmpty(ancInfo.textBackClr) ? 0x00000000 : clrToU32(ancInfo.textBackClr);
-            var _textOffset = (() => {
-                const _textOffsetReg = new RegExp('[\\u4E00-\\u9FFF]+', 'g'); //检测字符串中是否包含中文字符
-                return _textOffsetReg.test(_textInfo) ? [0, 0] : [0, 2];
-            })();
+            var _textBackRadius = isEmpty(ancInfo.textBackRadius) ? 0 : ancInfo.textBackRadius;
+            var _textBackClrFadeDir = isEmpty(ancInfo.textBackClrFadeDir) ? 0 : ancInfo.textBackClrFadeDir;
+            var _textBackFadeFinalClr = isEmpty(ancInfo.textBackFadeFinalClr) ? 0xffffffff : clrToU32(ancInfo.textBackFadeFinalClr);
+            var _textBackPaddingRect = isEmpty(ancInfo.textBackPaddingRect) ? [0, 0, 0, 0] : ancInfo.textBackPaddingRect;
+            if (!checkArrCountLog(_textBackPaddingRect, 'textBackPaddingRect', 4)) return false;
 
-            // 文字相对区域对齐方式
-            var _textFmtFlag = 128 + 64; /*TEXT_FMT_NOCLIP | TEXT_FMT_SINGLELINE*/
-            // 文字区域
-            var _texRect_min = [0, 0];
-            var _texRect_max = [0, 0];
-            if (_texBias[0] < 0 && _texBias[1] > 0) {
-                // 文字在图片->左上
-                _texRect_min = [
-                    _linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2,
-                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
-                ];
-                _texRect_max = [
-                    _linepos[0] - _texfocus[0] - _textBackPadding,
-                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
-                ];
-                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
-                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
-            } else if (_texBias[0] < 0 && _texBias[1] == 0) {
-                // 文字在图片->左中
-                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2, _linepos[1] - _texfocus[1] - _textBackPadding];
-                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding, ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding];
-                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
-                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
-            } else if (_texBias[0] < 0 && _texBias[1] < 0) {
-                // 文字在图片->左下
-                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
-                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
-                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
-                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
-            } else if (_texBias[0] == 0 && _texBias[1] > 0) {
-                // 文字在图片->中上
-                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding];
-                _texRect_max = [
-                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
-                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
-                ];
-                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
-                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
-            } else if (_texBias[0] == 0 && _texBias[1] == 0) {
-                // 文字在图片->中中
-                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
-                _texRect_max = [
-                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
-                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
-                ];
-                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
-                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
-            } else if (_texBias[0] == 0 && _texBias[1] < 0) {
-                // 文字在图片->中下
-                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
-                _texRect_max = [ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
-                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
-                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
-            } else if (_texBias[0] > 0 && _texBias[1] > 0) {
-                // 文字在图片->右上
-                _texRect_min = [
-                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
-                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
-                ];
-                _texRect_max = [
-                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
-                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
-                ];
-                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
-                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
-            } else if (_texBias[0] > 0 && _texBias[1] == 0) {
-                // 文字在图片->右中
-                _texRect_min = [ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding];
-                _texRect_max = [
-                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
-                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
-                ];
-                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
-            } else if (_texBias[0] > 0 && _texBias[1] < 0) {
-                // 文字在图片->右下
-                _texRect_min = [
-                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
-                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2,
-                ];
-                _texRect_max = [
-                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2,
-                    _linepos[1] - _texfocus[1] - _textBackPadding,
-                ];
-                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
-                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
-            }
-            var _textRect_combine = [..._texRect_min, ..._texRect_max];
+            const handle_rect = anc_layoutRect(ancInfo);
 
             var tempobj = {
                 m_strGroupName: _groupname,
@@ -4084,6 +4003,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_fSize: _size,
                 m_fSelfASDist: _selfASDist,
                 m_fSelfVisDist: _selfVisDist,
+                m_uCornerRadius: _textBackRadius,
+                m_qBackBorder: _textBackPaddingRect,
+                m_uFadeDir: _textBackClrFadeDir,
+                m_uFadeFinalClr: _textBackFadeFinalClr,
                 m_cTexRegion: {
                     m_strTexPath: ancInfo.picPath,
                     m_qTexRect: [
@@ -4107,13 +4030,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_strText: _textInfo,
                     m_uTextClr: _textcolor,
                     m_uTextBorderClr: _textbordercolor,
-                    m_qTextRect: [
-                        _textRect_combine[0] + _textOffset[0],
-                        _textRect_combine[1] + _textOffset[1],
-                        _textRect_combine[2] + _textOffset[0],
-                        _textRect_combine[3] + _textOffset[1],
-                    ],
-                    m_uTextFmtFlag: _textFmtFlag,
+                    m_qTextRect: handle_rect.m_qTextRect,
+                    m_uTextFmtFlag: handle_rect.m_uTextFmtFlag,
                     m_uTextBackMode: _textBackMode,
                     m_sTextBackBorder: _textBackPadding,
                     m_uTextBackClr: _textBackClr,
@@ -4159,46 +4077,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * c++锚点模型转换
-     * @param {String} ancData //锚点数据
-     */
-    function convertAncInfo(ancData) {
-        var ancInfo = new REAncInfo();
-        if (!ancData.m_strName.length) {
-            return null;
-        }
-        ancInfo.ancName = ancData.m_strName;
-        ancInfo.groupName = ancData.m_strGroupName;
-        ancInfo.pos = ancData.m_vPos;
-        ancInfo.picPath = ancData.m_cTexRegion.m_strTexPath;
-        ancInfo.textInfo = ancData.m_cTextRegion.m_strText;
-        ancInfo.linePos = ancData.m_vLineEnd;
-        if (!isEmpty(ancData.m_uLineClr) && ancData.m_uLineClr != 0) ancInfo.lineClr = clrU32ToClr(ancData.m_uLineClr);
-        if (!isEmpty(ancData.m_cTextRegion.m_uTextClr) && ancData.m_cTextRegion.m_uTextClr != 0)
-            ancInfo.textClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextClr);
-        ancInfo.textBorderClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBorderClr);
-        if (!isEmpty(ancData.m_cTextRegion.m_uTextBackClr) && ancData.m_cTextRegion.m_uTextBackClr != 0)
-            ancInfo.textBackClr = clrU32ToClr(ancData.m_cTextRegion.m_uTextBackClr);
-        ancInfo.selfAutoScaleDist = ancData.m_fSelfASDist;
-        ancInfo.selfVisDist = ancData.m_fSelfVisDist;
-        ancInfo.useLod = ancData.m_bUseLOD;
-        if (ancData.m_cTextRegion.m_strGolFontID != 'RealBIMFont001') ancInfo.fontName = ancData.m_cTextRegion.m_strGolFontID;
-        if (!isEmpty(ancData.m_strAnimObjName) && ancData.m_strAnimObjName != '') ancInfo.animObjName = ancData.m_strAnimObjName;
-        if (!isEmpty(ancData.m_uAnimBoneID) && ancData.m_uAnimBoneID != 0) ancInfo.animBoneID = ancData.m_uAnimBoneID;
-        if (!isEmpty(ancData.m_cTexRegion.m_uFrameNumU) && ancData.m_cTexRegion.m_fFrameFreq != 0) ancInfo.picNum = ancData.m_cTexRegion.m_uFrameNumU;
-        if (!isEmpty(ancData.m_cTexRegion.m_fFrameFreq) && ancData.m_cTexRegion.m_fFrameFreq != 0)
-            ancInfo.playFrame = ancData.m_cTexRegion.m_fFrameFreq;
-
-        return removeEmptyProperty(ancInfo);
-    }
-
-    /**
      * 获取某个锚点的信息
      * @param {String} ancName //锚点的名称
      */
     Module.Anchor.getAnc = function (ancName) {
         var _ancData = Module.RealBIMWeb.GetAnchor(ancName);
-        return convertAncInfo(_ancData);
+        return anc_convCpp2Json(_ancData);
     };
 
     /**
@@ -4209,7 +4093,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _allAncData = Module.RealBIMWeb.GetGroupAnchors(ancGroupName);
         var ancInfoList = [];
         for (var i = 0; i < _allAncData.size(); ++i) {
-            ancInfoList.push(convertAncInfo(_allAncData.get(i)));
+            ancInfoList.push(anc_convCpp2Json(_allAncData.get(i)));
         }
         return ancInfoList;
     };
@@ -4221,7 +4105,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _allAncData = Module.RealBIMWeb.GetAllAnchors();
         var ancInfoList = [];
         for (var i = 0; i < _allAncData.size(); ++i) {
-            ancInfoList.push(convertAncInfo(_allAncData.get(i)));
+            ancInfoList.push(anc_convCpp2Json(_allAncData.get(i)));
         }
         return ancInfoList;
     };
@@ -4702,6 +4586,190 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetAnchorVisDist(groupName);
     };
 
+    // MARK 辅助函数
+
+    /**
+     * 锚点 c++ 数据转换 json
+     * @param {Object} cppAncData //锚点数据
+     */
+    function anc_convCpp2Json(cppAncData) {
+        var ancInfo = new REAncInfo();
+        if (!cppAncData.m_strName.length) {
+            return null;
+        }
+        ancInfo.ancName = cppAncData.m_strName;
+        ancInfo.groupName = cppAncData.m_strGroupName;
+        ancInfo.pos = cppAncData.m_vPos;
+        ancInfo.picPath = cppAncData.m_cTexRegion.m_strTexPath;
+        ancInfo.textInfo = cppAncData.m_cTextRegion.m_strText;
+        ancInfo.linePos = cppAncData.m_vLineEnd;
+        if (!isEmpty(cppAncData.m_uLineClr) && cppAncData.m_uLineClr != 0) ancInfo.lineClr = clrU32ToClr(cppAncData.m_uLineClr);
+        if (!isEmpty(cppAncData.m_cTextRegion.m_uTextClr) && cppAncData.m_cTextRegion.m_uTextClr != 0)
+            ancInfo.textClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextClr);
+        ancInfo.textBorderClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextBorderClr);
+        if (!isEmpty(cppAncData.m_cTextRegion.m_uTextBackClr) && cppAncData.m_cTextRegion.m_uTextBackClr != 0)
+            ancInfo.textBackClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextBackClr);
+        ancInfo.selfAutoScaleDist = cppAncData.m_fSelfASDist;
+        ancInfo.selfVisDist = cppAncData.m_fSelfVisDist;
+        ancInfo.useLod = cppAncData.m_bUseLOD;
+        if (cppAncData.m_cTextRegion.m_strGolFontID != 'RealBIMFont001') ancInfo.fontName = cppAncData.m_cTextRegion.m_strGolFontID;
+        if (!isEmpty(cppAncData.m_strAnimObjName) && cppAncData.m_strAnimObjName != '') ancInfo.animObjName = cppAncData.m_strAnimObjName;
+        if (!isEmpty(cppAncData.m_uAnimBoneID) && cppAncData.m_uAnimBoneID != 0) ancInfo.animBoneID = cppAncData.m_uAnimBoneID;
+        if (!isEmpty(cppAncData.m_cTexRegion.m_uFrameNumU) && cppAncData.m_cTexRegion.m_fFrameFreq != 0)
+            ancInfo.picNum = cppAncData.m_cTexRegion.m_uFrameNumU;
+        if (!isEmpty(cppAncData.m_cTexRegion.m_fFrameFreq) && cppAncData.m_cTexRegion.m_fFrameFreq != 0)
+            ancInfo.playFrame = cppAncData.m_cTexRegion.m_fFrameFreq;
+
+        ancInfo.textBackPadding = cppAncData.m_cTextRegion.m_sTextBackBorder;
+        ancInfo.textBackRadius = cppAncData.m_uCornerRadius;
+        ancInfo.textBackPaddingRect = cppAncData.m_qBackBorder;
+        ancInfo.textBackClrFadeDir = cppAncData.m_uFadeDir;
+        if (!isEmpty(cppAncData.m_uFadeFinalClr) && cppAncData.m_uFadeFinalClr != 0) ancInfo.textBackFadeFinalClr = clrU32ToClr(cppAncData.m_uFadeFinalClr);
+
+        return removeEmptyProperty(ancInfo);
+    }
+
+    /**
+     * 锚点布局设置
+     * @param {Object} ancInfo //锚点数据
+     */
+    function anc_layoutRect(ancInfo) {
+        var _textBackPadding = isEmpty(ancInfo.textBackPadding) ? 0 : ancInfo.textBackPadding;
+        var _texBias = isEmpty(ancInfo.texBias) ? [1, 0] : ancInfo.texBias;
+        var _texfocus = isEmpty(ancInfo.texFocus) ? [0, 0] : ancInfo.texFocus;
+        var _linepos = isEmpty(ancInfo.linePos) ? [0, 0] : ancInfo.linePos;
+        var _textBackPaddingRect = isEmpty(ancInfo.textBackPaddingRect) ? [0, 0, 0, 0] : ancInfo.textBackPaddingRect;
+        var _textInfo = isEmpty(ancInfo.textInfo) ? '' : ancInfo.textInfo;
+        var _textOffset = (() => {
+            const _textOffsetReg = new RegExp('[\\u4E00-\\u9FFF]+', 'g'); //检测字符串中是否包含中文字符
+            return _textOffsetReg.test(_textInfo) ? [0, 0] : [0, 2];
+        })();
+        // 文字相对区域对齐方式
+        var _textFmtFlag = 128 + 64; /*TEXT_FMT_NOCLIP | TEXT_FMT_SINGLELINE*/
+        // 文字区域
+        var _texRect_min = [0, 0];
+        var _texRect_max = [0, 0];
+        {
+            const top = _textBackPaddingRect[3];
+            const bottom = _textBackPaddingRect[1];
+            const left = _textBackPaddingRect[0];
+            const right = _textBackPaddingRect[2];
+            // console.log(`top: ${top}, bottom: ${bottom}, left: ${left}, right: ${right}`);
+            if (_texBias[0] < 0 && _texBias[1] > 0) {
+                // 文字在图片->左上
+                _texRect_min = [
+                    _linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding - right,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] < 0 && _texBias[1] == 0) {
+                // 文字在图片->左中
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _texRect_max = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding - right,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] < 0 && _texBias[1] < 0) {
+                // 文字在图片->左下
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
+                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding - right, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] == 0 && _texBias[1] > 0) {
+                // 文字在图片->中上
+                _texRect_min = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding + bottom,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2 + (top + bottom),
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] == 0 && _texBias[1] == 0) {
+                // 文字在图片->中中
+                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding - bottom];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding + top,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] == 0 && _texBias[1] < 0) {
+                // 文字在图片->中下
+                _texRect_min = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding,
+                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2 - (top + bottom),
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    _linepos[1] - _texfocus[1] - _textBackPadding - top,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] > 0 && _texBias[1] > 0) {
+                // 文字在图片->右上
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] > 0 && _texBias[1] == 0) {
+                // 文字在图片->右中
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    _linepos[1] - _texfocus[1] - _textBackPadding,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+            } else if (_texBias[0] > 0 && _texBias[1] < 0) {
+                // 文字在图片->右下
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    _linepos[1] - _texfocus[1] - _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            }
+        }
+
+        var _textRect_combine = [..._texRect_min, ..._texRect_max];
+        // console.log(`textRect_combine: ${_textRect_combine}`);
+        if (!_textInfo.length) {
+            _textRect_combine = [0, 0, 0, 0];
+        }
+
+        return {
+            m_uTextFmtFlag: _textFmtFlag,
+            m_qTextRect: [
+                _textRect_combine[0] + _textOffset[0],
+                _textRect_combine[1] + _textOffset[1],
+                _textRect_combine[2] + _textOffset[0],
+                _textRect_combine[3] + _textOffset[1],
+            ],
+        };
+    }
+
     // MOD-- 几何图形（Geometry）
     Module.Geometry = typeof Module.Geometry !== 'undefined' ? Module.Geometry : {}; //增加 Geometry 模块
 
@@ -4954,6 +5022,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.scrASDist = null; //表示屏幕空间矢量的自动缩放起始距离
             this.scrVisDist = null; //表示屏幕空间矢量的可视距离
             this.contactSce = null; //表示矢量是否与场景发生深度遮挡
+            this.texPath = null; //表示纹理路径
         }
     }
     ExtModule.REFenceShpInfo = REFenceShpInfo;
@@ -4977,6 +5046,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!isEmpty(fenceShpInfo.contactSce)) _bContactSce = fenceShpInfo.contactSce;
         var _uClr = 0xffffffff;
         if (!isEmpty(fenceShpInfo.fenceClr)) _uClr = clrToU32(fenceShpInfo.fenceClr);
+        var _texPath = isEmpty(fenceShpInfo.texPath) ? '' : fenceShpInfo.texPath;
 
         return Module.RealBIMWeb.AddCustomPolyFenceShp(
             fenceShpInfo.shpName,
@@ -4986,7 +5056,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _uClr,
             fenceShpInfo.scrASDist,
             fenceShpInfo.scrVisDist,
-            _bContactSce
+            _bContactSce,
+            _texPath
         );
     };
 
@@ -11025,6 +11096,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.texPath = null; //纹理路径
             this.width = null; //平面宽度
             this.policy = 0; //拐点执行方案 0：贝塞尔曲线  1：线性折线
+            this.projSce = false; //是否投影地形\倾斜摄影
         }
     }
     ExtModule.REAnimAreaBufferInfo = REAnimAreaBufferInfo;
@@ -11043,7 +11115,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _texPath = isEmpty(animAreaBufferInfo.texPath) ? '' : animAreaBufferInfo.texPath;
         var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
         var _policy = isEmpty(animAreaBufferInfo.policy) ? 0 : animAreaBufferInfo.policy;
-        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _policy);
+        var _projSce = isEmpty(animAreaBufferInfo.projSce) ? 0 : animAreaBufferInfo.projSce;
+        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _policy, _projSce);
     };
 
     class REAnimCylinderInfo {

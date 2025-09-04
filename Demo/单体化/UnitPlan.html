@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-04-27 11:35:38
+ * @LastEditTime: 2025-09-02 10:35:54
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -66,6 +66,12 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
+            document.addEventListener('REAddMonomerRgnFinish', REAddMonomerRgnFinish); 
+
+            function REAddMonomerRgnFinish(e) {
+                console.log('-- 单体化添加区域完成回调事件 --', e);
+            }
+
             document.addEventListener('REEditShpFinish', REEditShpFinish); 
 
             function REEditShpFinish(e) {
