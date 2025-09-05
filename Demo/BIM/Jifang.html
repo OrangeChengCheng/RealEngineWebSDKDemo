@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-09-03 14:42:12
+ * @LastEditTime: 2025-09-05 10:53:08
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -52,16 +52,16 @@
                         dataSetId: 'res_jifang',
                         resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
                     },
-                    // {
-                    //     dataSetId: '机房2',
-                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
-                    //     useTransInfo: true,
-                    //     transInfo: [
-                    //         [1, 1, 1],
-                    //         [0, 0, 0, 1],
-                    //         [0.0, 0.0, 10.0],
-                    //     ],
-                    // },
+                    {
+                        dataSetId: 'res_jifang2',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 10.0],
+                        ],
+                    },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
                 BlackHole3D.Common.setMaxResMemMB(5500);

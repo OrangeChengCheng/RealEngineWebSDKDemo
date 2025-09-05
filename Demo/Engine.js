@@ -149,9 +149,10 @@ function REDataSetLoadProgress(e) {
 }
 // 场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
 function REDataSetLoadFinish(e) {
+    console.log("REDataSetLoadFinish: ", e.detail);
     if (e.detail.succeed) {
         if (typeof REDataSetLoadFinishCallBack !== 'undefined') {
-            REDataSetLoadFinishCallBack();
+            REDataSetLoadFinishCallBack(e);
         }
         //模型加载完成,这里最适合执行模型加载完后需要执行的事件
         document.getElementById('canvas').style.display = 'block';

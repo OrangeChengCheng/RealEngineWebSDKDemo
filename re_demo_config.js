@@ -1,7 +1,7 @@
 /*
  * @Author: Lemon C
  * @Date: 2024-06-28 11:19:39
- * @LastEditTime: 2025-04-28 11:16:28
+ * @LastEditTime: 2025-09-05 10:52:26
  */
 BlackHole3D = typeof BlackHole3D !== 'undefined' ? BlackHole3D : {};
 BlackHole3D['canvas'] = (function () {
@@ -70,6 +70,7 @@ function REDataSetLoadProgress(e) {
 }
 //模型加载完成状态
 function REDataSetLoadFinish(e) {
+    console.log(e);
     if (e.detail.succeed) {
         if (typeof REDataSetLoadFinishCallBack !== 'undefined') {
             REDataSetLoadFinishCallBack();
