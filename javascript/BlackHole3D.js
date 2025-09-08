@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3326
+﻿//版本：v3.2.0.3333
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -89,6 +89,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             document.addEventListener('REAddShpRgnFinish_Web', REAddShpRgnFinish_Web); //矢量添加区域完成回调事件
             document.addEventListener('REShpClipFinish_Web', REShpClipFinish_Web); //矢量切割完成回调事件
             document.addEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web); //矢量添加区域检查回调事件
+            document.addEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web); //矢量添加切割面回调事件
         }
         return bool;
     };
@@ -114,6 +115,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             document.removeEventListener('REAddShpRgnFinish_Web', REAddShpRgnFinish_Web);
             document.removeEventListener('REShpClipFinish_Web', REShpClipFinish_Web);
             document.removeEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web);
+            document.removeEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web);
         }
     }
 
@@ -257,6 +259,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 detail: e.detail,
             });
             document.dispatchEvent(re_event_REAddShpRgnCheck);
+        }
+
+        function REShpAddClipFace_Web(e) {
+            const re_event_REShpAddClipFace = new CustomEvent('REShpAddClipFace', {
+                detail: e.detail,
+            });
+            document.dispatchEvent(re_event_REShpAddClipFace);
         }
     }
 
@@ -4624,7 +4633,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ancInfo.textBackRadius = cppAncData.m_uCornerRadius;
         ancInfo.textBackPaddingRect = cppAncData.m_qBackBorder;
         ancInfo.textBackClrFadeDir = cppAncData.m_uFadeDir;
-        if (!isEmpty(cppAncData.m_uFadeFinalClr) && cppAncData.m_uFadeFinalClr != 0) ancInfo.textBackFadeFinalClr = clrU32ToClr(cppAncData.m_uFadeFinalClr);
+        if (!isEmpty(cppAncData.m_uFadeFinalClr) && cppAncData.m_uFadeFinalClr != 0)
+            ancInfo.textBackFadeFinalClr = clrU32ToClr(cppAncData.m_uFadeFinalClr);
 
         return removeEmptyProperty(ancInfo);
     }
@@ -11118,7 +11128,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _width = isEmpty(animAreaBufferInfo.width) ? 0 : animAreaBufferInfo.width;
         var _policy = isEmpty(animAreaBufferInfo.policy) ? 0 : animAreaBufferInfo.policy;
         var _projSce = isEmpty(animAreaBufferInfo.projSce) ? 0 : animAreaBufferInfo.projSce;
-        return Module.RealBIMWeb.AddAnimationAreaBuffer(animAreaBufferInfo.groupName, animAreaBufferInfo.name, temparr, _texPath, _width, _policy, _projSce);
+        return Module.RealBIMWeb.AddAnimationAreaBuffer(
+            animAreaBufferInfo.groupName,
+            animAreaBufferInfo.name,
+            temparr,
+            _texPath,
+            _width,
+            _policy,
+            _projSce
+        );
     };
 
     class REAnimCylinderInfo {
@@ -13775,6 +13793,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 this.heightMin = null; //包围体最小高度
                 this.heightMax = null; //包围体最大高度
                 this.monomerClr = null; //单体化颜色（REColor类型）
+                this.expandDist = null; //表示单体化区域的边界扩充距离
             }
         }
         ExtModule.REMonomerInfo = REMonomerInfo;
@@ -13803,6 +13822,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 });
 
                 let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x7fffffff : clrToU32(_monomer_obj.monomerClr);
+                let _expandDist = isEmpty(_monomer_obj.expandDist) ? 0 : _monomer_obj.expandDist;
 
                 let cMonomer = {
                     m_strName: _monomer_obj.monomerId,
@@ -13811,6 +13831,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_dHeightMin: _monomer_obj.heightMin,
                     m_dHeightMax: _monomer_obj.heightMax,
                     m_uColor: _monomerClr,
+                    m_fExpandDist: _expandDist,
                 };
                 _vector_monomerRgn.push_back(cMonomer);
             }
@@ -13850,6 +13871,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 monomerInfo.heightMin = _cMonomerRgn.m_dHeightMin;
                 monomerInfo.heightMax = _cMonomerRgn.m_dHeightMax;
                 monomerInfo.monomerClr = clrU32ToClr(_cMonomerRgn.m_uColor);
+                monomerInfo.expandDist = _cMonomerRgn.m_fExpandDist;
                 monomerInfoList.push(monomerInfo);
             }
 
@@ -15582,6 +15604,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Math.getVectorMultiply = function (vector1, vector2) {
         return [vector1[0] * vector2[0], vector1[1] * vector2[1], vector1[2] * vector2[2]];
+    };
+
+    /**
+     * 获取有序点序列长度
+     * @param {Array} pointList //点序列
+     * @param {Number} curveType //曲线类型 0: 折线, 1: Bezier曲线, 2: Hermite曲线
+     */
+    Module.Math.getLineDist = function (pointList, curveType) {
+        if (isEmptyLog(pointList, 'pointList')) return 0;
+        let _arrPoint = new Module.RE_Vector_dvec3();
+        for (let i = 0; i < pointList.length; i++) {
+            _arrPoint.push_back(pointList[i]);
+        }
+        let _curveType = isEmpty(curveType) ? 0 : curveType;
+        if (pointList.length = 2) {_curveType = 0;}
+        const cStruct = Module.RealBIMWeb.GenCurveInfo(_arrPoint, _curveType);
+        return cStruct.m_dValue1;
+    };
+
+    /**
+     * 获取自定义面扩展后的点序列
+     * @param {Array} pointList //点序列
+     * @param {Number} expandDist //扩展距离
+     */
+    Module.Math.getCustomFaceExpand = function (pointList, expandDist) {
+        if (isEmptyLog(pointList, 'pointList')) return 0;
+        let _arrPoint = new Module.RE_Vector_dvec3();
+        for (let i = 0; i < pointList.length; i++) {
+            _arrPoint.push_back(pointList[i]);
+        }
+        let _expandDist = isEmpty(expandDist) ? 0 : expandDist;
+        const cStruct = Module.RealBIMWeb.ExpandTriangles(_arrPoint, _expandDist);
+        if (!cStruct.m_bValue1) return [];
+        let pointList_ret = [];
+        for (let i = 0; i < cStruct.m_arrDvec3Value1.size(); i++) {
+            pointList_ret.push(cStruct.m_arrDvec3Value1.get(i));
+        }
+        return pointList_ret;
     };
 
     // MOD-- 废弃替换接口

@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-09-02 10:35:54
+ * @LastEditTime: 2025-09-08 17:43:01
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -88,6 +88,12 @@
 
             function REShpClipFinish(e) {
                 console.log('-- 矢量切割完成回调事件 --', e);
+            }
+
+            document.addEventListener('REShpAddClipFace', REShpAddClipFace); 
+
+            function REShpAddClipFace(e) {
+                console.log('-- 矢量添加切割面回调事件 --', e);
             }
 
             function RESystemEngineCreatedCallBack() {
