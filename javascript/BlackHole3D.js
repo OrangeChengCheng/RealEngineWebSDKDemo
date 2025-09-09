@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3333
+﻿//版本：v3.2.0.3334
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -12867,8 +12867,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _speed = isEmpty(trackAnimInfo.speed) ? 1.0 : trackAnimInfo.speed;
         //let _selfVect = isEmpty(trackAnimInfo.selfVect) ? [1.0, 0.0, 0.0] : trackAnimInfo.selfVect;
 
-        let _vector_track = new Module.RE_Vector_vec3();
-        let _vector_selfVect = new Module.RE_Vector_vec3();
+        let _vector_track = new Module.RE_Vector_dvec3();
+        let _vector_selfVect = new Module.RE_Vector_dvec3();
         for (let i = 0; i < trackAnimInfo.trackPointList.length; i++) {
             const pointInfo = trackAnimInfo.trackPointList[i];
             let _pos = isEmpty(pointInfo.pos) ? [0.0, 0.0, 0.0] : pointInfo.pos;
