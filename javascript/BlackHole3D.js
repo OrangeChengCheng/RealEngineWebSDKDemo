@@ -15607,20 +15607,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取有序点序列长度
+     * 获取有序点序列构成线的信息 注：只有曲线才会返回曲线点序列
      * @param {Array} pointList //点序列
      * @param {Number} curveType //曲线类型 0: 折线, 1: Bezier曲线, 2: Hermite曲线
      */
-    Module.Math.getLineDist = function (pointList, curveType) {
+    Module.Math.getLineInfo = function (pointList, curveType) {
         if (isEmptyLog(pointList, 'pointList')) return 0;
         let _arrPoint = new Module.RE_Vector_dvec3();
         for (let i = 0; i < pointList.length; i++) {
             _arrPoint.push_back(pointList[i]);
         }
         let _curveType = isEmpty(curveType) ? 0 : curveType;
-        if (pointList.length = 2) {_curveType = 0;}
+        if ((pointList.length == 2)) {
+            _curveType = 0;
+        }
         const cStruct = Module.RealBIMWeb.GenCurveInfo(_arrPoint, _curveType);
-        return cStruct.m_dValue1;
+        let curvePointList = [];
+        if (_curveType != 0) {
+            for (let i = 0; i < cStruct.m_arrDvec3Value1.size(); i++) {
+                curvePointList.push(cStruct.m_arrDvec3Value1.get(i));
+            }
+        }
+        return { dist: cStruct.m_dValue1, curveList: curvePointList };
     };
 
     /**
