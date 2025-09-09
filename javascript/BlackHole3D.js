@@ -4255,6 +4255,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_fSize: _size,
                 m_fSelfASDist: _selfASDist,
                 m_fSelfVisDist: _selfVisDist,
+                m_uCornerRadius: 0,
+                m_qBackBorder: [0, 0, 0, 0],
+                m_uFadeDir: 0,
+                m_uFadeFinalClr: 0,
                 m_cTexRegion: {
                     m_strTexPath: ancInfo.picPath,
                     m_qTexRect: [
@@ -4748,6 +4752,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
                 ];
                 _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
             } else if (_texBias[0] > 0 && _texBias[1] < 0) {
                 // 文字在图片->右下
                 _texRect_min = [
