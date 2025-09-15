@@ -229,6 +229,6 @@ function RECADSelElement(e) {
     if (typeof RECADSelElementCallBack !== 'undefined') {
         RECADSelElementCallBack(e);
     } else {
-        console.log('CAD探测监听');
+        console.log('CAD探测监听', e);
     }
 }
