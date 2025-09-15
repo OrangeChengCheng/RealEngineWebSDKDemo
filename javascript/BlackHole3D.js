@@ -1,6 +1,6 @@
-﻿//版本：v3.2.0.3334
+﻿//版本：v3.2.0.3351
 const isPhoneMode = false;
-const hasNewExtrude = false;
+const hasNewExtrude = true;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
@@ -13,7 +13,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         ExtModule = instance;
     }); //创建引擎模块
 
-    // MOD-- 引擎模块
+    // MOD-- 引擎模块 <---
 
     class RESysInfo {
         // 引擎参数模型
@@ -75,6 +75,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REMeasureFinish_Web', REMeasureFinish_Web); //测量完成回调事件
         document.addEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web); //范围选择构件完成回调事件
         document.addEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web); //创建单构件对象并进入第三人称漫游完成回调事件
+        document.addEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web); //创建CAD标注完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -101,6 +102,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REMeasureFinish_Web', REMeasureFinish_Web);
         document.removeEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web);
         document.removeEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web);
+        document.removeEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -162,11 +164,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             document.dispatchEvent(re_event_REElemSelRegFinish);
         }
     }
+
     function RECreateTPPFinish_Web(e) {
         const re_event_RECreateTPPFinish = new CustomEvent('RECreateTPPFinish', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_RECreateTPPFinish);
+    }
+
+    function RECADCommentDrawFinish_Web(e) {
+        const re_event_RECADCommentDrawFinish = new CustomEvent('RECADCommentDrawFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RECADCommentDrawFinish);
     }
 
     if (hasNewExtrude) {
@@ -565,7 +575,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetScreenVirRot();
     };
 
-    // MOD-- 公共模块（Common）
+    // MOD-- 公共模块（Common） <---
     Module.Common = typeof Module.Common !== 'undefined' ? Module.Common : {}; //增加 Common 模块
     class REColor {
         //颜色公共模型
@@ -1084,7 +1094,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return fontInfoList;
     };
 
-    // MOD-- 灯光（Light）
+    // MOD-- 灯光（Light） <---
     Module.Light = typeof Module.Light !== 'undefined' ? Module.Light : {}; //增加 Light 模块
 
     // MARK 聚光灯
@@ -1240,7 +1250,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.DelAllSpotLights(_isAll, dataSetId);
     };
 
-    // MOD-- 模型加载（Model）
+    // MOD-- 模型加载（Model） <---
     Module.Model = typeof Module.Model !== 'undefined' ? Module.Model : {}; //增加 Model 模块
 
     class REDataSet {
@@ -1560,7 +1570,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.IsMainSceAllResLoaded(dataSetId);
     };
 
-    // MOD-- 相机（Camera）
+    // MOD-- 相机（Camera） <---
     Module.Camera = typeof Module.Camera !== 'undefined' ? Module.Camera : {}; //增加 Camera 模块
 
     // MARK 属性信息
@@ -2314,7 +2324,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ClearBindCamToBone(true);
     };
 
-    // MOD-- 天空盒（SkyBox）
+    // MOD-- 天空盒（SkyBox） <---
     Module.SkyBox = typeof Module.SkyBox !== 'undefined' ? Module.SkyBox : {}; //增加 SkyBox 模块
 
     class RESkyInfo {
@@ -2566,7 +2576,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetBackImgFillMode();
     };
 
-    // MOD-- 坐标（Coordinate）
+    // MOD-- 坐标（Coordinate） <---
     Module.Coordinate = typeof Module.Coordinate !== 'undefined' ? Module.Coordinate : {}; //增加 Coordinate 模块
 
     class RELocInfo {
@@ -2796,7 +2806,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.UnRegisterAllWorldPos();
     };
 
-    // MOD-- 鼠标探测（Probe）
+    // MOD-- 鼠标探测（Probe） <---
     Module.Probe = typeof Module.Probe !== 'undefined' ? Module.Probe : {}; //增加 Probe 模块
 
     class REProbeInfo {
@@ -3029,7 +3039,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.PerformACustomProbe(rayPos, rayDir, _index);
     };
 
-    // MOD-- 图形显示（Graphics）
+    // MOD-- 图形显示（Graphics） <---
     Module.Graphics = typeof Module.Graphics !== 'undefined' ? Module.Graphics : {}; //增加 Graphics 模块
 
     // MARK 渲染设置
@@ -3505,7 +3515,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.UIWgtAddChildWidget('BuiltIn_Wnd_Panel', uiID);
     };
 
-    // MOD-- 标签（Tag）
+    // MOD-- 标签（Tag） <---
     Module.Tag = typeof Module.Tag !== 'undefined' ? Module.Tag : {}; //增加 Tag 模块
 
     class RETagInfo {
@@ -3880,7 +3890,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetTagVisDist();
     };
 
-    // MOD-- 标注（Mark）
+    // MOD-- 标注（Mark） <---
     Module.Mark = typeof Module.Mark !== 'undefined' ? Module.Mark : {}; //增加 Mark 模块
 
     /**
@@ -3924,7 +3934,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ShowMarkInfo(_data.byteLength, _data.byteOffset);
     };
 
-    // MOD-- 锚点（Anchor）
+    // MOD-- 锚点（Anchor） <---
     Module.Anchor = typeof Module.Anchor !== 'undefined' ? Module.Anchor : {}; //增加 Anchor 模块
 
     class REAncInfo {
@@ -4795,7 +4805,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    // MOD-- 几何图形（Geometry）
+    // MOD-- 几何图形（Geometry） <---
     Module.Geometry = typeof Module.Geometry !== 'undefined' ? Module.Geometry : {}; //增加 Geometry 模块
 
     // MARK 加载
@@ -5453,7 +5463,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetCustomShpProjSce(groupName, projSce);
     };
 
-    // MOD-- 填挖方（Earthwork）
+    // MOD-- 填挖方（Earthwork） <---
     Module.Earthwork = typeof Module.Earthwork !== 'undefined' ? Module.Earthwork : {}; //增加 Earthwork 模块
 
     /**
@@ -5500,7 +5510,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.CalcEarthworkValues(temparrpos, elevation, dataSetId, '', 9);
     };
 
-    // MOD-- BIM（BIM）
+    // MOD-- BIM（BIM） <---
     Module.BIM = typeof Module.BIM !== 'undefined' ? Module.BIM : {}; //增加 BIM 模块
 
     class REElemBlendAttr {
@@ -6845,7 +6855,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return lineClr;
     };
 
-    // MOD-- CAD（CAD）
+    // MOD-- CAD（CAD） <---
     Module.CAD = typeof Module.CAD !== 'undefined' ? Module.CAD : {}; //增加 CAD 模块
 
     // MARK 加载
@@ -7717,7 +7727,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.CADSwitchLayout(_layoutId);
     };
 
-    // MOD-- 栅格（Grid）
+    // MOD-- 栅格（Grid） <---
     Module.Grid = typeof Module.Grid !== 'undefined' ? Module.Grid : {}; //增加 Grid 模块
 
     // MARK 渲染设置
@@ -7759,7 +7769,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集标识
      */
     Module.Grid.getDataSetAlpha = function (dataSetId) {
-        var alpha = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
+        var cClrInfo = Module.RealBIMWeb.GetUnVerHugeGroupClrInfo(dataSetId, '');
+        if (cClrInfo.m_uDestAlpha == 0 && cClrInfo.m_uDestAlphaAmp == 0) {
+            return 255;
+        }
         return alpha.m_uDestAlpha;
     };
 
@@ -8235,7 +8248,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    // MOD-- 地形（Terrain）
+    // MOD-- 地形（Terrain） <---
     Module.Terrain = typeof Module.Terrain !== 'undefined' ? Module.Terrain : {}; //增加 Terrain 模块
 
     // MARK 渲染设置
@@ -8539,6 +8552,42 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return 255;
         }
         return cClrInfo.m_uDestAlpha;
+    };
+
+    /**
+     * 设置地形是否允许投射到其他模型对象表面
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {Number} mode //表示地形影像投射到其他模型对象表面的模式 0: 不投射 1: 仅投射影像图片层 2: 仅投射影像矢量层 3: 同时投射影像图片和矢量层
+     */
+    Module.Terrain.setTerrProjectMode = function (dataSetId, mode) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        let _mode = isEmpty(mode) ? 0 : mode;
+        Module.RealBIMWeb.SetTerrProjectMode(dataSetId, _mode);
+    };
+
+    /**
+     * 获取地形是否允许投射到其他模型对象表面
+     * @param {String} dataSetId //数据集的唯一标识名
+     */
+    Module.Terrain.getTerrProjectMode = function (dataSetId) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        return Module.RealBIMWeb.GetTerrProjectMode(dataSetId);
+    };
+
+    /**
+     * 设置是否处理地形投射到其他模型对象表面时的高度信息 注：1、若处理则会有一定性能耗费；2、若存在于其他模型高度融合的高程数据层的话可无需处理
+     * @param {boolean} handle //是否处理
+     */
+    Module.Terrain.setHandleTerrProjectHeight = function (handle) {
+        let _handle = isEmpty(handle) ? false : handle;
+        Module.RealBIMWeb.SetHandleTerrProjectHeight(_handle);
+    };
+
+    /**
+     * 获取是否处理地形投射到其他模型对象表面时的高度信息
+     */
+    Module.Terrain.getHandleTerrProjectHeight = function () {
+        return Module.RealBIMWeb.GetHandleTerrProjectHeight();
     };
 
     // MARK 加载属性
@@ -8923,7 +8972,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.UnRegisterAllTerrainPathFuncs();
     };
 
-    // MOD-- 360全景（Panorama）
+    // MOD-- 360全景（Panorama） <---
     Module.Panorama = typeof Module.Panorama !== 'undefined' ? Module.Panorama : {}; //增加 Panorama 模块
 
     // MARK 加载
@@ -9171,7 +9220,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelPanAnc(_panCamId, ancName);
     };
 
-    // MOD-- 模型编辑（Edit）
+    // MOD-- 模型编辑（Edit） <---
     Module.Edit = typeof Module.Edit !== 'undefined' ? Module.Edit : {}; //增加 Edit 模块
 
     /**
@@ -9220,7 +9269,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
     };
 
-    // MOD-- 测量（Measure）
+    // MOD-- 测量（Measure） <---
     Module.Measure = typeof Module.Measure !== 'undefined' ? Module.Measure : {}; //增加 Measure 模块
 
     // MARK 加载
@@ -9701,7 +9750,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return _type;
     }
 
-    // MOD-- 电子围栏（Fence）
+    // MOD-- 电子围栏（Fence） <---
     Module.Fence = typeof Module.Fence !== 'undefined' ? Module.Fence : {}; //增加 Fence 模块
 
     /**
@@ -9851,7 +9900,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.IsInAnyFences(point);
     };
 
-    // MOD-- 水面（Water）
+    // MOD-- 水面（Water） <---
     Module.Water = typeof Module.Water !== 'undefined' ? Module.Water : {}; //增加 Water 模块
     if (!hasNewExtrude) {
         Module.Water = typeof Module.Water !== 'undefined' ? Module.Water : {}; //增加 Water 模块
@@ -10572,7 +10621,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    // MOD-- 有限元（FEM）
+    // MOD-- 有限元（FEM） <---
     Module.FEM = typeof Module.FEM !== 'undefined' ? Module.FEM : {}; //增加 FEM 模块
 
     /**
@@ -10632,7 +10681,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetLookUpTableHSV(feId, hueRange, saturationRange, valueRange);
     };
 
-    // MOD-- 轴网（AxisGrid）
+    // MOD-- 轴网（AxisGrid） <---
     Module.AxisGrid = typeof Module.AxisGrid !== 'undefined' ? Module.AxisGrid : {}; //增加 AxisGrid 模块
 
     class REAxisGridInfo {
@@ -10769,7 +10818,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetGridContactSce();
     };
 
-    // MOD-- 标高（Elevation）
+    // MOD-- 标高（Elevation） <---
     Module.Elevation = typeof Module.Elevation !== 'undefined' ? Module.Elevation : {}; //增加 Elevation 模块
 
     class REElevationInfo {
@@ -10918,7 +10967,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetLevelContactSce();
     };
 
-    // MOD-- 动画（Animation）
+    // MOD-- 动画（Animation） <---
     Module.Animation = typeof Module.Animation !== 'undefined' ? Module.Animation : {}; //增加 Animation 模块
 
     // MARK 矢量动画
@@ -11233,7 +11282,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.DelShpAnimation(groupName, temparr0);
     };
 
-    // MOD-- 剖切（Clip）
+    // MOD-- 剖切（Clip） <---
     Module.Clip = typeof Module.Clip !== 'undefined' ? Module.Clip : {}; //增加 Clip 模块
 
     // MARK 通用
@@ -11608,7 +11657,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     // MARK 组合剖切
 
-    // MOD-- 小地图（MiniMap）
+    // MOD-- 小地图（MiniMap） <---
     Module.MiniMap = typeof Module.MiniMap !== 'undefined' ? Module.MiniMap : {}; //增加 MiniMap 模块
 
     // MARK 加载
@@ -12028,7 +12077,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.DelGroupCADOverViewShpAnchors(groupId);
     };
 
-    // MOD-- 管道（Pipe）
+    // MOD-- 管道（Pipe） <---
     Module.Pipe = typeof Module.Pipe !== 'undefined' ? Module.Pipe : {}; //增加 Pipe 模块
 
     // MARK 加载
@@ -12364,7 +12413,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return projidarr.length ? projidarr[0] : {};
     };
 
-    // MOD-- 单构件（Entity）
+    // MOD-- 单构件（Entity） <---
     Module.Entity = typeof Module.Entity !== 'undefined' ? Module.Entity : {}; //增加 Entity 模块
 
     // MARK 加载
@@ -13296,7 +13345,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     if (!hasNewExtrude) {
-        // MOD-- 挖洞（Excavate）
+        // MOD-- 挖洞（Excavate） <---
         Module.Excavate = typeof Module.Excavate !== 'undefined' ? Module.Excavate : {}; //增加 Excavate 模块
 
         // MARK 加载
@@ -13427,7 +13476,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.LocateToExtrudeObj(excavateId);
         };
     } else {
-        // MOD-- 挤出（Extrude）
+        // MOD-- 挤出（Extrude） <---
         Module.Extrude = typeof Module.Extrude !== 'undefined' ? Module.Extrude : {}; //增加 Extrude 模块
 
         // MARK 加载
@@ -13796,7 +13845,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.LocateToExtrudeRgn(_vector_extrude_id);
         };
 
-        // MOD-- 单体化（Monomer）
+        // MOD-- 单体化（Monomer） <---
         Module.Monomer = typeof Module.Monomer !== 'undefined' ? Module.Monomer : {}; //增加 Monomer 模块
 
         // MARK 加载
@@ -14306,7 +14355,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return Module.RealBIMWeb.LocateToMonomerRgn(_vector_monomer_id);
         };
 
-        // MOD-- 矢量编辑（ShpEdit）
+        // MOD-- 矢量编辑（ShpEdit） <---
         Module.ShpEdit = typeof Module.ShpEdit !== 'undefined' ? Module.ShpEdit : {}; //增加 ShpEdit 模块
 
         // MARK 加载
@@ -14575,7 +14624,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    // MOD-- 粒子效果（Particle）
+    // MOD-- 粒子效果（Particle） <---
     Module.Particle = typeof Module.Particle !== 'undefined' ? Module.Particle : {}; //增加 Particle 模块
 
     // MARK 天气系统
@@ -15227,7 +15276,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.DelAllParticleTexArrays();
     };
 
-    // MOD-- 三维分析（Analysis3D）
+    // MOD-- 三维分析（Analysis3D） <---
     Module.Analysis3D = typeof Module.Analysis3D !== 'undefined' ? Module.Analysis3D : {}; //增加 Analysis3D 模块
 
     // MARK 天际线
@@ -15579,7 +15628,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     // }
     // var name = getName().replace('CreateBlackHoleWebSDK.Module.','')
 
-    // MOD-- 数学计算（Math）
+    // MOD-- 数学计算（Math） <---
     Module.Math = typeof Module.Math !== 'undefined' ? Module.Math : {}; //增加 Math 模块
 
     /**
@@ -15667,7 +15716,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return pointList_ret;
     };
 
-    // MOD-- 废弃替换接口
+    // MOD-- 废弃替换接口 <---
     if (discardHint) {
         /**
          * 设置构件混合属性
@@ -15748,7 +15797,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
     }
 
-    // MOD-- 自定义方法 (工具)
+    // MOD-- 自定义方法 (工具) <---
     /**
      * 是不是空对象
      */
@@ -16476,7 +16525,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return patterns.some((pattern) => pattern.test(userAgent));
     }
 
-    // MOD-- 枚举类型
+    // MOD-- 枚举类型 <---
 
     // MARK RE_Enum
     //枚举参数
