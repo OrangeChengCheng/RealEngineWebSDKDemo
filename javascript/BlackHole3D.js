@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3358
+﻿//版本：v3.2.0.3359
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -76,6 +76,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web); //范围选择构件完成回调事件
         document.addEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web); //创建单构件对象并进入第三人称漫游完成回调事件
         document.addEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web); //创建CAD标注完成回调事件
+        document.addEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web); //获取闭合几何数据范围内高度最大最小值完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -103,6 +104,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REElemSelRegFinish_Web', REElemSelRegFinish_Web);
         document.removeEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web);
         document.removeEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web);
+        document.removeEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -177,6 +179,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_RECADCommentDrawFinish);
+    }
+
+    function RECalcHeightRangeFinish_Web(e) {
+        const re_event_RECalcHeightRangeFinish = new CustomEvent('RECalcHeightRangeFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RECalcHeightRangeFinish);
     }
 
     if (hasNewExtrude) {
@@ -15732,6 +15741,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             pointList_ret.push(cStruct.m_arrDvec3Value1.get(i));
         }
         return pointList_ret;
+    };
+
+    /**
+     * 根据封闭几何数据，获取当前范围中高程的最大和最小值 注：计算需要耗时，数据结果通过回调事件 RECalcHeightRangeFinish 获取
+     * @param {Array} pointList //点序列
+     */
+    Module.Math.calcHeightRangeOfSection = function (pointList) {
+        if (isEmptyLog(pointList, 'pointList')) return 0;
+        let _arrPoint = new Module.RE_Vector_dvec3();
+        for (let i = 0; i < pointList.length; i++) {
+            _arrPoint.push_back(pointList[i]);
+        }
+        Module.RealBIMWeb.CalcHeightRangeOfSection(_arrPoint);
     };
 
     // MOD-- 废弃替换接口 <---
