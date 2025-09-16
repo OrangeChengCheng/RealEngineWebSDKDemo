@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3351
+﻿//版本：v3.2.0.3358
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -10298,6 +10298,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_fVisDist: isEmpty(obj.visDist) ? 200000.0 : obj.visDist,
                     m_arrCorners: _vector_vector_m_arrCorners,
                     m_arrIndices: _vector_vector_m_arrIndices,
+                    m_bShowShp: false,
                 };
                 _vector_waterRgn.push_back(waterT);
             }
@@ -13528,6 +13529,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uProjType: _m_uProjType,
                     m_arrCorners: _vector_vector_m_arrCorners,
                     m_arrProjName: _vector_m_arrProjName,
+                    m_bShowShp: false,
                 };
                 _vector_extrudeRgn.push_back(cExtrude);
             }
@@ -13842,6 +13844,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 this.heightMax = null; //包围体最大高度
                 this.monomerClr = null; //单体化颜色（REColor类型）
                 this.expandDist = null; //表示单体化区域的边界扩充距离
+                this.showGeomShp = null; //是否显示几何矢量数据, 默认不显示, 仅在编辑状态生效
             }
         }
         ExtModule.REMonomerInfo = REMonomerInfo;
@@ -13871,6 +13874,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
                 let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x7fffffff : clrToU32(_monomer_obj.monomerClr);
                 let _expandDist = isEmpty(_monomer_obj.expandDist) ? 0 : _monomer_obj.expandDist;
+                let _showGeomShp = isEmpty(_monomer_obj.showGeomShp) ? false : _monomer_obj.showGeomShp;
 
                 let cMonomer = {
                     m_strName: _monomer_obj.monomerId,
@@ -13880,6 +13884,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_dHeightMax: _monomer_obj.heightMax,
                     m_uColor: _monomerClr,
                     m_fExpandDist: _expandDist,
+                    m_bShowShp: _showGeomShp,
                 };
                 _vector_monomerRgn.push_back(cMonomer);
             }
@@ -14046,6 +14051,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         };
 
         // MARK 渲染效果
+        /**
+         * 设置指定水面显示状态 注：要在进入单体化编辑状态之后有效, 只能改变当前已有的单体化对象
+         * @param {Array} monomerIdList //单体化标识集合，空数组代表所有
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Monomer.setShowState = function (monomerIdList, showState) {
+            if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
+            var _vector_monomer_id = new Module.RE_Vector_WStr();
+            monomerIdList.forEach((element) => {
+                _vector_monomer_id.push_back(element);
+            });
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            return Module.RealBIMWeb.SetMonomerShowState(_vector_monomer_id, _showState);
+        };
+
+        /**
+         * 获取指定单体化状态的所有标识集合 注：要在进入单体化编辑状态之后有效
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         */
+        Module.Monomer.getIdsByShowState = function (showState) {
+            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            const _vector_monomer_id = Module.RealBIMWeb.GetMonomerIDByShowState(_showState);
+            let _monomerIdList = [];
+            for (let i = 0; i < _vector_monomer_id.size(); i++) {
+                _monomerIdList.push(_vector_monomer_id.get(i));
+            }
+            return _monomerIdList;
+        };
+
         /**
          * 设置单体化数据的默认颜色，在 startAddMonomerState 之前进行设置，设置后全局有效
          * @param {REColor} monomerClr //单体化颜色（REColor类型）

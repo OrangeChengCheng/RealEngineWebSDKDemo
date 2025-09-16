@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2024-11-25 15:33:42
- * @LastEditTime: 2025-04-24 09:47:54
+ * @LastEditTime: 2025-09-16 15:07:07
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -82,10 +82,15 @@
                         dataSetId: '单体化_Grid',
                         resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_qxsy',
                         useTransInfo: true,
+                        // transInfo: [
+                        //     [1, 1, 1],
+                        //     [0, 0, 0, 1],
+                        //     [0.0, 0.0, 0.0],
+                        // ],
                         transInfo: [
                             [1, 1, 1],
                             [0, 0, 0, 1],
-                            [0.0, 0.0, 0.0],
+                            [9200, 27000, 0.0],
                         ],
                         dataSetCRS: '',
                         dataSetCRSNorth: 0.0,
@@ -301,6 +306,7 @@
                             blue: 255,
                             alpha: 112,
                         },
+                        showGeomShp: true,
                     },
                 ];
                 BlackHole3D.Monomer.setData(monomerList_G_1);
