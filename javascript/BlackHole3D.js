@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3362
+﻿//版本：v3.2.0.3376
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -3181,6 +3181,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Graphics.getViewCubeArea = function () {
         return Module.RealBIMWeb.GetViewCubeCenter();
+    };
+
+    /**
+     * 设置语言环境 注：需要在引擎加载完成后调用，即 RESystemEngineCreated 回调
+     * @param {Number} type //语言类型 0: 中文 1: 英文
+     */
+    Module.Graphics.setLocalLanguage = function (type) {
+        let _type = isEmpty(type) ? 0 : type;
+        Module.RealBIMWeb.SetLocalLanguage(_type);
+    };
+
+    /**
+     * 获取语言环境
+     */
+    Module.Graphics.getLocalLanguage = function () {
+        return Module.RealBIMWeb.GetLocalLanguage();
     };
 
     // MARK 窗口（Wnd）
