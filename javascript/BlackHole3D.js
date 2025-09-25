@@ -175,8 +175,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     function RECADCommentDrawFinish_Web(e) {
+        let commentData = e.detail;
+        if (e.detail.canvasid.length) {
+            const _style = e.detail.style;
+            switch (_style) {
+                case 4:
+                    commentData.style = 2;
+                    break;
+                case 5:
+                    commentData.style = 3;
+                    break;
+                case 7:
+                    commentData.style = 4;
+                    break;
+                default:
+                    break;
+            }
+        }
         const re_event_RECADCommentDrawFinish = new CustomEvent('RECADCommentDrawFinish', {
-            detail: e.detail,
+            detail: commentData,
         });
         document.dispatchEvent(re_event_RECADCommentDrawFinish);
     }
