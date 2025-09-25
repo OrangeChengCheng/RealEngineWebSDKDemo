@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3377
+﻿//版本：v3.2.0.3379
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -11583,6 +11583,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             clr_list.push(clrU32ToClr(_vector_Clr.get(1)));
         }
         return clr_list;
+    };
+
+    /**
+     * 设置剖切盒鼠标悬停时的面颜色信息
+     * @param {REColor} faceClr //面颜色
+     * @param {Number} clrWeight //面颜色权重
+     * @param {Number} alphaWeight //面透明度权重
+     */
+    Module.Clip.setClipBoxHoverClrInfo = function (faceClr, clrWeight, alphaWeight) {
+        if (isEmptyLog(faceClr, 'faceClr')) return;
+        const _clrWeight = isEmpty(clrWeight) ? 255 : clrWeight;
+        const _alphaWeight = isEmpty(alphaWeight) ? 255 : alphaWeight;
+        const _uHoverFaceClr = clrToU32_W_WBGR(faceClr, _clrWeight);
+        const _uHoverFaceAlpha = alphaToU32_W_WA(faceClr.alpha, _alphaWeight);
+        Module.RealBIMWeb.SetClipBoxHoverClrInfo(_uHoverFaceClr, _uHoverFaceAlpha);
+    };
+
+    /**
+     * 获取剖切盒鼠标悬停时的面颜色信息
+     */
+    Module.Clip.getClipBoxHoverClrInfo = function () {
+        const cInfo = Module.RealBIMWeb.GetClipBoxHoverClrInfo();
+
+        const obj_w_rbg = clrU32ToObj_W_RBG(cInfo.m_u32Value1);
+        const obj_w_a = clrU32ToObj_W_A(cInfo.m_u16Value1);
+
+        return {
+            faceClr: new REColor(obj_w_rbg.int_R, obj_w_rbg.int_G, obj_w_rbg.int_B, obj_w_a.int_A),
+            clrWeight: obj_w_rbg.int_W,
+            alphaWeight: obj_w_a.int_W,
+        };
     };
 
     // MARK 单面剖切
