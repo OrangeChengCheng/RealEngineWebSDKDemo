@@ -7815,7 +7815,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (cClrInfo.m_uDestAlpha == 0 && cClrInfo.m_uDestAlphaAmp == 0) {
             return 255;
         }
-        return alpha.m_uDestAlpha;
+        return cClrInfo.m_uDestAlpha;
     };
 
     /**
