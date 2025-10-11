@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3384
+﻿//版本：v3.2.0.3388
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1031,6 +1031,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Common.getSceLightAttenu = function () {
         return Module.RealBIMWeb.GetSceLightAttenu();
     };
+
+    // /**
+    //  * 设置矢量被不透明物体遮蔽的区域是否使用点阵图
+    //  * @param {Boolean} enable //是否使用点阵图
+    //  */
+    // Module.Common.setShpCoverDottedEnable = function (enable) {
+    //     Module.RealBIMWeb.SetShpCoverDottedEnable(enable);
+    // };
+
+    // /**
+    //  * 获取矢量被不透明物体遮蔽的区域是否使用点阵图
+    //  */
+    // Module.Common.getShpCoverDottedEnable = function () {
+    //     return Module.RealBIMWeb.GetShpCoverDottedEnable();
+    // };
 
     // MARK 字体
 
@@ -7946,6 +7961,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
 
         Module.RealBIMWeb.SetUnVerHugeGroupValidStates(dataSetId, '', enable ? 1 : 0);
+    };
+
+    /**
+     * 获取栅格的有效性
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     */
+    Module.Grid.getValidState = function (dataSetId) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (!isEmpty(dataSetId) && dataSetId.length > 0) {
+            if (Module.Terrain.getDataSetTerrId(dataSetId).length > 0) {
+                logWarn('新版本转换工具处理数据无法使用该接口，请使用（Terrain.getUnitActive）接口处理！');
+                return;
+            }
+        }
+
+        const uRes = Module.RealBIMWeb.GetUnVerHugeGroupValidStates(dataSetId, '');
+        return uRes > 0 ? true : false;
     };
 
     /**
