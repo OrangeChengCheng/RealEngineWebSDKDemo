@@ -1032,20 +1032,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetSceLightAttenu();
     };
 
-    // /**
-    //  * 设置矢量被不透明物体遮蔽的区域是否使用点阵图
-    //  * @param {Boolean} enable //是否使用点阵图
-    //  */
-    // Module.Common.setShpCoverDottedEnable = function (enable) {
-    //     Module.RealBIMWeb.SetShpCoverDottedEnable(enable);
-    // };
+    /**
+     * 设置矢量被不透明物体遮蔽的区域是否使用点阵图 注：锚点、标签的矢量元素不受该接口影响
+     * @param {Boolean} enable //是否使用点阵图
+     */
+    Module.Common.setShpCoverDottedEnable = function (enable) {
+        Module.RealBIMWeb.SetShpCoverDottedEnable(enable);
+    };
 
-    // /**
-    //  * 获取矢量被不透明物体遮蔽的区域是否使用点阵图
-    //  */
-    // Module.Common.getShpCoverDottedEnable = function () {
-    //     return Module.RealBIMWeb.GetShpCoverDottedEnable();
-    // };
+    /**
+     * 获取矢量被不透明物体遮蔽的区域是否使用点阵图
+     */
+    Module.Common.getShpCoverDottedEnable = function () {
+        return Module.RealBIMWeb.GetShpCoverDottedEnable();
+    };
 
     // MARK 字体
 
