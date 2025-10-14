@@ -8648,6 +8648,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetTerrProjectMode(dataSetId);
     };
 
+    /**
+     * 设置是否处理地形投射到其他模型对象表面时的高度信息 注：1、若处理则会有一定性能耗费；2、若存在于其他模型高度融合的高程数据层的话可无需处理
+     * @param {boolean} handle //是否处理
+     */
+    Module.Terrain.setHandleTerrProjectHeight = function (handle) {
+        let _handle = isEmpty(handle) ? false : handle;
+        Module.RealBIMWeb.SetHandleTerrProjectHeight(_handle);
+    };
+
+    /**
+     * 获取是否处理地形投射到其他模型对象表面时的高度信息
+     */
+    Module.Terrain.getHandleTerrProjectHeight = function () {
+        return Module.RealBIMWeb.GetHandleTerrProjectHeight();
+    };
+
     // MARK 加载属性
     /**
      * 获取数据集所有的地形数据层单元名称
@@ -12037,6 +12053,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             var _obj = {
                 m_strID: isEmpty(cadShpAnc.anchorId) ? '' : cadShpAnc.anchorId,
+                m_strLayoutName: "Model",
                 m_vPos: isEmpty(cadShpAnc.pos) ? [0.0, 0.0] : cadShpAnc.pos,
                 m_strShpPath: isEmpty(cadShpAnc.shpPath) ? '' : cadShpAnc.shpPath,
                 m_strGroupID: isEmpty(cadShpAnc.groupId) ? '' : cadShpAnc.groupId,
