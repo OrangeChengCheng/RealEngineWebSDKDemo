@@ -8631,7 +8631,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 设置地形是否允许投射到其他模型对象表面
      * @param {String} dataSetId //数据集的唯一标识名
-     * @param {Number} mode //表示地形影像投射到其他模型对象表面的模式 0: 不投射 1: 仅投射影像图片层 2: 仅投射影像矢量层 3: 同时投射影像图片和矢量层
+     * @param {Number} mode //表示地形影像投射到其他模型对象表面的模式（默认2） 0: 不投射 1: 仅投射影像图片层 2: 仅投射影像矢量层 3: 同时投射影像图片和矢量层
      */
     Module.Terrain.setTerrProjectMode = function (dataSetId, mode) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
@@ -8649,19 +8649,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置是否处理地形投射到其他模型对象表面时的高度信息 注：1、若处理则会有一定性能耗费；2、若存在于其他模型高度融合的高程数据层的话可无需处理
-     * @param {boolean} handle //是否处理
+     * 设置地形数据层单元的虚拟像素不自动变化的最小缩放高度
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     * @param {Number} minVirPxlH //最小缩放高度
      */
-    Module.Terrain.setHandleTerrProjectHeight = function (handle) {
-        let _handle = isEmpty(handle) ? false : handle;
-        Module.RealBIMWeb.SetHandleTerrProjectHeight(_handle);
+    Module.Terrain.setUnitMinVirPxlH = function (dataSetId, unitId, resType, minVirPxlH) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        let _minVirPxlH = isEmpty(minVirPxlH) ? -1 : minVirPxlH;
+        return Module.RealBIMWeb.SetTerrUnitMinVirPxlH(dataSetId, unitId, _resType, _minVirPxlH);
     };
 
     /**
-     * 获取是否处理地形投射到其他模型对象表面时的高度信息
+     * 获取地形数据层单元的虚拟像素不自动变化的最小缩放高度
+     * @param {String} dataSetId //数据集的唯一标识名（必填）
+     * @param {String} unitId //层单元标识（必填）
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
      */
-    Module.Terrain.getHandleTerrProjectHeight = function () {
-        return Module.RealBIMWeb.GetHandleTerrProjectHeight();
+    Module.Terrain.getUnitMinVirPxlH = function (dataSetId, unitId, resType) {
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        if (isEmpty(unitId) || unitId == '') {
+            logParErr('unitId');
+            return;
+        }
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        return Module.RealBIMWeb.GetTerrUnitMinVirPxlH(dataSetId, unitId, _resType);
     };
 
     // MARK 加载属性
@@ -12053,7 +12071,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             var _obj = {
                 m_strID: isEmpty(cadShpAnc.anchorId) ? '' : cadShpAnc.anchorId,
-                m_strLayoutName: "Model",
+                m_strLayoutName: 'Model',
                 m_vPos: isEmpty(cadShpAnc.pos) ? [0.0, 0.0] : cadShpAnc.pos,
                 m_strShpPath: isEmpty(cadShpAnc.shpPath) ? '' : cadShpAnc.shpPath,
                 m_strGroupID: isEmpty(cadShpAnc.groupId) ? '' : cadShpAnc.groupId,
