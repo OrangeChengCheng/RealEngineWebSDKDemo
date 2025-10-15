@@ -1,0 +1,94 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-10-15 15:21:26
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+        <!-- <link rel="stylesheet" href="../DevStyle.css" /> -->
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '3a14d8ed77f27d5f3e5078d4d39c7221',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a14d8ed77f27d5f3e5078d4d39c7221',
+                        dataSetCRS: 'EPSG:32647',
+                        engineOrigin: [602975, 2826216, 0],
+                        dataSetCRSNorth: 0,
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0, 0, 0],
+                        ],
+                        dataSetSGContent: '',
+                    },
+                    {
+                        dataSetId: '3a1cf8c5930863038d50ef8d834ac035',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1cf8c5930863038d50ef8d834ac035',
+                        dataSetCRS: null,
+                        engineOrigin: null,
+                        dataSetCRSNorth: null,
+                        useTransInfo: true,
+                        transInfo: [
+                            [1.0000000000000004, 1.0000000000000004, 1],
+                            [0, 0, -0.331743851673354, 0.9433695017737894],
+                            [-1730542.1834049725, 1024086.426425122, 0],
+                        ],
+                        dataSetSGContent:
+                            '<?xml version="1.0" encoding="utf-8" ?><TotalSce  InitAmbientLUpperClr ="2.000000 2.000000 2.000000"  InitAmbientLLowerClr ="1.300000 1.300000 1.300000"  InitDirectLClr ="8.000000 8.000000 8.000000"  InitDirectLDir ="0.592153 -0.500000 0.631945"  CSMSplitNum ="4" SMTexSize ="1024" ShadowMaxDist ="1.0000e+38" DepthBiasRatio ="0.004000" FilterKernelSize ="3.000000"  ShadowQuality ="3"  ASMinDist_Anchor ="500.000000" ASMinDist_MeasureLine ="500.000000" ASMinDist_Tag ="4000.000000"  CamParamViewer_MoveCoef ="5.000000" CamParamViewer_RotateCoef ="0.003600"  CamParamDragMove_DefaultPlaneH ="1.0000e+38" CamParamDragMove_MaxDragAngle ="1.483600" CamParamDragMove_MaxDragHoriDist ="1.0000e+38" CamParamDragMove_FadeoutTime ="2.000000"  CamParamRotAround_RotateCoef ="0.002600"  CamParamForward_MinAbsCoef ="0.500000" CamParamForward_MaxAbsCoef ="200.000000" CamParamForward_MoveCoef ="1.0000e+38"  CamParamDragView_DefaultDragDist ="50.000000" CamParamRotCamera_RotateCoef ="0.003600"  InitCamLoc ="0" DefaultBackgroundEnable ="0"  InitCamZNear ="1.0000e+38" InitCamZFar ="1.0000e+38"  InitCamPos ="1.0000e+38 1.0000e+38 1.0000e+38" InitCamRotate ="1.0000e+38 1.0000e+38 1.0000e+38 1.0000e+38">  <UnVersion>    <Sky Path_X_P="!(CurDir).\\skybox_default\\Picture\\oasisday_front.jpg.dds" Path_X_N="!(CurDir).\\skybox_default\\Picture\\oasisday_back.jpg.dds"  Path_Y_P="!(CurDir).\\skybox_default\\Picture\\oasisday_right.jpg.dds" Path_Y_N="!(CurDir).\\skybox_default\\Picture\\oasisday_left.jpg.dds"  Path_Z_P="!(CurDir).\\skybox_default\\Picture\\oasisday_top.jpg.dds" Path_Z_N="!(CurDir).\\skybox_default\\Picture\\oasisday_bottom.jpg.dds" />    <Terrain GridLODNum="20" GridReso="16" HeightRange="-1000.000000,9000.000000" ClrLODNum="23">  <Proj Type="flat">   <ProjFlat Base="-20037508.342789,-20037508.342789" Size="40075016.685578,40075016.685578"       RootNum="2,2" WorCRS="EPSG:3857" WorCRSScale="1.000000,1.000000"       SelfCRS="EPSG:3857" SelfNorth="0.000000" SelfOrigin="0.000000,0.000000,0.000000"/>   <ProjSphPlane PlaneCRS="" Radius="6371000.000000" CRSBase="0.000000,0.000000" CRSSize="1.000000,1.000000" RootNum="0,0" XRound="1" YRound="1"/>   <ProjSphCube Type="asc" Radius="6371000.000000"/>  </Proj>  <Layer Name="3a1cf8c5930863038d50ef8d834ac035_251015144610" ResType="imgshp" LayerID="0" RevertU="0" RevertV="0" MemRes="0" OmitParent="0" PicTransp="0" ShpHole="0"   CustomBV="691643.466215 2865830.770925 0 691980.710718 2866252.868242 1" ShpStyleName="" RevertResX="0" RevertResY="0" ResID="3a1cf8c5930863038d50ef8d834ac035_251015144610"    BiasRootXY="0,0" BiasLOD="0" FmtStr="!(CurDir).\\terrain\\3a1cf8c5930863038d50ef8d834ac035_251015144610\\shp[%1%{%d},%2%{%d},%3%{%d}].pageshp"  >   <Rect LODRange="0,0,1" XYBound="1,1,2,2"/>   <Rect LODRange="1,1,1" XYBound="2,2,3,3"/>   <Rect LODRange="2,2,1" XYBound="4,4,5,5"/>   <Rect LODRange="3,3,1" XYBound="8,9,9,10"/>   <Rect LODRange="4,4,1" XYBound="16,18,17,19"/>   <Rect LODRange="5,5,1" XYBound="33,36,34,37"/>   <Rect LODRange="6,6,1" XYBound="66,73,67,74"/>   <Rect LODRange="7,7,1" XYBound="132,146,133,147"/>   <Rect LODRange="8,8,1" XYBound="264,292,265,293"/>   <Rect LODRange="9,9,1" XYBound="529,585,530,586"/>   <Rect LODRange="10,10,1" XYBound="1059,1170,1060,1171"/>   <Rect LODRange="11,11,1" XYBound="2118,2340,2119,2341"/>   <Rect LODRange="12,12,1" XYBound="4237,4681,4238,4682"/>   <Rect LODRange="13,13,1" XYBound="8474,9363,8475,9364"/>   <Rect LODRange="14,14,1" XYBound="16949,18727,16950,18728"/>   <Rect LODRange="15,15,1" XYBound="33899,37454,33900,37456"/>   <Rect LODRange="16,16,1" XYBound="67798,74909,67800,74911"/>   <Rect LODRange="17,17,1" XYBound="135596,149818,135599,149822"/>   <Rect LODRange="18,18,1" XYBound="271192,299636,271197,299643"/>   <Rect LODRange="19,19,1" XYBound="542385,599273,542394,599285"/>   <Rect LODRange="20,20,1" XYBound="1084770,1198546,1084788,1198569"/>  </Layer> </Terrain>  </UnVersion>  <Version VerSysRoot="!(CurDir).\\HugeModel\\" HugeTexFmts="7">   <OutVersionSet>   <OutVer OuterID="0" InnerID="0" />   </OutVersionSet>   <InnerVersionSet>   <InnerVer InnerID="0" FullCache="1" GPURCache="0">   </InnerVer>   </InnerVersionSet>  </Version></TotalSce>',
+                        groundDisplay: true,
+                        terrSuffix: '',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {}
+        </script>
+    </body>
+</html>
