@@ -1,0 +1,90 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-10-14 16:28:07
+ * @LastEditTime: 2025-10-14 16:42:49
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <script src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            const dataSetId = 'dataSet01';
+            const dataSetList = [
+                {
+                    dataSetId,
+                    resourcesAddress:
+                        'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1302ebf45d985e13bab65cce241ff2',
+                    useTransInfo: true,
+                    transInfo: [
+                        [1, 1, 1],
+                        [0, 0, 0, 1],
+                        [0, 0, 0.0],
+                    ],
+                },
+            ];
+
+            // 场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
+            function REDataSetLoadFinishCallBack(e) {
+                //设置缩略图信息
+                setOverViewSize();
+                //加载概略图CAD数据
+                addCADData();
+            }
+            // 加载概略图CAD数据
+            function addCADData() {
+                BlackHole3D.MiniMap.loadCAD(
+                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1302ebf45d985e13bab65cce241ff2/1/1_266823.realcad',
+                    BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter,
+                    1.0
+                );
+            }
+            // 设置概略图尺寸
+            function setOverViewSize() {
+                BlackHole3D.MiniMap.setMaxRegion([297, 210]); //设置概略图最大的宽高
+                BlackHole3D.MiniMap.setMinRegion([297, 210]); //设置概略图最小的宽高
+                var re_ScaleOrigin = [0, 0]; //原点相对于主界面宽高的比例 [0,0]  取值范围0-1
+                var re_ScaleDiagonal = [1, 1]; //对角点相对于主界面宽高的比例 [0.3,0.3]  取值范围0-1
+                BlackHole3D.MiniMap.setRegion(re_ScaleOrigin, re_ScaleDiagonal); //设置概略图占据主界面宽高比例
+            }
+            //概略图中的CAD数据加载 回调监听
+            function REMiniMapLoadCADCallBack(e) {
+                BlackHole3D.MiniMap.setVisible(true); //设置概略图显示状态
+                BlackHole3D.MiniMap.setShowRangeRefresh(); //调整CAD小地图显示，缩放到当前小地图展示范围
+            }
+        </script>
+    </body>
+</html>
