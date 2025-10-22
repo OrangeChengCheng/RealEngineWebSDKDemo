@@ -10430,18 +10430,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
                 let _rgn_list = [];
                 let _rgn_count = _cWaterRgn.m_arrCorners.size();
+                const successData = _cWaterRgn.m_arrCorners.size() === _cWaterRgn.m_arrIndices.size();//构面成功必然会一对数据
                 for (let j = 0; j < _rgn_count; j++) {
                     const _arrCornerRgn = _cWaterRgn.m_arrCorners.get(j);
-                    const _arrIndexRgn = _cWaterRgn.m_arrIndices.get(j);
 
                     let cornerRgnInfo = new Module.RECornerRgnInfo();
                     for (let k = 0; k < _arrCornerRgn.size(); k++) {
                         const _cCorner = _arrCornerRgn.get(k);
                         cornerRgnInfo.pointList.push(_cCorner);
                     }
-                    for (let k = 0; k < _arrIndexRgn.size(); k++) {
-                        const _uIndex = _arrIndexRgn.get(k);
-                        cornerRgnInfo.indexList.push(_uIndex);
+
+                    if (successData) {
+                        const _arrIndexRgn = _cWaterRgn.m_arrIndices.get(j);
+                        for (let k = 0; k < _arrIndexRgn.size(); k++) {
+                            const _uIndex = _arrIndexRgn.get(k);
+                            cornerRgnInfo.indexList.push(_uIndex);
+                        }
                     }
                     _rgn_list.push(cornerRgnInfo);
                 }
