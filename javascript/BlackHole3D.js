@@ -5,6 +5,7 @@ const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
 const sharding = true;
+const funcLog = false;
 var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule = ExtModule || {};
     var Module = typeof ExtModule !== 'undefined' ? ExtModule : {};
@@ -10430,7 +10431,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
                 let _rgn_list = [];
                 let _rgn_count = _cWaterRgn.m_arrCorners.size();
-                const successData = _cWaterRgn.m_arrCorners.size() === _cWaterRgn.m_arrIndices.size();//构面成功必然会一对数据
+                const successData = _cWaterRgn.m_arrCorners.size() === _cWaterRgn.m_arrIndices.size(); //构面成功必然会一对数据
                 for (let j = 0; j < _rgn_count; j++) {
                     const _arrCornerRgn = _cWaterRgn.m_arrCorners.get(j);
 
@@ -16674,6 +16675,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     /**
+     * 获取当前时间
+     * 格式化结果：时:分:秒.毫秒（例如：14:30:25.123）
+     */
+    function getCurrTime() {
+        const date = new Date();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        const milliseconds = date.getMilliseconds();
+        const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        return formattedTime;
+    }
+
+    /**
+     * 补零函数（支持指定长度，默认2位）
+     */
+    const padZero = (num, length = 2) => {
+        let str = num.toString();
+        while (str.length < length) str = `0${str}`;
+        return str;
+    };
+
+    /**
      * 判断是否是移动端设备
      */
     function isMobilDevice() {
@@ -16876,6 +16900,109 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         FORCE_DWORD: 'Module.RE_TERR_RES_TYPE.FORCE_DWORD', //
     };
     ExtModule.RETerrResEm = RETerrResEm;
+
+    // MOD-- 函数执行打印 <---
+    if (funcLog) {
+        // 判断是否为类构造函数（首字母大写的函数）
+        function isClassConstructor(func) {
+            if (typeof func !== 'function') return false;
+            const funcName = func.name;
+            // 类名通常首字母大写，且不为空（排除匿名函数）
+            return funcName && funcName[0] === funcName[0].toUpperCase();
+        }
+        // -------------------------- 定义所有需要监控的模块列表（新增模块只需加在这里） --------------------------
+        const modulesToMonitor = [
+            'Common',
+            'Light',
+            'Model',
+            'Model',
+            'SkyBox',
+            'Coordinate',
+            'Probe',
+            'Graphics',
+            'Tag',
+            'Mark',
+            'Anchor',
+            'Geometry',
+            'Earthwork',
+            'BIM',
+            'CAD',
+            'Grid',
+            'Terrain',
+            'Panorama',
+            'Edit',
+            'Measure',
+            'ShpEdit',
+            'Water',
+            'FEM',
+            'AxisGrid',
+            'Elevation',
+            'Fence',
+            'Clip',
+            'Animation',
+            'MiniMap',
+            'Pipe',
+            'Entity',
+            'Analysis3D',
+            'Extrude',
+            'Monomer',
+            'Particle',
+            'Math',
+        ]; // 这里放所有要处理的模块名
+
+        // -------------------------- 通用包装子模块函数：为任意模块的方法添加日志 --------------------------
+        function wrapModuleMethodsForLog(moduleName) {
+            // 确保模块存在（如果模块未定义，先初始化）
+            Module[moduleName] = Module[moduleName] || {};
+            const targetModule = Module[moduleName];
+
+            // 遍历模块下的所有方法
+            Object.keys(targetModule).forEach((methodName) => {
+                const originalMethod = targetModule[methodName];
+                // 只处理函数，且跳过已包装过的方法（避免重复包装）
+                if (typeof originalMethod === 'function' && !isClassConstructor(originalMethod) && !originalMethod.__isWrapped) {
+                    // 创建包装函数
+                    const wrappedMethod = function (...args) {
+                        // 打印日志：时间 + 模块名.方法名（如 Terrain.getUnitImgShpAlone、Edit.moveObject）
+                        console.log(`time: ${getCurrTime()}  func: ${moduleName}.${methodName}`);
+                        // 调用原方法，保持 this 指向、参数、返回值完全不变
+                        return originalMethod.apply(this, args);
+                    };
+                    // 标记为已包装，避免重复处理
+                    wrappedMethod.__isWrapped = true;
+                    // 替换原方法引用（原方法逻辑未变，仅被代理）
+                    targetModule[methodName] = wrappedMethod;
+                }
+            });
+        }
+        // -------------------------- 通用包装根模块函数（直接挂载在Module下的函数） --------------------------
+        function wrapRootMethodsForLog() {
+            Object.keys(Module).forEach((key) => {
+                const originalMethod = Module[key];
+                // 筛选条件：是函数 + 不是子模块（子模块是对象，已由上面的逻辑处理） + 未被包装过
+                if (
+                    typeof originalMethod === 'function' &&
+                    !modulesToMonitor.includes(key) &&
+                    !isClassConstructor(originalMethod) && // 排除子模块（子模块名在modulesToMonitor中）
+                    !originalMethod.__isWrapped
+                ) {
+                    const wrappedMethod = function (...args) {
+                        console.log(`time: ${getCurrTime()}  func: ${key}`); // 根方法直接显示方法名
+                        return originalMethod.apply(this, args);
+                    };
+                    wrappedMethod.__isWrapped = true;
+                    Module[key] = wrappedMethod;
+                }
+            });
+        }
+        // -------------------------- 执行所有包装逻辑 --------------------------
+        // 处理子模块
+        modulesToMonitor.forEach((moduleName) => {
+            wrapModuleMethodsForLog(moduleName);
+        });
+        // 处理根方法
+        wrapRootMethodsForLog();
+    }
 
     return ExtModule;
 };
