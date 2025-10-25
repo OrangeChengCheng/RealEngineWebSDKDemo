@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-10-25 17:52:51
+ * @LastEditTime: 2025-10-25 19:26:44
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -20,6 +20,7 @@
                 <button onclick="locAnc()">定位地形矢量锚点</button>
                 <button onclick="addLine()">添加地形矢量线</button>
                 <button onclick="locLine()">定位地形矢量线</button>
+                <button onclick="addLines()">添加地形矢量线（多个）</button>
             </div>
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
             <div class="custom-loading-container">
@@ -66,8 +67,7 @@
                     // },
                     {
                         dataSetId: '地形影像',
-                        resourcesAddress:
-                            'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap',
                     },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
@@ -114,7 +114,7 @@
                     [13565240.192362081, 4768533.236580701, -0.07858742746975622],
                 ];
                 terrShpLine_1.fillState = 1;
-                terrShpLine_1.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                terrShpLine_1.lineClr = new BlackHole3D.REColor(0, 255, 255, 255);
                 terrShpLine_1.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
                 terrShpLine_1.textPos = -2;
                 terrShpLine_1.groupName = 'a';
@@ -123,12 +123,92 @@
                 var terrShpLineList = [terrShpLine_1];
                 BlackHole3D.Terrain.addTerrShpLine('地形影像', terrShpLineList);
             }
+            function addLines() {
+                //矢量文字信息
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '测试画线';
+                shpTextInfo.texBias = [1, 0];
+                shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                shpTextInfo.textBackMode = 2;
+                shpTextInfo.textBackBorder = 2;
+                shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+
+                //地形矢量线信息
+                var terrShpLine_1 = new BlackHole3D.RETerrShpLineInfo();
+                terrShpLine_1.shpName = 'terrShpLine_1';
+                terrShpLine_1.potList = [
+                    [13563740.540851377, 4769211.209846852, -0.0784632723480172],
+                    [13563349.972252555, 4767325.586231201, -0.07863956120309012],
+                    [13565240.192362081, 4768533.236580701, -0.07858742746975622],
+                ];
+                terrShpLine_1.fillState = 0;
+                terrShpLine_1.lineClr = new BlackHole3D.REColor(0, 255, 255, 255);
+                terrShpLine_1.textPos = -2;
+                terrShpLine_1.groupName = 'a';
+                terrShpLine_1.textInfo = shpTextInfo;
+
+                //地形矢量线信息
+                var terrShpLine_2 = new BlackHole3D.RETerrShpLineInfo();
+                terrShpLine_2.shpName = 'terrShpLine_2';
+                terrShpLine_2.potList = [
+                    [13564687.672760453, 4767573.356281542, -0.07858701671977997],
+                    [13564852.620318977, 4767066.984533438, -0.07861603763137737],
+                ];
+                terrShpLine_2.fillState = 0;
+                terrShpLine_2.lineClr = new BlackHole3D.REColor(255, 0, 255, 255);
+                terrShpLine_2.textPos = -2;
+                terrShpLine_2.groupName = 'a';
+                terrShpLine_2.textInfo = shpTextInfo;
+
+                // //地形矢量线信息
+                // var terrShpLine_3 = new BlackHole3D.RETerrShpLineInfo();
+                // terrShpLine_3.shpName = 'terrShpLine_3';
+                // terrShpLine_3.potList = [
+                //     [13563768.238725888, 4767381.681920406, -0.07859323042555388],
+                //     [13563869.683170212, 4766847.388805016, -0.0786076957252817],
+                // ];
+                // terrShpLine_3.fillState = 0;
+                // terrShpLine_3.lineClr = new BlackHole3D.REColor(0, 0, 255, 255);
+                // terrShpLine_3.textPos = -2;
+                // terrShpLine_3.groupName = 'a';
+                // terrShpLine_3.textInfo = shpTextInfo;
+
+                // //地形矢量线信息
+                // var terrShpLine_4 = new BlackHole3D.RETerrShpLineInfo();
+                // terrShpLine_4.shpName = 'terrShpLine_4';
+                // terrShpLine_4.potList = [
+                //     [13563740.540851377, 4769211.209846852, -0.0784632723480172],
+                //     [13564667.071978033, 4766904.87583639, -0.07862746616592631],
+                // ];
+                // terrShpLine_4.fillState = 0;
+                // terrShpLine_4.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                // terrShpLine_4.textPos = -2;
+                // terrShpLine_4.groupName = 'a';
+                // terrShpLine_4.textInfo = shpTextInfo;
+
+                // //地形矢量线信息
+                // var terrShpLine_5 = new BlackHole3D.RETerrShpLineInfo();
+                // terrShpLine_5.shpName = 'terrShpLine_5';
+                // terrShpLine_5.potList = [
+                //     [13564968.496563999, 4767502.171729906, -0.07872038075788623],
+                //     [13564121.990619067, 4767063.696159664, -0.07861982690872082],
+                // ];
+                // terrShpLine_5.fillState = 0;
+                // terrShpLine_5.lineClr = new BlackHole3D.REColor(255, 255, 0, 255);
+                // terrShpLine_5.textPos = -2;
+                // terrShpLine_5.groupName = 'a';
+                // terrShpLine_5.textInfo = shpTextInfo;
+
+                var terrShpLineList = [terrShpLine_1, terrShpLine_2/*, terrShpLine_3, terrShpLine_4, terrShpLine_5*/];
+                BlackHole3D.Terrain.addTerrShpLine('地形影像', terrShpLineList);
+            }
 
             function locAnc() {
-                BlackHole3D.Terrain.setCamToTerrShpAnc("地形影像", ["terrShpAnc_1"], 20.0);
+                BlackHole3D.Terrain.setCamToTerrShpAnc('地形影像', ['terrShpAnc_1'], 20.0);
             }
             function locLine() {
-                BlackHole3D.Terrain.setCamToTerrShpLine("地形影像", ["terrShpLine_1"], 200.0);
+                BlackHole3D.Terrain.setCamToTerrShpLine('地形影像', ['terrShpLine_1'], 20.0);
             }
         </script>
     </body>

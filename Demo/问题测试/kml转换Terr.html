@@ -1,0 +1,242 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-10-25 19:12:12
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="selFile()">选取kml文件</button>
+                <button onclick="kmlRender()">数据渲染</button>
+                <button onclick="camLoc()">定位</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+        <input type="file" id="kmlFile" accept=".kml" style="display: none" />
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script>
+
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                BlackHole3D.Common.setFakeSphMode(true);
+                BlackHole3D.Coordinate.setEngineWorldCRS('EPSG:3857');
+
+                var dataSetList = [
+                    {
+                        dataSetId: '地形影像',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {}
+
+            var features = [];
+            document.getElementById('kmlFile').addEventListener('change', handleFileSelect);
+            function selFile() {
+                const fileEl = document.getElementById('kmlFile');
+                fileEl.click();
+                features = [];
+            }
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // 读取KML文件内容
+                    const kmlText = e.target.result;
+
+                    // 解析KML文本为XML DOM对象
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(kmlText, 'text/xml');
+
+                    // 转换为GeoJSON
+                    const geojson = toGeoJSON.kml(xmlDoc);
+                    console.log(geojson);
+                    features = geojson.features;
+                    alert('kml 数据读取完成');
+                };
+                reader.readAsText(file);
+            }
+
+            function kmlRender() {
+                console.log(features);
+                var pointList = [];
+                var lineList = [];
+                var faceList = [];
+
+                features.forEach((element, index) => {
+                    if (element.geometry.type == 'Point') {
+                        pointList.push(element);
+                    } else if (element.geometry.type == 'Polygon') {
+                        faceList.push(element);
+                    } else if (element.geometry.type == 'LineString') {
+                        lineList.push(element);
+                    }
+                });
+
+                addTerrShpAnc(pointList);
+                addTerrShpLine(lineList);
+                addTerrShpLine_face(faceList);
+
+                setTimeout(() => {
+                    alert('渲染完成');
+                }, 100);
+            }
+
+            function coorTo4326(point, isforward = false) {
+                return BlackHole3D.Coordinate.getTransEngineCoords(isforward, 'EPSG:4326', point);
+            }
+
+            function addTerrShpAnc(list) {
+                var terrShpAncList = [];
+                list.forEach((element, index) => {
+                    let terrShpAnc = new BlackHole3D.RETerrainShpAncInfo();
+                    terrShpAnc.groupName = element.geometry.type;
+                    terrShpAnc.ancName = element.geometry.type + '_' + index;
+                    terrShpAnc.pos = coorTo4326([element.geometry.coordinates])[0];
+                    terrShpAnc.picPath = 'https://demo.bjblackhole.com/demopage/examplesImgs/anc.png';
+                    terrShpAnc.textInfo = element.properties.name;
+                    terrShpAnc.picWidth = 32;
+                    terrShpAnc.picHeight = 32;
+                    terrShpAnc.texBias = [1, 0];
+                    terrShpAnc.texFocus = [0, 0];
+                    terrShpAncList.push(terrShpAnc);
+                });
+                BlackHole3D.Terrain.addTerrShpAnc('地形影像', terrShpAncList);
+            }
+
+            function addTerrShpLine_face(list) {
+                var terrShpLineList = [];
+                list.forEach((element, index) => {
+                    const fillclr = hexToRgbaArray(element.properties['fill']);
+                    const fill_opacity = element.properties['fill-opacity'];
+
+                    //矢量文字信息
+                    var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                    shpTextInfo.text = element.properties.description;
+                    shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                    shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 204);
+
+                    //地形矢量线信息
+                    var terrShpLine = new BlackHole3D.RETerrShpLineInfo();
+                    terrShpLine.groupName = 'Polygon';
+                    terrShpLine.shpName = 'Polygon_' + index;
+                    terrShpLine.potList = coorTo4326(element.geometry.coordinates[0]);
+                    terrShpLine.fillState = 1;
+                    terrShpLine.lineClr = new BlackHole3D.REColor(...fillclr);
+                    const colorb = JSON.parse(JSON.stringify(fillclr));
+                    colorb[3] = (fill_opacity * 255) | 0;
+                    terrShpLine.fillClr = new BlackHole3D.REColor(...colorb);
+                    terrShpLine.textPos = -3;
+                    terrShpLine.lineWidth = 3;
+                    terrShpLine.textInfo = shpTextInfo;
+                    terrShpLineList.push(terrShpLine);
+                });
+                BlackHole3D.Terrain.addTerrShpLine('地形影像', terrShpLineList);
+            }
+
+            function addTerrShpLine(list) {
+                var terrShpLineList = [];
+                list.forEach((element, index) => {
+                    const clr = hexToRgbaArray(element.properties.stroke);
+
+                    //矢量文字信息
+                    var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                    shpTextInfo.text = '';
+
+                    //地形矢量线信息
+                    var terrShpLine = new BlackHole3D.RETerrShpLineInfo();
+                    terrShpLine.groupName = 'LineString';
+                    terrShpLine.shpName = 'LineString_' + index;
+                    terrShpLine.potList = coorTo4326(element.geometry.coordinates);
+                    terrShpLine.fillState = 0;
+                    terrShpLine.lineClr = new BlackHole3D.REColor(...clr);
+                    terrShpLine.lineWidth = 3;
+                    terrShpLine.textInfo = shpTextInfo;
+
+                    terrShpLineList.push(terrShpLine);
+                });
+                console.log(terrShpLineList[9301]);
+                BlackHole3D.Terrain.addTerrShpLine('地形影像', terrShpLineList);
+            }
+
+            function hexToRgbaArray(hex, alpha = 255) {
+                // 移除可能的#号
+                hex = hex.replace(/^#/, '');
+
+                // 处理3位简写形式（如#f00）
+                if (hex.length === 3) {
+                    hex = hex
+                        .split('')
+                        .map((char) => char + char)
+                        .join('');
+                }
+
+                // 解析RGB分量
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+
+                const a = alpha;
+
+                // 确保值在0-255范围内
+                return [Math.min(255, Math.max(0, r)), Math.min(255, Math.max(0, g)), Math.min(255, Math.max(0, b)), Math.min(255, Math.max(0, a))];
+            }
+
+            function camLoc() {
+                BlackHole3D.Camera.setCamLocateTo(
+                    {
+                        camPos: [11703645.102342116, 3652113.3550227666, 4997.085334677069],
+                        camRotate: [0.29248551363085334, 0.051864787035235435, 0.16671943845998272, 0.9401951377354989],
+                        camDir: [-0.19505208236086197, 0.5326931792068745, -0.8235245363637711],
+                    },
+                    0,
+                    1
+                );
+            }
+        </script>
+    </body>
+</html>
