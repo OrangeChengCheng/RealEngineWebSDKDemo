@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3412
+﻿//版本：v3.2.0.3417
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5355,7 +5355,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.setCamToShp = function (shpName, backwardAmp) {
         if (isEmptyLog(shpName, 'shpName')) return;
-        Module.RealBIMWeb.FocusCamToCustomShp(shpName, backwardAmp);
+        var _arrStrName = new Module.RE_Vector_WStr();
+        _arrStrName.push_back(shpName);
+        Module.RealBIMWeb.FocusCamToCustomShp(_arrStrName, backwardAmp);
+    };
+
+    /**
+     * 聚焦相机到指定的矢量对象集合
+     * @param {Array} shpNameList //矢量标识名集合
+     * @param {Number} backwardAmp //表示相机在锚点中心处向后退的强度
+     */
+    Module.Geometry.setCamToShpList = function (shpNameList, backwardAmp) {
+        if (!checkTypeLog(shpNameList, 'shpNameList', RE_Enum.RE_Check_Array)) return;
+        if (!shpNameList.length) {
+            logParErr('shpNameList');
+            return;
+        }
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < shpNameList.length; i++) {
+            _arrStrName.push_back(shpNameList[i]);
+        }
+        Module.RealBIMWeb.FocusCamToCustomShp(_arrStrName, backwardAmp);
     };
 
     /**
@@ -5393,6 +5413,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Geometry.getShpPotCapture = function () {
         return Module.RealBIMWeb.GetShpPotCapture();
+    };
+
+    /**
+     * 设置一批自定义矢量的可见性
+     * @param {Array} shpNameList //矢量标识集合
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Geometry.setShpVisible = function (shpNameList, enable) {
+        if (!checkTypeLog(shpNameList, 'shpNameList', RE_Enum.RE_Check_Array)) return;
+        if (!shpNameList.length) {
+            logParErr('shpNameList');
+            return;
+        }
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < shpNameList.length; i++) {
+            _arrStrName.push_back(shpNameList[i]);
+        }
+        Module.RealBIMWeb.SetCustomShpVisibleByName(_arrStrName, enable);
+    };
+
+    /**
+     * 获取某个自定义矢量的可见性
+     * @param {String} shpName //矢量标识
+     */
+    Module.Geometry.getShpVisible = function (shpName) {
+        if (isEmptyLog(shpName, 'shpName')) return;
+        return Module.RealBIMWeb.GetCustomShpVisibleByName(shpName);
     };
 
     /**
