@@ -8642,6 +8642,35 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
+     * 设置地形数据层单元的混合颜色
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     * @param {REColor} color //目标颜色（REColor 类型）
+     */
+    Module.Terrain.setUnitLayerClr = function (dataSetId, unitId, resType, color) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        let _clr = isEmpty(color) ? [0, 0, 0, 0] : clrToRGBA_List(color);
+        return Module.RealBIMWeb.SetTerrUnitClrBlend(dataSetId, unitId, _resType, _clr);
+    };
+
+    /**
+     * 获取地形数据层单元的混合颜色
+     * @param {String} dataSetId //数据集的唯一标识名
+     * @param {String} unitId //层单元标识
+     * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
+     */
+    Module.Terrain.getUnitLayerClr = function (dataSetId, unitId, resType) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(unitId, 'unitId')) return;
+        let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
+        const _clr = Module.RealBIMWeb.GetTerrUnitClrBlend(dataSetId, unitId, _resType);
+        return clrRGBAListToClr(_clr);
+    };
+
+    /**
      * 设置地形实例的透明度
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {Number} alpha //目标透明度，整型，范围0~255，0表示全透
@@ -9111,6 +9140,535 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Terrain.unRegisterAllPathFunc = function () {
         Module.RealBIMWeb.UnRegisterAllTerrainPathFuncs();
     };
+
+    // MARK 地形矢量锚点
+
+    class RETerrainShpAncInfo {
+        constructor() {
+            this.groupName = null; //锚点组的标识，默认值 "DefaultGroup"
+            this.ancName = null; //锚点的名称(唯一标识)
+            this.pos = null; //锚点的位置
+            this.picPath = null; //锚点的纹理路径
+            this.textInfo = null; //锚点的文字
+            this.picWidth = null; //锚点图片的宽度
+            this.picHeight = null; //锚点图片的高度
+            this.texBias = null; //锚点文字与图片的相对位置, 二元素数组[x，y], x取值（-1、0、1）分别表示文字在图片的左侧、中间、右侧；y取值（-1、0、1）分别表示文字在图片的下侧、中间、上侧；
+            this.texFocus = null; //牵引线的最终顶点相对于图片的像素位置，需要配合ancSize使用，二元素数组[x，y], [0,0]表示位于图片的左下角, [picWidth/2,0]表示位于图片中下
+            this.fontName = null; //锚点的字体样式
+            this.textClr = null; //锚点的字体颜
+            this.textBorderClr = null; //锚点的字体边框颜色
+            this.textBackClr = null; //锚点的字体背景颜色
+            this.textBackMode = null; //表示文字背景的处理模式 0：禁用文字背景 1：文字背景对应文字排版后返回的最终矩形区域 2：文字背景对应整体文字实际覆盖的矩形区域
+            this.lodMax = null; //表示显示的最大lod级别
+            this.lodMin = null; //表示显示的最小lod级别
+            this.visible = null; //表示是否显示
+        }
+    }
+    ExtModule.RETerrainShpAncInfo = RETerrainShpAncInfo;
+
+    /**
+     * 添加地形矢量锚点 注：地形矢量锚点必须添加在地形数据上
+     * @param {String} dataSetId //数据集标识（地形数据）
+     * @param {Array} terrShpAcnList //地形矢量锚点信息集合（RETerrainShpAncInfo 类型）
+     */
+    Module.Terrain.addTerrShpAnc = function (dataSetId, terrShpAcnList) {
+        if (isEmpty(dataSetId) || !dataSetId.length) {
+            logParErr('dataSetId');
+            return false;
+        }
+        if (!checkTypeLog(terrShpAcnList, 'terrShpAcnList', RE_Enum.RE_Check_Array)) return false;
+
+        var _tempAnchors = new Module.RE_Vector_RE_TERR_ANCHOR();
+        for (let i = 0; i < terrShpAcnList.length; i++) {
+            let ancInfo = terrShpAcnList[i];
+
+            var _groupname = isEmpty(ancInfo.groupName) ? 'DefaultGroup' : ancInfo.groupName;
+            var _textInfo = isEmpty(ancInfo.textInfo) ? '' : ancInfo.textInfo;
+            var _picPath = isEmpty(ancInfo.picPath) ? '' : ancInfo.picPath;
+            var _texfocus = isEmpty(ancInfo.texFocus) ? [0, 0] : ancInfo.texFocus;
+            var _GolFontID = isEmpty(ancInfo.fontName) ? 'RealBIMFont001' : ancInfo.fontName;
+            var _textcolor = isEmpty(ancInfo.textClr) ? 0xffffffff : clrToU32(ancInfo.textClr);
+            var _textbordercolor = isEmpty(ancInfo.textBorderClr) ? 0xff000000 : clrToU32(ancInfo.textBorderClr);
+            var _textBackMode = isEmpty(ancInfo.textBackMode) ? 0 : ancInfo.textBackMode;
+            var _textBackClr = isEmpty(ancInfo.textBackClr) ? 0x00000000 : clrToU32(ancInfo.textBackClr);
+            var _lodMax = isEmpty(ancInfo.lodMax) ? 31 : ancInfo.lodMax;
+            var _lodMin = isEmpty(ancInfo.lodMin) ? 0 : ancInfo.lodMin;
+            var _visible = isEmpty(ancInfo.visible) ? true : ancInfo.visible;
+            var _linepos = [0, 0];
+
+            const handle_rect = terrShpAnc_layoutRect(ancInfo);
+
+            var tempobj = {
+                m_strGroupName: _groupname,
+                m_strName: ancInfo.ancName,
+                m_vPos: ancInfo.pos,
+                m_uLODMax: _lodMax,
+                m_uLODMin: _lodMin,
+                m_bVisible: _visible,
+                m_cTexRegion: {
+                    m_strTexPath: _picPath,
+                    m_qTexRect: [
+                        _linepos[0] - _texfocus[0],
+                        _linepos[1] - _texfocus[1],
+                        ancInfo.picWidth + _linepos[0] - _texfocus[0],
+                        ancInfo.picHeight + _linepos[1] - _texfocus[1],
+                    ],
+                    m_uTexClrMult: 0xffffffff,
+                    m_vMinTexUV: [0.0, 0.0],
+                    m_vMaxTexUV: [1.0, 1.0],
+                    m_uFrameNumU: 1,
+                    m_uFrameNumV: 1,
+                    m_uFrameStrideU: 30,
+                    m_uFrameStrideV: 30,
+                    m_fFrameFreq: 0.0,
+                },
+                m_cTextRegion: {
+                    m_strGolFontID: _GolFontID,
+                    m_bTextWeight: true,
+                    m_strText: _textInfo,
+                    m_uTextClr: _textcolor,
+                    m_uTextBorderClr: _textbordercolor,
+                    m_qTextRect: handle_rect.m_qTextRect,
+                    m_uTextFmtFlag: handle_rect.m_uTextFmtFlag,
+                    m_uTextBackMode: _textBackMode,
+                    m_sTextBackBorder: 0,
+                    m_uTextBackClr: _textBackClr,
+                },
+            };
+            _tempAnchors.push_back(tempobj);
+        }
+        return Module.RealBIMWeb.AddTerrGolAnchors(dataSetId, _tempAnchors);
+    };
+
+    /**
+     * 获取所有地形矢量锚点的信息
+     * @param {String} dataSetId //数据集标识（地形数据）
+     */
+    Module.Terrain.getAllTerrShpAnc = function (dataSetId) {
+        var _allAncData = Module.RealBIMWeb.GetTerrGolAnchors(dataSetId);
+        var ancInfoList = [];
+        for (var i = 0; i < _allAncData.size(); ++i) {
+            ancInfoList.push(terrShpAnc_convCpp2Json(_allAncData.get(i)));
+        }
+        return ancInfoList;
+    };
+
+    /**
+     * 删除地形数据上的地形矢量锚点
+     * @param {String} dataSetId //数据集标识（地形数据），空字符串代表所有地形数据的所有地形矢量锚点
+     * @param {Array} ancNameList //锚点名称集合
+     */
+    Module.Terrain.delTerrShpAnc = function (dataSetId, ancNameList) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
+        if (!checkTypeLog(ancNameList, 'ancNameList', RE_Enum.RE_Check_Array)) return false;
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < ancNameList.length; i++) {
+            _arrStrName.push_back(ancNameList[i]);
+        }
+        if (dataSetId.length) {
+            return Module.RealBIMWeb.DelTerrGolAnchors(dataSetId, _arrStrName);
+        } else {
+            return Module.RealBIMWeb.DelTerrGolAllAnchors();
+        }
+    };
+
+    /**
+     * 聚焦相机到指定的地形矢量锚点
+     * @param {String} dataSetId //数据集标识（地形数据）
+     * @param {Array} ancNameList //锚点名称集合
+     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
+     */
+    Module.Terrain.setCamToTerrShpAnc = function (dataSetId, ancNameList, backwardAmp) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (!checkTypeLog(ancNameList, 'ancNameList', RE_Enum.RE_Check_Array)) return;
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < ancNameList.length; i++) {
+            _arrStrName.push_back(ancNameList[i]);
+        }
+        let _backwardAmp = isEmpty(backwardAmp) ? 1.0 : backwardAmp;
+        Module.RealBIMWeb.FocusCamToTerrGolAnchor(dataSetId, _arrStrName, _backwardAmp);
+    };
+
+    /**
+     * 设置地形矢量锚点是否允许显示
+     * @param {String} dataSetId //数据集标识
+     * @param {String} ancName //锚点名称
+     * @param {Boolean} visible //是否显示
+     */
+    Module.Terrain.setTerrShpAncVisible = function (dataSetId, ancName, visible) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(ancName, 'ancName')) return;
+        let _visible = isEmpty(visible) ? true : visible;
+        Module.RealBIMWeb.SetTerrGolAnchorVisible(dataSetId, ancName, _visible);
+    };
+
+    /**
+     * 获取地形矢量锚点是否允许显示
+     * @param {String} dataSetId //数据集标识
+     * @param {String} ancName //锚点名称
+     */
+    Module.Terrain.getTerrShpAncVisible = function (dataSetId, ancName) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(ancName, 'ancName')) return;
+        return Module.RealBIMWeb.GetTerrGolAnchorVisible(dataSetId, ancName);
+    };
+
+
+    // MARK 地形矢量线
+
+    class RETerrShpLineInfo {
+        constructor() {
+            this.shpName = null; //矢量标识名，若已有同名的矢量则覆盖之
+            this.groupName = null; //矢量组名称
+            this.potList = null; //表示多边形折线序列
+            this.fillState = null; //表示折线的填充状态 0->多边形不填充； 1->多边形首尾相连构成封闭区域进行填充；
+            this.lineClr = null; //表示多边形的颜色（REColor 类型）
+            this.fillClr = null; //表示多边形的填充颜色（REColor 类型）
+            this.textPos = null; //表示多边形的文字标注的位置： >=0时，整数部分i/小数部分j：表示文字定位点在线段<i,i+1>上的偏移了长度百分比j [-1,0)表示文字定位在折线上并从首端点偏移折线总长度的百分比 -2表示文字定位在多边形所有顶点的中心位置处
+            this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
+            this.lineWidth = null; //表示多边形折线的线宽，线宽不要小于3，否则渲染消耗大，造成异常
+            this.visible = null; //表示是否显示，默认true
+        }
+    }
+    ExtModule.RETerrShpLineInfo = RETerrShpLineInfo;
+
+    /**
+     * 创建地形矢量线 注：地形矢量锚点必须添加在地形数据上
+     * @param {String} dataSetId //数据集标识（地形数据）
+     * @param {Array} terrShpLineList //矢量线信息集合（RETerrShpLineInfo 类型）
+     */
+    Module.Terrain.addTerrShpLine = function (dataSetId, terrShpLineList) {
+        if (isEmpty(dataSetId) || !dataSetId.length) {
+            logParErr('dataSetId');
+            return false;
+        }
+        if (!checkTypeLog(terrShpLineList, 'terrShpLineList', RE_Enum.RE_Check_Array)) return false;
+
+        var _arrTerrShpLine = new Module.RE_Vector_RE_TERR_SHP_INFO();
+        for (let i = 0; i < terrShpLineList.length; i++) {
+            const terrShpLine = terrShpLineList[i];
+
+            // 文字信息
+            var textobj = {};
+            {
+                const _textInfo = isEmpty(terrShpLine.textInfo) ? new REShpTextInfo() : terrShpLine.textInfo;
+                var _texBias = isEmpty(_textInfo.texBias) ? [0, 0] : _textInfo.texBias;
+                var _text = isEmpty(_textInfo.text) ? '' : _textInfo.text;
+                var _GolFontID = isEmpty(_textInfo.fontName) ? 'RealBIMFont001' : _textInfo.fontName;
+                var _textcolor = isEmpty(_textInfo.textClr) ? 0xffffffff : clrToU32(_textInfo.textClr);
+                var _textbordercolor = isEmpty(_textInfo.textBorderClr) ? 0xff000000 : clrToU32(_textInfo.textBorderClr);
+                var _textBackMode = isEmpty(_textInfo.textBackMode) ? 0 : _textInfo.textBackMode;
+                var _textBackBorder = isEmpty(_textInfo.textBackBorder) ? 0 : _textInfo.textBackBorder;
+                var _textBackClr = isEmpty(_textInfo.textBackClr) ? 0x00000000 : clrToU32(_textInfo.textBackClr);
+
+                // 文字相对区域对齐方式
+                var TempTextRect = [-1, -1, 1, 1];
+                var TempTextFmtFlag = 0x40; /*TEXT_FMT_NOCLIP*/
+                {
+                    if (_texBias[0] < 0) {
+                        TempTextRect[0] = -1;
+                        TempTextRect[2] = 0;
+                        TempTextFmtFlag |= 0x20 /*TEXT_FMT_RIGHT*/;
+                    } else if (_texBias[0] == 0) {
+                        TempTextRect[0] = -1;
+                        TempTextRect[2] = 1;
+                        TempTextFmtFlag |= 0x10 /*TEXT_FMT_LEFT*/;
+                    } else {
+                        TempTextRect[0] = 0;
+                        TempTextRect[2] = 1;
+                        TempTextFmtFlag |= 0x8 /*TEXT_FMT_LEFT*/;
+                    }
+                    if (_texBias[1] < 0) {
+                        TempTextRect[1] = -1;
+                        TempTextRect[3] = 0;
+                        TempTextFmtFlag |= 0x4 /*TEXT_FMT_TOP*/;
+                    } else if (_texBias[1] == 0) {
+                        TempTextRect[1] = -1;
+                        TempTextRect[3] = 1;
+                        TempTextFmtFlag |= 0x2 /*TEXT_FMT_BOTTOM*/;
+                    } else {
+                        TempTextRect[1] = 0;
+                        TempTextRect[3] = 1;
+                        TempTextFmtFlag |= 0x1 /*TEXT_FMT_BOTTOM*/;
+                    }
+                }
+
+                textobj = {
+                    m_strGolFontID: _GolFontID,
+                    m_bTextWeight: true,
+                    m_strText: _text,
+                    m_uTextClr: _textcolor,
+                    m_uTextBorderClr: _textbordercolor,
+                    m_qTextRect: TempTextRect,
+                    m_uTextFmtFlag: TempTextFmtFlag,
+                    m_uTextBackMode: _textBackMode,
+                    m_sTextBackBorder: _textBackBorder,
+                    m_uTextBackClr: _textBackClr,
+                };
+            }
+
+            var _groupName = isEmpty(terrShpLine.groupName) ? '' : terrShpLine.groupName;
+            var _shpName = isEmpty(terrShpLine.shpName) ? '' : terrShpLine.shpName;
+            var _uClr = isEmpty(terrShpLine.lineClr) ? 0xffffffff : clrToU32(terrShpLine.lineClr);
+            var _uFillClr = isEmpty(terrShpLine.fillClr) ? 0xffffffff : clrToU32(terrShpLine.fillClr);
+            var _fillState = isEmpty(terrShpLine.fillState) ? 0 : terrShpLine.fillState;
+            var _linewidth = isEmpty(terrShpLine.lineWidth) ? 3 : terrShpLine.lineWidth;
+            var _visible = isEmpty(terrShpLine.visible) ? true : terrShpLine.visible;
+            var _fTextPos = isEmpty(terrShpLine.textPos) ? -2 : terrShpLine.textPos;
+            var _temparrpos = new Module.RE_Vector_dvec3();
+            for (var k = 0; k < terrShpLine.potList.length; ++k) {
+                _temparrpos.push_back(terrShpLine.potList[k]);
+            }
+
+            var terrShpLine_obj = {
+                m_strShpName: _shpName,
+                m_strGroupName: _groupName,
+                m_arrPots: _temparrpos,
+                m_uFillState: _fillState,
+                m_uClr: _uClr,
+                m_uFillClr: _uFillClr,
+                m_fTextPos: _fTextPos,
+                m_cTextInfo: textobj,
+                m_uLineWidth: _linewidth,
+                m_bVisible: _visible,
+            };
+
+            _arrTerrShpLine.push_back(terrShpLine_obj);
+        }
+
+        return Module.RealBIMWeb.AddTerrGolShp(dataSetId, _arrTerrShpLine);
+    };
+
+    /**
+     * 删除地形数据上的地形矢量线
+     * @param {String} dataSetId //数据集标识（地形数据），空字符串代表所有地形数据的所有地形矢量线
+     * @param {Array} shpLineNameList //矢量线标识集合
+     */
+    Module.Terrain.delTerrShpLine = function (dataSetId, shpLineNameList) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return false;
+        if (!checkTypeLog(shpLineNameList, 'shpLineNameList', RE_Enum.RE_Check_Array)) return false;
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < shpLineNameList.length; i++) {
+            _arrStrName.push_back(shpLineNameList[i]);
+        }
+        if (dataSetId.length) {
+            return Module.RealBIMWeb.DelTerrGolShp(dataSetId, _arrStrName);
+        } else {
+            return Module.RealBIMWeb.DelAllTerrGolShps();
+        }
+    };
+
+    /**
+     * 聚焦相机到指定的地形矢量线
+     * @param {String} dataSetId //数据集标识（地形数据）
+     * @param {Array} shpLineNameList //矢量线标识集合
+     * @param {Number} backwardAmp //相机在锚点中心处向后退的强度
+     */
+    Module.Terrain.setCamToTerrShpLine = function (dataSetId, shpLineNameList, backwardAmp) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (!checkTypeLog(shpLineNameList, 'shpLineNameList', RE_Enum.RE_Check_Array)) return;
+        var _arrStrName = new Module.RE_Vector_WStr();
+        for (let i = 0; i < shpLineNameList.length; i++) {
+            _arrStrName.push_back(shpLineNameList[i]);
+        }
+        let _backwardAmp = isEmpty(backwardAmp) ? 1.0 : backwardAmp;
+        Module.RealBIMWeb.FocusCamToTerrGolShp(dataSetId, _arrStrName, _backwardAmp);
+    };
+
+    /**
+     * 设置地形矢量线是否允许显示
+     * @param {String} dataSetId //数据集标识
+     * @param {String} shpLineName //矢量线标识
+     * @param {Boolean} visible //是否显示
+     */
+    Module.Terrain.setTerrShpLineVisible = function (dataSetId, shpLineName, visible) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(shpLineName, 'shpLineName')) return;
+        let _visible = isEmpty(visible) ? true : visible;
+        Module.RealBIMWeb.SetTerrGolShpBVisible(dataSetId, shpLineName, _visible);
+    };
+
+    /**
+     * 获取地形矢量线是否允许显示
+     * @param {String} dataSetId //数据集标识
+     * @param {String} shpLineName //矢量线标识
+     */
+    Module.Terrain.getTerrShpLineVisible = function (dataSetId, shpLineName) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(shpLineName, 'shpLineName')) return;
+        return Module.RealBIMWeb.GetTerrGolShpBVisible(dataSetId, shpLineName);
+    };
+
+    // MARK 辅助函数
+
+    /**
+     * 地形矢量锚点 c++ 数据转换 json
+     * @param {Object} cppAncData //锚点数据
+     */
+    function terrShpAnc_convCpp2Json(cppAncData) {
+        var ancInfo = new REAncInfo();
+        if (!cppAncData.m_strName.length) {
+            return null;
+        }
+        ancInfo.ancName = cppAncData.m_strName;
+        ancInfo.groupName = cppAncData.m_strGroupName;
+        ancInfo.pos = cppAncData.m_vPos;
+        ancInfo.picPath = cppAncData.m_cTexRegion.m_strTexPath;
+        ancInfo.textInfo = cppAncData.m_cTextRegion.m_strText;
+        ancInfo.lodMax = cppAncData.m_uLODMax;
+        ancInfo.lodMin = cppAncData.m_uLODMin;
+        ancInfo.visible = cppAncData.m_bVisible;
+        if (!isEmpty(cppAncData.m_cTextRegion.m_uTextClr) && cppAncData.m_cTextRegion.m_uTextClr != 0)
+            ancInfo.textClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextClr);
+        ancInfo.textBorderClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextBorderClr);
+        if (!isEmpty(cppAncData.m_cTextRegion.m_uTextBackClr) && cppAncData.m_cTextRegion.m_uTextBackClr != 0)
+            ancInfo.textBackClr = clrU32ToClr(cppAncData.m_cTextRegion.m_uTextBackClr);
+        if (cppAncData.m_cTextRegion.m_strGolFontID != 'RealBIMFont001') ancInfo.fontName = cppAncData.m_cTextRegion.m_strGolFontID;
+
+        return removeEmptyProperty(ancInfo);
+    }
+
+    /**
+     * 地形矢量锚点布局设置
+     * @param {Object} ancInfo //锚点数据
+     */
+    function terrShpAnc_layoutRect(ancInfo) {
+        var _textBackPadding = isEmpty(ancInfo.textBackPadding) ? 0 : ancInfo.textBackPadding;
+        var _texBias = isEmpty(ancInfo.texBias) ? [1, 0] : ancInfo.texBias;
+        var _texfocus = isEmpty(ancInfo.texFocus) ? [0, 0] : ancInfo.texFocus;
+        var _linepos = [0, 0];
+        var _textBackPaddingRect = [0, 0, 0, 0];
+        var _textInfo = isEmpty(ancInfo.textInfo) ? '' : ancInfo.textInfo;
+        var _textOffset = (() => {
+            const _textOffsetReg = new RegExp('[\\u4E00-\\u9FFF]+', 'g'); //检测字符串中是否包含中文字符
+            return _textOffsetReg.test(_textInfo) ? [0, 0] : [0, 2];
+        })();
+        // 文字相对区域对齐方式
+        var _textFmtFlag = 128 + 64; /*TEXT_FMT_NOCLIP | TEXT_FMT_SINGLELINE*/
+        // 文字区域
+        var _texRect_min = [0, 0];
+        var _texRect_max = [0, 0];
+        {
+            const top = _textBackPaddingRect[3];
+            const bottom = _textBackPaddingRect[1];
+            const left = _textBackPaddingRect[0];
+            const right = _textBackPaddingRect[2];
+            // console.log(`top: ${top}, bottom: ${bottom}, left: ${left}, right: ${right}`);
+            if (_texBias[0] < 0 && _texBias[1] > 0) {
+                // 文字在图片->左上
+                _texRect_min = [
+                    _linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding - right,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] < 0 && _texBias[1] == 0) {
+                // 文字在图片->左中
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _texRect_max = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding - right,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] < 0 && _texBias[1] < 0) {
+                // 文字在图片->左下
+                _texRect_min = [_linepos[0] - 1 - _texfocus[0] - _textBackPadding * 2 - right, _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2];
+                _texRect_max = [_linepos[0] - _texfocus[0] - _textBackPadding - right, _linepos[1] - _texfocus[1] - _textBackPadding];
+                _textFmtFlag |= 32; /*TEXT_FMT_RIGHT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] == 0 && _texBias[1] > 0) {
+                // 文字在图片->中上
+                _texRect_min = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding + bottom,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2 + (top + bottom),
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] == 0 && _texBias[1] == 0) {
+                // 文字在图片->中中
+                _texRect_min = [_linepos[0] - _texfocus[0] - _textBackPadding, _linepos[1] - _texfocus[1] - _textBackPadding - bottom];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding + top,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] == 0 && _texBias[1] < 0) {
+                // 文字在图片->中下
+                _texRect_min = [
+                    _linepos[0] - _texfocus[0] - _textBackPadding,
+                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2 - (top + bottom),
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding,
+                    _linepos[1] - _texfocus[1] - _textBackPadding - top,
+                ];
+                _textFmtFlag |= 16; /*TEXT_FMT_HCENTER*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            } else if (_texBias[0] > 0 && _texBias[1] > 0) {
+                // 文字在图片->右上
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    ancInfo.picHeight + _linepos[1] + 1 - _texfocus[1] + _textBackPadding * 2,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 1; /*TEXT_FMT_BOTTOM*/
+            } else if (_texBias[0] > 0 && _texBias[1] == 0) {
+                // 文字在图片->右中
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    _linepos[1] - _texfocus[1] - _textBackPadding,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    ancInfo.picHeight + _linepos[1] - _texfocus[1] + _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 2; /*TEXT_FMT_VCENTER*/
+            } else if (_texBias[0] > 0 && _texBias[1] < 0) {
+                // 文字在图片->右下
+                _texRect_min = [
+                    ancInfo.picWidth + _linepos[0] - _texfocus[0] + _textBackPadding + left,
+                    _linepos[1] - 1 - _texfocus[1] - _textBackPadding * 2,
+                ];
+                _texRect_max = [
+                    ancInfo.picWidth + _linepos[0] + 1 - _texfocus[0] + _textBackPadding * 2 + left,
+                    _linepos[1] - _texfocus[1] - _textBackPadding,
+                ];
+                _textFmtFlag |= 8; /*TEXT_FMT_LEFT*/
+                _textFmtFlag |= 4; /*TEXT_FMT_TOP*/
+            }
+        }
+
+        var _textRect_combine = [..._texRect_min, ..._texRect_max];
+        // console.log(`textRect_combine: ${_textRect_combine}`);
+        if (!_textInfo.length) {
+            _textRect_combine = [0, 0, 0, 0];
+        }
+
+        return {
+            m_uTextFmtFlag: _textFmtFlag,
+            m_qTextRect: [
+                _textRect_combine[0] + _textOffset[0],
+                _textRect_combine[1] + _textOffset[1],
+                _textRect_combine[2] + _textOffset[0],
+                _textRect_combine[3] + _textOffset[1],
+            ],
+        };
+    }
 
     // MOD-- 360全景（Panorama） <---
     Module.Panorama = typeof Module.Panorama !== 'undefined' ? Module.Panorama : {}; //增加 Panorama 模块
