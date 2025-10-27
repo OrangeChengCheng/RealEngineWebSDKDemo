@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3422
+﻿//版本：v3.2.0.3424
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -9432,7 +9432,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_uLineWidth: _linewidth,
                 m_bVisible: _visible,
             };
-            
+
             _arrTerrShpLine.push_back(terrShpLine_obj);
         }
 
