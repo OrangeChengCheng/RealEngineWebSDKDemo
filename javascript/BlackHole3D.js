@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3435
+﻿//版本：v3.2.0.3437
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
