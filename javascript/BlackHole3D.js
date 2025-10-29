@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3428
+﻿//版本：v3.2.0.3433
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -2794,6 +2794,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _dScaleDist = 1e20;
         if (!isEmpty(scaleDist)) _dScaleDist = scaleDist;
         return Module.RealBIMWeb.WorldPosToScreenPos(worldPos, _dScaleDist);
+    };
+
+    /**
+     * 根据仿射变换信息进行坐标转换
+     * @param {Array} coordList //输入待转换的坐标数组
+     * @param {RELocInfo} tranInfo //依据的仿射变换信息（RELocInfo 类型）
+     * @param {Boolean} forward //转换方式，true：空间坐标进行正向的仿射变换；false：对空间坐标进行逆向的仿射变换
+     */
+    Module.Coordinate.getTransCoords = function (coordList, tranInfo, forward) {
+        var _s = coordList.length;
+        var _s01 = (_s * 24).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_s01);
+        var temparr1 = Module.RealBIMWeb.GetHeapView_Double(0);
+        for (let i = 0; i < _s; ++i) {
+            temparr1[i * 3 + 0] = coordList[i][0];
+            temparr1[i * 3 + 1] = coordList[i][1];
+            temparr1[i * 3 + 2] = coordList[i][2];
+        }
+        var temparr2 = [];
+        let _forward = isEmpty(forward) ? true : forward;
+        var bool = Module.RealBIMWeb.TransCoords(_forward, tranInfo.scale, tranInfo.rotate, tranInfo.offset, temparr1.byteLength, temparr1.byteOffset);
+        if (bool) {
+            var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
+            for (let i = 0; i < _s; ++i) {
+                temparr2.push([temparr3[i * 3 + 0], temparr3[i * 3 + 1], temparr3[i * 3 + 2]]);
+            }
+        }
+        return temparr2;
     };
 
     /**
@@ -9312,7 +9340,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(ancName, 'ancName')) return;
         return Module.RealBIMWeb.GetTerrGolAnchorVisible(dataSetId, ancName);
     };
-
 
     // MARK 地形矢量线
 
