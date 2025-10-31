@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3438
+﻿//版本：v3.2.0.3442
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -2078,6 +2078,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Camera.setCamLockRotate = function (lock) {
         Module.RealBIMWeb.SetCamLockRotate(lock);
     };
+
+    /**
+     * 设置相机是否与地形页面LOD切换相同步，以获取更好地形页面LOD切换效果
+     * @param {Boolean} align //是否同步
+     */
+    Module.Camera.setCamAlignTerrainPage = function (align) {
+        Module.RealBIMWeb.SetCamAlignTerrainPage(align);
+    };
+
+    /**
+     * 获取相机是否与地形页面LOD切换相同步
+     */
+    Module.Camera.getCamAlignTerrainPage = function () {
+        return Module.RealBIMWeb.GetCamAlignTerrainPage();
+    };
+
 
     // MARK 第三人称漫游
     class RETPPInfo {
@@ -9263,6 +9279,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextBackClr: _textBackClr,
                 },
             };
+            console.log("--> tempobj: ", tempobj);
             _tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddTerrGolAnchors(dataSetId, _tempAnchors);
