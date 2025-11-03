@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2025-05-15 16:10:03
+ * @LastEditTime: 2025-10-31 17:54:55
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -110,6 +110,7 @@
                 BlackHole3D.Measure.startMeasureState(1);
             }
             function endMeasure() {
+                BlackHole3D.Measure.endMeasureState(true);
             }
             function changeHandle(e) {
                 if (!BlackHole3D.Measure.getCurState()) {
