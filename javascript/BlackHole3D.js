@@ -1,6 +1,6 @@
-﻿//版本：v3.2.0.3456
+﻿//版本：v3.2.0.3460
 const isPhoneMode = false;
-const hasNewExtrude = false;
+const hasNewExtrude = true;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
 const discardHint = true;
@@ -9233,8 +9233,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _GolFontID = isEmpty(ancInfo.fontName) ? 'RealBIMFont001' : ancInfo.fontName;
             var _textcolor = isEmpty(ancInfo.textClr) ? 0xffffffff : clrToU32(ancInfo.textClr);
             var _textbordercolor = isEmpty(ancInfo.textBorderClr) ? 0xff000000 : clrToU32(ancInfo.textBorderClr);
-            var _textBackMode = isEmpty(ancInfo.textBackMode) ? 0 : ancInfo.textBackMode;
-            var _textBackClr = isEmpty(ancInfo.textBackClr) ? 0x00000000 : clrToU32(ancInfo.textBackClr);
             var _lodMax = isEmpty(ancInfo.lodMax) ? 31 : ancInfo.lodMax;
             var _lodMin = isEmpty(ancInfo.lodMin) ? 0 : ancInfo.lodMin;
             var _visible = isEmpty(ancInfo.visible) ? true : ancInfo.visible;
@@ -9274,9 +9272,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextBorderClr: _textbordercolor,
                     m_qTextRect: handle_rect.m_qTextRect,
                     m_uTextFmtFlag: handle_rect.m_uTextFmtFlag,
-                    m_uTextBackMode: _textBackMode,
+                    m_uTextBackMode: 0,
                     m_sTextBackBorder: 0,
-                    m_uTextBackClr: _textBackClr,
+                    m_uTextBackClr: 0x00000000,
                 },
             };
             console.log("--> tempobj: ", tempobj);
@@ -9401,9 +9399,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 var _GolFontID = isEmpty(_textInfo.fontName) ? 'RealBIMFont001' : _textInfo.fontName;
                 var _textcolor = isEmpty(_textInfo.textClr) ? 0xffffffff : clrToU32(_textInfo.textClr);
                 var _textbordercolor = isEmpty(_textInfo.textBorderClr) ? 0xff000000 : clrToU32(_textInfo.textBorderClr);
-                var _textBackMode = isEmpty(_textInfo.textBackMode) ? 0 : _textInfo.textBackMode;
-                var _textBackBorder = isEmpty(_textInfo.textBackBorder) ? 0 : _textInfo.textBackBorder;
-                var _textBackClr = isEmpty(_textInfo.textBackClr) ? 0x00000000 : clrToU32(_textInfo.textBackClr);
 
                 // 文字相对区域对齐方式
                 var TempTextRect = [-1, -1, 1, 1];
@@ -9445,9 +9440,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextBorderClr: _textbordercolor,
                     m_qTextRect: TempTextRect,
                     m_uTextFmtFlag: TempTextFmtFlag,
-                    m_uTextBackMode: _textBackMode,
-                    m_sTextBackBorder: _textBackBorder,
-                    m_uTextBackClr: _textBackClr,
+                    m_uTextBackMode: 0,
+                    m_sTextBackBorder: 0,
+                    m_uTextBackClr: 0x00000000,
                 };
             }
 

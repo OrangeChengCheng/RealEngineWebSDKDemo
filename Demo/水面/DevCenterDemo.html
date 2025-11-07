@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="../DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../DevCenterConfig.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button id="id_editRgn_btn" type="primary" @click="editRgn">{{ editRgn_btn_text }}</el-button>
+                <el-button id="id_delRgn_btn" type="primary" :disabled="delRgn_btn_disabled" @click="delRgn">清除区域</el-button>
+                <el-color-picker
+                    class="color-picker"
+                    v-model="water_color"
+                    show-alpha
+                    color-format="rgb"
+                    :predefine="predefineColors"
+                    @change="colorPicker_change" />
+            </div>
+        </div>
+
+        <!-- 引擎相关逻辑 -->
+        <script type="text/javascript">
+            // 定义全局数据
+            var editRgnError_state = false; // 编辑区域错误状态
+            const Water_ID = 'Water_ID'; // 水面标识（唯一）
+
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '水面编辑',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a141f4314c4a5da81256c9219dc9643',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+
+                WebSDK_setWaterDefaultStyle('rgba(255, 0, 0, 0.5)');
+            }
+            // 删除水面数据
+            function WebSDK_delWater() {
+                BlackHole3D.Water.delData([Water_ID]); // 通过水面名称删除指定的水面对象
+            }
+            // 进入水面编辑模式并添加水面区域
+            function WebSDK_startEditAndAddRgn() {
+                BlackHole3D.Water.startEditState(); // 进入水面编辑模式
+                BlackHole3D.Water.startAddWaterState(Water_ID); // 添加水面区域绘制
+            }
+            // 结束添加水面区域并结束水面编辑模式
+            function WebSDK_endEditAndAddRgn() {
+                BlackHole3D.Water.endAddWaterState(); // 结束水面区域绘制
+                BlackHole3D.Water.endEditState(); // 结束水面编辑模式
+            }
+            // 进入水面编辑模式并将已经绘制好的区域显示矢量模式
+            function WebSDK_startEditAndChangeRgn() {
+                BlackHole3D.Water.startEditState(); // 进入水面编辑模式
+                BlackHole3D.Water.setShowState([Water_ID], 0); // 设置水面显示状态为矢量状态
+            }
+            // 获取水面数据
+            function WebSDK_getWaterData() {
+                return BlackHole3D.Water.getData([Water_ID]); // 获取当前场景中水面对象集合
+            }
+            // 设置水面默认样式（需要在引擎初始化完成之后调用）
+            function WebSDK_setWaterDefaultStyle(rgbaStr) {
+                var attrInfo = new BlackHole3D.REWaterAttrInfo();
+                attrInfo.waterClr = handleColorObject(rgbaStr);
+                BlackHole3D.Water.setDefaultAttr(attrInfo);
+            }
+            // 设置水面颜色
+            function WebSDK_setWaterClr(rgbaStr) {
+                BlackHole3D.Water.setClr(Water_ID, handleColorObject(rgbaStr));
+            }
+            // 处理颜色对象
+            function handleColorObject(rgbaStr) {
+                const regex = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/;
+                const match = rgbaStr.match(regex);
+                if (!match) return;
+                const clr_obj = new BlackHole3D.REColor(
+                    parseInt(match[1], 10),
+                    parseInt(match[2], 10),
+                    parseInt(match[3], 10),
+                    Math.round(parseFloat(match[4]) * 255)
+                );
+                return clr_obj;
+            }
+        </script>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        step_state: 0, //0: 区域绘制无效  1：开始初始区域编辑  2：展示水面渲染模式  3：编辑已存在的水面区域
+                        editRgn_btn_text: '绘制水面区域',
+                        editRgn_state: false,
+                        delRgn_btn_disabled: true,
+                        water_color: 'rgba(255, 0, 0, 0.5)',
+                        predefineColors: ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(0, 0, 255, 0.5)'],
+                    };
+                },
+                methods: {
+                    // 初始化数据
+                    initData() {
+                        // 数据初始化
+                        this.editRgn_state = false;
+
+                        // 样式初始化
+                        this.editRgn_btn_text = '绘制水面区域';
+                        this.delRgn_btn_disabled = true;
+                    },
+
+                    // 绘制水面区域/生成水面渲染
+                    editRgn() {
+                        const step = this.checkStep();
+                        this.step_state = step;
+                        switch (step) {
+                            case 0:
+                                ElementPlus.ElMessage.error('请先绘制出有效水面区域');
+                                break;
+                            case 1:
+                                this.startEditRgn();
+                                break;
+                            case 2:
+                                this.endEidtRgn();
+                                break;
+                            case 3:
+                                this.changeOldRgn();
+                                break;
+                            default:
+                                break;
+                        }
+                        this.updateUIStyle();
+                    },
+
+                    // 清除区域并初始化数据
+                    delRgn() {
+                        WebSDK_delWater();
+                        this.initData();
+                    },
+
+                    // 【流程：一】 绘制初始水面区域
+                    startEditRgn() {
+                        WebSDK_startEditAndAddRgn();
+                        this.editRgn_state = true;
+                    },
+
+                    // 【流程：二】 结束区域编辑并渲染水面区域
+                    endEidtRgn() {
+                        WebSDK_endEditAndAddRgn();
+                        this.editRgn_state = false;
+                    },
+
+                    // 【流程：三】 重新编辑已有水面区域
+                    changeOldRgn() {
+                        WebSDK_startEditAndChangeRgn();
+                        this.editRgn_state = true;
+                    },
+
+                    // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示水面渲染模式  3：编辑已存在的水面区域
+                    checkStep() {
+                        const waterList = WebSDK_getWaterData();
+                        if (!waterList.length) {
+                            if (this.editRgn_state) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        }
+                        if (this.editRgn_state) {
+                            if (editRgnError_state) {
+                                return 0;
+                            } else {
+                                const waterInfo = waterList[0];
+                                if (waterInfo.rgnList.length > 0 && waterInfo.rgnList[0].pointList.length > 2) {
+                                    return 2;
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        } else {
+                            return 3;
+                        }
+                    },
+
+                    // UI样式更新
+                    updateUIStyle() {
+                        this.editRgn_btn_text = this.editRgn_state ? '生成水面渲染' : '绘制水面区域';
+                        this.delRgn_btn_disabled = false;
+                    },
+
+                    // 水面样式更新
+                    colorPicker_change(rgbaStr) {
+                        if (!rgbaStr || !rgbaStr.length) {
+                            this.water_color = 'rgba(255, 0, 0, 0.5)';
+                            return;
+                        }
+                        if (this.step_state == 2) {
+                            WebSDK_setWaterClr(this.water_color);
+                        } else {
+                            WebSDK_setWaterDefaultStyle(this.water_color);
+                        }
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            app.mount('#app');
+        </script>
+    </body>
+</html>

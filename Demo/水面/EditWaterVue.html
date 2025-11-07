@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" /> -->
+        <link rel="stylesheet" href="../DevStyle.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+            <div class="btn">
+                <button id="id_editRgn_btn" onclick="editRgn()">绘制水面区域</button>
+                <button id="id_delRgn_btn" onclick="delRgn()">清除区域</button>
+                <select class="select" id="id_editClr_sel">
+                    <option value="0">红色</option>
+                    <option value="1">绿色</option>
+                    <option value="2">蓝色</option>
+                </select>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/re_demo_config.js"></script> -->
+        <script async type="text/javascript" src="../../re_demo_config.js"></script>
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            // 定义全局数据
+            var editRgn_state = false; // 编辑区域状态标识
+            var editRgnError_state = false; // 编辑区域错误状态
+            var water_id = 'Water_id'; // 水面标识（唯一）
+            var water_list = []; // 水面对象集合
+
+            // 添加监听事件
+            function addListener() {
+                document.addEventListener('REAddWaterFinish', REAddWaterFinish); //添加水面完成回调
+                document.addEventListener('REAddWaterRgnCheck', REAddWaterRgnCheck); //水面添加区域检查回调事件
+                //探测
+                document.addEventListener('RESystemSelElement', RESystemSelElement); //鼠标探测模型事件（左键单击和右键单击）
+                document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
+
+                const selectElement_editClr = document.getElementById('id_editClr_sel');
+                selectElement_editClr.addEventListener('change', updateWaterStyle);
+            }
+            function REAddWaterFinish(e) {
+                console.log(e);
+            }
+            function REAddWaterRgnCheck(e) {
+                console.log('REAddWaterRgnCheck: ', e.detail.succeed);
+                editRgnError_state = !e.detail.succeed;
+            }
+            function RESystemSelShpElement(e) {
+                console.log('-- 鼠标探测矢量元素事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            function RESystemSelElement(e) {
+                console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+            }
+            //初始化完成后，加载项目
+            function loadDataSet() {
+                var dataSetList = [
+                    {
+                        dataSetId: '水面编辑',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a141f4314c4a5da81256c9219dc9643',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+
+                // 设置默认的水面样式（需要在引擎初始化完成之后调用）
+                var attrInfo = new BlackHole3D.REWaterAttrInfo();
+                attrInfo.waterClr = new BlackHole3D.REColor(255, 0, 0, 128);
+                BlackHole3D.Water.setDefaultAttr(attrInfo);
+            }
+
+            // 初始化数据
+            const initData = (function initDataFunc() {
+                // 数据初始化
+                editRgn_state = false;
+                water_list = [];
+
+                // 样式初始化
+                const editRgn_btn = document.getElementById('id_editRgn_btn');
+                editRgn_btn.innerText = '绘制水面区域';
+                const delRgn_btn = document.getElementById('id_delRgn_btn');
+                delRgn_btn.disabled = true;
+
+                return initDataFunc;
+            })();
+
+            // 绘制水面区域/生成水面渲染
+            function editRgn() {
+                const step = checkStep();
+                switch (step) {
+                    case 0:
+                        console.log('请先绘制出有效水面区域');
+                        break;
+                    case 1:
+                        startEditRgn();
+                        break;
+                    case 2:
+                        endEidtRgn();
+                        break;
+                    case 3:
+                        changeOldRgn();
+                        break;
+                    default:
+                        break;
+                }
+                updateUIStyle();
+            }
+
+            // 清除区域并初始化数据
+            function delRgn() {
+                BlackHole3D.Water.delData([water_id]);
+                initData();
+            }
+
+            // 【流程：一】 绘制初始水面区域
+            function startEditRgn() {
+                BlackHole3D.Water.startEditState(); // 进入水面编辑模式
+                BlackHole3D.Water.startAddWaterState(water_id); // 添加水面区域绘制
+                editRgn_state = true;
+            }
+
+            // 【流程：二】 结束区域编辑并渲染水面区域
+            function endEidtRgn() {
+                BlackHole3D.Water.endAddWaterState();
+                BlackHole3D.Water.endEditState();
+                editRgn_state = false;
+            }
+
+            // 【流程：三】 重新编辑已有水面区域
+            function changeOldRgn() {
+                BlackHole3D.Water.startEditState(); // 进入水面编辑模式
+                BlackHole3D.Water.setShowState([water_id], 0); // 设置水面显示状态为矢量状态
+                editRgn_state = true;
+            }
+
+            // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示水面渲染模式  3：编辑已存在的水面区域
+            function checkStep() {
+                if (!BlackHole3D.Water.getData([water_id]).length) {
+                    if (editRgn_state) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                }
+                if (editRgn_state) {
+                    if (editRgnError_state) {
+                        return 0;
+                    } else {
+                        const waterInfo = BlackHole3D.Water.getData([water_id])[0];
+                        if (waterInfo.rgnList.length > 0 && waterInfo.rgnList[0].pointList.length > 2) {
+                            return 2;
+                        } else {
+                            return 0;
+                        }
+                    }
+                } else {
+                    return 3;
+                }
+            }
+
+            // UI样式更新
+            function updateUIStyle() {
+                const editRgn_btn = document.getElementById('id_editRgn_btn');
+                const delRgn_btn = document.getElementById('id_delRgn_btn');
+                if (editRgn_state) {
+                    editRgn_btn.innerText = '生成水面渲染';
+                    delRgn_btn.disabled = false;
+                } else {
+                    editRgn_btn.innerText = '绘制水面区域';
+                    delRgn_btn.disabled = false;
+                }
+            }
+
+            // 水面样式更新
+            function updateWaterStyle() {
+                let clr_type = Number.parseInt(document.getElementById('id_editClr_sel').value);
+                switch (clr_type) {
+                    case 0:
+                        BlackHole3D.Water.setClr(water_id, new BlackHole3D.REColor(255, 0, 0, 128));
+                        break;
+                    case 1:
+                        BlackHole3D.Water.setClr(water_id, new BlackHole3D.REColor(0, 255, 0, 128));
+                        break;
+                    case 2:
+                        BlackHole3D.Water.setClr(water_id, new BlackHole3D.REColor(0, 0, 255, 128));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        </script>
+    </body>
+</html>
