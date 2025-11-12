@@ -21,6 +21,10 @@
                 <el-button id="id_editRgn_btn" type="primary" @click="editRgn">{{ editRgn_btn_text }}</el-button>
                 <el-button id="id_delRgn_btn" type="primary" :disabled="delRgn_btn_disabled" @click="delRgn">清除区域</el-button>
                 <el-button id="id_addDatas_btn" type="primary" :disabled="addDatas_btn_disabled" @click="addDatas">添加一批单体化</el-button>
+                <el-button id="id_delDates_btn" type="primary" :disabled="delDates_btn_disabled" @click="delDates">删除一批单体化</el-button>
+                <el-button id="id_showHighlight_btn" type="primary" :disabled="showHighlight_btn_disabled" @click="showHighlight"
+                    >显示高亮标记</el-button
+                >
             </div>
         </div>
 
@@ -50,9 +54,10 @@
                 editRgnError_state = !e.detail.succeed;
             }
             // 删除单体化数据
-            function WebSDK_delWater() {
-                BlackHole3D.Monomer.delData([Monomer_ID]); // 通过单体化名称删除指定的单体化对象
+            function WebSDK_delMonomer() {
+                BlackHole3D.Monomer.delData([Monomer_ID]); // 通过单体化名称删除指定的单体化对象, 空数组删除所有的单体化对象
             }
+
             // 进入单体化编辑模式并添加单体化区域
             function WebSDK_startEditAndAddRgn() {
                 BlackHole3D.Monomer.startEditState(); // 进入单体化编辑模式
@@ -72,6 +77,142 @@
             function WebSDK_getMonomerData() {
                 return BlackHole3D.Monomer.getData([Monomer_ID]); // 获取当前场景中单体化对象集合
             }
+            // 添加单体化数据
+            function WebSDK_addMonomerData() {
+                let monomerList = [
+                    {
+                        monomerId: 'Monomer_ID_001',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [208.19811180759257, -166.26608471184255, -102.94661749403444],
+                                [216.0343386862005, -187.42373924287173, -102.92348493455387],
+                                [244.4812849811548, -176.90707515593095, -102.69562694011168],
+                                [237.84713375684052, -156.62459837814922, -102.56312453337289],
+                            ],
+                        ],
+                        heightMin: -103.9621353149414,
+                        heightMax: -96.30807113647461,
+                    },
+                    {
+                        monomerId: 'Monomer_ID_002',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [193.84607378119944, -126.11544125986133, -101.12155510402798],
+                                [207.25174054251409, -163.28952523338938, -102.8924842131755],
+                                [239.65531877362574, -151.09568871281945, -102.58775031573913],
+                                [227.98489154553894, -114.60308529172536, -101.07123284000541],
+                            ],
+                        ],
+                        heightMin: -103.7143783569336,
+                        heightMax: -92.39446449279785,
+                    },
+                    {
+                        monomerId: 'Monomer_ID_003',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [172.73876696109198, -237.79575518337117, -104.28581763025636],
+                                [192.61078372352893, -230.4071056092839, -103.8879282113549],
+                                [186.58910591582344, -215.1434264974896, -103.89915444954428],
+                                [168.22055583987776, -221.81303270546664, -104.18947706359769],
+                            ],
+                        ],
+                        heightMin: -105.42407608032227,
+                        heightMax: -98.86159896850586,
+                    },
+                    {
+                        monomerId: 'Monomer_ID_004',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [147.95944823382135, -189.4139046242849, -104.4383033803897],
+                                [174.9551230837842, -180.3589385045061, -103.94151016424222],
+                                [169.51962242837232, -166.03594794034856, -102.70165185836647],
+                                [143.30754844928884, -174.3602456932973, -103.07283680041485],
+                            ],
+                        ],
+                        heightMin: -105.37324142456055,
+                        heightMax: -98.5063362121582,
+                    },
+                    {
+                        monomerId: 'Monomer_ID_005',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [176.306216737816, -179.57907908699673, -103.92246664576943],
+                                [196.44094193475368, -172.64127712556763, -103.62247851627725],
+                                [191.4293534168054, -157.5341430674821, -102.3041395654288],
+                                [172.3244701048308, -163.94137139330505, -102.55928489046649],
+                            ],
+                        ],
+                        heightMin: -104.89441299438477,
+                        heightMax: -97.1743278503418,
+                    },
+                    {
+                        monomerId: 'Monomer_ID_006',
+                        dataSetId: '',
+                        rgnList: [
+                            [
+                                [149.0917450688734, -189.6447357958208, -104.44095729031689],
+                                [144.15554131910673, -174.23935298216477, -104.10339901650926],
+                                [123.72591663496624, -180.7903408574924, -104.30336836903035],
+                                [130.74830071403767, -196.99644012236493, -104.91053842063744],
+                            ],
+                        ],
+                        heightMin: -106.27301406860352,
+                        heightMax: -90.89285087585449,
+                    },
+                ];
+                BlackHole3D.Monomer.setData(monomerList);
+            }
+            // 删除一批单体化数据
+            function WebSDK_delMonomerDatas() {
+                BlackHole3D.Monomer.delData([
+                    'Monomer_ID_001',
+                    'Monomer_ID_002',
+                    'Monomer_ID_003',
+                    'Monomer_ID_004',
+                    'Monomer_ID_005',
+                    'Monomer_ID_006',
+                ]); // 通过单体化名称删除指定的单体化对象, 空数组删除所有的单体化对象
+            }
+            // 显示高亮单体化数据
+            function WebSDK_showHighlightMonomerData() {
+                BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_001', 'Monomer_ID_005', 'Monomer_ID_006'], {
+                    monomerClr: {
+                        red: 0,
+                        green: 255,
+                        blue: 0,
+                        alpha: 128,
+                    },
+                    clrWeight: 255,
+                    alphaWeight: 255,
+                });
+
+                BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_002', 'Monomer_ID_003'], {
+                    monomerClr: {
+                        red: 0,
+                        green: 0,
+                        blue: 255,
+                        alpha: 112,
+                    },
+                    clrWeight: 255,
+                    alphaWeight: 255,
+                });
+
+                BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_002'], {
+                    monomerClr: {
+                        red: 255,
+                        green: 0,
+                        blue: 255,
+                        alpha: 112,
+                    },
+                    clrWeight: 255,
+                    alphaWeight: 255,
+                });
+            }
         </script>
 
         <!-- UI 相关逻辑 -->
@@ -83,7 +224,9 @@
                         editRgn_btn_text: '绘制单体化区域',
                         editRgn_state: false,
                         delRgn_btn_disabled: true,
-                        addDatas_btn_disabled: true,
+                        addDatas_btn_disabled: false,
+                        delDates_btn_disabled: true,
+                        showHighlight_btn_disabled: true,
                         sel_extrude_type: 0,
                     };
                 },
@@ -96,6 +239,9 @@
                         // 样式初始化
                         this.editRgn_btn_text = '绘制单体化区域';
                         this.delRgn_btn_disabled = true;
+                        this.addDatas_btn_disabled = false;
+                        this.delDates_btn_disabled = true;
+                        this.showHighlight_btn_disabled = true;
                     },
 
                     // 绘制单体化区域/生成单体化渲染
@@ -123,31 +269,50 @@
 
                     // 清除区域并初始化数据
                     delRgn() {
-                        WebSDK_delWater();
+                        WebSDK_delMonomer();
                         this.initData();
                     },
 
                     // 添加一批单体化数据
                     addDatas() {
-                        
+                        WebSDK_addMonomerData();
+                        this.addDatas_btn_disabled = true;
+                        this.showHighlight_btn_disabled = false;
+                        this.delDates_btn_disabled = false;
+                    },
+
+                    // 删除一批单体化数据
+                    delDates() {
+                        WebSDK_delMonomerDatas();
+                        this.addDatas_btn_disabled = false;
+                        this.delDates_btn_disabled = true;
+                        this.showHighlight_btn_disabled = true;
+                    },
+
+                    // 显示高亮单体化数据
+                    showHighlight() {
+                        WebSDK_showHighlightMonomerData();
                     },
 
                     // 【流程：一】 绘制初始单体化区域
                     startEditRgn() {
                         WebSDK_startEditAndAddRgn();
                         this.editRgn_state = true;
+                        this.addDatas_btn_disabled = true;
                     },
 
                     // 【流程：二】 结束区域编辑并渲染单体化区域
                     endEidtRgn() {
                         WebSDK_endEditAndAddRgn();
                         this.editRgn_state = false;
+                        this.addDatas_btn_disabled = false;
                     },
 
                     // 【流程：三】 重新编辑已有单体化区域
                     changeOldRgn() {
                         WebSDK_startEditAndChangeRgn();
                         this.editRgn_state = true;
+                        this.addDatas_btn_disabled = true;
                     },
 
                     // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示单体化渲染模式  3：编辑已存在的单体化区域

@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3467
+﻿//版本：v3.2.0.3468
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -14693,7 +14693,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
                 });
 
-                let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x7fffffff : clrToU32(_monomer_obj.monomerClr);
+                let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x70ffffff : clrToU32(_monomer_obj.monomerClr);
                 let _expandDist = isEmpty(_monomer_obj.expandDist) ? 0 : _monomer_obj.expandDist;
                 let _showGeomShp = isEmpty(_monomer_obj.showGeomShp) ? false : _monomer_obj.showGeomShp;
 
