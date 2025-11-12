@@ -2845,7 +2845,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var temparr2 = [];
         let _forward = isEmpty(forward) ? true : forward;
-        var bool = Module.RealBIMWeb.TransCoords(_forward, tranInfo.scale, tranInfo.rotate, tranInfo.offset, temparr1.byteLength, temparr1.byteOffset);
+        var bool = Module.RealBIMWeb.TransCoords(
+            _forward,
+            tranInfo.scale,
+            tranInfo.rotate,
+            tranInfo.offset,
+            temparr1.byteLength,
+            temparr1.byteOffset
+        );
         if (bool) {
             var temparr3 = Module.RealBIMWeb.GetHeapView_Double(0);
             for (let i = 0; i < _s; ++i) {
@@ -6875,6 +6882,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         });
     }
 
+    /**
+     * 设置模型的漫反射调节系数
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {dvec3} diffCoef //漫反射调节系数，【red通道，green通道，blue通道】，默认1.0，值越大越亮，值越小越暗
+     */
+    Module.BIM.setDiffCoef = function (dataSetId, diffCoef) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        let _diffCoef = isEmpty(diffCoef) ? [1.0, 1.0, 1.0] : diffCoef;
+        return Module.RealBIMWeb.SetHugeObjDiffCoef(dataSetId, '', _diffCoef);
+    };
+
     // MARK 骨骼动画
 
     class REGolBoneLocInfo {
@@ -8124,6 +8142,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetTerrSkirtAmp(dataSetId);
     };
 
+    /**
+     * 设置模型的漫反射调节系数
+     * @param {String} dataSetId //数据集标识，为空串则表示处理所有数据集
+     * @param {dvec3} diffCoef //漫反射调节系数，【red通道，green通道，blue通道】，默认1.0，值越大越亮，值越小越暗
+     */
+    Module.Grid.setDiffCoef = function (dataSetId, diffCoef) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        let _diffCoef = isEmpty(diffCoef) ? [1.0, 1.0, 1.0] : diffCoef;
+        return Module.RealBIMWeb.SetUnVerHugeGroupDiffCoef(dataSetId, '', _diffCoef);
+    };
+
     // MARK 剖切
 
     /**
@@ -9309,7 +9338,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_uTextBackClr: 0x00000000,
                 },
             };
-            console.log("--> tempobj: ", tempobj);
             _tempAnchors.push_back(tempobj);
         }
         return Module.RealBIMWeb.AddTerrGolAnchors(dataSetId, _tempAnchors);
