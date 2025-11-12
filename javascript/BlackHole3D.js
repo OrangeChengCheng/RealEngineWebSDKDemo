@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3466
+﻿//版本：v3.2.0.3467
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -4734,6 +4734,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Anchor.getAncVisDist = function (groupName) {
         return Module.RealBIMWeb.GetAnchorVisDist(groupName);
+    };
+
+    /**
+     * 设置系统中锚点的最大自定义单体纹理尺寸 注：设置的是同一个组的尺寸信息，且需要在添加锚点之前进行设置，如果当前组已经被创建则设置无效
+     * @param {String} groupName //锚点组的标识，若为空串则不处理
+     * @param {Number} size //最大自定义单体纹理尺寸，0表示系统自动决定
+     */
+    Module.Anchor.setCustomMaxTexSize = function (groupName, size) {
+        Module.RealBIMWeb.SetAnchorCustomMaxTexSize(groupName, size);
+    };
+
+    /**
+     * 获取系统中锚点的最大自定义单体纹理尺寸
+     * @param {String} groupName //锚点组的标识，若为空串则不处理
+     */
+    Module.Anchor.getCustomMaxTexSize = function (groupName) {
+        return Module.RealBIMWeb.GetAnchorCustomMaxTexSize(groupName);
     };
 
     // MARK 辅助函数
