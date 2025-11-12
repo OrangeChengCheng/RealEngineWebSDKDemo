@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="../DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../DevCenterConfig.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button id="id_editRgn_btn" type="primary" @click="editRgn">{{ editRgn_btn_text }}</el-button>
+                <el-button id="id_delRgn_btn" type="primary" :disabled="delRgn_btn_disabled" @click="delRgn">清除区域</el-button>
+                <el-select v-model="sel_extrude_type" placeholder="选择渲染方式" style="width: 140px; margin-left: 10px" @change="select_type_change">
+                    <el-option v-for="item in type_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+            </div>
+        </div>
+
+        <!-- 引擎相关逻辑 -->
+        <script type="text/javascript">
+            // 定义全局数据
+            var editRgnError_state = false; // 编辑区域错误状态
+            const Monomer_ID = 'Monomer_ID'; // 单体化标识（唯一）
+
+            // 添加监听事件
+            function addListener() {
+                document.addEventListener('REAddMonomerRgnCheck', REAddMonomerRgnCheck); //单体化添加区域检查回调事件
+            }
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '单体化编辑',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1d83c0c8aceca56bf3874e8f2f7d39',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+
+            }
+            //单体化添加区域检查回调事件
+            function REAddMonomerRgnCheck(e) {
+                editRgnError_state = !e.detail.succeed;
+            }
+            // 删除单体化数据
+            function WebSDK_delWater() {
+                BlackHole3D.Monomer.delData([Monomer_ID]); // 通过单体化名称删除指定的单体化对象
+            }
+            // 进入单体化编辑模式并添加单体化区域
+            function WebSDK_startEditAndAddRgn() {
+                BlackHole3D.Monomer.startEditState(); // 进入单体化编辑模式
+                BlackHole3D.Monomer.startAddMonomerState(Monomer_ID); // 添加单体化区域绘制
+            }
+            // 结束添加单体化区域并结束单体化编辑模式
+            function WebSDK_endEditAndAddRgn() {
+                BlackHole3D.Monomer.endAddMonomerState(); // 结束单体化区域绘制
+                BlackHole3D.Monomer.endEditState(); // 结束单体化编辑模式
+            }
+            // 进入单体化编辑模式并将已经绘制好的区域显示矢量模式
+            function WebSDK_startEditAndChangeRgn() {
+                BlackHole3D.Monomer.startEditState(); // 进入单体化编辑模式
+                BlackHole3D.Monomer.setShowState([Monomer_ID], 0); // 设置单体化显示状态为矢量状态
+            }
+            // 获取单体化数据
+            function WebSDK_getMonomerData() {
+                return BlackHole3D.Monomer.getData([Monomer_ID]); // 获取当前场景中单体化对象集合
+            }
+        </script>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        step_state: 0, //0: 区域绘制无效  1：开始初始区域编辑  2：展示单体化渲染模式  3：编辑已存在的单体化区域
+                        editRgn_btn_text: '绘制单体化区域',
+                        editRgn_state: false,
+                        selTopHeight_btn_disabled: true,
+                        selBottomHeight_btn_disabled: true,
+                        delRgn_btn_disabled: true,
+                        sel_extrude_type: 0,
+                        type_options: [
+                            {
+                                value: 0,
+                                label: '融合效果',
+                            },
+                            {
+                                value: 1,
+                                label: '盒子效果',
+                            },
+                        ],
+                    };
+                },
+                methods: {
+                    // 初始化数据
+                    initData() {
+                        // 数据初始化
+                        this.editRgn_state = false;
+
+                        // 样式初始化
+                        this.editRgn_btn_text = '绘制单体化区域';
+                        this.delRgn_btn_disabled = true;
+                    },
+
+                    // 绘制单体化区域/生成单体化渲染
+                    editRgn() {
+                        const step = this.checkStep();
+                        this.step_state = step;
+                        switch (step) {
+                            case 0:
+                                ElementPlus.ElMessage.error('请先绘制出有效单体化区域');
+                                break;
+                            case 1:
+                                this.startEditRgn();
+                                break;
+                            case 2:
+                                this.endEidtRgn();
+                                break;
+                            case 3:
+                                this.changeOldRgn();
+                                break;
+                            default:
+                                break;
+                        }
+                        this.updateUIStyle();
+                    },
+
+                    // 清除区域并初始化数据
+                    delRgn() {
+                        WebSDK_delWater();
+                        this.initData();
+                    },
+
+                    // 【流程：一】 绘制初始单体化区域
+                    startEditRgn() {
+                        WebSDK_startEditAndAddRgn();
+                        this.editRgn_state = true;
+                    },
+
+                    // 【流程：二】 结束区域编辑并渲染单体化区域
+                    endEidtRgn() {
+                        WebSDK_endEditAndAddRgn();
+                        this.editRgn_state = false;
+                    },
+
+                    // 【流程：三】 重新编辑已有单体化区域
+                    changeOldRgn() {
+                        WebSDK_startEditAndChangeRgn();
+                        this.editRgn_state = true;
+                    },
+
+                    // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示单体化渲染模式  3：编辑已存在的单体化区域
+                    checkStep() {
+                        const monomerList = WebSDK_getMonomerData();
+                        if (!monomerList.length) {
+                            if (this.editRgn_state) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        }
+                        if (this.editRgn_state) {
+                            if (editRgnError_state) {
+                                return 0;
+                            } else {
+                                const monomerInfo = monomerList[0];
+                                if (monomerInfo.rgnList.length > 0 && monomerInfo.rgnList[0].length > 2) {
+                                    return 2;
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        } else {
+                            return 3;
+                        }
+                    },
+
+                    // UI样式更新
+                    updateUIStyle() {
+                        this.editRgn_btn_text = this.editRgn_state ? '生成单体化渲染' : '绘制单体化区域';
+                        this.delRgn_btn_disabled = false;
+                    },
+
+                    // 挤出类型更新
+                    select_type_change(type) {
+                        console.log(type);
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            app.mount('#app');
+        </script>
+    </body>
+</html>

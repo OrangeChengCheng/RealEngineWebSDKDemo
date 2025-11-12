@@ -36,6 +36,10 @@
             var editRgnError_state = false; // 编辑区域错误状态
             const Water_ID = 'Water_ID'; // 水面标识（唯一）
 
+            // 添加监听事件
+            function addListener() {
+                document.addEventListener('REAddWaterRgnCheck', REAddWaterRgnCheck); //水面添加区域检查回调事件
+            }
             //初始化完成后，加载项目
             function RESystemEngineCreatedCallBack() {
                 var dataSetList = [
@@ -48,6 +52,10 @@
                 BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
 
                 WebSDK_setWaterDefaultStyle('rgba(255, 0, 0, 0.5)');
+            }
+            //水面添加区域检查回调事件
+            function REAddWaterRgnCheck(e) {
+                editRgnError_state = !e.detail.succeed;
             }
             // 删除水面数据
             function WebSDK_delWater() {

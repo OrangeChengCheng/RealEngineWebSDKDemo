@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3462
+﻿//版本：v3.2.0.3466
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -659,6 +659,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.getExpectMaxInstDrawFaceNum = function () {
         return Module.RealBIMWeb.GetExpectMaxInstDrawFaceNum(Module.RE_SceneMgr_INST_QUOTA.HUGEMODEL);
+    };
+
+    /**
+     * 设置模型最大纹理组拼接纹理尺寸
+     * @param {Number} size //最大纹理组拼接纹理尺寸
+     */
+    Module.Common.setMaxTexGroupAtlasSize = function (size) {
+        Module.RealBIMWeb.SetMaxHugeTexGroupAtlasSize(size);
+    };
+
+    /**
+     * 获取模型最大纹理组拼接纹理尺寸
+     */
+    Module.Common.getMaxTexGroupAtlasSize = function () {
+        return Module.RealBIMWeb.GetMaxHugeTexGroupAtlasSize();
     };
 
     /**
@@ -5005,7 +5020,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uTextBackClr: _textBackClr,
         };
 
-        var _groupName = isEmpty(potShpInfo.groupName) ? '' : potShpInfo.groupName;
+        var _groupName = isEmpty(potShpInfo.groupName) ? 'DefaultGroup' : potShpInfo.groupName;
         var _shpName = isEmpty(potShpInfo.shpName) ? '' : potShpInfo.shpName;
         var _pos = isEmpty(potShpInfo.pos) ? [0, 0, 0] : potShpInfo.pos;
         var _bContactSce = isEmpty(potShpInfo.contactSce) ? false : potShpInfo.contactSce;
@@ -5120,7 +5135,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uTextBackClr: _textBackClr,
         };
 
-        var _groupName = isEmpty(lineShpInfo.groupName) ? '' : lineShpInfo.groupName;
+        var _groupName = isEmpty(lineShpInfo.groupName) ? 'DefaultGroup' : lineShpInfo.groupName;
         var _shpName = isEmpty(lineShpInfo.shpName) ? '' : lineShpInfo.shpName;
         var _bContactSce = isEmpty(lineShpInfo.contactSce) ? false : lineShpInfo.contactSce;
         var _uClr = isEmpty(lineShpInfo.lineClr) ? 0xffffffff : clrToU32(lineShpInfo.lineClr);
@@ -5173,7 +5188,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(fenceShpInfo.shpName, 'shpName')) return;
         if (!checkTypeLog(fenceShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(fenceShpInfo.groupName) ? '' : fenceShpInfo.groupName;
+        var _groupName = isEmpty(fenceShpInfo.groupName) ? 'DefaultGroup' : fenceShpInfo.groupName;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < fenceShpInfo.potList.length; ++i) {
             _temparrpos.push_back(fenceShpInfo.potList[i]);
@@ -5223,7 +5238,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(volumeShpInfo.shpName, 'shpName')) return;
         if (!checkTypeLog(volumeShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(volumeShpInfo.groupName) ? '' : volumeShpInfo.groupName;
+        var _groupName = isEmpty(volumeShpInfo.groupName) ? 'DefaultGroup' : volumeShpInfo.groupName;
         var _temparrpos = new Module.RE_Vector_dvec4();
         for (var i = 0; i < volumeShpInfo.potList.length; ++i) {
             _temparrpos.push_back(volumeShpInfo.potList[i]);
@@ -5278,7 +5293,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(volumeShpInfo.shpName, 'shpName')) return;
         if (!checkTypeLog(volumeShpInfo.potList, 'potList', RE_Enum.RE_Check_Array)) return;
 
-        var _groupName = isEmpty(volumeShpInfo.groupName) ? '' : volumeShpInfo.groupName;
+        var _groupName = isEmpty(volumeShpInfo.groupName) ? 'DefaultGroup' : volumeShpInfo.groupName;
         var _minHeight = isEmpty(volumeShpInfo.minHeight) ? 0 : volumeShpInfo.minHeight;
         var _maxHeight = isEmpty(volumeShpInfo.maxHeight) ? 0 : volumeShpInfo.maxHeight;
         var _temparrpos = new Module.RE_Vector_dvec4();
