@@ -12,6 +12,7 @@
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="../DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="../mouse-tip.js"></script>
     </head>
 
     <body>
@@ -37,6 +38,7 @@
             // 添加监听事件
             function addListener() {
                 document.addEventListener('REAddMonomerRgnCheck', REAddMonomerRgnCheck); //单体化添加区域检查回调事件
+                document.addEventListener('REAddMonomerRgnFinish', REAddMonomerRgnFinish); //单体化添加区域完成回调事件
             }
             //初始化完成后，加载项目
             function RESystemEngineCreatedCallBack() {
@@ -53,6 +55,10 @@
             function REAddMonomerRgnCheck(e) {
                 editRgnError_state = !e.detail.succeed;
             }
+            //单体化添加区域完成回调事件
+            function REAddMonomerRgnFinish(e) {
+                REWebSDK_closeMouseTip();
+            }
             // 删除单体化数据
             function WebSDK_delMonomer() {
                 BlackHole3D.Monomer.delData([Monomer_ID]); // 通过单体化名称删除指定的单体化对象, 空数组删除所有的单体化对象
@@ -62,11 +68,13 @@
             function WebSDK_startEditAndAddRgn() {
                 BlackHole3D.Monomer.startEditState(); // 进入单体化编辑模式
                 BlackHole3D.Monomer.startAddMonomerState(Monomer_ID); // 添加单体化区域绘制
+                REWebSDK_openMouseTip('canvas', '左键绘制区域，右键结束');
             }
             // 结束添加单体化区域并结束单体化编辑模式
             function WebSDK_endEditAndAddRgn() {
                 BlackHole3D.Monomer.endAddMonomerState(); // 结束单体化区域绘制
                 BlackHole3D.Monomer.endEditState(); // 结束单体化编辑模式
+                REWebSDK_closeMouseTip();
             }
             // 进入单体化编辑模式并将已经绘制好的区域显示矢量模式
             function WebSDK_startEditAndChangeRgn() {

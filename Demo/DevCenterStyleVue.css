@@ -34,7 +34,24 @@ body {
     height: 40px;
     display: flex;
     align-items: center;
+    overflow-x: hidden;
+    flex-shrink: 0;
 }
+
+#id_option_area_2 {
+    position: absolute;
+    top: 50px;
+    z-index: 1;
+    left: 60px;
+    right: 150px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    overflow-x: hidden;
+    flex-shrink: 0;
+}
+
+
 
 .color-picker {
     position: relative;

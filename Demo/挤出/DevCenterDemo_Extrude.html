@@ -12,6 +12,7 @@
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="../DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="../mouse-tip.js"></script>
     </head>
 
     <body>
@@ -42,6 +43,7 @@
             // 添加监听事件
             function addListener() {
                 document.addEventListener('REAddExtrudeRgnCheck', REAddExtrudeRgnCheck); //挤出添加区域检查回调事件
+                document.addEventListener('REAddExtrudeRgnFinish', REAddExtrudeRgnFinish); //挤出添加区域完成回调事件
             }
             //初始化完成后，加载项目
             function RESystemEngineCreatedCallBack() {
@@ -67,6 +69,10 @@
             function REAddExtrudeRgnCheck(e) {
                 editRgnError_state = !e.detail.succeed;
             }
+            //挤出添加区域完成回调事件
+            function REAddExtrudeRgnFinish(e) {
+                REWebSDK_closeMouseTip();
+            }
             // 删除挤出数据
             function WebSDK_delWater() {
                 BlackHole3D.Extrude.delData([Extrude_ID]); // 通过挤出名称删除指定的挤出对象
@@ -75,11 +81,13 @@
             function WebSDK_startEditAndAddRgn() {
                 BlackHole3D.Extrude.startEditState(); // 进入挤出编辑模式
                 BlackHole3D.Extrude.startAddExtrudeState(Extrude_ID); // 添加挤出区域绘制
+                REWebSDK_openMouseTip('canvas', '左键绘制区域，右键结束');
             }
             // 结束添加挤出区域并结束挤出编辑模式
             function WebSDK_endEditAndAddRgn() {
                 BlackHole3D.Extrude.endAddExtrudeState(); // 结束挤出区域绘制
                 BlackHole3D.Extrude.endEditState(); // 结束挤出编辑模式
+                REWebSDK_closeMouseTip();
             }
             // 进入挤出编辑模式并将已经绘制好的区域显示矢量模式
             function WebSDK_startEditAndChangeRgn() {

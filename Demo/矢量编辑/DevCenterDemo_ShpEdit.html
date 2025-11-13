@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" :disabled="editRgn_btn_disabled" @click="editRgn">{{ editRgn_btn_text }}</el-button>
+                <el-button type="primary" :disabled="clipRgn_btn_disabled" @click="clipRgn">{{ clipRgn_btn_text }}</el-button>
+                <el-button type="primary" :disabled="delRgn_btn_disabled" @click="delRgn">清除区域</el-button>
+                <el-tooltip
+                    class="box-item"
+                    effect="dark"
+                    :content="`${selType_seltct_disabled ? '请先结束区域绘制':'选择渲染类型'}`"
+                    placement="left">
+                    <el-select
+                        v-model="sel_render_type"
+                        :disabled="selType_seltct_disabled"
+                        placeholder="选择矢量区域渲染类型"
+                        style="width: 190px; margin-left: 10px"
+                        @change="sel_render_type_change">
+                        <el-option v-for="item in type_options" :key="item.value" :label="item.label" :value="item.value" />
+                    </el-select>
+                </el-tooltip>
+            </div>
+        </div>
+
+        <!-- 引擎相关逻辑 -->
+        <script type="text/javascript">
+            // 定义全局数据
+            var editRgnError_state = false; // 编辑区域错误状态
+            var addRgnFinish_state = Vue.ref(false); // 添加区域完成状态，使用vue响应式对象，方便更新数据，按照自己的喜好使用
+            var clipRgnFinish_state = Vue.ref(false); // 切割区域完成状态，使用vue响应式对象，方便更新数据，按照自己的喜好使用
+            const ShpEdit_ID = 'ShpEdit_ID'; // 矢量标识（唯一）
+
+            // 添加监听事件
+            function addListener() {
+                document.addEventListener('REAddShpRgnCheck', REAddShpRgnCheck); //矢量添加区域检查回调事件
+                document.addEventListener('REAddShpRgnFinish', REAddShpRgnFinish); //矢量添加区域完成回调事件
+                document.addEventListener('REShpClipFinish', REShpClipFinish); //矢量切割完成回调事件
+            }
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '矢量编辑',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1d83c0c8aceca56bf3874e8f2f7d39',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+            }
+            //矢量添加区域检查回调事件
+            function REAddShpRgnCheck(e) {
+                editRgnError_state = !e.detail.succeed ? true : false;
+            }
+            //矢量添加区域完成回调事件
+            function REAddShpRgnFinish(e) {
+                addRgnFinish_state.value = e.detail.succeed ? true : false; // 响应式变量需通过 .value 赋值
+                REWebSDK_closeMouseTip();
+            }
+            //矢量切割完成回调事件
+            function REShpClipFinish(e) {
+                clipRgnFinish_state.value = e.detail.succeed ? true : false; // 响应式变量需通过 .value 赋值
+                REWebSDK_closeMouseTip();
+            }
+            // 删除矢量数据
+            function WebSDK_delShpEdit() {
+                BlackHole3D.ShpEdit.delData([]); // 通过矢量名称删除指定的矢量对象, 空数组删除所有的矢量对象
+            }
+            // 进入矢量编辑模式并添加矢量区域
+            function WebSDK_startEditAndAddRgn() {
+                BlackHole3D.ShpEdit.startShpEditState(); // 进入矢量编辑模式
+                BlackHole3D.ShpEdit.startAddShpState(ShpEdit_ID); // 添加矢量区域绘制
+                REWebSDK_openMouseTip('canvas', '左键绘制区域，右键结束');
+            }
+            // 结束添加矢量区域并结束矢量编辑模式
+            function WebSDK_endEditAndAddRgn() {
+                BlackHole3D.ShpEdit.endAddShpState(); // 结束矢量区域绘制
+                BlackHole3D.ShpEdit.endClipShpState(); // 退出矢量切割状态
+                BlackHole3D.ShpEdit.endShpEditState(); // 结束矢量编辑模式
+                REWebSDK_closeMouseTip();
+            }
+            // 进入矢量编辑模式并将已经绘制好的区域显示矢量模式
+            function WebSDK_startEditAndChangeRgn() {
+                BlackHole3D.ShpEdit.startShpEditState(); // 进入矢量编辑模式
+            }
+            // 获取矢量数据
+            function WebSDK_getShpEditData() {
+                return BlackHole3D.ShpEdit.getData([]); // 获取当前场景中矢量对象集合
+            }
+            // 进入矢量编辑模式并开启切割模式
+            function WebSDK_startEditAndStartClip() {
+                BlackHole3D.ShpEdit.startShpEditState(); // 进入矢量编辑模式
+                BlackHole3D.ShpEdit.startClipShpState(); // 进入矢量切割状态，必须处于矢量编辑模式
+                REWebSDK_openMouseTip('canvas', '左键点选切割线，右键结束');
+            }
+            // 退出矢量切割模式
+            function WebSDK_endEditAndEndClip() {
+                BlackHole3D.ShpEdit.endClipShpState(); // 退出矢量切割状态
+                REWebSDK_closeMouseTip();
+            }
+            // 设置矢量数据显示模式
+            function WebSDK_shpEditVisible(visible) {
+                const shpIdList = BlackHole3D.ShpEdit.getAllShpId();
+                shpIdList.forEach((el) => {
+                    BlackHole3D.ShpEdit.setVisible(el, visible); // 设置矢量的可见性
+                });
+            }
+            // 绘制水面
+            function WebSDK_showWater() {
+                const shpRgnList = BlackHole3D.ShpEdit.getData([]); // 获取当前场景中矢量对象集合，空数组获取所有
+                let waterList = [];
+                shpRgnList.forEach((el) => {
+                    // 创建水面顶点区域对象
+                    let rgnList = [];
+                    let cornerRgnInfo = new BlackHole3D.RECornerRgnInfo();
+                    cornerRgnInfo.pointList = el.rgnList[0];
+                    rgnList.push(cornerRgnInfo);
+                    // 创建水面对象
+                    let waterInfo = new BlackHole3D.REWaterInfo();
+                    waterInfo.waterName = 'Water_' + el.shpId;
+                    waterInfo.waterClr = el.shpClr;
+                    waterInfo.expandDist = 0;
+                    waterInfo.rgnList = rgnList;
+
+                    waterList.push(waterInfo);
+                });
+                // 创建水面对象集合
+                BlackHole3D.Water.setData(waterList);
+                WebSDK_shpEditVisible(false);
+            }
+            // 删除水面
+            function WebSDK_delWater() {
+                BlackHole3D.Water.delData([]);
+            }
+            // 绘制挤出（挖空）
+            function WebSDK_showExtrude() {
+                const shpRgnList = BlackHole3D.ShpEdit.getData([]); // 获取当前场景中矢量对象集合，空数组获取所有
+                let extrudeList = [];
+                shpRgnList.forEach((el) => {
+                    // 创建挤出对象
+                    let extrudeInfo = new BlackHole3D.REExtrudeInfo();
+                    extrudeInfo.extrudeId = 'Extrude_' + el.shpId;
+                    extrudeInfo.dataSetIdList = ['矢量编辑'];
+                    extrudeInfo.rgnList = el.rgnList;
+                    extrudeInfo.depthLimitRange = [-1e10, 1e10];
+                    extrudeInfo.type = 0; // 挖空（无封口）
+
+                    extrudeList.push(extrudeInfo);
+                });
+                // 创建挤出对象集合
+                BlackHole3D.Extrude.setData(extrudeList);
+                WebSDK_shpEditVisible(false);
+            }
+            // 删除挤出
+            function WebSDK_delExtrude() {
+                BlackHole3D.Extrude.delData([]);
+            }
+            // 绘制单体化
+            function WebSDK_showMonomer() {
+                const shpRgnList = BlackHole3D.ShpEdit.getData([]); // 获取当前场景中矢量对象集合，空数组获取所有
+                let monomerList = [];
+                shpRgnList.forEach((el) => {
+                    // 创建单体化对象
+                    let monomerInfo = new BlackHole3D.REMonomerInfo();
+                    monomerInfo.monomerId = 'Monomer_' + el.shpId;
+                    monomerInfo.dataSetId = '矢量编辑';
+                    monomerInfo.rgnList = el.rgnList;
+                    monomerInfo.heightMax = 100;
+                    monomerInfo.heightMin = -130;
+                    monomerInfo.monomerClr = el.shpClr;
+
+                    monomerList.push(monomerInfo);
+                });
+                // 创建挤出对象集合
+                BlackHole3D.Monomer.setData(monomerList);
+                WebSDK_shpEditVisible(false);
+            }
+            // 删除单体化
+            function WebSDK_delMonomer() {
+                BlackHole3D.Monomer.delData([]);
+            }
+            // 绘制体积矢量（分层分户）
+            function WebSDK_showVolume() {
+                const level = 3; // 多少层
+                const levelHeight = 10; // 层高
+                const shpRgnList = BlackHole3D.ShpEdit.getData([]); // 获取当前场景中矢量对象集合，空数组获取所有
+                for (let i = 0; i < level; i++) {
+                    shpRgnList.forEach((el) => {
+                        // 处理点序列
+                        const potList = el.rgnList[0].map((point) => {
+                            const originalZ = point[2]; // 原始z值
+                            const newZ = originalZ + i * levelHeight; // 计算当前层的z值
+                            return [point[0], point[1], newZ, levelHeight]; // 返回新的[x, y, z, w]
+                        });
+                        // 创建体积矢量
+                        var volumeShpInfo = new BlackHole3D.REVolumeShpInfo();
+                        volumeShpInfo.shpName = `Volume_level(${i + 1})_${el.shpId}`;
+                        volumeShpInfo.potList = potList;
+                        volumeShpInfo.fenceClr = new BlackHole3D.REColor(
+                            Math.floor(Math.random() * 256),
+                            Math.floor(Math.random() * 256),
+                            Math.floor(Math.random() * 256),
+                            128
+                        );
+                        volumeShpInfo.genLine = true;
+                        volumeShpInfo.lineClr = new BlackHole3D.REColor(255, 255, 255, 80);
+                        volumeShpInfo.lineWidth = 1;
+                        BlackHole3D.Geometry.addPolyVolumeShp(volumeShpInfo);
+                    });
+                }
+                WebSDK_shpEditVisible(false);
+            }
+            // 删除体积矢量
+            function WebSDK_delVolume() {
+                BlackHole3D.Geometry.delAllShps();
+            }
+        </script>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        step_state: 0, //0: 区域绘制无效  1：开始初始区域编辑  2：展示矢量渲染模式  3：编辑已存在的矢量区域
+                        editRgn_btn_text: '绘制矢量区域',
+                        clipRgn_btn_text: '切割区域',
+                        editRgn_state: false,
+                        clipRgn_state: false,
+                        editRgn_btn_disabled: false,
+                        delRgn_btn_disabled: true,
+                        clipRgn_btn_disabled: true,
+                        selType_seltct_disabled: true,
+                        sel_render_type: '',
+                        type_options: [
+                            {
+                                value: '0',
+                                label: '使用矢量区域渲染水面',
+                            },
+                            {
+                                value: '1',
+                                label: '使用矢量区域渲染挤出（挖空）',
+                            },
+                            {
+                                value: '2',
+                                label: '使用矢量区域渲染单体化',
+                            },
+                            {
+                                value: '3',
+                                label: '使用矢量区域渲染体积矢量（分层分户）',
+                            },
+                        ],
+                    };
+                },
+                computed: {
+                    // 关联全局响应式变量（关键：保持响应式关联）
+                    globalAddRgnFinish() {
+                        return addRgnFinish_state.value; // 直接引用全局响应式变量
+                    },
+                    // 关联全局响应式变量（关键：保持响应式关联）
+                    globalClipRgnFinish() {
+                        return clipRgnFinish_state.value; // 直接引用全局响应式变量
+                    },
+                },
+                watch: {
+                    // 监听全局变量变化（自动触发）
+                    globalAddRgnFinish(newVal) {
+                        this.clipRgn_btn_disabled = newVal ? false : true;
+                    },
+                    // 监听全局变量变化（自动触发）
+                    globalClipRgnFinish(newVal) {
+                        this.clipRgn_state = newVal ? false : true;
+                        this.updateUIStyle();
+                    },
+                },
+                methods: {
+                    // 初始化数据
+                    initData() {
+                        // 数据初始化
+                        this.editRgn_state = false;
+                        this.clipRgn_state = false;
+                        addRgnFinish_state.value = false;
+                        this.sel_render_type = '';
+
+                        // 样式初始化
+                        this.editRgn_btn_text = '绘制矢量区域';
+                        this.clipRgn_btn_text = '切割区域';
+                        this.editRgn_btn_disabled = false;
+                        this.delRgn_btn_disabled = true;
+                        this.clipRgn_btn_disabled = true;
+                        this.selType_seltct_disabled = true;
+                    },
+
+                    // 绘制矢量区域
+                    editRgn() {
+                        const step = this.checkStep();
+                        this.step_state = step;
+                        switch (step) {
+                            case 0:
+                                ElementPlus.ElMessage.error('请先绘制出有效矢量区域');
+                                break;
+                            case 1:
+                                this.startEditRgn();
+                                break;
+                            case 2:
+                                this.endEidtRgn();
+                                break;
+                            case 3:
+                                this.changeOldRgn();
+                                break;
+                            default:
+                                break;
+                        }
+                        this.updateUIStyle();
+                    },
+
+                    // 切割矢量区域
+                    clipRgn() {
+                        this.clipRgn_state = !this.clipRgn_state;
+                        if (this.clipRgn_state) {
+                            this.editRgn_state = true;
+                            this.selType_seltct_disabled = true;
+                            WebSDK_startEditAndStartClip();
+                        } else {
+                            WebSDK_endEditAndEndClip();
+                        }
+                        this.updateUIStyle();
+                    },
+
+                    // 清除区域并初始化数据
+                    delRgn() {
+                        WebSDK_delShpEdit();
+                        WebSDK_delWater();
+                        WebSDK_delExtrude();
+                        WebSDK_delMonomer();
+                        WebSDK_delVolume();
+                        this.initData();
+                    },
+
+                    // 【流程：一】 绘制初始矢量区域
+                    startEditRgn() {
+                        WebSDK_startEditAndAddRgn();
+                        this.editRgn_state = true;
+                        this.addDatas_btn_disabled = true;
+                    },
+
+                    // 【流程：二】 结束区域编辑并渲染矢量区域
+                    endEidtRgn() {
+                        WebSDK_endEditAndAddRgn();
+                        this.editRgn_state = false;
+                        this.clipRgn_state = false;
+                        this.addDatas_btn_disabled = false;
+                        this.selType_seltct_disabled = false;
+                    },
+
+                    // 【流程：三】 重新编辑已有矢量区域
+                    changeOldRgn() {
+                        WebSDK_startEditAndChangeRgn();
+                        this.editRgn_state = true;
+                        this.addDatas_btn_disabled = true;
+                    },
+
+                    // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示矢量渲染模式  3：编辑已存在的矢量区域
+                    checkStep() {
+                        const shpEditList = WebSDK_getShpEditData();
+                        if (!shpEditList.length) {
+                            if (this.editRgn_state) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        }
+                        if (this.editRgn_state) {
+                            if (editRgnError_state) {
+                                return 0;
+                            } else {
+                                const shpEditInfo = shpEditList[0];
+                                if (shpEditInfo.rgnList.length > 0 && shpEditInfo.rgnList[0].length > 2) {
+                                    return 2;
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        } else {
+                            return 3;
+                        }
+                    },
+
+                    // UI样式更新
+                    updateUIStyle() {
+                        this.editRgn_btn_text = this.editRgn_state ? '结束矢量绘制' : '绘制矢量区域';
+                        this.clipRgn_btn_text = this.clipRgn_state ? '切割区域完成' : '切割区域';
+                        this.delRgn_btn_disabled = false;
+                    },
+
+                    // 矢量区域渲染样式
+                    sel_render_type_change() {
+                        WebSDK_delWater();
+                        WebSDK_delExtrude();
+                        WebSDK_delMonomer();
+                        if (this.sel_render_type == '0') {
+                            WebSDK_showWater();
+                        } else if (this.sel_render_type == '1') {
+                            WebSDK_showExtrude();
+                        } else if (this.sel_render_type == '2') {
+                            WebSDK_showMonomer();
+                        } else if (this.sel_render_type == '3') {
+                            WebSDK_showVolume();
+                        }
+                        this.clipRgn_btn_disabled = true;
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            app.mount('#app');
+        </script>
+    </body>
+</html>

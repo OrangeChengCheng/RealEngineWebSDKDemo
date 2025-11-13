@@ -12,6 +12,7 @@
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="../DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="../mouse-tip.js"></script>
     </head>
 
     <body>
@@ -39,6 +40,7 @@
             // 添加监听事件
             function addListener() {
                 document.addEventListener('REAddWaterRgnCheck', REAddWaterRgnCheck); //水面添加区域检查回调事件
+                document.addEventListener('REAddWaterRgnFinish', REAddWaterRgnFinish); //水面添加区域完成回调事件
             }
             //初始化完成后，加载项目
             function RESystemEngineCreatedCallBack() {
@@ -57,6 +59,10 @@
             function REAddWaterRgnCheck(e) {
                 editRgnError_state = !e.detail.succeed;
             }
+            //水面添加区域完成回调事件
+            function REAddWaterRgnFinish(e) {
+                REWebSDK_closeMouseTip();
+            }
             // 删除水面数据
             function WebSDK_delWater() {
                 BlackHole3D.Water.delData([Water_ID]); // 通过水面名称删除指定的水面对象
@@ -65,11 +71,13 @@
             function WebSDK_startEditAndAddRgn() {
                 BlackHole3D.Water.startEditState(); // 进入水面编辑模式
                 BlackHole3D.Water.startAddWaterState(Water_ID); // 添加水面区域绘制
+                REWebSDK_openMouseTip('canvas', '左键绘制区域，右键结束');
             }
             // 结束添加水面区域并结束水面编辑模式
             function WebSDK_endEditAndAddRgn() {
                 BlackHole3D.Water.endAddWaterState(); // 结束水面区域绘制
                 BlackHole3D.Water.endEditState(); // 结束水面编辑模式
+                REWebSDK_closeMouseTip();
             }
             // 进入水面编辑模式并将已经绘制好的区域显示矢量模式
             function WebSDK_startEditAndChangeRgn() {

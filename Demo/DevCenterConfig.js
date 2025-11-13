@@ -76,6 +76,10 @@ function addEngineListener() {
     document.addEventListener('RECADSelElement', RECADSelElement);
     window.addEventListener('beforeunload', onBeforeUnload); // 模型卸载监听
     window.addEventListener('resize', onResize); // 窗口大小变化实时调整canvas大小
+
+    if (typeof addListener === 'function') {
+        addListener(); // 确认存在后调用
+    }
 }
 // 移除加载的监听
 function removeEngineListener() {
