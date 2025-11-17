@@ -9,8 +9,8 @@
         <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
         <script src="https://unpkg.com/element-plus"></script>
         <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
-        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
-        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/BlackHole3D.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
     </head>
@@ -97,6 +97,7 @@
             }
             // 进入矢量编辑模式并将已经绘制好的区域显示矢量模式
             function WebSDK_startEditAndChangeRgn() {
+                WebSDK_shpEditVisible(true);
                 BlackHole3D.ShpEdit.startShpEditState(); // 进入矢量编辑模式
             }
             // 获取矢量数据
@@ -345,10 +346,7 @@
                     // 清除区域并初始化数据
                     delRgn() {
                         WebSDK_delShpEdit();
-                        WebSDK_delWater();
-                        WebSDK_delExtrude();
-                        WebSDK_delMonomer();
-                        WebSDK_delVolume();
+                        this.del_render();
                         this.initData();
                     },
 
@@ -370,9 +368,12 @@
 
                     // 【流程：三】 重新编辑已有矢量区域
                     changeOldRgn() {
+                        this.del_render();
+                        this.sel_render_type = '';
                         WebSDK_startEditAndChangeRgn();
                         this.editRgn_state = true;
                         this.addDatas_btn_disabled = true;
+                        this.clipRgn_btn_disabled = false;
                     },
 
                     // 检测流程状态 0: 区域绘制无效  1：开始初始区域编辑  2：展示矢量渲染模式  3：编辑已存在的矢量区域
@@ -408,11 +409,17 @@
                         this.delRgn_btn_disabled = false;
                     },
 
-                    // 矢量区域渲染样式
-                    sel_render_type_change() {
+                    // 删除矢量区域渲染的样式
+                    del_render() {
                         WebSDK_delWater();
                         WebSDK_delExtrude();
                         WebSDK_delMonomer();
+                        WebSDK_delVolume();
+                    },
+
+                    // 矢量区域渲染样式
+                    sel_render_type_change() {
+                        this.del_render();
                         if (this.sel_render_type == '0') {
                             WebSDK_showWater();
                         } else if (this.sel_render_type == '1') {
