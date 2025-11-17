@@ -21,13 +21,13 @@
             <div id="id_option_area">
                 <el-button id="id_editRgn_btn" type="primary" @click="editRgn">{{ editRgn_btn_text }}</el-button>
                 <el-button id="id_delRgn_btn" type="primary" :disabled="delRgn_btn_disabled" @click="delRgn">清除区域</el-button>
-                <el-select v-model="sel_extrude_type" placeholder="选择挤出类型" style="width: 140px; margin-left: 10px" @change="select_type_change">
+                <el-select v-model="sel_extrude_type" placeholder="选择挤出类型" style="width: 160px; margin-left: 10px" @change="select_type_change">
                     <el-option v-for="item in type_options" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-select
                     v-model="sel_extrude_scope"
                     placeholder="选择作用范围"
-                    style="width: 140px; margin-left: 10px"
+                    style="width: 200px; margin-left: 10px"
                     @change="select_scope_change">
                     <el-option v-for="item in scope_options" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
