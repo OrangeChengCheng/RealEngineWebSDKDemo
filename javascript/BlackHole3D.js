@@ -2109,7 +2109,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetCamAlignTerrainPage();
     };
 
-
     // MARK 第三人称漫游
     class RETPPInfo {
         // 第三人称漫游信息
@@ -17606,7 +17605,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     ExtModule.RETerrResEm = RETerrResEm;
 
     // MOD-- 函数执行打印 <---
-    if (funcLog) {
+    Module.Log = typeof Module.Log !== 'undefined' ? Module.Log : {}; //增加 Log 模块
+
+    /**
+     * 暴露全局日志开关函数
+     */
+    Module.Log.enableLog = function () {
         // 判断是否为类构造函数（首字母大写的函数）
         function isClassConstructor(func) {
             if (typeof func !== 'function') return false;
@@ -17668,7 +17672,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     // 创建包装函数
                     const wrappedMethod = function (...args) {
                         // 打印日志：时间 + 模块名.方法名（如 Terrain.getUnitImgShpAlone、Edit.moveObject）
-                        console.log(`time: ${getCurrTime()}  func: ${moduleName}.${methodName}`);
+                        console.log(`【RELog】 time: ${getCurrTime()}  func: ${moduleName}.${methodName}`);
                         // 调用原方法，保持 this 指向、参数、返回值完全不变
                         return originalMethod.apply(this, args);
                     };
@@ -17691,7 +17695,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     !originalMethod.__isWrapped
                 ) {
                     const wrappedMethod = function (...args) {
-                        console.log(`time: ${getCurrTime()}  func: ${key}`); // 根方法直接显示方法名
+                        console.log(`【RELog】 time: ${getCurrTime()}  func: ${key}`); // 根方法直接显示方法名
                         return originalMethod.apply(this, args);
                     };
                     wrappedMethod.__isWrapped = true;
@@ -17706,6 +17710,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         });
         // 处理根方法
         wrapRootMethodsForLog();
+    };
+    if (funcLog) {
+        Module.Log.enableLog();
     }
 
     return ExtModule;
