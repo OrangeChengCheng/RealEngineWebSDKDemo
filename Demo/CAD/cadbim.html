@@ -1,0 +1,110 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-21 17:58:30
+ * @LastEditTime: 2025-11-21 18:37:46
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+
+    <body>
+        <div id="canvas-cntr">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+
+        <!-- 引擎初始化相关接口 -->
+        <script type="text/javascript">
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                const dataSetList = [
+                    {
+                        dataSetId: 'bim',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1544432b09cf4f27c1e7721d623c9a',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList);
+                //加载CAD资源
+                BlackHole3D.CAD.loadCAD(
+                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1544432b09cf4f27c1e7721d623c9a/1/1_3040722.realcad',
+                    BlackHole3D.RECadUnitEm.CAD_UNIT_Millimeter,
+                    1.0
+                );
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+
+            function RECADLoadFinishCallBack() {
+                BlackHole3D.setViewMode(BlackHole3D.REVpTypeEm.CAD, BlackHole3D.REVpTypeEm.BIM, BlackHole3D.REVpRankEm.LR);
+
+                const bimPointList = [
+                    [18.045, 9.97, 3.118],
+                    [18.045, 9.97, 0.746],
+                    [15.612, 9.97, 0.746],
+                ];
+                const cadPointList = [
+                    [-17.99, 3.109],
+                    [-17.99, 0.765],
+                    [-15.588, 0.765],
+                ];
+                BlackHole3D.CAD.setBimCadMapPoints(bimPointList, cadPointList);
+            }
+            //获取当前探测结果
+            function RESystemSelElementCallBack(e) {
+                console.log('RESystemSelElementCallBack -->', BlackHole3D.Probe.getCurProbeRet());
+                let elemId = BlackHole3D.Probe.getCurProbeRet().elemId;
+                if (!elemId) {
+                    return;
+                }
+                const bimBVArr = BlackHole3D.BIM.getElemTotalBV("bim", [elemId]);
+                const bimBV = [[bimBVArr[0], bimBVArr[2], bimBVArr[4]], [bimBVArr[1], bimBVArr[3], bimBVArr[5]]];
+                const cadBV = BlackHole3D.CAD.getBimToCadBV(bimBV);
+                BlackHole3D.CAD.setCurViewportRange(cadBV[0], cadBV[1]);
+            }
+
+            //获取当前探测结果
+            function RECADSelElementCallBack(e) {
+                console.log('RECADSelElementCallBack -->', e);
+                //获取点击的图元id
+                let elemId = e.detail.elemid;
+                if (!elemId) {
+                    return;
+                }
+                const camDir = BlackHole3D.CAD.getBimToCadCamDir();
+                const cadBV = BlackHole3D.CAD.getElemBV(elemId);
+                const bimBV = BlackHole3D.CAD.getCadToBimBV(cadBV);
+                BlackHole3D.Camera.setCamLocateToBoundByDir(bimBV, 2.0, camDir);
+            }
+        </script>
+    </body>
+</html>

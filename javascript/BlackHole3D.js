@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3486
+﻿//版本：v3.2.0.3487
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1878,7 +1878,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 调整相机定位到包围盒
+     * 调整相机定位到包围盒（枚举朝向）
      * @param {Array} arrBound //包围盒范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
      * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
      * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
@@ -1887,6 +1887,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
         Module.RealBIMWeb.TargetToAABB(arrBound, backDepth, _useCustomDir, _locType);
+    };
+
+    /**
+     * 调整相机定位到包围盒（相机朝向）
+     * @param {Array} arrBound //包围盒范围，[[Xmin、Ymin、Zmin],[Xmax、Ymax、Zmax]]
+     * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
+     * @param {dvec3} camDir //相机朝向（三元素数组）
+     */
+    Module.Camera.setCamLocateToBoundByDir = function (arrBound, backDepth = 1.0, camDir) {
+        let _useCustomDir = isEmpty(camDir) ? false : true;
+        Module.RealBIMWeb.TargetToAABB_Dir(arrBound, backDepth, _useCustomDir, camDir);
     };
 
     /**
@@ -7392,6 +7403,115 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.CAD.setCamLocateToAreaComment = function (areaCommentId, scale) {
         if (isEmptyLog(areaCommentId, 'areaCommentId')) return;
         Module.RealBIMWeb.CADFocusToCustomComment(areaCommentId, scale);
+    };
+
+    // MARK 属性信息
+    /**
+     * 获取cad图元包围盒
+     * @param {String} elemId //二维图元的id
+     * @returns [vMin,vMax]
+     */
+    Module.CAD.getElemBV = function (elemId) {
+        const cInfo = Module.RealBIMWeb.GetCadElemBox(elemId);
+        return [cInfo.m_vDvec2Value1, cInfo.m_vDvec2Value2];
+    };
+
+    /**
+     * 设置Bim-Cad对齐映射点
+     * @param {Array} bimPointList //Bim顶点集合（三元素数组集合），需要三个点坐标构面
+     * @param {Array} cadPointList //Cad顶点集合（二元素数组集合），需要三个点坐标构面
+     */
+    Module.CAD.setBimCadMapPoints = function (bimPointList, cadPointList) {
+        if (!checkArrCountLog(bimPointList, 'bimPointList', 3)) return false;
+        if (!checkArrCountLog(cadPointList, 'cadPointList', 3)) return false;
+
+        var _vector_Points_bim = new Module.RE_Vector_dvec3();
+        var _vector_Points_cad = new Module.RE_Vector_dvec3();
+
+        for (let i = 0; i < bimPointList.length; i++) {
+            _vector_Points_bim.push_back(bimPointList[i]);
+        }
+
+        for (let i = 0; i < cadPointList.length; i++) {
+            if (cadPointList[i].length == 2) {
+                cadPointList[i] = [cadPointList[i][0], cadPointList[i][1], 0]; // 补无效z值
+            }
+            _vector_Points_cad.push_back(cadPointList[i]);
+        }
+
+        Module.RealBIMWeb.SetBimCadMapPoints(_vector_Points_bim, _vector_Points_cad);
+    };
+
+    /**
+     * 获取Bim映射Cad的相机朝向 注：需要先调用接口 setBimCadMapPoints 设置映射关系
+     */
+    Module.CAD.getBimToCadCamDir = function () {
+        return Module.RealBIMWeb.GetBimToCadCamDir();
+    };
+
+    /**
+     * 获取Bim顶点映射Cad点 注：需要先调用接口 setBimCadMapPoints 设置映射关系
+     * @param {dvec3} bimPoint //Bim顶点（三元素数组）
+     */
+    Module.CAD.getBimToCadPoint = function (bimPoint) {
+        if (!checkArrCountLog(bimPoint, 'bimPoint', 3)) return [0, 0];
+        const cadPoint = Module.RealBIMWeb.BimToCad(bimPoint);
+        return [cadPoint[0], cadPoint[1]];
+    };
+
+    /**
+     * Cad顶点映射Bim点 注：需要先调用接口 setBimCadMapPoints 设置映射关系
+     * @param {dvec3} cadPoint //Cad顶点（二元素数组）
+     */
+    Module.CAD.getCadToBimPoint = function (cadPoint) {
+        if (!checkArrCountLog(cadPoint, 'cadPoint', 2)) return [0, 0, 0];
+        const _cadPoint = [cadPoint[0], cadPoint[1], 0];
+        const bimPoint = Module.RealBIMWeb.CadToBim(_cadPoint);
+        return bimPoint;
+    };
+
+    /**
+     * Cad包围盒信息映射Bim包围盒 注：需要先调用接口 setBimCadMapPoints 设置映射关系
+     * @param {Array} cadBV //cad对应的包围盒信息 [[minx, miny], [maxx, maxy]]
+     */
+    Module.CAD.getCadToBimBV = function (cadBV) {
+        if (!checkArrCountLog(cadBV, 'cadBV', 2)) return [];
+
+        const vMin_cad = cadBV[0];
+        const vMax_cad = cadBV[1];
+        if (!checkArrCountLog(vMin_cad, 'cadBV', 2)) return [];
+        if (!checkArrCountLog(vMax_cad, 'cadBV', 2)) return [];
+
+        const vMin_bim = Module.CAD.getCadToBimPoint(vMin_cad);
+        const vMax_bim = Module.CAD.getCadToBimPoint(vMax_cad);
+
+        const [x1, y1, z1] = vMin_bim;
+        const [x2, y2, z2] = vMax_bim;
+        const vMin = [Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2)];
+        const vMax = [Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2)];
+        return [vMin, vMax];
+    };
+
+    /**
+     * Bim包围盒信息映射Cad包围盒 注：需要先调用接口 setBimCadMapPoints 设置映射关系
+     * @param {Array} bimBV //bim对应的包围盒信息 [[minx, miny, minz], [maxx, maxy, maxz]]
+     */
+    Module.CAD.getBimToCadBV = function (bimBV) {
+        if (!checkArrCountLog(bimBV, 'bimBV', 2)) return [];
+
+        const vMin_bim = bimBV[0];
+        const vMax_bim = bimBV[1];
+        if (!checkArrCountLog(vMin_bim, 'bimBV', 3)) return [];
+        if (!checkArrCountLog(vMax_bim, 'bimBV', 3)) return [];
+
+        const vMin_cad = Module.CAD.getBimToCadPoint(vMin_bim);
+        const vMax_cad = Module.CAD.getBimToCadPoint(vMax_bim);
+
+        const [x1, y1] = vMin_cad;
+        const [x2, y2] = vMax_cad;
+        const vMin = [Math.min(x1, x2), Math.min(y1, y2)];
+        const vMax = [Math.max(x1, x2), Math.max(y1, y2)];
+        return [vMin, vMax];
     };
 
     // MARK 选择集
