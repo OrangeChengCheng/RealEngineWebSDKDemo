@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3480
+﻿//版本：v3.2.0.3486
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -1851,9 +1851,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _offset += 2;
             }
         }
-        let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems('', '', _elemIds.byteLength, _elemIds.byteOffset, backDepth, _useCustomDir, _locType);
+        Module.RealBIMWeb.FocusCamToSubElems('', '', _elemIds.byteLength, _elemIds.byteOffset, backDepth, _locType);
     };
 
     /**
@@ -1867,9 +1866,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!isEmpty(dataSetId)) {
             _projname = dataSetId;
         }
-        let _useCustomDir = isEmpty(locType) ? false : true;
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems(_projname, '', 0, 0, backDepth, _useCustomDir, _locType);
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, '', 0, 0, backDepth, _locType);
     };
 
     /**
@@ -17484,6 +17482,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         CAM_DIR_BOTTOMLEFTFRONT: 'Module.RE_CAM_DIR.BOTTOMLEFTFRONT', //顶点-下左前
         CAM_DIR_BOTTOMRIGHTFRONT: 'Module.RE_CAM_DIR.BOTTOMRIGHTFRONT', //顶点-下右前
         CAM_DIR_DEFAULT: 'Module.RE_CAM_DIR.DEFAULT', //默认视角
+        CAM_DIR_CURRENT: 'Module.RE_CAM_DIR.CURRENT', //当前视角
     };
     ExtModule.RECamDirEm = RECamDirEm;
 
