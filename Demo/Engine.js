@@ -211,7 +211,7 @@ function RESystemSelElement(e) {
     if (typeof RESystemSelElementCallBack !== 'undefined') {
         RESystemSelElementCallBack(e);
     } else {
-        console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+        console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet(), e);
     }
 }
 
@@ -220,7 +220,7 @@ function RESystemSelShpElement(e) {
     if (typeof RESystemSelShpElementCallBack !== 'undefined') {
         RESystemSelShpElementCallBack(e);
     } else {
-        console.log('-- 鼠标探测矢量模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
+        console.log('-- 鼠标探测矢量模型事件 --', BlackHole3D.Probe.getCurCombProbeRet(), e);
     }
 }
 

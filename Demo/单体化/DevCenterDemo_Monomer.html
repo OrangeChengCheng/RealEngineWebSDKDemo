@@ -9,8 +9,10 @@
         <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
         <script src="https://unpkg.com/element-plus"></script>
         <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/RealBIMWeb.js"></script>
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdkbate/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
     </head>
@@ -115,6 +117,9 @@
                         ],
                         heightMin: -103.7143783569336,
                         heightMax: -92.39446449279785,
+                        showState: 2,
+                        faceClr: new BlackHole3D.REColor(0, 200, 200, 128),
+                        lineClr: new BlackHole3D.REColor(200, 200, 0, 128),
                     },
                     {
                         monomerId: 'Monomer_ID_003',
@@ -143,6 +148,9 @@
                         ],
                         heightMin: -105.37324142456055,
                         heightMax: -98.5063362121582,
+                        showState: 2,
+                        faceClr: new BlackHole3D.REColor(200, 0, 200, 128),
+                        lineClr: new BlackHole3D.REColor(0, 200, 200, 128),
                     },
                     {
                         monomerId: 'Monomer_ID_005',
@@ -189,36 +197,60 @@
             // 显示高亮单体化数据
             function WebSDK_showHighlightMonomerData() {
                 BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_001', 'Monomer_ID_005', 'Monomer_ID_006'], {
-                    monomerClr: {
+                    faceClr: {
                         red: 0,
                         green: 255,
                         blue: 0,
                         alpha: 128,
                     },
-                    clrWeight: 255,
-                    alphaWeight: 255,
+                    faceClrWeight: 255,
+                    faceAlphaWeight: 255,
+                    lineClr: {
+                        red: 255,
+                        green: 255,
+                        blue: 0,
+                        alpha: 128,
+                    },
+                    lineClrWeight: 255,
+                    lineAlphaWeight: 255,
                 });
 
                 BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_002', 'Monomer_ID_003'], {
-                    monomerClr: {
+                    faceClr: {
                         red: 0,
                         green: 0,
                         blue: 255,
                         alpha: 112,
                     },
-                    clrWeight: 255,
-                    alphaWeight: 255,
-                });
-
-                BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_002'], {
-                    monomerClr: {
+                    faceClrWeight: 255,
+                    faceAlphaWeight: 255,
+                    lineClr: {
                         red: 255,
                         green: 0,
                         blue: 255,
                         alpha: 112,
                     },
-                    clrWeight: 255,
-                    alphaWeight: 255,
+                    lineClrWeight: 255,
+                    lineAlphaWeight: 255,
+                });
+
+                BlackHole3D.Monomer.setHighlightAttr(['Monomer_ID_002'], {
+                    faceClr: {
+                        red: 255,
+                        green: 0,
+                        blue: 255,
+                        alpha: 112,
+                    },
+                    faceClrWeight: 255,
+                    faceAlphaWeight: 255,
+                    lineClr: {
+                        red: 0,
+                        green: 0,
+                        blue: 255,
+                        alpha: 112,
+                    },
+                    lineClrWeight: 255,
+                    lineAlphaWeight: 255,
                 });
             }
         </script>

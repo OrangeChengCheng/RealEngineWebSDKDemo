@@ -1,0 +1,87 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2025-11-25 16:13:36
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="addAnc()">添加锚点</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: 'res_jifang',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1d83c0c8aceca56bf3874e8f2f7d39',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {}
+            function addAnc() {
+                var ancList = [
+                    {
+                        groupName: 'camera',
+                        ancName: 'anc01',
+                        pos: [214.22496308209182, -306.50510351301256, -100],
+                        picPath:
+                            'https://engine3.bjblackhole.com/files/images/ImageServer/2025_11_03_18_41_14_3a1d5b7b-5da8-9430-ea2e-b9cdccec2257_3a049d33-017c-c541-7c08-bc4bd5e7524a_WechatIMG23283.jpg?token=5189B86E858B28E48B488E8838948AE8F08518C18868318',
+                        textInfo: '未拆迁',
+                        picWidth: 32,
+                        picHeight: 32,
+                        ancSize: 60,
+                        selfAutoScaleDist: -1,
+                        selfVisDist: -1,
+                        texBias: [1, 0],
+                        texFocus: [0, 0],
+                    },
+                ];
+                BlackHole3D.Anchor.addAnc(ancList);
+                BlackHole3D.Anchor.setAncCanOverlap('camera', false);
+                BlackHole3D.Common.setShpOITLev(1);
+            }
+        </script>
+    </body>
+</html>

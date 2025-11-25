@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3487
+﻿//版本：v3.2.0.3492
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -870,18 +870,33 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置场景OIT渲染等级
-     * @param {Boolean} level //等级(0->关闭OIT；1->UI开启；2->场景矢量开启1；3->模型开启；4->场景矢量开启2)
+     * 设置场景模型的OIT渲染等级
+     * @param {Boolean} level //等级(0->关闭OIT；1->模型开启)
      */
     Module.Common.setSceOITLev = function (level) {
         Module.RealBIMWeb.SetSceOITLev(level);
     };
 
     /**
-     * 获取场景OIT渲染等级
+     * 获取场景模型的OIT渲染等级
      */
     Module.Common.getSceOITLev = function () {
         return Module.RealBIMWeb.GetSceOITLev();
+    };
+
+    /**
+     * 设置场景矢量的OIT渲染等级
+     * @param {Boolean} level //等级(0->关闭OIT；1->矢量OIT等级1；2->矢量OIT等级2；3->矢量OIT等级3)
+     */
+    Module.Common.setShpOITLev = function (level) {
+        Module.RealBIMWeb.SetShpOITLev(level);
+    };
+
+    /**
+     * 获取场景矢量的OIT渲染等级
+     */
+    Module.Common.getShpOITLev = function () {
+        return Module.RealBIMWeb.GetShpOITLev();
     };
 
     /**
@@ -14808,9 +14823,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 this.rgnList = null; // 单体化区域集合，每个区域由点集合构成（至少三个点），一个单体化表示可以由多个区域构成
                 this.heightMin = null; //包围体最小高度
                 this.heightMax = null; //包围体最大高度
-                this.monomerClr = null; //单体化颜色（REColor类型）
+                this.faceClr = null; //面颜色（REColor类型）
+                this.lineClr = null; //线颜色（REColor类型），仅盒子模式有效
                 this.expandDist = null; //表示单体化区域的边界扩充距离
-                this.showGeomShp = null; //是否显示几何矢量数据, 默认不显示, 仅在编辑状态生效
+                this.showState = null; //显示类型（默认为1）, 0：显示几何矢量效果（仅在编辑模式下有效），1：显示贴合模型效果，2：显示包围盒效果
             }
         }
         ExtModule.REMonomerInfo = REMonomerInfo;
@@ -14838,9 +14854,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     _vector_vector_m_arrCorners.push_back(_vector_m_arrCorner);
                 });
 
-                let _monomerClr = isEmpty(_monomer_obj.monomerClr) ? 0x70ffffff : clrToU32(_monomer_obj.monomerClr);
+                let _faceClr = isEmpty(_monomer_obj.faceClr) ? 0x7fffffff : clrToU32(_monomer_obj.faceClr);
+                let _lineClr = isEmpty(_monomer_obj.lineClr) ? 0x7fffffff : clrToU32(_monomer_obj.lineClr);
                 let _expandDist = isEmpty(_monomer_obj.expandDist) ? 0 : _monomer_obj.expandDist;
-                let _showGeomShp = isEmpty(_monomer_obj.showGeomShp) ? false : _monomer_obj.showGeomShp;
+                let _showState = isEmpty(_monomer_obj.showState) ? 1 : _monomer_obj.showState;
 
                 let cMonomer = {
                     m_strName: _monomer_obj.monomerId,
@@ -14848,9 +14865,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     m_arrCorners: _vector_vector_m_arrCorners,
                     m_dHeightMin: _monomer_obj.heightMin,
                     m_dHeightMax: _monomer_obj.heightMax,
-                    m_uColor: _monomerClr,
+                    m_uFaceClr: _faceClr,
+                    m_uLineClr: _lineClr,
                     m_fExpandDist: _expandDist,
-                    m_bShowShp: _showGeomShp,
+                    m_uShowState: _showState,
                 };
                 _vector_monomerRgn.push_back(cMonomer);
             }
@@ -14889,8 +14907,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 monomerInfo.rgnList = _rgn_list;
                 monomerInfo.heightMin = _cMonomerRgn.m_dHeightMin;
                 monomerInfo.heightMax = _cMonomerRgn.m_dHeightMax;
-                monomerInfo.monomerClr = clrU32ToClr(_cMonomerRgn.m_uColor);
+                monomerInfo.faceClr = clrU32ToClr(_cMonomerRgn.m_uFaceClr);
+                monomerInfo.lineClr = clrU32ToClr(_cMonomerRgn.m_uLineClr);
                 monomerInfo.expandDist = _cMonomerRgn.m_fExpandDist;
+                monomerInfo.showState = _cMonomerRgn.m_uShowState;
                 monomerInfoList.push(monomerInfo);
             }
 
@@ -15020,7 +15040,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         /**
          * 设置指定水面显示状态 注：要在进入单体化编辑状态之后有效, 只能改变当前已有的单体化对象
          * @param {Array} monomerIdList //单体化标识集合，空数组代表所有
-         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量效果  1：显示贴合模型效果  2：显示包围盒效果
          */
         Module.Monomer.setShowState = function (monomerIdList, showState) {
             if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
@@ -15028,16 +15048,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             monomerIdList.forEach((element) => {
                 _vector_monomer_id.push_back(element);
             });
-            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            let _showState = isEmpty(showState) ? 0 : showState;
             return Module.RealBIMWeb.SetMonomerShowState(_vector_monomer_id, _showState);
         };
 
         /**
          * 获取指定单体化状态的所有标识集合 注：要在进入单体化编辑状态之后有效
-         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量  1：显示渲染效果
+         * @param {Number} showState //显示状态（默认几何矢量状态），0：显示几何矢量效果  1：显示贴合模型效果  2：显示包围盒效果
          */
         Module.Monomer.getIdsByShowState = function (showState) {
-            let _showState = isEmpty(showState) ? true : showState == 1 ? false : true;
+            let _showState = isEmpty(showState) ? 0 : showState;
             const _vector_monomer_id = Module.RealBIMWeb.GetMonomerIDByShowState(_showState);
             let _monomerIdList = [];
             for (let i = 0; i < _vector_monomer_id.size(); i++) {
@@ -15048,37 +15068,43 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         /**
          * 设置单体化数据的默认颜色，在 startAddMonomerState 之前进行设置，设置后全局有效
-         * @param {REColor} monomerClr //单体化颜色（REColor类型）
+         * @param {REColor} faceClr //面颜色（REColor类型）
+         * @param {REColor} lineClr //线颜色（REColor类型）
          */
-        Module.Monomer.setDefaultClr = function (monomerClr) {
-            if (isEmptyLog(monomerClr, 'monomerClr')) return;
-            let _uClr = clrToU32(monomerClr);
-            Module.RealBIMWeb.SetMonomerDefaultClr(_uClr);
+        Module.Monomer.setDefaultClr = function (faceClr, lineClr) {
+            if (isEmptyLog(faceClr, 'faceClr')) return;
+            if (isEmptyLog(lineClr, 'lineClr')) return;
+            let _faceClr = clrToU32(faceClr);
+            let _lineClr = clrToU32(lineClr);
+            Module.RealBIMWeb.SetMonomerDefaultClr(_faceClr, _lineClr);
         };
 
         /**
          * 获取单体化数据的默认颜色
          */
         Module.Monomer.getDefaultClr = function () {
-            let _uClr = Module.RealBIMWeb.GetMonomerDefaultClr();
-            return clrU32ToClr(_uClr);
+            const _cInfo = Module.RealBIMWeb.GetMonomerDefaultClr();
+            return { faceClr: clrU32ToClr(_cInfo.m_u32Value1), lineClr: clrU32ToClr(_cInfo.m_u32Value2) };
         };
 
         /**
          * 设置单体化颜色
          * @param {Array} monomerIdList // 单体化标识集合，空数组代表设置所有区域
-         * @param {REColor} monomerClr //单体化颜色（REColor类型）
+         * @param {REColor} faceClr //面颜色（REColor类型）
+         * @param {REColor} lineClr //线颜色（REColor类型）
          */
-        Module.Monomer.setClr = function (monomerIdList, monomerClr) {
+        Module.Monomer.setClr = function (monomerIdList, faceClr, lineClr) {
             if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
-            if (isEmptyLog(monomerClr, 'monomerClr')) return;
+            if (isEmptyLog(faceClr, 'faceClr')) return;
+            if (isEmptyLog(lineClr, 'lineClr')) return;
             let _vector_monomer_id = new Module.RE_Vector_WStr();
             monomerIdList.forEach((element) => {
                 _vector_monomer_id.push_back(element);
             });
-            let _uClr = clrToU32(monomerClr);
+            let _faceClr = clrToU32(faceClr);
+            let _lineClr = clrToU32(lineClr);
 
-            Module.RealBIMWeb.SetMonomerRgnClr(_vector_monomer_id, _uClr);
+            Module.RealBIMWeb.SetMonomerRgnClr(_vector_monomer_id, _faceClr, _lineClr);
         };
 
         /**
@@ -15088,8 +15114,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.Monomer.getClr = function (monomerId) {
             if (isEmptyLog(monomerId, 'monomerId')) return;
 
-            let _uClr = Module.RealBIMWeb.GetMonomerRgnClr(monomerId);
-            return clrU32ToClr(_uClr);
+            const _cInfo = Module.RealBIMWeb.GetMonomerRgnClr(monomerId);
+            return { faceClr: clrU32ToClr(_cInfo.m_u32Value1), lineClr: clrU32ToClr(_cInfo.m_u32Value2) };
         };
 
         /**
@@ -15204,9 +15230,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         class REMonomerClrAttr {
             constructor() {
-                this.monomerClr = new REColor(255, 255, 255, 255); //单体化颜色（REColor类型）
-                this.clrWeight = 255; //颜色权重, 此权重要使用必须配合颜色值存在（选填）
-                this.alphaWeight = 255; //透明度权重, 此权重要使用必须配合透明度值存在（选填）
+                this.faceClr = new REColor(255, 255, 255, 255); //面颜色（REColor类型）
+                this.faceClrWeight = 255; //面颜色权重, 此权重要使用必须配合面颜色值存在（选填）
+                this.faceAlphaWeight = 255; //面透明度权重, 此权重要使用必须配合面透明度值存在（选填）
+                this.lineClr = new REColor(255, 255, 255, 255); //线颜色（REColor类型）（仅包围盒效果模式下有效）
+                this.lineClrWeight = 255; //线颜色权重, 此权重要使用必须配合线颜色值存在（选填）
+                this.lineAlphaWeight = 255; //线透明度权重, 此权重要使用必须配合线透明度值存在（选填）
             }
         }
         ExtModule.REMonomerClrAttr = REMonomerClrAttr;
@@ -15217,29 +15246,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Monomer.setSelAttr = function (selAttrInfo) {
             if (isEmptyLog(selAttrInfo, 'selAttrInfo')) return;
-            if (isEmptyLog(selAttrInfo.monomerClr, 'monomerClr')) return;
-            let _clrWeight = isEmpty(selAttrInfo.clrWeight) ? 255 : selAttrInfo.clrWeight;
-            let _alphaWeight = isEmpty(selAttrInfo.alphaWeight) ? 255 : selAttrInfo.alphaWeight;
-            let _wbgr_u32 = clrToU32_W_WBGR(selAttrInfo.monomerClr, _clrWeight);
-            let _wa_u32 = alphaToU32_W_WA(selAttrInfo.monomerClr.alpha, _alphaWeight);
-            Module.RealBIMWeb.SetSelMonomerClrInfo(_wbgr_u32, _wa_u32);
+            if (isEmptyLog(selAttrInfo.faceClr, 'faceClr')) return;
+            if (isEmptyLog(selAttrInfo.lineClr, 'lineClr')) return;
+            let _clrWeight_face = isEmpty(selAttrInfo.faceClrWeight) ? 255 : selAttrInfo.faceClrWeight;
+            let _alphaWeight_face = isEmpty(selAttrInfo.faceAlphaWeight) ? 255 : selAttrInfo.faceAlphaWeight;
+            let _wbgr_u32_face = clrToU32_W_WBGR(selAttrInfo.faceClr, _clrWeight_face);
+            let _wa_u32_face = alphaToU32_W_WA(selAttrInfo.faceClr.alpha, _alphaWeight_face);
+
+            let _clrWeight_line = isEmpty(selAttrInfo.lineClrWeight) ? 255 : selAttrInfo.lineClrWeight;
+            let _alphaWeight_line = isEmpty(selAttrInfo.lineAlphaWeight) ? 255 : selAttrInfo.lineAlphaWeight;
+            let _wbgr_u32_line = clrToU32_W_WBGR(selAttrInfo.lineClr, _clrWeight_line);
+            let _wa_u32_line = alphaToU32_W_WA(selAttrInfo.lineClr.alpha, _alphaWeight_line);
+
+            Module.RealBIMWeb.SetSelMonomerClrInfo(_wbgr_u32_face, _wa_u32_face, _wbgr_u32_line, _wa_u32_line);
         };
 
         /**
          * 获取单体化选择集属性
          */
         Module.Monomer.getSelAttr = function () {
-            const _vevtor_attr = Module.RealBIMWeb.GetSelMonomerClrInfo();
-            if (_vevtor_attr.size() <= 0) return null;
+            const _cInfo = Module.RealBIMWeb.GetSelMonomerClrInfo();
 
-            const _u32_wa = _vevtor_attr.get(0);
-            const _u32_wbgr = _vevtor_attr.get(1);
-            let obj_w_rbg = clrU32ToObj_W_RBG(_u32_wbgr);
-            let obj_w_a = clrU32ToObj_W_A(_u32_wa);
+            const _u32_wa_face = _cInfo.m_u16Value1;
+            const _u32_wbgr_face = _cInfo.m_u32Value1;
+            const obj_w_a_face = clrU32ToObj_W_A(_u32_wa_face);
+            const obj_w_rbg_face = clrU32ToObj_W_RBG(_u32_wbgr_face);
+
+            const _u32_wa_line = _cInfo.m_u16Value2;
+            const _u32_wbgr_line = _cInfo.m_u32Value2;
+            const obj_w_a_line = clrU32ToObj_W_A(_u32_wa_line);
+            const obj_w_rbg_line = clrU32ToObj_W_RBG(_u32_wbgr_line);
+
             let selAttr = new Module.REMonomerClrAttr();
-            selAttr.monomerClr = new REColor(obj_w_rbg.int_R, obj_w_rbg.int_G, obj_w_rbg.int_B, obj_w_a.int_A);
-            selAttr.clrWeight = obj_w_rbg.int_W;
-            selAttr.alphaWeight = obj_w_a.int_W;
+            selAttr.faceClr = new REColor(obj_w_rbg_face.int_R, obj_w_rbg_face.int_G, obj_w_rbg_face.int_B, obj_w_a_face.int_A);
+            selAttr.faceClrWeight = obj_w_rbg_face.int_W;
+            selAttr.faceAlphaWeight = obj_w_a_face.int_W;
+            selAttr.lineClr = new REColor(obj_w_rbg_line.int_R, obj_w_rbg_line.int_G, obj_w_rbg_line.int_B, obj_w_a_line.int_A);
+            selAttr.lineClrWeight = obj_w_rbg_line.int_W;
+            selAttr.lineAlphaWeight = obj_w_a_line.int_W;
             return selAttr;
         };
 
@@ -15293,16 +15337,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.Monomer.setHighlightAttr = function (monomerIdList, highlightAttrInfo) {
             if (!checkTypeLog(monomerIdList, 'monomerIdList', RE_Enum.RE_Check_Array)) return;
             if (isEmptyLog(highlightAttrInfo, 'highlightAttrInfo')) return;
-            if (isEmptyLog(highlightAttrInfo.monomerClr, 'monomerClr')) return;
+            if (isEmptyLog(highlightAttrInfo.faceClr, 'faceClr')) return;
+            if (isEmptyLog(highlightAttrInfo.lineClr, 'lineClr')) return;
+
             let _vector_monomer_id = new Module.RE_Vector_WStr();
             monomerIdList.forEach((element) => {
                 _vector_monomer_id.push_back(element);
             });
-            let _clrWeight = isEmpty(highlightAttrInfo.clrWeight) ? 255 : highlightAttrInfo.clrWeight;
-            let _alphaWeight = isEmpty(highlightAttrInfo.alphaWeight) ? 255 : highlightAttrInfo.alphaWeight;
-            let _wbgr_u32 = clrToU32_W_WBGR(highlightAttrInfo.monomerClr, _clrWeight);
-            let _wa_u32 = alphaToU32_W_WA(highlightAttrInfo.monomerClr.alpha, _alphaWeight);
-            Module.RealBIMWeb.SetHighlightMonomerRgn(_vector_monomer_id, _wbgr_u32, _wa_u32);
+
+            let _clrWeight_face = isEmpty(highlightAttrInfo.faceClrWeight) ? 255 : highlightAttrInfo.faceClrWeight;
+            let _alphaWeight_face = isEmpty(highlightAttrInfo.faceAlphaWeight) ? 255 : highlightAttrInfo.faceAlphaWeight;
+            let _wbgr_u32_face = clrToU32_W_WBGR(highlightAttrInfo.faceClr, _clrWeight_face);
+            let _wa_u32_face = alphaToU32_W_WA(highlightAttrInfo.faceClr.alpha, _alphaWeight_face);
+
+            let _clrWeight_line = isEmpty(highlightAttrInfo.lineClrWeight) ? 255 : highlightAttrInfo.lineClrWeight;
+            let _alphaWeight_line = isEmpty(highlightAttrInfo.lineAlphaWeight) ? 255 : highlightAttrInfo.lineAlphaWeight;
+            let _wbgr_u32_line = clrToU32_W_WBGR(highlightAttrInfo.lineClr, _clrWeight_line);
+            let _wa_u32_line = alphaToU32_W_WA(highlightAttrInfo.lineClr.alpha, _alphaWeight_line);
+
+            Module.RealBIMWeb.SetHighlightMonomerRgn(_vector_monomer_id, _wbgr_u32_face, _wa_u32_face, _wbgr_u32_line, _wa_u32_line);
         };
 
         /**
@@ -15310,18 +15363,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          * @param {String} monomerId //单体化标识
          */
         Module.Monomer.getHighlightAttr = function (monomerId) {
-            if (isEmptyLog(monomerId, 'monomerId')) return;
-            const _vevtor_attr = Module.RealBIMWeb.GetHighlightMonomerRgn(monomerId);
-            if (_vevtor_attr.size() <= 0) return null;
+            const _cInfo = Module.RealBIMWeb.GetHighlightMonomerRgn(monomerId);
 
-            const _u32_wa = _vevtor_attr.get(0);
-            const _u32_wbgr = _vevtor_attr.get(1);
-            let obj_w_rbg = clrU32ToObj_W_RBG(_u32_wbgr);
-            let obj_w_a = clrU32ToObj_W_A(_u32_wa);
+            const _u32_wa_face = _cInfo.m_u16Value1;
+            const _u32_wbgr_face = _cInfo.m_u32Value1;
+            const obj_w_a_face = clrU32ToObj_W_A(_u32_wa_face);
+            const obj_w_rbg_face = clrU32ToObj_W_RBG(_u32_wbgr_face);
+
+            const _u32_wa_line = _cInfo.m_u16Value2;
+            const _u32_wbgr_line = _cInfo.m_u32Value2;
+            const obj_w_a_line = clrU32ToObj_W_A(_u32_wa_line);
+            const obj_w_rbg_line = clrU32ToObj_W_RBG(_u32_wbgr_line);
+
             let selAttr = new Module.REMonomerClrAttr();
-            selAttr.monomerClr = new REColor(obj_w_rbg.int_R, obj_w_rbg.int_G, obj_w_rbg.int_B, obj_w_a.int_A);
-            selAttr.clrWeight = obj_w_rbg.int_W;
-            selAttr.alphaWeight = obj_w_a.int_W;
+            selAttr.faceClr = new REColor(obj_w_rbg_face.int_R, obj_w_rbg_face.int_G, obj_w_rbg_face.int_B, obj_w_a_face.int_A);
+            selAttr.faceClrWeight = obj_w_rbg_face.int_W;
+            selAttr.faceAlphaWeight = obj_w_a_face.int_W;
+            selAttr.lineClr = new REColor(obj_w_rbg_line.int_R, obj_w_rbg_line.int_G, obj_w_rbg_line.int_B, obj_w_a_line.int_A);
+            selAttr.lineClrWeight = obj_w_rbg_line.int_W;
+            selAttr.lineAlphaWeight = obj_w_a_line.int_W;
             return selAttr;
         };
 
