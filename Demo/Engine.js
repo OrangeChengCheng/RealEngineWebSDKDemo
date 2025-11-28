@@ -74,6 +74,7 @@ function addEngineListener() {
     document.addEventListener('REPanLoadSingleFinish', REPanLoadSingleFinish);
     document.addEventListener('RECADLoadFinish', RECADLoadFinish);
     document.addEventListener('REMiniMapLoadCAD', REMiniMapLoadCAD); // 小地图加载完成监听
+    document.addEventListener('RESystemSel', RESystemSel);
     document.addEventListener('RESystemSelElement', RESystemSelElement);
     document.addEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
     document.addEventListener('RECADSelElement', RECADSelElement);
@@ -90,6 +91,7 @@ function removeEngineListener() {
     document.removeEventListener('REPanLoadSingleFinish', REPanLoadSingleFinish);
     document.removeEventListener('RECADLoadFinish', RECADLoadFinish);
     document.removeEventListener('REMiniMapLoadCAD', REMiniMapLoadCAD); // 小地图加载完成监听
+    document.removeEventListener('RESystemSel', RESystemSel);
     document.removeEventListener('RESystemSelElement', RESystemSelElement);
     document.removeEventListener('RESystemSelShpElement', RESystemSelShpElement); //鼠标探测矢量元素事件
     document.removeEventListener('RECADSelElement', RECADSelElement);
@@ -203,6 +205,15 @@ function REMiniMapLoadCAD(e) {
             REMiniMapLoadCADCallBack();
         }
         console.log('------ 概略图中的CAD数据 加载成功 ------');
+    }
+}
+
+//获取当前探测结果
+function RESystemSel(e) {
+    if (typeof RESystemSelCallBack !== 'undefined') {
+        RESystemSelCallBack(e);
+    } else {
+        console.log('-- 引擎探测事件 --', BlackHole3D.Probe.getCurSelInfo(), e);
     }
 }
 

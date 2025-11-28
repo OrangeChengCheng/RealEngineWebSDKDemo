@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3498
+﻿//版本：v3.2.0.3503
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -70,6 +70,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
             Module.setOperationMode(1);
         }
+        document.addEventListener('RESystemSel_Web', RESystemSel_Web); //引擎探测事件
         document.addEventListener('REWorldPosChange_Web', REWorldPosChange_Web); //监听世界坐标点变化触发回调事件
         document.addEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web); //位置编辑的控制点配准模式匹配完成回调事件
         document.addEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web); //动画播放脚本状态回调事件
@@ -98,6 +99,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     function removeEventListener() {
+        document.removeEventListener('RESystemSel_Web', RESystemSel_Web);
         document.removeEventListener('REWorldPosChange_Web', REWorldPosChange_Web);
         document.removeEventListener('REEditControlPosMatchFinish_Web', REEditControlPosMatchFinish_Web);
         document.removeEventListener('REAnimPlayScriptState_Web', REAnimPlayScriptState_Web);
@@ -125,6 +127,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
 
     // MARK 回调事件
+    function RESystemSel_Web(e) {
+        const re_event_RESystemSel = new CustomEvent('RESystemSel', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RESystemSel);
+    }
+
     function REWorldPosChange_Web(e) {
         const re_event_REWorldPosStates = new CustomEvent('REWorldPosChange', {
             detail: e.detail,
@@ -3137,6 +3146,80 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else {
             //没有拾取到任何对象
             return { elemType: '', selPos: _probeRet.m_vSelPos, selScrPos: _probeRet.m_vSelScrPos };
+        }
+    };
+
+    class RESelInfo {
+        constructor() {
+            this.selType = null; //表示拾取到的最上层渲染对象类型
+            this.selPos = null; //选择点坐标
+            this.selScrPos = null; //选择点坐标相对屏幕二维坐标（原点为屏幕左下角）
+            this.elemId = null; //构件标识
+            this.shpId = null; //矢量标识
+            this.dataSetId = null; //数据集唯一标识
+            this.dataSetIdList = null; //数据集唯一标识集合
+            this.selTargetCenter = null; //选择构件几何中心点
+            this.selTargetBV = null; //选择构件包围盒信息
+        }
+    }
+    ExtModule.RESelInfo = RESelInfo;
+
+    /**
+     * 获取当前探测选中的信息
+     */
+    Module.Probe.getCurSelInfo = function () {
+        var selInfo = new RESelInfo();
+        var _probeRet = Module.RealBIMWeb.GetCurProbeRet(Module.RE_PROBE_TYPE.POT);
+        var _probeShpRet = Module.RealBIMWeb.GetCurShpProbeRet(Module.RE_SHP_PROBE_TYPE.NORM);
+        // console.log("_probeRet",_probeRet);
+        // console.log("_probeShpRet",_probeShpRet);
+        if (_probeShpRet.m_strSelShpObjName != '') {
+            //矢量元素
+            selInfo.selType = 'ShapeElem';
+            selInfo.shpId = _probeShpRet.m_strSelShpObjName;
+            selInfo.selPos = _probeShpRet.m_vSelPos;
+            selInfo.selScrPos = _probeShpRet.m_vSelScrPos;
+            return removeEmptyProperty(selInfo);
+        } else if (_probeRet.m_strSelActorName != '') {
+            let dataSetId = _probeRet.m_strProjName;
+            if (_probeRet.m_uSelActorSubID_L32 >= 0xfffffffe) {
+                if (dataSetId.length > 0) {
+                    //老地形数据
+                    selInfo.selType = 'GridElem';
+                    selInfo.dataSetId = dataSetId;
+                } else {
+                    //新地形数据
+                    selInfo.selType = 'TerrainElem';
+                    let dataSetIdList = Module.Terrain.getTerrSubAllDataSetId(_probeRet.m_strSelActorName);
+                    if (dataSetIdList.length > 0) {
+                        selInfo.dataSetIdList = dataSetIdList;
+                    } else {
+                        selInfo.dataSetId = dataSetId;
+                    }
+                }
+            } else if (_probeRet.m_uSelActorSubID_L32 == 0xfffffff0) {
+                //辅助元素（包括挤出元素）
+                selInfo.selType = 'AuxElem';
+                selInfo.dataSetId = dataSetId;
+            } else {
+                //BIM元素
+                selInfo.selType = 'BIMElem';
+                selInfo.dataSetId = dataSetId;
+            }
+            if (_probeRet.m_uSelActorSubID_L32 != 0xfffffffe) {
+                selInfo.elemId = _probeRet.m_uSelActorSubID_L32;
+            }
+            selInfo.selPos = _probeRet.m_vSelPos;
+            selInfo.selScrPos = _probeRet.m_vSelScrPos;
+            selInfo.selTargetCenter = _probeRet.m_vSelCenter;
+            selInfo.selTargetBV = _probeRet.m_bbSelBV;
+            return removeEmptyProperty(selInfo);
+        } else {
+            //没有拾取到任何对象
+            selInfo.selType = '';
+            selInfo.selPos = _probeRet.m_vSelPos;
+            selInfo.selScrPos = _probeRet.m_vSelScrPos;
+            return removeEmptyProperty(selInfo);
         }
     };
 
@@ -16683,7 +16766,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {dvec3} axis //旋转轴向量
      */
     Module.Math.getTranAfterRotate = function (offset, radian, rotatePos, axis) {
-        let cTran = Module.RealBIMWeb.Math_GetTranAfterRotate(offset, radian, rotatePos, axis);
+        let cTran = Module.RealBIMWeb.GetTranAfterRotate(offset, radian, rotatePos, axis);
         return { offset: cTran.m_vOffset, rotate: cTran.m_qRotate };
     };
 
@@ -16771,6 +16854,161 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _arrPoint.push_back(pointList[i]);
         }
         Module.RealBIMWeb.CalcHeightRangeOfSection(_arrPoint);
+    };
+
+    /**
+     * 获取两个轴对齐包围盒（AABB）的空间关系
+     * 注：参照对象的包围盒数据需保证有效性
+     * @param {aabbarr} referenceAabb //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {aabbarr} targetAabb //目标轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @return {number} 空间关系枚举值： -2: 参照包围盒数据错误（格式/数值非法）； -1: 目标包围盒数据错误（格式/数值非法）； 0: 目标包围盒完全包含于参照包围盒内部； 1: 两个包围盒相交（部分重叠）； 2: 两个包围盒相离（无交集）
+     */
+    Module.Math.getAabbSpatialRelation = function (referenceAabb, targetAabb) {
+        if (isEmptyLog(referenceAabb, 'referenceAabb')) return 0x7fffffff;
+        if (isEmptyLog(targetAabb, 'targetAabb')) return 0x7fffffff;
+        return Module.RealBIMWeb.CheckRelLoc_AABB_AABB(referenceAabb, targetAabb);
+    };
+
+    /**
+     * 获取点序列相对于轴对齐包围盒（AABB）的空间关系
+     * 注：参照对象的数据需要保证有效性
+     * @param {aabbarr} referenceAabb //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {Array} targetPtList //目标对象点序列 [[x,y,z],...]
+     * @return {number} 空间关系枚举值： -1: 参照包围盒数据错误（格式/数值非法）；0: 所有目标点均在参照包围盒内部；1: 部分目标点在包围盒内、部分在外（相交）；2: 所有目标点均在参照包围盒外部（相离）
+     */
+    Module.Math.getAabbToPtListRelation = function (referenceAabb, targetPtList) {
+        if (isEmptyLog(referenceAabb, 'referenceAabb')) return 0x7fffffff;
+        if (isEmptyLog(targetPtList, 'targetPtList')) return 0x7fffffff;
+        let _arrPt = new Module.RE_Vector_dvec3();
+        targetPtList.forEach((element) => {
+            _arrPt.push_back(element);
+        });
+        return Module.RealBIMWeb.CheckRelLoc_AABB_POTS(referenceAabb, _arrPt);
+    };
+
+    /**
+     * 获取两个点序列的空间关系（基于点序列构面后的相交判断）
+     * 注：参照对象的数据需要保证有效性
+     * @param {Array} referencePtList //参照对象点序列 [[x,y,z],...]
+     * @param {Array} targetPtList //目标对象点序列 [[x,y,z],...]
+     * @return {number} 空间关系枚举值： -1: 参照点序列数据错误（构面失败）；0: 两个点序列对应的几何对象相交；2: 两个点序列对应的几何对象相离（无交集）
+     */
+    Module.Math.getPtListSpatialRelation = function (referencePtList, targetPtList) {
+        if (isEmptyLog(referencePtList, 'referencePtList')) return 0x7fffffff;
+        if (isEmptyLog(targetPtList, 'targetPtList')) return 0x7fffffff;
+        let _arrRefPt = new Module.RE_Vector_dvec3();
+        referencePtList.forEach((element) => {
+            _arrRefPt.push_back(element);
+        });
+
+        let _arrDstPt = new Module.RE_Vector_dvec3();
+        targetPtList.forEach((element) => {
+            _arrDstPt.push_back(element);
+        });
+        return Module.RealBIMWeb.CheckRelLoc_POTS_POTS(_arrRefPt, _arrDstPt);
+    };
+
+    /**
+     * 获取点序列的轴对齐包围盒（AABB）
+     * @param {Array} ptList //点序列 [[x,y,z],...]
+     * @return {aabbarr} 轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     */
+    Module.Math.getPtListAabb = function (ptList) {
+        if (isEmptyLog(ptList, 'ptList'))
+            return [
+                [0, 0, 0],
+                [0, 0, 0],
+            ];
+        let _arrPt = new Module.RE_Vector_dvec3();
+        ptList.forEach((element) => {
+            _arrPt.push_back(element);
+        });
+        return Module.RealBIMWeb.GetAABB_POTS(_arrPt);
+    };
+
+    /**
+     * 判断三维点是否在三角形面（A-B-C）内部/面上
+     * @param {Array<number>} ptP // 待判断点 [x,y,z]
+     * @param {Array<number>} ptA // 三角形顶点A [x,y,z]
+     * @param {Array<number>} ptB // 三角形顶点B [x,y,z]
+     * @param {Array<number>} ptC // 三角形顶点C [x,y,z]
+     * @return {boolean} true: 点在三角形内部/面上；false: 点在三角形外部
+     */
+    Module.Math.isPtInTriangle = function (ptP, ptA, ptB, ptC) {
+        if (isEmptyLog(ptP, 'ptP')) return false;
+        if (isEmptyLog(ptA, 'ptA')) return false;
+        if (isEmptyLog(ptB, 'ptB')) return false;
+        if (isEmptyLog(ptC, 'ptC')) return false;
+        return Module.RealBIMWeb.IsInside_Triangles(ptA, ptB, ptC, ptP);
+    };
+
+    /**
+     * 判断三维点是否在多边形的柱形空间内部
+     * 注：多边形所在平面垂直延伸，上下无穷
+     * @param {Array<number>} targetPt // 待检测三维点 [x,y,z]
+     * @param {Array<Array<number>>} polyPtList // 多边形顶点序列 [[x,y,z],...]
+     * @return {boolean} true: 点在多边形柱形空间内部；false: 点在外部
+     */
+    Module.Math.isPtInPolygonCylindricalRegion = function (targetPt, polyPtList) {
+        if (isEmptyLog(targetPt, 'targetPt')) return false;
+        if (isEmptyLog(polyPtList, 'polyPtList')) return false;
+        let _arrPolyPt = new Module.RE_Vector_dvec3();
+        polyPtList.forEach((element) => {
+            _arrPolyPt.push_back(element);
+        });
+        return Module.RealBIMWeb.IsInPolygon(targetPt, _arrPolyPt);
+    };
+
+    /**
+     * 获取指定点到多边形边界的最短距离对应的交点坐标
+     * @param {Array<number>} sourcePt // 源点 [x,y,z]
+     * @param {Array<Array<number>>} polyPtList // 多边形顶点序列 [[x,y,z],...]
+     * @return {Array<number>} 最短距离交点坐标 [x,y,z]；无交点返回[]
+     */
+    Module.Math.getPtToPolyEdgeShortestIntersect = function (sourcePt, polyPtList) {
+        if (isEmptyLog(sourcePt, 'sourcePt')) return [];
+        if (isEmptyLog(polyPtList, 'polyPtList')) return [];
+        let _arrPolyPt = new Module.RE_Vector_dvec3();
+        polyPtList.forEach((element) => {
+            _arrPolyPt.push_back(element);
+        });
+        return Module.RealBIMWeb.GetNearestDistIntersect(sourcePt, _arrPolyPt);
+    };
+
+    // MOD-- 工具函数（Tool） <---
+    Module.Tool = typeof Module.Tool !== 'undefined' ? Module.Tool : {}; //增加 Tool 模块
+
+    /**
+     * 将扁平式AABB包围盒数据转换为双数组式AABB包围盒数据
+     * @param {Array<number>} flatAabb // 扁平式包围盒 [minx,maxx,miny,maxy,minz,maxz]
+     * @return {Array<Array<number>>} 双数组式包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     */
+    Module.Tool.convertAabbFlatToDoubleArr = function (flatAabb) {
+        if (!checkArrCountLog(flatAabb, 'flatAabb', 6)) return [];
+        const doubleArr = [
+            [flatAabb[0], flatAabb[2], flatAabb[4]],
+            [flatAabb[1], flatAabb[3], flatAabb[5]],
+        ];
+        return doubleArr;
+    };
+
+    /**
+     * 将双数组式AABB包围盒数据转换为扁平式AABB包围盒数据
+     * @param {Array<Array<number>>} doubleArrAabb // 双数组式包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @return {Array<number>} 扁平式包围盒 [minx,maxx,miny,maxy,minz,maxz]
+     */
+    Module.Tool.convertAabbDoubleArrToFlat = function (doubleArrAabb) {
+        if (!checkArrCountLog(doubleArrAabb, 'doubleArrAabb', 2)) return [];
+        if (!checkArrCountLog(doubleArrAabb[0], 'doubleArrAabb', 3)) return [];
+        if (!checkArrCountLog(doubleArrAabb[1], 'doubleArrAabb', 3)) return [];
+        let flat = [];
+        flat.push(doubleArrAabb[0][0]);
+        flat.push(doubleArrAabb[1][0]); //Xmin、Xmax
+        flat.push(doubleArrAabb[0][1]);
+        flat.push(doubleArrAabb[1][1]); //Ymin、Ymax
+        flat.push(doubleArrAabb[0][2]);
+        flat.push(doubleArrAabb[1][2]); //Zmin、Zmax
+        return flat;
     };
 
     // MOD-- 废弃替换接口 <---
