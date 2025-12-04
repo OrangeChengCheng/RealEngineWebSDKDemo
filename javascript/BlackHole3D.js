@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3503
+﻿//版本：v3.2.0.3513
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -16888,10 +16888,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 获取两个点序列的空间关系（基于点序列构面后的相交判断）
-     * 注：参照对象的数据需要保证有效性
+     * 注：参照对象的数据需要保证有效性，如果需要上下无穷的空间关系，需要将两序列做投影，即z值相同
      * @param {Array} referencePtList //参照对象点序列 [[x,y,z],...]
      * @param {Array} targetPtList //目标对象点序列 [[x,y,z],...]
-     * @return {number} 空间关系枚举值： -1: 参照点序列数据错误（构面失败）；0: 两个点序列对应的几何对象相交；2: 两个点序列对应的几何对象相离（无交集）
+     * @return {number} 空间关系枚举值： -1: 参照点序列数据错误（构面失败）；0: 两个点序列对应的几何对象相交；1: 两个点序列对应的几何对象相离（无交集）
      */
     Module.Math.getPtListSpatialRelation = function (referencePtList, targetPtList) {
         if (isEmptyLog(referencePtList, 'referencePtList')) return 0x7fffffff;
