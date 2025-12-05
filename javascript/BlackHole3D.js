@@ -16878,31 +16878,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 获取两个轴对齐包围盒（AABB）的空间关系
      * 注：参照对象的包围盒数据需保证有效性
-     * @param {aabbarr} referenceAabb //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
-     * @param {aabbarr} targetAabb //目标轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {aabbarr} referenceAABB //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {aabbarr} targetAABB //目标轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
      * @return {number} 空间关系枚举值： -2: 参照包围盒数据错误（格式/数值非法）； -1: 目标包围盒数据错误（格式/数值非法）； 0: 目标包围盒完全包含于参照包围盒内部； 1: 两个包围盒相交（部分重叠）； 2: 两个包围盒相离（无交集）
      */
-    Module.Math.getAabbSpatialRelation = function (referenceAabb, targetAabb) {
-        if (isEmptyLog(referenceAabb, 'referenceAabb')) return 0x7fffffff;
-        if (isEmptyLog(targetAabb, 'targetAabb')) return 0x7fffffff;
-        return Module.RealBIMWeb.CheckRelLoc_AABB_AABB(referenceAabb, targetAabb);
+    Module.Math.getAABBSpatialRelation = function (referenceAABB, targetAABB) {
+        if (isEmptyLog(referenceAABB, 'referenceAABB')) return 0x7fffffff;
+        if (isEmptyLog(targetAABB, 'targetAABB')) return 0x7fffffff;
+        return Module.RealBIMWeb.CheckRelLoc_AABB_AABB(referenceAABB, targetAABB);
     };
 
     /**
      * 获取点序列相对于轴对齐包围盒（AABB）的空间关系
      * 注：参照对象的数据需要保证有效性
-     * @param {aabbarr} referenceAabb //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {aabbarr} referenceAABB //参照轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
      * @param {Array} targetPtList //目标对象点序列 [[x,y,z],...]
      * @return {number} 空间关系枚举值： -1: 参照包围盒数据错误（格式/数值非法）；0: 所有目标点均在参照包围盒内部；1: 部分目标点在包围盒内、部分在外（相交）；2: 所有目标点均在参照包围盒外部（相离）
      */
-    Module.Math.getAabbToPtListRelation = function (referenceAabb, targetPtList) {
-        if (isEmptyLog(referenceAabb, 'referenceAabb')) return 0x7fffffff;
+    Module.Math.getAABBToPtListRelation = function (referenceAABB, targetPtList) {
+        if (isEmptyLog(referenceAABB, 'referenceAABB')) return 0x7fffffff;
         if (isEmptyLog(targetPtList, 'targetPtList')) return 0x7fffffff;
         let _arrPt = new Module.RE_Vector_dvec3();
         targetPtList.forEach((element) => {
             _arrPt.push_back(element);
         });
-        return Module.RealBIMWeb.CheckRelLoc_AABB_POTS(referenceAabb, _arrPt);
+        return Module.RealBIMWeb.CheckRelLoc_AABB_POTS(referenceAABB, _arrPt);
     };
 
     /**
@@ -16932,7 +16932,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Array} ptList //点序列 [[x,y,z],...]
      * @return {aabbarr} 轴对齐包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
      */
-    Module.Math.getPtListAabb = function (ptList) {
+    Module.Math.getPtListAABB = function (ptList) {
         if (isEmptyLog(ptList, 'ptList'))
             return [
                 [0, 0, 0],
@@ -16999,34 +16999,34 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 将扁平式AABB包围盒数据转换为双数组式AABB包围盒数据
-     * @param {Array<number>} flatAabb // 扁平式包围盒 [minx,maxx,miny,maxy,minz,maxz]
+     * @param {Array<number>} flatAABB // 扁平式包围盒 [minx,maxx,miny,maxy,minz,maxz]
      * @return {Array<Array<number>>} 双数组式包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
      */
-    Module.Tool.convertAabbFlatToDoubleArr = function (flatAabb) {
-        if (!checkArrCountLog(flatAabb, 'flatAabb', 6)) return [];
+    Module.Tool.convertAABBFlatToDoubleArr = function (flatAABB) {
+        if (!checkArrCountLog(flatAABB, 'flatAABB', 6)) return [];
         const doubleArr = [
-            [flatAabb[0], flatAabb[2], flatAabb[4]],
-            [flatAabb[1], flatAabb[3], flatAabb[5]],
+            [flatAABB[0], flatAABB[2], flatAABB[4]],
+            [flatAABB[1], flatAABB[3], flatAABB[5]],
         ];
         return doubleArr;
     };
 
     /**
      * 将双数组式AABB包围盒数据转换为扁平式AABB包围盒数据
-     * @param {Array<Array<number>>} doubleArrAabb // 双数组式包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
+     * @param {Array<Array<number>>} doubleArrAABB // 双数组式包围盒 [[minx,miny,minz],[maxx,maxy,maxz]]
      * @return {Array<number>} 扁平式包围盒 [minx,maxx,miny,maxy,minz,maxz]
      */
-    Module.Tool.convertAabbDoubleArrToFlat = function (doubleArrAabb) {
-        if (!checkArrCountLog(doubleArrAabb, 'doubleArrAabb', 2)) return [];
-        if (!checkArrCountLog(doubleArrAabb[0], 'doubleArrAabb', 3)) return [];
-        if (!checkArrCountLog(doubleArrAabb[1], 'doubleArrAabb', 3)) return [];
+    Module.Tool.convertAABBDoubleArrToFlat = function (doubleArrAABB) {
+        if (!checkArrCountLog(doubleArrAABB, 'doubleArrAABB', 2)) return [];
+        if (!checkArrCountLog(doubleArrAABB[0], 'doubleArrAABB', 3)) return [];
+        if (!checkArrCountLog(doubleArrAABB[1], 'doubleArrAABB', 3)) return [];
         let flat = [];
-        flat.push(doubleArrAabb[0][0]);
-        flat.push(doubleArrAabb[1][0]); //Xmin、Xmax
-        flat.push(doubleArrAabb[0][1]);
-        flat.push(doubleArrAabb[1][1]); //Ymin、Ymax
-        flat.push(doubleArrAabb[0][2]);
-        flat.push(doubleArrAabb[1][2]); //Zmin、Zmax
+        flat.push(doubleArrAABB[0][0]);
+        flat.push(doubleArrAABB[1][0]); //Xmin、Xmax
+        flat.push(doubleArrAABB[0][1]);
+        flat.push(doubleArrAABB[1][1]); //Ymin、Ymax
+        flat.push(doubleArrAABB[0][2]);
+        flat.push(doubleArrAABB[1][2]); //Zmin、Zmax
         return flat;
     };
 
