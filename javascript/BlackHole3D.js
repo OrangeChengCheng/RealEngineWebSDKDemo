@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3515
+﻿//版本：v3.2.0.3516
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -6688,6 +6688,25 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             regInfo.onlyVisible,
             regInfo.includeInter
         );
+    };
+
+    /**
+     * 设置选中标记的颜色和透明度
+     * @param {REColor} markClr //标记颜色（REColor 类型）
+     */
+    Module.BIM.setSelMarkClr = function (markClr) {
+        if (isEmptyLog(markClr, 'markClr')) return;
+
+        let _markClr = isEmpty(markClr) ? [1.0, 1.0, 0.0, 0.5] : clrToRGBA_List(markClr);
+        Module.RealBIMWeb.SetSelMarkClr(_markClr);
+    };
+
+    /**
+     * 获取选中标记的颜色和透明度
+     */
+    Module.BIM.getSelMarkClr = function () {
+        const arrClr = Module.RealBIMWeb.GetSelMarkClr();
+        return clrRGBAListToClr(arrClr);
     };
 
     // MARK 渲染设置
