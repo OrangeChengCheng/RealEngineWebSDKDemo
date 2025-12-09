@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3516
+﻿//版本：v3.2.0.3525
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -609,6 +609,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.getScreenVirRotate = function () {
         return Module.RealBIMWeb.GetScreenVirRot();
+    };
+
+    /**
+     * 获取当前的交互操作状态
+     */
+    Module.getCurInteractState = function () {
+        const strState = Module.RealBIMWeb.GetCurState();
+        return REInteractStateEm[strState];
     };
 
     // MOD-- 公共模块（Common） <---
@@ -18039,6 +18047,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         FORCE_DWORD: 'Module.RE_TERR_RES_TYPE.FORCE_DWORD', //
     };
     ExtModule.RETerrResEm = RETerrResEm;
+
+    // MARK System
+    //当前的交互操作状态
+    const REInteractStateEm = {
+        INSIDE: -1, //内部交互状态
+        NORMAL: 0, //正常浏览状态
+        MARK_EDIT: 1, //标注编辑状态
+        MARK_SHOW_MARK: 2, //显示标注框状态
+        VIEWCUBE_HOLDING: 3, //ViewCube操作状态
+        SCENE_CLIPPING: 4, //场景剖切
+        SCENE_CLIPPING_TRANSFORM: 5, //场景剖切包围体变换操作
+        MEASURE_PATH_EDIT: 6, //测量线编辑状态
+        SEL_REGION_DRAG: 7, //框选框拖动状态
+        FOCUS_SEL: 8, //框选放大状态
+        SCENENODE_EDIT: 9, //位置编辑状态
+        CONTROL_MATCH: 10, //控制配准状态
+        EXTRUDE_EDIT: 11, //挤出操作区域的编辑状态
+        OBLIQUE_EDIT: 12, //单体化操作区域的编辑状态
+        WATER_EDIT: 13, //水面区域的编辑状态
+        CONTPIPE_EDIT: 14, //连续管道编辑状态
+        ENTITY_EDIT: 15, //实例编辑模式
+        COMMON_SHAPE: 16, //通用矢量编辑状态
+        PARTICLE_EDIT: 17, //粒子编辑状态
+        SPOT_LIGHT_EDIT: 18, //点光源编辑状态
+    };
+    ExtModule.REInteractStateEm = REInteractStateEm;
 
     // MOD-- 函数执行打印 <---
     Module.Log = typeof Module.Log !== 'undefined' ? Module.Log : {}; //增加 Log 模块
