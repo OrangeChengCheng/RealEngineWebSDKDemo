@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3527
+﻿//版本：v3.2.0.3528
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5763,6 +5763,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Geometry.setGroupShpProjSce = function (groupName, projSce) {
         if (isEmptyLog(groupName, 'groupName')) return;
         Module.RealBIMWeb.SetCustomShpProjSce(groupName, projSce);
+    };
+
+    /**
+     * 设置自定义矢量预设的可视距离 注：小于0时，表示无效；大于等于0时则统一使用该预设距离，如果设置了预设距离，且数值大于等于0，则表示自定义矢量接口中的可是距离参数无效
+     * @param {Number} ptVisDist //点可视距离
+     * @param {Number} textVisDist //文字可视距离
+     * @param {Number} lineVisDist //线可视距离
+     * @param {Number} faceVisDist //面可视距离
+     */
+    Module.Geometry.setCustomShpPresetVisDist = function (ptVisDist, textVisDist, lineVisDist, faceVisDist) {
+        const _ptVisDist = isEmpty(ptVisDist) ? -1 : ptVisDist;
+        const _textVisDist = isEmpty(textVisDist) ? -1 : textVisDist;
+        const _lineVisDist = isEmpty(lineVisDist) ? -1 : lineVisDist;
+        const _faceVisDist = isEmpty(faceVisDist) ? -1 : faceVisDist;
+
+        Module.RealBIMWeb.SetCustomShpPresetVisDist(_ptVisDist, _textVisDist, _lineVisDist, _faceVisDist);
     };
 
     // MOD-- 填挖方（Earthwork） <---
