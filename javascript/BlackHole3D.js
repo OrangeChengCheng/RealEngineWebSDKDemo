@@ -18097,6 +18097,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 暴露全局日志开关函数
      */
     Module.Log.enableLog = function () {
+        // 【新增】排除C++绑定的常量/对象，避免包装时访问
+        function isCPPBindingProp(key) {
+            return /^RE_/.test(key) || ['RealBIMWeb'].includes(key);
+        }
         // 判断是否为类构造函数（首字母大写的函数）
         function isClassConstructor(func) {
             if (typeof func !== 'function') return false;
@@ -18109,7 +18113,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             'Common',
             'Light',
             'Model',
-            'Model',
+            'Camera',
             'SkyBox',
             'Coordinate',
             'Probe',
@@ -18144,51 +18148,52 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             'Math',
         ]; // 这里放所有要处理的模块名
 
-        // -------------------------- 通用包装子模块函数：为任意模块的方法添加日志 --------------------------
+        // -------------------------- 安全包装方法：仅包装调用逻辑，不解析内部变量 --------------------------
+        function safeWrapMethod(target, methodName, fullFuncName) {
+            const originalMethod = target[methodName];
+            // 筛选条件：函数 + 非类构造 + 未包装 + 非C++绑定属性
+            if (
+                typeof originalMethod === 'function' &&
+                !isClassConstructor(originalMethod) &&
+                !originalMethod.__isWrapped &&
+                !isCPPBindingProp(methodName)
+            ) {
+                const wrappedMethod = function (...args) {
+                    try {
+                        // 仅打印调用日志，不访问方法内部的变量
+                        console.log(`【RELog】 time: ${getCurrTime()}  func: ${fullFuncName}`);
+                        // 【关键】保持原方法的this和参数，异常不阻断原逻辑
+                        return originalMethod.apply(this, args);
+                    } catch (err) {
+                        console.warn(`【RELog】 调用 ${fullFuncName} 异常:`, err);
+                        throw err; // 抛出异常，不影响原逻辑执行
+                    }
+                };
+                wrappedMethod.__isWrapped = true;
+                target[methodName] = wrappedMethod;
+            }
+        }
+
+        // -------------------------- 包装子模块方法 --------------------------
         function wrapModuleMethodsForLog(moduleName) {
-            // 确保模块存在（如果模块未定义，先初始化）
             Module[moduleName] = Module[moduleName] || {};
             const targetModule = Module[moduleName];
 
-            // 遍历模块下的所有方法
             Object.keys(targetModule).forEach((methodName) => {
-                const originalMethod = targetModule[methodName];
-                // 只处理函数，且跳过已包装过的方法（避免重复包装）
-                if (typeof originalMethod === 'function' && !isClassConstructor(originalMethod) && !originalMethod.__isWrapped) {
-                    // 创建包装函数
-                    const wrappedMethod = function (...args) {
-                        // 打印日志：时间 + 模块名.方法名（如 Terrain.getUnitImgShpAlone、Edit.moveObject）
-                        console.log(`【RELog】 time: ${getCurrTime()}  func: ${moduleName}.${methodName}`);
-                        // 调用原方法，保持 this 指向、参数、返回值完全不变
-                        return originalMethod.apply(this, args);
-                    };
-                    // 标记为已包装，避免重复处理
-                    wrappedMethod.__isWrapped = true;
-                    // 替换原方法引用（原方法逻辑未变，仅被代理）
-                    targetModule[methodName] = wrappedMethod;
-                }
+                safeWrapMethod(targetModule, methodName, `${moduleName}.${methodName}`);
             });
         }
-        // -------------------------- 通用包装根模块函数（直接挂载在Module下的函数） --------------------------
+
+        // -------------------------- 包装根模块方法 --------------------------
         function wrapRootMethodsForLog() {
             Object.keys(Module).forEach((key) => {
-                const originalMethod = Module[key];
-                // 筛选条件：是函数 + 不是子模块（子模块是对象，已由上面的逻辑处理） + 未被包装过
-                if (
-                    typeof originalMethod === 'function' &&
-                    !modulesToMonitor.includes(key) &&
-                    !isClassConstructor(originalMethod) && // 排除子模块（子模块名在modulesToMonitor中）
-                    !originalMethod.__isWrapped
-                ) {
-                    const wrappedMethod = function (...args) {
-                        console.log(`【RELog】 time: ${getCurrTime()}  func: ${key}`); // 根方法直接显示方法名
-                        return originalMethod.apply(this, args);
-                    };
-                    wrappedMethod.__isWrapped = true;
-                    Module[key] = wrappedMethod;
+                // 排除子模块、C++绑定属性
+                if (!modulesToMonitor.includes(key) && !isCPPBindingProp(key)) {
+                    safeWrapMethod(Module, key, key);
                 }
             });
         }
+
         // -------------------------- 执行所有包装逻辑 --------------------------
         // 处理子模块
         modulesToMonitor.forEach((moduleName) => {
