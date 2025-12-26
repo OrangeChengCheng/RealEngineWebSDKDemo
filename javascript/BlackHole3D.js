@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3531
+﻿//版本：v3.2.0.3543
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -5204,6 +5204,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.contactSce = null; //表示矢量是否与场景发生深度遮挡
             this.textInfo = null; //表示顶点的文字标注信息（REShpTextInfo 类型）
             this.projSce = null; //表示是否投影到地形，默认false
+            this.proLineTex = null; //表示投影到地形线条的材质纹理, 默认不使用（仅投影有效可用）, 使用材质颜色lineClr参数不传递或者传递白色
+            this.lineUnit = null; //表示线宽/线长使用的单位，默认像素长度（仅投影且使用材质纹理有效可用）, 0：表示像素长度, 1：表示世界空间长度(米)
+            this.lineWidth = null; //表示线宽（仅投影且使用材质纹理有效可用）
+            this.lineTexLength = null; //表示线条上所贴的纹理的单位长度（仅投影且使用材质纹理有效可用，实际线长大于单位长度则平铺效果，实际线长小于单位长度则裁切效果）
         }
     }
     ExtModule.RELineShpInfo = RELineShpInfo;
@@ -5279,11 +5283,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _uClr = isEmpty(lineShpInfo.lineClr) ? 0xffffffff : clrToU32(lineShpInfo.lineClr);
         var _uFillClr = isEmpty(lineShpInfo.fillClr) ? 0xffffffff : clrToU32(lineShpInfo.fillClr);
         var _fillState = isEmpty(lineShpInfo.fillState) ? 0 : lineShpInfo.fillState;
-        var _linewidth = 1;
         var _fTextPos = isEmpty(lineShpInfo.textPos) ? -2 : lineShpInfo.textPos;
         var _scrASDist = isEmpty(lineShpInfo.scrASDist) ? -1 : lineShpInfo.scrASDist;
         var _scrVisDist = isEmpty(lineShpInfo.scrVisDist) ? -1 : lineShpInfo.scrVisDist;
         var _projSce = isEmpty(lineShpInfo.projSce) ? false : lineShpInfo.projSce;
+        var _proLineTex = '';
+        var _lineWidth = 1;
+        var _lineTexLength = 1;
+        if (_projSce && _proLineTex.length) {
+            _proLineTex = isEmpty(lineShpInfo.proLineTex) ? '' : lineShpInfo.proLineTex;
+            var _lineUnit = isEmpty(lineShpInfo.lineUnit) ? 0 : lineShpInfo.lineUnit;
+            _lineWidth = isEmpty(lineShpInfo.lineWidth) ? 1 : lineShpInfo.lineWidth;
+            _lineTexLength = isEmpty(lineShpInfo.lineTexLength) ? 1 : lineShpInfo.lineTexLength;
+            _lineWidth = _lineUnit ? -1 * Math.round(_lineWidth) : Math.round(_lineWidth);
+            _lineTexLength = _lineUnit ? -1 * Math.round(_lineTexLength) : Math.round(_lineTexLength);
+        }
 
         return Module.RealBIMWeb.AddCustomPolylineShp(
             _shpName,
@@ -5297,8 +5311,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _scrASDist,
             _scrVisDist,
             _bContactSce,
-            _linewidth,
-            _projSce
+            _lineWidth,
+            _projSce,
+            _proLineTex,
+            _lineTexLength
         );
     };
 
@@ -9674,6 +9690,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetTerrGolAnchorVisible(dataSetId, ancName);
     };
 
+    /**
+     * 设置全局地形矢量锚点文字和图片的可视层级范围
+     * @param {Array} textLodRange // 表示文字资源层级范围（二元素数组类型）, 当值为[0,0]时表示不使用该预设值
+     * @param {Array} picLodRange // 表示图片资源层级范围（二元素数组类型）, 当值为[0,0]时表示不使用该预设值
+     */
+    Module.Terrain.setGolTerrShpAncTextVisLodRange = function (textLodRange, picLodRange) {
+        if (isEmptyLog(textLodRange, 'textLodRange')) return;
+        if (isEmptyLog(picLodRange, 'picLodRange')) return;
+        let _textLodRange = isEmpty(textLodRange) ? [0, 0] : textLodRange;
+        let _picLodRange = isEmpty(picLodRange) ? [0, 0] : picLodRange;
+        Module.RealBIMWeb.SetTerrGolAnchorLodSeg(_textLodRange, _picLodRange);
+    };
+
+    /**
+     * 获取全局地形矢量锚点文字和图片的可视层级范围
+     */
+    Module.Terrain.getGolTerrShpAncTextVisLodRange = function () {
+        const cInfo = Module.RealBIMWeb.GetTerrGolAnchorLodSeg();
+        return { textLodRange: cInfo.m_vUvec2Value1, picLodRange: cInfo.m_vUvec2Value2 };
+    };
+
     // MARK 地形矢量线
 
     class RETerrShpLineInfo {
@@ -9854,6 +9891,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         if (isEmptyLog(shpLineName, 'shpLineName')) return;
         return Module.RealBIMWeb.GetTerrGolShpBVisible(dataSetId, shpLineName);
+    };
+
+    /**
+     * 设置全局地形矢量线文字的可视层级范围
+     * @param {Array} textLodRange // 表示文字资源层级范围（二元素数组类型）, 当值为[0,0]时表示不使用该预设值
+     */
+    Module.Terrain.setGolTerrShpLineTextVisLodRange = function (textLodRange) {
+        if (isEmptyLog(textLodRange, 'textLodRange')) return;
+        let _textLodRange = isEmpty(textLodRange) ? [0, 0] : textLodRange;
+        Module.RealBIMWeb.SetTerrGolShpTextLodSeg(_textLodRange);
+    };
+
+    /**
+     * 获取全局地形矢量线文字的可视层级范围
+     */
+    Module.Terrain.getGolTerrShpLineTextVisLodRange = function () {
+        return Module.RealBIMWeb.GetTerrGolShpTextLodSeg();
     };
 
     // MARK 辅助函数
