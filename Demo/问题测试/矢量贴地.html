@@ -1,0 +1,81 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-12-30 09:40:21
+ * @LastEditTime: 2025-12-30 09:42:46
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script type="text/javascript" src="./js/engine.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script>
+        <!-- 功能相关 -->
+        <script type="text/javascript">
+            var isAdd = false;
+            var dataSetList = [
+                {
+                    dataSetId: '3a0b5447fd06af5211c47ca7bb1837db',
+                    resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a0b5447fd06af5211c47ca7bb1837db',
+                },
+            ];
+            function REDataSetLoadFinishCallBack() {
+                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                shpTextInfo.text = '测试画线';
+                shpTextInfo.texBias = [1, 0];
+                shpTextInfo.fontName = 'RealBIMFont001';
+                shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                shpTextInfo.textBackMode = 2;
+                shpTextInfo.textBackBorder = 2;
+                shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                //矢量线信息
+                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                lineShpInfo.shpName = 'lineShp001';
+                lineShpInfo.potList = [
+                    [12529755.78210867, 4536635.651640396, 100.0001634777222534467],
+                    [12528081.641203362, 4536836.4902055655, 100.00027727935594157316],
+                    [12528946.116347764, 4534852.962135019, 100.00024311820106959203],
+                ];
+                lineShpInfo.fillState = 1;
+                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                lineShpInfo.textPos = -2;
+                lineShpInfo.contactSce = false;
+                lineShpInfo.projSce = true;
+                lineShpInfo.groupName = 'group01';
+                lineShpInfo.textInfo = shpTextInfo;
+
+                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+            }
+        </script>
+    </body>
+</html>
