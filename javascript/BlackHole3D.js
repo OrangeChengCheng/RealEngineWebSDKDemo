@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3553
+﻿//版本：v3.2.0.3559
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -79,6 +79,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web); //创建单构件对象并进入第三人称漫游完成回调事件
         document.addEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web); //创建CAD标注完成回调事件
         document.addEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web); //获取闭合几何数据范围内高度最大最小值完成回调事件
+        document.addEventListener('RECADSwitchLayoutFinished_Web', RECADSwitchLayoutFinished_Web); //CAD切换图层完成回调事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -108,6 +109,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('RECreateTPPFinish_Web', RECreateTPPFinish_Web);
         document.removeEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web);
         document.removeEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web);
+        document.removeEventListener('RECADSwitchLayoutFinished_Web', RECADSwitchLayoutFinished_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -213,6 +215,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_RECalcHeightRangeFinish);
+    }
+
+    function RECADSwitchLayoutFinished_Web(e) {
+        const re_event_RECADSwitchLayoutFinished = new CustomEvent('RECADSwitchLayoutFinished', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RECADSwitchLayoutFinished);
     }
 
     if (hasNewExtrude) {
@@ -13075,6 +13084,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.MiniMap.setCADGroupShpAncScale = function (groupId, minScale, maxScale) {
         if (isEmptyLog(groupId, 'groupId')) return;
         return Module.RealBIMWeb.SetCADOverViewShpAnchorScale(groupId, minScale, maxScale);
+    };
+
+    /**
+     * 设置小地图当前视口范围及相机定位
+     * @param {Array} minPot //视口左下角坐标
+     * @param {Array} maxPot //视口右上角坐标
+     * @param {String} layoutId //布局标识
+     */
+    Module.MiniMap.setCurViewportRange = function (minPot, maxPot, layoutId) {
+        let _layoutId = isEmpty(layoutId) ? 'Model' : layoutId;
+        Module.RealBIMWeb.CADOverViewFocusToViewport(_layoutId, minPot, maxPot);
     };
 
     // MARK 锚点
