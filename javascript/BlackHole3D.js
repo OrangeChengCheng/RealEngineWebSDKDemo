@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3561
+﻿//版本：v3.2.0.3577
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -3524,9 +3524,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 在系统的UI面板中添加按钮（统一样式, 只支持两种子按钮状态）
      * @param {REUIBtnInfo} btnInfo //按钮信息 （REUIBtnInfo 类型）
+     * @param {String} beforeUiID //在这个组件之前插入（默认在最后面）
      */
-    Module.Graphics.createSysPanelBtn = function (btnInfo) {
+    Module.Graphics.createSysPanelBtn = function (btnInfo, beforeUiID) {
         if (isEmptyLog(btnInfo, 'btnInfo')) return;
+        const _beforeUiID = isEmpty(beforeUiID) ? '' : beforeUiID;
 
         var _strUIID = btnInfo.uiID;
         var _vExpectSize = [48, 48];
@@ -3552,7 +3554,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _arrStateParams.push_back(_par);
         }
         var createState = Module.RealBIMWeb.UIWgtCreateButton(_strUIID, _arrStateParams, _vExpectSize, _uActiveStateID, _bVisible, _bClickable);
-        var addState = Module.Graphics.addSysPanelChildWidget(btnInfo.uiID);
+        var addState = Module.Graphics.addSysPanelChildWidget(btnInfo.uiID, _beforeUiID);
         return createState && addState;
     };
 
@@ -3673,15 +3675,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 创建一个系统UI面板上的Image控件
      * @param {String} uiID //组件唯一标识
      * @param {String} picPath //图片地址
+     * @param {String} beforeUiID //在这个组件之前插入（默认在最后面）
      */
-    Module.Graphics.createSysPanelImage = function (uiID, picPath) {
+    Module.Graphics.createSysPanelImage = function (uiID, picPath, beforeUiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
         if (isEmptyLog(picPath, 'picPath')) return;
+        const _beforeUiID = isEmpty(beforeUiID) ? '' : beforeUiID;
 
         var _size = [10, 48];
         var _visible = true;
         var createState = Module.RealBIMWeb.UIWgtCreateImage(uiID, _visible, _size, picPath);
-        var addState = Module.Graphics.addSysPanelChildWidget(uiID);
+        var addState = Module.Graphics.addSysPanelChildWidget(uiID, _beforeUiID);
         return createState && addState;
     };
 
@@ -3756,10 +3760,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 将已经创建好的组件到系统UI面板
      * @param {String} uiID //组件唯一标识
+     * @param {String} beforeUiID //在这个组件之前插入（默认在最后面）
      */
-    Module.Graphics.addSysPanelChildWidget = function (uiID) {
+    Module.Graphics.addSysPanelChildWidget = function (uiID, beforeUiID) {
         if (isEmptyLog(uiID, 'uiID')) return;
-        return Module.RealBIMWeb.UIWgtAddChildWidget('BuiltIn_Wnd_Panel', uiID);
+        const _beforeUiID = isEmpty(beforeUiID) ? '' : beforeUiID;
+        return Module.RealBIMWeb.UIWgtAddChildWidget('BuiltIn_Wnd_Panel', uiID, _beforeUiID);
     };
 
     // MOD-- 标签（Tag） <---
