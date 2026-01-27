@@ -1,0 +1,109 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2026-01-26 18:29:58
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+        <!-- <link rel="stylesheet" href="../DevStyle.css" /> -->
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdk/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/Engine.js"></script> -->
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                BlackHole3D.Coordinate.setEngineWorldCRS('EPSG:3857');
+                // BlackHole3D.Common.setFakeSphMode(true);
+                var dataSetList = [
+                    // {
+                    //     dataSetId: 'osgb',
+                    //     resourcesAddress:
+                    //         'https://enginegraph.weidax.com/engineweb/blackhole3D/EngineRes/RequestEngineRes?dir=url_res17&path=3a16caabf43565650b35beacae77f251',
+                    //     dataSetCRS: 'EPSG:3857',
+                    //     engineOrigin: [11942347.18, 3530480.589, 0.0],
+                    //     useTransInfo: true,
+                    //     transInfo: [
+                    //         [1, 1, 1],
+                    //         [0, 0, 0, 1],
+                    //         [0, 0, 167.36182148632187],
+                    //     ],
+                    // },
+                    {
+                        dataSetId: '高程数据',
+                        resourcesAddress:
+                            'https://enginegraph.weidax.com/engineweb/blackhole3D/EngineRes/RequestEngineRes?dir=url_res17&path=3a16cab387e50441bcb2101042fc1400',
+                        dataSetCRS: 'EPSG:3857',
+                    },
+                    {
+                        dataSetId: 'bim',
+                        resourcesAddress:
+                            'https://enginegraph.weidax.com/engineweb/blackhole3D/EngineRes/RequestEngineRes?dir=url_res17&path=3a16ad419d34631389132753fb96be6e',
+                        dataSetCRS: 'EPSG:3857',
+                        engineOrigin: [11942318.54, 3530484.56, 463.7],
+                        useTransInfo: true,
+                        transInfo: [
+                            [1.1500035535974182, 1.1500035535974182, 1.1500035535974182],
+                            [0, 0, -0.2588190446737837, 0.9659258264039481],
+                            [-1981583.4642748125, 6881206.147754874, -587.3241575085315],
+                        ],
+                    },
+                    // {
+                    //     dataSetId: 'wmts',
+                    //     resourcesAddress:
+                    //         'https://enginegraph.weidax.com/engineweb/blackhole3D/EngineRes/RequestEngineRes?dir=url_res02&path=3a1eec182f541e1375d0c5c8cd70756a',
+                    // },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                //相机定位
+                var camLoc = new BlackHole3D.RECamLoc();
+                camLoc.camPos = [11942409.477302112, 3530243.6483460506, 568.2239191099767];
+                // camLoc.camRotate = [0.5361566518336099, 0.03188521478178815, 0.05007539570804545, 0.8420284036287465];
+                camLoc.camDir = [-0.10739302600827512, 0.8997249297819083, -0.42303875554578474];
+                var locDelay = 0.5;
+                var locTime = 1;
+                BlackHole3D.Camera.setCamLocateTo(camLoc, locDelay, locTime);
+            }
+        </script>
+    </body>
+</html>

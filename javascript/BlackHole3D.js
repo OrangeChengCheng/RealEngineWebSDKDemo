@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3577
+﻿//版本：v3.2.0.3583
 const isPhoneMode = false;
 const hasNewExtrude = false;
 const hasNewEntity = false;
@@ -80,6 +80,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web); //创建CAD标注完成回调事件
         document.addEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web); //获取闭合几何数据范围内高度最大最小值完成回调事件
         document.addEventListener('RECADSwitchLayoutFinished_Web', RECADSwitchLayoutFinished_Web); //CAD切换图层完成回调事件
+        document.addEventListener('RESystemKeyDown_Web', RESystemKeyDown_Web); //键盘按键按下完成事件
         if (hasNewExtrude) {
             document.addEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web); //水面添加区域完成回调事件
             document.addEventListener('REAddWaterRgnCheck_Web', REAddWaterRgnCheck_Web); //水面添加区域检查回调事件
@@ -110,6 +111,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('RECADCommentDrawFinish_Web', RECADCommentDrawFinish_Web);
         document.removeEventListener('RECalcHeightRangeFinish_Web', RECalcHeightRangeFinish_Web);
         document.removeEventListener('RECADSwitchLayoutFinished_Web', RECADSwitchLayoutFinished_Web);
+        document.removeEventListener('RESystemKeyDown_Web', RESystemKeyDown_Web);
         if (hasNewExtrude) {
             document.removeEventListener('REAddWaterRgnFinish_Web', REAddWaterRgnFinish_Web);
             document.removeEventListener('REEditWaterFinish_Web', REEditWaterFinish_Web);
@@ -222,6 +224,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_RECADSwitchLayoutFinished);
+    }
+
+    function RESystemKeyDown_Web(e) {
+        const re_event_RESystemKeyDown = new CustomEvent('RESystemKeyDown', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_RESystemKeyDown);
     }
 
     if (hasNewExtrude) {
