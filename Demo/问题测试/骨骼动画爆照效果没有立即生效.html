@@ -1,0 +1,200 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2026-02-13 11:32:20
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <div class="btnNew">
+                <button onclick="loc_bim()">定位（模型）</button>
+                <button onclick="loc_entity()">定位（单构件）</button>
+                <button onclick="loc_osgb()">定位（倾斜摄影）</button>
+                <button onclick="bone_1()">爆炸（1.0）</button>
+                <button onclick="bone_10()">爆炸（10.0）</button>
+                <button onclick="unload_osgb()">卸载（倾斜摄影）</button>
+                <button onclick="unload_entity()">卸载（单构件）</button>
+                <button onclick="load_osgb()">加载（倾斜摄影）</button>
+                <button onclick="load_entity()">加载（单构件）</button>
+            </div>
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                BlackHole3D.Coordinate.setEngineWorldCRS('EPSG:3857');
+                var dataSetList = [
+                    {
+                        dataSetId: '3a1f63fc65d13a66d722ef425fa9d5ff',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1f63fc65d13a66d722ef425fa9d5ff',
+                        dataSetCRS: 'ENU:36.802172429999999,121.52663428',
+                        engineOrigin: [0, 0, 130.89],
+                    },
+                    {
+                        dataSetId: '3a1f63ef9477bfda4005f99a5c661d75',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1f63ef9477bfda4005f99a5c661d75',
+                        dataSetCRS: 'ENU:34.806311,113.720631',
+                    },
+                    {
+                        dataSetId: '3a1f671074c9fe1a81697ed669cfca1b',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1f671074c9fe1a81697ed669cfca1b',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                const list = BlackHole3D.Model.getAllDataSetId();
+                if (list.includes('3a1f671074c9fe1a81697ed669cfca1b')) {
+                    addEntity();
+                }
+            }
+            function addEntity() {
+                BlackHole3D.Entity.enterEditMode();
+                const entityList = [
+                    {
+                        dataSetId: '3a1f671074c9fe1a81697ed669cfca1b',
+                        entityType: '1',
+                        elemId: 11,
+                        scale: [1, 1, 1],
+                        rotate: [0, 0, 0, 1],
+                        offset: [12659381.471876059, 4137125.003887494, -0.06568758328259043],
+                    },
+                ];
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+            function unload_osgb() {
+                BlackHole3D.Model.unloadDataSet('3a1f63fc65d13a66d722ef425fa9d5ff');
+            }
+            function unload_entity() {
+                BlackHole3D.Model.unloadDataSet('3a1f671074c9fe1a81697ed669cfca1b');
+            }
+            function load_osgb() {
+                var dataSetList = [
+                    {
+                        dataSetId: '3a1f63fc65d13a66d722ef425fa9d5ff',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1f63fc65d13a66d722ef425fa9d5ff',
+                        dataSetCRS: 'ENU:36.802172429999999,121.52663428',
+                        engineOrigin: [0, 0, 130.89],
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, false);
+            }
+            function load_entity() {
+                var dataSetList = [
+                    {
+                        dataSetId: '3a1f671074c9fe1a81697ed669cfca1b',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1f671074c9fe1a81697ed669cfca1b',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, false);
+            }
+            function loc_bim() {
+                BlackHole3D.Camera.setCamLocateToDataSet('3a1f63ef9477bfda4005f99a5c661d75', 1.0, BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT);
+            }
+            function loc_entity() {
+                var locIDList = [{ dataSetId: '3a1f671074c9fe1a81697ed669cfca1b', elemIdList: [11] }];
+                var backDepth = 1.0;
+                var locType = BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
+            }
+            function loc_osgb() {
+                BlackHole3D.Camera.setCamLocateToDataSet('3a1f63fc65d13a66d722ef425fa9d5ff', 1.0, BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT);
+            }
+            function bone_1() {
+                BlackHole3D.BIM.setElemToBone('3a1f63ef9477bfda4005f99a5c661d75', [], 2);
+                //获取这批构件的包围盒信息
+                let aabbarr = BlackHole3D.BIM.getElemTotalBV('3a1f63ef9477bfda4005f99a5c661d75', []);
+                //通过包围盒信息计算爆炸中心点坐标
+                let centerx = (aabbarr[0] + aabbarr[1]) / 2;
+                let centery = (aabbarr[2] + aabbarr[3]) / 2;
+                let centerz = (aabbarr[4] + aabbarr[5]) / 2;
+                //设置全局骨骼的目标方位实现爆炸
+                //骨骼的目标方位
+                let destLoc = new BlackHole3D.REBoneLoc();
+                destLoc.autoScale = [0, 0, 0];
+                destLoc.localScale = [1.0, 1.0, 1.0];
+                destLoc.localRotate = [0.0, 0.0, 0.0];
+                destLoc.centerVirOrig = [centerx, centery, centerz];
+                destLoc.centerVirScale = [1, 1, 1];
+                destLoc.centerVirRotate = [0.0, 0.0, 0.0];
+                destLoc.centerVirOffset = [0.0, 0.0, 0.0];
+                //骨骼方位信息
+                let boneLocInfo = new BlackHole3D.REGolBoneLocInfo();
+                boneLocInfo.boneId = 2;
+                boneLocInfo.interval = 1;
+                boneLocInfo.procBatch = 0;
+                boneLocInfo.sendPostEvent = false;
+                boneLocInfo.destLoc = destLoc;
+                BlackHole3D.BIM.setGolElemBoneDestLoc(boneLocInfo);
+            }
+            function bone_10() {
+                BlackHole3D.BIM.setElemToBone('3a1f63ef9477bfda4005f99a5c661d75', [], 2);
+                //获取这批构件的包围盒信息
+                let aabbarr = BlackHole3D.BIM.getElemTotalBV('3a1f63ef9477bfda4005f99a5c661d75', []);
+                //通过包围盒信息计算爆炸中心点坐标
+                let centerx = (aabbarr[0] + aabbarr[1]) / 2;
+                let centery = (aabbarr[2] + aabbarr[3]) / 2;
+                let centerz = (aabbarr[4] + aabbarr[5]) / 2;
+                //设置全局骨骼的目标方位实现爆炸
+                //骨骼的目标方位
+                let destLoc = new BlackHole3D.REBoneLoc();
+                destLoc.autoScale = [0, 0, 0];
+                destLoc.localScale = [1.0, 1.0, 1.0];
+                destLoc.localRotate = [0.0, 0.0, 0.0];
+                destLoc.centerVirOrig = [centerx, centery, centerz];
+                destLoc.centerVirScale = [10, 10, 10];
+                destLoc.centerVirRotate = [0.0, 0.0, 0.0];
+                destLoc.centerVirOffset = [0.0, 0.0, 0.0];
+                //骨骼方位信息
+                let boneLocInfo = new BlackHole3D.REGolBoneLocInfo();
+                boneLocInfo.boneId = 2;
+                boneLocInfo.interval = 1;
+                boneLocInfo.procBatch = 0;
+                boneLocInfo.sendPostEvent = false;
+                boneLocInfo.destLoc = destLoc;
+                BlackHole3D.BIM.setGolElemBoneDestLoc(boneLocInfo);
+            }
+        </script>
+    </body>
+</html>
