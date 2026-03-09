@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3624
+﻿//版本：v3.2.0.3636
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -94,6 +94,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REShpClipFinish_Web', REShpClipFinish_Web); //矢量切割完成回调事件
         document.addEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web); //矢量添加区域检查回调事件
         document.addEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web); //矢量添加切割面回调事件
+        document.addEventListener('REPanLocateCam_Web', REPanLocateCam_Web); //360全景相机定位回调事件
 
         return bool;
     };
@@ -124,6 +125,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REShpClipFinish_Web', REShpClipFinish_Web);
         document.removeEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web);
         document.removeEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web);
+        document.removeEventListener('REPanLocateCam_Web', REPanLocateCam_Web);
     }
 
     // MARK 回调事件
@@ -325,6 +327,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             detail: e.detail,
         });
         document.dispatchEvent(re_event_REShpAddClipFace);
+    }
+
+    function REPanLocateCam_Web(e) {
+        const re_event_REPanLocateCam = new CustomEvent('REPanLocateCam', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event_REPanLocateCam);
     }
 
     // MARK 基础
@@ -7076,6 +7085,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetHugeObjDiffCoef(dataSetId, '', _diffCoef);
     };
 
+
     // MARK 骨骼动画
 
     class REGolBoneLocInfo {
@@ -9892,6 +9902,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         var enumEval = eval(locType);
         Module.RealBIMWeb.LocatePanCamToMainDir(enumEval, _panCamId);
+    };
+
+    /**
+     * 自定义设置360相机的朝向
+     * @param {dvec4} camRotate //相机的朝向（四元素数组）
+     * @param {Number} panWindow //360相机的id，如果当前场景仅有一个360场景，则填0即可，如果有两个，则0表示第一个，1表示第二个
+     */
+    Module.Panorama.setCamLocateToRotate = function (camRotate, panWindow) {
+        if (isEmptyLog(camRotate, 'camRotate')) return;
+        const _panCamId = isEmpty(panWindow) ? 0 : panWindow;
+        const _camLoc = Module.RealBIMWeb.GetPanCamLocation(_panCamId);
+        Module.RealBIMWeb.LocatePanCamTo(_camLoc.m_vCamPos, camRotate, _panCamId);
     };
 
     /**
@@ -13305,6 +13327,51 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
+
+
+
+    // MARK 渲染效果
+    /**
+     * 设置单构件实例实时阴影偏好 注：动态单构件实例默认没有实时阴影效果，需要自行打开
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Boolean} preferRealtime //偏好实时阴影效果
+     */
+    Module.Entity.setShadowPrefer = function (dataSetId, elemIdList, preferRealtime, elemScope) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+
+        var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
+        var _preferRealtime = preferRealtime ? false : preferRealtime;
+
+        if (dataSetId == '') {
+            //多数据集设置
+            Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer('', '', 0xffffffff, 0, _preferRealtime, _elemScope);
+        } else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', 0xffffffff, 0, _preferRealtime, _elemScope);
+            } else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (let i = 0; i < _count; ++i) {
+                    _elemIds.set([elemIdList[i], _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, _preferRealtime, _elemScope);
+            }
+        }
+    };
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Entity.setShadowPrefer = sharding_createShardingConstuctor(Module.Entity.setShadowPrefer, {
+            idPath: '',
+            argIndex: 1,
+        });
+    }
+
 
     // MARK 动画通用
 
