@@ -1,0 +1,105 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-03-18 17:42:38
+ * @LastEditTime: 2026-03-10 15:21:17
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>Demo</title>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/BlackHole3.0/css/style.css" />
+    </head>
+    <body>
+        <div id="canvas-cntrNew">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="custom-loading-container">
+                <div class="loading-box">
+                    <div class="icon-box">
+                        <img src="https://demo.bjblackhole.com/BlackHole3.0/imgs/loading.gif" />
+                    </div>
+                    <div class="common-global-progress-box">
+                        <div class="custom-progress-box">
+                            <div class="progress-bar">
+                                <div class="progress-bar-outer">
+                                    <div class="progress-bar-inner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-text"></div>
+                    </div>
+                    <div class="process-info-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.preload.js"></script>
+        <script async type="text/javascript" src="../Engine.js"></script>
+        <!-- 引擎初始化 -->
+        <script type="text/javascript">
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '3a1e5ce12c98b18de9c4bedc2266fef7',
+                        resourcesAddress:
+                            'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_e&path=3a1e5ce12c98b18de9c4bedc2266fef7',
+                    },
+                    {
+                        dataSetId: '3a1f631709707aca25d2888eca7a4ff5',
+                        resourcesAddress:
+                            'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1f631709707aca25d2888eca7a4ff5',
+                    },
+                    {
+                        dataSetId: '3a1faf042059a907670094dd322aabba',
+                        resourcesAddress:
+                            'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1faf042059a907670094dd322aabba',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList, true);
+                BlackHole3D.Common.setMaxResMemMB(5500);
+                BlackHole3D.Common.setExpectMaxInstMemMB(4500);
+                BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
+                BlackHole3D.Common.setPageLoadLev(2);
+            }
+            function REDataSetLoadFinishCallBack() {
+                addEntity();
+            }
+            function addEntity() {
+                let entityList = [
+                    {
+                        dataSetId: '3a1e5ce12c98b18de9c4bedc2266fef7',
+                        entityType: '1',
+                        elemId: 1,
+                        scale: [1, 1, 1],
+                        rotate: [0, 0, 0, 1],
+                        offset: [239.682132092971, -33.80258155664967, -0.19795595937135602],
+                    },
+                    {
+                        dataSetId: '3a1f631709707aca25d2888eca7a4ff5',
+                        entityType: '1',
+                        elemId: 1,
+                        scale: [0.4000000059604645, 0.4000000059604645, 0.4000000059604645],
+                        rotate: [0, 0, 0, 1],
+                        offset: [243.79632115596974, -33.885713432864655, -0.21129072828480788],
+                    },
+                    {
+                        dataSetId: '3a1f631709707aca25d2888eca7a4ff5',
+                        entityType: '1',
+                        elemId: 2,
+                        scale: [1, 1, 1],
+                        rotate: [0, 0, 0, 1],
+                        offset: [234.12596974475946, -153.6277395465882, 0],
+                    },
+                ];
+
+                BlackHole3D.Entity.enterEditMode();
+                BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                BlackHole3D.Entity.exitEditMode(); //结束编辑模式
+            }
+        </script>
+    </body>
+</html>
