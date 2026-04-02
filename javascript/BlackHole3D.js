@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3643
+﻿//版本：v3.2.0.3669
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -7085,7 +7085,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetHugeObjDiffCoef(dataSetId, '', _diffCoef);
     };
 
-
     // MARK 骨骼动画
 
     class REGolBoneLocInfo {
@@ -7503,6 +7502,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             search_arr.push(textInfo);
         }
         return search_arr;
+    };
+
+    /**
+     * 获取cad资源指定布局的lod范围 注：可以从 CAD.getAllLayoutId 获取所有的布局标识
+     * @param {String} layoutId //布局标识
+     */
+    Module.CAD.getLayoutLodRange = function (layoutId) {
+        const _layoutId = isEmpty(layoutId) ? 'Model' : layoutId;
+        return Module.RealBIMWeb.GetCADLayoutLodRange(_layoutId);
+    };
+
+    /**
+     * 设置当前加载布局显示限制的lod范围 注：需要在 CAD.getLayoutLodRange 获取的范围内设置
+     * @param {uvec2} range //级别范围，二元素数组 [最小级别,最大级别]
+     */
+    Module.CAD.setCurShowLodRange = function (range) {
+        const _range = isEmpty(layorangeutId) ? [0, 0] : range;
+        Module.RealBIMWeb.SetCADCustomLodRange(_range);
+    };
+
+    /**
+     * 获取当前加载布局显示限制的lod范围
+     */
+    Module.CAD.getCurShowLodRange = function () {
+        return Module.RealBIMWeb.GetCADCustomLodRange();
     };
 
     // MARK 相机
@@ -13328,8 +13352,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
     };
 
-
-
     // MARK 渲染效果
     /**
      * 设置单构件实例实时阴影偏好 注：动态单构件实例默认没有实时阴影效果，需要自行打开
@@ -13371,7 +13393,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             argIndex: 1,
         });
     }
-
 
     // MARK 动画通用
 
@@ -16179,6 +16200,350 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return clrRGBAListToClr(_color);
     };
 
+    // MOD-- 投射（Projection） <---
+    Module.Projection = typeof Module.Projection !== 'undefined' ? Module.Projection : {}; //增加 Projection 模块
+
+    // MARK 加载
+
+    class REProjectionInfo {
+        // 投射信息
+        constructor() {
+            this.projectionId = null; //投射标识
+            this.camPos = null; //投射相机的位置信息（三元素数组）
+            this.type = 0; //投射模式 0：正交投影 1：透视投影
+            this.planeNormal = [0.0, 1.0, 0.0]; //投射平面法向量（三元素数组）
+            this.planeRight = [-1.0, 0.0, 0.0]; //投射平面右方向（三元素数组）
+            this.planeNearDis = 1.0; //近平面相对相机位置的距离
+            this.planeFarDis = 100.0; //远平面相对相机位置的距离
+            this.planeFarRectMin = [-10.0, -10.0]; //近平面范围最小值（二元素数组），仅正交投影模式有效
+            this.planeFarRectMax = [10.0, 10.0]; //近平面范围最大值（二元素数组），仅正交投影模式有效
+            this.aspectRatio = 16.0 / 9.0; //宽高比，默认（16.0 / 9.0），仅透视投影模式有效
+            this.fieldAngle = 60; //视场角，默认（60°），仅透视投影模式有效
+            this.texPath = ''; //投射纹理路径，空字符串默认全白纹理
+            this.texType = 0; //纹理类型 0：大资源图片纹理（占用更多的显存，效果好）  1：小资源图片纹理（占用较小的显存，效果一般）  2：视频纹理
+            this.texClrMult = null; //纹理的颜色乘积（REColor 类型）
+            this.minUV = [0.0, 0.0]; //对应的纹理UV坐标区域最小值（二元素数组），取值范围 [0.0, 1.0]
+            this.maxUV = [1.0, 1.0]; //对应的纹理UV坐标区域最大值（二元素数组），取值范围 [0.0, 1.0]
+        }
+    }
+    ExtModule.REProjectionInfo = REProjectionInfo;
+
+    /**
+     * 设置投射默认信息
+     * @param {REProjectionInfo} projectionInfo //投射信息（REProjectionInfo 类型）
+     */
+    Module.Projection.setDefaultInfo = function (projectionInfo) {
+        if (isEmptyLog(projectionInfo, 'projectionInfo')) return;
+
+        const _cInfo = projectionData_js2c_conv(projectionInfo);
+        Module.RealBIMWeb.SetDefaultFrustumProjInfo(_cInfo);
+    };
+
+    /**
+     * 获取投射默认信息
+     */
+    Module.Projection.getDefaultInfo = function () {
+        const _cInfo = Module.RealBIMWeb.GetDefaultFrustumProjInfo();
+        return projectionData_c2js_conv(_cInfo);
+    };
+
+    /**
+     * 设置投射对象集合
+     * @param {Array} projectionInfoList //投射信息集合 （REProjectionInfo 类型）
+     */
+    Module.Projection.setData = function (projectionInfoList) {
+        if (!checkTypeLog(projectionInfoList, 'projectionInfoList', RE_Enum.RE_Check_Array)) return;
+
+        let _vector_projectionInfo = new Module.RE_Vector_FRUSTUM_PROJ_INFO();
+        for (let i = 0; i < projectionInfoList.length; i++) {
+            const _projection_obj = projectionInfoList[i];
+            const _cInfo = projectionData_js2c_conv(_projection_obj);
+            _vector_projectionInfo.push_back(_cInfo);
+        }
+        Module.RealBIMWeb.SetFrustumProjInfo(_vector_projectionInfo);
+    };
+
+    /**
+     * 获取当前场景投射对象集合
+     * @param {Array} projectionIdList //投射标识集合，空数组代表所有
+     */
+    Module.Projection.getData = function (projectionIdList) {
+        let _vector_projection_id = new Module.RE_Vector_WStr();
+        projectionIdList.forEach((element) => {
+            _vector_projection_id.push_back(element);
+        });
+
+        const _vector_projectionInfo = Module.RealBIMWeb.GetFrustumProjInfo(_vector_projection_id);
+        let projectionInfoList = [];
+        for (let i = 0; i < _vector_projectionInfo.size(); i++) {
+            const _cProjection = _vector_projectionInfo.get(i);
+            projectionInfoList.push(projectionData_c2js_conv(_cProjection));
+        }
+
+        return projectionInfoList;
+    };
+
+    /**
+     * 获取所有投射标识
+     */
+    Module.Projection.getAllProjectionId = function () {
+        const _vector_projection_id = Module.RealBIMWeb.GetAllFrustumProjInfoName();
+        let _projectionIdList = [];
+        for (let i = 0; i < _vector_projection_id.size(); i++) {
+            _projectionIdList.push(_vector_projection_id.get(i));
+        }
+        return _projectionIdList;
+    };
+
+    /**
+     * 根据标识删除指定投射
+     * @param {Array} projectionIdList //投射标识集合，空数组代表所有
+     */
+    Module.Projection.delData = function (projectionIdList) {
+        if (!checkTypeLog(projectionIdList, 'projectionIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_projection_id = new Module.RE_Vector_WStr();
+        projectionIdList.forEach((element) => {
+            _vector_projection_id.push_back(element);
+        });
+        return Module.RealBIMWeb.DelFrustumProjInfo(_vector_projection_id);
+    };
+
+    /**
+     * 转换数据辅助接口（c++ -> js）
+     */
+    function projectionData_c2js_conv(projection_c) {
+        const _info_js = new Module.REProjectionInfo();
+
+        let texType = 1;
+        let m_strTexPath = projection_c.m_strTexPath;
+        if (m_strTexPath.includes('Single:')) {
+            m_strTexPath = m_strTexPath.replace('Single:', '');
+            texType = 0;
+        } else if (m_strTexPath.includes('Single:Video:')) {
+            m_strTexPath = m_strTexPath.replace('Single:Video:', '');
+            texType = 2;
+        }
+
+        _info_js.projectionId = projection_c.m_strName;
+        _info_js.camPos = projection_c.m_vPos;
+        _info_js.type = projection_c.m_uProjType;
+        _info_js.planeNormal = projection_c.m_vWorNormal;
+        _info_js.planeRight = projection_c.m_vWorRight;
+        _info_js.planeNearDis = projection_c.m_dZNear;
+        _info_js.planeFarDis = projection_c.m_dZFar;
+        _info_js.planeFarRectMin = [projection_c.m_qZNearRect[0], projection_c.m_qZNearRect[2]];
+        _info_js.planeFarRectMax = [projection_c.m_qZNearRect[1], projection_c.m_qZNearRect[3]];
+        _info_js.aspectRatio = projection_c.m_dAspect;
+        _info_js.fieldAngle = projection_c.m_dFovY * (180 / Math.PI);
+        _info_js.texPath = m_strTexPath;
+        _info_js.texType = texType;
+        _info_js.texClrMult = clrU32ToClr(projection_c.m_uClrMult);
+        _info_js.minUV = [projection_c.m_sUMin / 32767, projection_c.m_sVMin / 32767];
+        _info_js.maxUV = [projection_c.m_sUMax / 32767, projection_c.m_sVMax / 32767];
+
+        return _info_js;
+    }
+
+    /**
+     * 转换数据辅助接口（js -> c++）
+     */
+    function projectionData_js2c_conv(projection_js) {
+        if (isEmptyLog(projection_js.projectionId, 'projectionId')) return null;
+        if (!checkArrCountLog(projection_js.camPos, 'camPos', 3)) return null;
+
+        let _planeFarRectMin = isEmpty(projection_js.planeFarRectMin) ? [-10.0, -10.0] : projection_js.planeFarRectMin;
+        let _planeFarRectMax = isEmpty(projection_js.planeFarRectMax) ? [10.0, 10.0] : projection_js.planeFarRectMax;
+        let _minUV = isEmpty(projection_js.minUV) ? [0.0, 0.0] : projection_js.minUV;
+        let _maxUV = isEmpty(projection_js.maxUV) ? [1.0, 1.0] : projection_js.maxUV;
+        let _texType = isEmpty(projection_js.texType) ? 0 : projection_js.texType;
+        let m_strTexPath = isEmpty(projection_js.texPath) ? '' : projection_js.texPath;
+        if (_texType == 0) {
+            // 纹理独立参与渲染，不合并到拼接大纹理，可以放大一点的资源，占用显存
+            m_strTexPath = 'Single:' + m_strTexPath;
+        } else if (_texType == 2) {
+            // 视频纹理
+            m_strTexPath = 'Single:Video:' + m_strTexPath;
+        } else {
+            // 拼接到大纹理上的纹理资源，需要小资源，会共用工具栏等纹理大小
+        }
+
+        const _info_c = {
+            m_strName: projection_js.projectionId,
+            m_vPos: projection_js.camPos,
+            m_uProjType: isEmpty(projection_js.type) ? 0 : projection_js.type,
+            m_vWorNormal: isEmpty(projection_js.planeNormal) ? [0.0, 1.0, 0.0] : projection_js.planeNormal,
+            m_vWorRight: isEmpty(projection_js.planeRight) ? [1.0, 0.0, 0.0] : projection_js.planeRight,
+            m_dZNear: isEmpty(projection_js.planeNearDis) ? 1.0 : projection_js.planeNearDis,
+            m_dZFar: isEmpty(projection_js.planeFarDis) ? 100.0 : projection_js.planeFarDis,
+            m_qZNearRect: [_planeFarRectMin[0], _planeFarRectMax[0], _planeFarRectMin[1], _planeFarRectMax[1]],
+            m_dAspect: isEmpty(projection_js.aspectRatio) ? 16.0 / 9.0 : projection_js.aspectRatio,
+            m_dFovY: isEmpty(projection_js.fieldAngle) ? 60 * (Math.PI / 180) : projection_js.fieldAngle * (Math.PI / 180),
+            m_strTexPath: m_strTexPath,
+            m_uClrMult: isEmpty(projection_js.texClrMult) ? 0xffffffff : clrToU32(projection_js.texClrMult),
+            m_sUMin: Math.round(_minUV[0] * 32767),
+            m_sUMax: Math.round(_maxUV[0] * 32767),
+            m_sVMin: Math.round(_minUV[1] * 32767),
+            m_sVMax: Math.round(_maxUV[1] * 32767),
+        };
+
+        return _info_c;
+    }
+
+    // MARK 编辑
+
+    /**
+     * 进入投射编辑状态
+     */
+    Module.Projection.startEditState = function () {
+        return Module.RealBIMWeb.BeginFrustumProjEdit();
+    };
+
+    /**
+     * 退出投射编辑状态
+     */
+    Module.Projection.endEditState = function () {
+        return Module.RealBIMWeb.EndFrustumProjEdit();
+    };
+
+    /**
+     * 进入投射添加状态
+     * @param {String} projectionId ///投射唯一标识
+     */
+    Module.Projection.startAddProjectionState = function (projectionId) {
+        return Module.RealBIMWeb.BeginAddFrustumProj(projectionId);
+    };
+
+    /**
+     * 退出投射添加状态
+     */
+    Module.Projection.endAddProjectionState = function () {
+        return Module.RealBIMWeb.EndAddFrustumProj();
+    };
+
+    /**
+     * 获取当前投射的标识
+     */
+    Module.Projection.getCurProjectionId = function () {
+        return Module.RealBIMWeb.GetCurFrustumProjName();
+    };
+
+    // MARK 渲染效果
+
+    /**
+     * 设置指定投射显示状态 注：要在进入投射编辑状态之后有效, 只能改变当前已有的投射对象
+     * @param {Array} projectionIdList //投射标识集合，空数组代表所有
+     * @param {boolean} showGeom //是否显示矢量数据
+     */
+    Module.Projection.setShowState = function (projectionIdList, showGeom) {
+        if (!checkTypeLog(projectionIdList, 'projectionIdList', RE_Enum.RE_Check_Array)) return;
+        var _vector_projectionI_id = new Module.RE_Vector_WStr();
+        projectionIdList.forEach((element) => {
+            _vector_projectionI_id.push_back(element);
+        });
+        let _showGeom = isEmpty(showGeom) ? true : showGeom;
+        Module.RealBIMWeb.SetFrustumProjShowState(_vector_projectionI_id, _showGeom);
+    };
+
+    /**
+     * 获取指定投射状态的所有标识集合 注：要在进入投射编辑状态之后有效
+     * @param {boolean} showGeom //是否是矢量数据状态
+     */
+    Module.Projection.getIdsByShowState = function (showGeom) {
+        let _showGeom = isEmpty(showGeom) ? true : showGeom;
+        const _vector_projectionI_id = Module.RealBIMWeb.GetFrustumProjIDByShowState(_showGeom);
+        let _projectionIdList = [];
+        for (let i = 0; i < _vector_projectionI_id.size(); i++) {
+            _projectionIdList.push(_vector_projectionI_id.get(i));
+        }
+        return _projectionIdList;
+    };
+
+    /**
+     * 设置投射的可见性
+     * @param {Array} projectionIdList //投射标识集合，空数组代表所有
+     * @param {Boolean} visible // 是否可见
+     */
+    Module.Projection.setVisible = function (projectionIdList, visible) {
+        if (!checkTypeLog(projectionIdList, 'projectionIdList', RE_Enum.RE_Check_Array)) return;
+        let _vector_projectionI_id = new Module.RE_Vector_WStr();
+        projectionIdList.forEach((element) => {
+            _vector_projectionI_id.push_back(element);
+        });
+        let _visible = isEmpty(visible) ? true : visible;
+
+        return Module.RealBIMWeb.SetFrustumProjInfoVisible(_vector_projectionI_id, _visible);
+    };
+
+    /**
+     * 获取指定效果的投射标识集合
+     * @param {Boolean} visible // 是否可见
+     */
+    Module.Projection.getProjectionIdByVisible = function (visible) {
+        let _visible = isEmpty(visible) ? true : visible;
+        const _vector_projectionI_id = Module.RealBIMWeb.GetFrustumProjInfoVisible(_visible);
+        let _projectionIdList = [];
+        for (let i = 0; i < _vector_projectionI_id.size(); i++) {
+            _projectionIdList.push(_vector_projectionI_id.get(i));
+        }
+        return _projectionIdList;
+    };
+
+    /**
+     * 设置投射效果是否被允许
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件标识集合，只有BIM、单构件数据有效，瓦片、地形无效
+     * @param {Boolean} enable // 是否允许投射，默认允许
+     * @param {Number} elemScope //表示处理所有构件时的构件搜索范围(0->全局所有构件范围；1/2/3->项目内版本比对的新加构件/删除构件/修改构件)
+     */
+    Module.Projection.setProjectionMask = function (dataSetId, elemIdList, enable, elemScope) {
+        if (isEmpty(dataSetId) || !dataSetId.length) {
+            logParErr('dataSetId');
+            return;
+        }
+
+        var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
+        let _enable = isEmpty(enable) ? true : enable;
+        const uProjWriteMask = 0b00000100;
+        const uMask = _enable ? 0b00000100 : 0b00000000;
+
+        const dataSetType = Module.RealBIMWeb.GetSceType(dataSetId);
+        if (dataSetType == 1) {
+            // BIM
+            if (isEmptyLog(elemIdList, 'elemIdList')) return;
+
+            var _count = elemIdList.length;
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemProjMasks(dataSetId, '', 0xffffffff, 0, uMask, uProjWriteMask, _elemScope);
+            } else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory);
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (let i = 0; i < _count; ++i) {
+                    var eleid = elemIdList[i];
+                    _elemIds.set([eleid, _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemProjMasks(
+                    dataSetId,
+                    '',
+                    _elemIds.byteLength,
+                    _elemIds.byteOffset,
+                    uMask,
+                    uProjWriteMask,
+                    _elemScope
+                );
+            }
+        } else if (dataSetType == 2) {
+            // 倾斜摄影
+            Module.RealBIMWeb.SetUnVerHugeGroupProjMask(dataSetId, '', uMask, uProjWriteMask);
+        } else if (dataSetType == 3) {
+            // 地形
+            Module.RealBIMWeb.SetTerrProjMask(dataSetId, uMask, uProjWriteMask);
+        } else {
+            // 未知
+        }
+    };
+
     // function getName() {
     //     let reg = /\s+at\s(\S+)\s\(/g
     //     let str = new Error().stack.toString()
@@ -16227,6 +16592,37 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Math.getVectorMultiply = function (vector1, vector2) {
         return [vector1[0] * vector2[0], vector1[1] * vector2[1], vector1[2] * vector2[2]];
+    };
+
+    /**
+     * 获取两个向量叉乘
+     * @param {dvec3} vector1 //向量1
+     * @param {dvec3} vector2 //向量2
+     */
+    Module.Math.getVectorCross = function (vector1, vector2) {
+        const x = vector1[1] * vector2[2] - vector1[2] * vector2[1];
+        const y = vector1[2] * vector2[0] - vector1[0] * vector2[2];
+        const z = vector1[0] * vector2[1] - vector1[1] * vector2[0];
+        return [x, y, z];
+    };
+
+    /**
+     * 从点from 指向 点to 的单位方向向量
+     * @param {Array<number>} from // 起点 [x,y,z]
+     * @param {Array<number>} to // 终点 [x,y,z]
+     * @return {Array<number>} 单位方向向量（长度=1）
+     */
+    Module.Math.getDirection = function (from, to) {
+        // 1. 向量相减：to - from
+        const dx = to[0] - from[0];
+        const dy = to[1] - from[1];
+        const dz = to[2] - from[2];
+
+        // 2. 计算向量长度
+        const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        // 3. 归一化（单位向量）
+        return [dx / length, dy / length, dz / length];
     };
 
     /**
@@ -16405,6 +16801,31 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _arrPolyPt.push_back(element);
         });
         return Module.RealBIMWeb.GetNearestDistIntersect(sourcePt, _arrPolyPt);
+    };
+
+    /**
+     * 获取两组顶点间对应转换的仿射变换信息 注：用于两个数据集做对应的仿射变换操作，实现两个数据集的对齐效果
+     * @param {Array<Array<number>>} fromPtList // 原始顶点序列 [[x,y,z],...]，限制三个点坐标
+     * @param {Array<Array<number>>} toPtList // 目标顶点序列 [[x,y,z],...]，限制三个点坐标
+     * @return {any} 仿射变换信息
+     */
+    Module.Math.getPtListTran = function (fromPtList, toPtList) {
+        if (!checkArrCountLog(fromPtList, 'fromPtList', 3)) return null;
+        if (!checkArrCountLog(toPtList, 'toPtList', 3)) return null;
+        let _arrFromPoints = new Module.RE_Vector_dvec3();
+        fromPtList.forEach((el) => {
+            _arrFromPoints.push_back(el);
+        });
+        let _arrToPoints = new Module.RE_Vector_dvec3();
+        toPtList.forEach((el) => {
+            _arrToPoints.push_back(el);
+        });
+        const cInfo = Module.RealBIMWeb.CalcTransform(_arrFromPoints, _arrToPoints);
+        var tranInfo = new RELocInfo();
+        tranInfo.scale = cInfo.m_vScale;
+        tranInfo.rotate = cInfo.m_qRotate;
+        tranInfo.offset = cInfo.m_vOffset;
+        return tranInfo;
     };
 
     // MOD-- 工具函数（Tool） <---
