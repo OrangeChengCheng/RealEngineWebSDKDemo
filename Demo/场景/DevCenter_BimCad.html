@@ -1,0 +1,198 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2026-04-08 10:21:36
+ * @LastEditTime: 2026-04-08 12:27:38
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="changeTran" :disabled="btnDisplay">调整仿射变换</el-button>
+                <el-select
+                    v-model="sel_type"
+                    placeholder="选择相机视角"
+                    style="width: 190px; margin-left: 10px; margin-right: 10px"
+                    @change="sel_type_change">
+                    <el-option v-for="item in type_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+            </div>
+        </div>
+
+        <!-- 引擎相关逻辑 -->
+        <script type="text/javascript">
+            // 添加监听事件
+            function addListener() {}
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                // BlackHole3D.Camera.setCamBelowTerrain(true); //因为涉及到了场景cad的放射变换，会高于模型等，需要调整相机，允许相机在地形之下的效果
+                var dataSetList = [
+                    {
+                        dataSetId: 'Bim',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a2006e9091b5f644776763eb86e91ec',
+                    },
+                    {
+                        dataSetId: 'SceneCad1',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a2008514104fe25ee8638e7f1e58229',
+                    },
+                    {
+                        dataSetId: 'SceneCad2',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a200bfbaae1801ef4518a5432b530ff',
+                    },
+                    {
+                        dataSetId: 'SceneCad3',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a200c1c8e800b5ae9cf79714df71b9a',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+            }
+        </script>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        btnDisplay: false,
+                        sel_type: '',
+                        type_options: [
+                            {
+                                value: '0',
+                                label: 'Bim模型',
+                            },
+                            {
+                                value: '1',
+                                label: 'CAD二层平面图',
+                            },
+                            {
+                                value: '2',
+                                label: 'CAD后立面图',
+                            },
+                            {
+                                value: '3',
+                                label: 'CAD前立面图',
+                            },
+                        ],
+                    };
+                },
+                methods: {
+                    changeTran() {
+                        this.btnDisplay = true;
+                        // 计算需要调整的数据集的仿射变换信息
+                        // 需要调整的数据集的点信息
+                        const cadPtList_1 = [
+                            [233.5011543, 150.0500784, 0.0],
+                            [230.7263021, 159.3029588, 0.0],
+                            [249.2512199, 164.8584082, 0.0],
+                        ];
+                        // 目标方位数据集的点信息
+                        const bimPtList_1 = [
+                            [-0.275, 0.325, 6.5],
+                            [-0.275, 9.928, 6.5],
+                            [19.045, 9.928, 6.5],
+                        ];
+                        const tranInfo_1 = BlackHole3D.Math.getPtListTran(cadPtList_1, bimPtList_1);
+
+                        const cadPtList_2 = [
+                            [-19053.9041, 71.5025, 0.0],
+                            [-19053.9041, 5891.7569, 0.0],
+                            [835.0959, 6050.8597, 0.0],
+                        ];
+                        const bimPtList_2 = [
+                            [19.0539041, 10.0, 0.0715025],
+                            [19.0539041, 10.0, 5.8917569],
+                            [-0.8350959, 10.0, 6.0508597],
+                        ];
+                        const tranInfo_2 = BlackHole3D.Math.getPtListTran(cadPtList_2, bimPtList_2);
+
+                        const cadPtList_3 = [
+                            [-1456.0959, 980.0, 0.0],
+                            [-1456.0959, 5891.7569, 0.0],
+                            [5703.9041, 6050.8597, 0.0],
+                        ];
+                        const bimPtList_3 = [
+                            [-1.4560959, -0.6, 0.98],
+                            [-1.4560959, -0.6, 5.8917569],
+                            [5.7039041, -0.6, 6.0508597],
+                        ];
+                        const tranInfo_3 = BlackHole3D.Math.getPtListTran(cadPtList_3, bimPtList_3);
+
+                        const cadPtList_4 = [
+                            [-1556.0959, -3183.3333, 0.0],
+                            [-1556.0959, -401.6524, 0.0],
+                            [18513.9041, 6282.4406, 0.0],
+                        ];
+                        var dataSetList = [
+                            {
+                                dataSetId: 'Bim',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a2006e9091b5f644776763eb86e91ec',
+                            },
+                            {
+                                dataSetId: 'SceneCad1',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a2008514104fe25ee8638e7f1e58229',
+                                useTransInfo: true,
+                                transInfo: [tranInfo_1.scale, tranInfo_1.rotate, tranInfo_1.offset],
+                                groundDisplay:false,
+                            },
+                            {
+                                dataSetId: 'SceneCad2',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a200bfbaae1801ef4518a5432b530ff',
+                                useTransInfo: true,
+                                transInfo: [tranInfo_2.scale, tranInfo_2.rotate, tranInfo_2.offset],
+                                groundDisplay:false,
+                            },
+                            {
+                                dataSetId: 'SceneCad3',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=3a200c1c8e800b5ae9cf79714df71b9a',
+                                useTransInfo: true,
+                                transInfo: [tranInfo_3.scale, tranInfo_3.rotate, tranInfo_3.offset],
+                                groundDisplay:false,
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+                    },
+                    sel_type_change() {
+                        BlackHole3D.BIM.resetElemAttr('', []);
+                        if (this.sel_type == '0') {
+                            BlackHole3D.Camera.setCamLocateToDataSet('Bim', 1.0, BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT);
+                        } else if (this.sel_type == '1') {
+                            const locType = this.btnDisplay ? BlackHole3D.RECamDirEm.CAM_DIR_TOP : BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                            BlackHole3D.Camera.setCamLocateToDataSet('SceneCad1', 1.0, locType);
+                            BlackHole3D.BIM.setElemAlpha('Bim', [127, 129, 611, 634], 0);
+                        } else if (this.sel_type == '2') {
+                            const locType = this.btnDisplay ? BlackHole3D.RECamDirEm.CAM_DIR_FRONT : BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                            BlackHole3D.Camera.setCamLocateToDataSet('SceneCad2', 1.0, locType);
+                            BlackHole3D.BIM.setElemAlpha('Bim', [86, 215, 365], 0);
+                        } else if (this.sel_type == '3') {
+                            const locType = this.btnDisplay ? BlackHole3D.RECamDirEm.CAM_DIR_BACK : BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                            BlackHole3D.Camera.setCamLocateToDataSet('SceneCad3', 1.0, locType);
+                            BlackHole3D.BIM.setElemAlpha('Bim', [210, 247, 248, 270], 0);
+                        } 
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
