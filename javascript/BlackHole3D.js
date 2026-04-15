@@ -7518,7 +7518,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {uvec2} range //级别范围，二元素数组 [最小级别,最大级别]
      */
     Module.CAD.setCurShowLodRange = function (range) {
-        const _range = isEmpty(layorangeutId) ? [0, 0] : range;
+        const _range = isEmpty(range) ? [0, 0] : range;
         Module.RealBIMWeb.SetCADCustomLodRange(_range);
     };
 
