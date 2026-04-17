@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="finalRender">最终效果</el-button>
+                <el-select
+                    v-model="sel_type"
+                    placeholder="选择单独投射区域类型"
+                    style="width: 190px; margin-left: 10px; margin-right: 10px"
+                    @change="sel_type_change">
+                    <el-option v-for="item in type_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+                <el-button type="primary" @click="editShp">{{ editShp_btn_text }}</el-button>
+                <el-button type="primary" @click="showCamShpLine">显示辅助相机朝向</el-button>
+            </div>
+        </div>
+
+        <!-- 引擎相关逻辑 -->
+        <script type="text/javascript">
+            // 添加监听事件
+            function addListener() {}
+            //初始化完成后，加载项目
+            function RESystemEngineCreatedCallBack() {
+                var dataSetList = [
+                    {
+                        dataSetId: '投射编辑',
+                        resourcesAddress:
+                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1fe27477c3c51efab582a414dcb777',
+                    },
+                ];
+                BlackHole3D.Model.loadDataSet(dataSetList); // 加载一个或多个模型资源
+            }
+        </script>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        editShp_btn_text: '显示编辑辅助矢量',
+                        editShp_state: false,
+                        sel_type: '',
+                        type_options: [
+                            {
+                                value: '0',
+                                label: '单独显示投射（1）',
+                            },
+                            {
+                                value: '1',
+                                label: '单独显示投射（2）',
+                            },
+                            {
+                                value: '2',
+                                label: '单独显示投射（3）',
+                            },
+                            {
+                                value: '3',
+                                label: '单独显示投射（4）',
+                            },
+                        ],
+                    };
+                },
+                methods: {
+                    finalRender() {
+                        this.showProj(0);
+
+                        // 配置某个数据集（bim）的某些构件不接受投射效果，其他类型数据集无需构件id，默认都允许投射
+                        BlackHole3D.Projection.setProjectionMask(
+                            '投射编辑',
+                            [
+                                2052, 886, 1842, 419, 453, 659, 835, 1744, 1838, 2308, 2040, 293, 92, 124, 235, 284, 319, 353, 31, 431, 47, 241, 369,
+                                1099, 371, 373, 377, 296, 2224, 1123, 2335, 2319, 362, 660, 1223, 274, 278, 347,
+                            ],
+                            false
+                        );
+                    },
+                    // area 0: 全部区域 1：区域（1） 2：区域（2） 3：区域（3） 4：区域（4）
+                    showProj(area) {
+                        BlackHole3D.Projection.delData([]); //删除所有现有的投射效果
+
+                        // 由于投射界面是一个弧形界面，需要分割多块投射区域进行合并展示
+                        const proj_01 = new BlackHole3D.REProjectionInfo();
+                        proj_01.projectionId = 'proj_01';
+                        proj_01.camPos = [23.20177, 10.869312, 135.732378];
+                        proj_01.type = 0;
+                        proj_01.planeNormal = BlackHole3D.Math.getDirection(proj_01.camPos, [25.149, 13.136, 135.467]); // 获取相机点到目标点的方向向量
+                        proj_01.planeRight = BlackHole3D.Math.getVectorCross(proj_01.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
+                        proj_01.planeNearDis = 1.0;
+                        proj_01.planeFarDis = 100.0;
+                        proj_01.planeFarRectMin = [-87.0, -10.8];
+                        proj_01.planeFarRectMax = [75.0, 9.8];
+                        proj_01.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
+                        proj_01.texType = 0;
+                        proj_01.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
+                        proj_01.minUV = [0.0, 0.0];
+                        proj_01.maxUV = [0.999084, 0.142857];
+
+                        const proj_02 = new BlackHole3D.REProjectionInfo();
+                        proj_02.projectionId = 'proj_02';
+                        proj_02.camPos = [-37.546, 79.474, 136.427];
+                        proj_02.type = 0;
+                        proj_02.planeNormal = BlackHole3D.Math.getDirection(proj_02.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
+                        proj_02.planeRight = BlackHole3D.Math.getVectorCross(proj_02.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
+                        proj_02.planeNearDis = 1.0;
+                        proj_02.planeFarDis = 100.0;
+                        proj_02.planeFarRectMin = [-30.0, -10];
+                        proj_02.planeFarRectMax = [6.24, -3.2];
+                        proj_02.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
+                        proj_02.texType = 0;
+                        proj_02.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
+                        proj_02.minUV = [0.05, 0.142857];
+                        proj_02.maxUV = [0.35, 0.190476];
+
+                        const proj_03 = new BlackHole3D.REProjectionInfo();
+                        proj_03.projectionId = 'proj_03';
+                        proj_03.camPos = [-37.546, 79.474, 136.427];
+                        proj_03.type = 0;
+                        proj_03.planeNormal = BlackHole3D.Math.getDirection(proj_03.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
+                        proj_03.planeRight = BlackHole3D.Math.getVectorCross(proj_03.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
+                        proj_03.planeNearDis = 1.0;
+                        proj_03.planeFarDis = 100.0;
+                        proj_03.planeFarRectMin = [-30.0, -3.1];
+                        proj_03.planeFarRectMax = [5.48, 1.5];
+                        proj_03.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
+                        proj_03.texType = 0;
+                        proj_03.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
+                        proj_03.minUV = [0.05, 0.201157];
+                        proj_03.maxUV = [0.35, 0.229813];
+
+                        const proj_04 = new BlackHole3D.REProjectionInfo();
+                        proj_04.projectionId = 'proj_04';
+                        proj_04.camPos = [-37.546, 79.474, 136.427];
+                        proj_04.type = 0;
+                        proj_04.planeNormal = BlackHole3D.Math.getDirection(proj_04.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
+                        proj_04.planeRight = BlackHole3D.Math.getVectorCross(proj_04.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
+                        proj_04.planeNearDis = 1.0;
+                        proj_04.planeFarDis = 100.0;
+                        proj_04.planeFarRectMin = [-30.0, 1.7];
+                        proj_04.planeFarRectMax = [4.9, 10.2];
+                        proj_04.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
+                        proj_04.texType = 0;
+                        proj_04.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
+                        proj_04.minUV = [0.05, 0.229813];
+                        proj_04.maxUV = [0.348474, 0.285714];
+
+                        let projectionInfoList = [];
+                        switch (area) {
+                            case 0:
+                                projectionInfoList.push(proj_01, proj_02, proj_03, proj_04);
+                                break;
+                            case 1:
+                                projectionInfoList.push(proj_01);
+                                break;
+                            case 2:
+                                projectionInfoList.push(proj_02);
+                                break;
+                            case 3:
+                                projectionInfoList.push(proj_03);
+                                break;
+                            case 4:
+                                projectionInfoList.push(proj_04);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        BlackHole3D.Projection.setData(projectionInfoList);
+                    },
+                    showCamShpLine() {
+                        // 创建相机点和目标点，便于观察平面法向量方向
+                        // 辅助矢量01
+                        {
+                            // 相机点_01
+                            {
+                                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                                shpTextInfo.text = '相机点_01';
+                                shpTextInfo.texBias = [1, 0];
+                                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                                potShpInfo.shpName = 'shp_pot_11';
+                                potShpInfo.pos = [23.20177, 10.869312, 135.732378];
+                                potShpInfo.potSize = 4;
+                                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                potShpInfo.textInfo = shpTextInfo;
+                                potShpInfo.groupName = 'group_viewer';
+                                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                            }
+                            // 目标点_01
+                            {
+                                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                                shpTextInfo.text = '目标点_01';
+                                shpTextInfo.texBias = [1, 0];
+                                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                                potShpInfo.shpName = 'shp_pot_12';
+                                potShpInfo.pos = [25.149, 13.136, 135.467];
+                                potShpInfo.potSize = 4;
+                                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                potShpInfo.textInfo = shpTextInfo;
+                                potShpInfo.groupName = 'group_viewer';
+                                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                            }
+                            // 相机点 -> 目标点 连线
+                            {
+                                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                                lineShpInfo.shpName = 'lineShp_01';
+                                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                lineShpInfo.potList = [
+                                    [23.20177, 10.869312, 135.732378],
+                                    [25.149, 13.136, 135.467],
+                                ];
+                                lineShpInfo.fillState = 0;
+                                lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+                            }
+                        }
+
+                        // 辅助矢量02
+                        {
+                            // 相机点_02
+                            {
+                                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                                shpTextInfo.text = '相机点_02';
+                                shpTextInfo.texBias = [1, 0];
+                                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                                potShpInfo.shpName = 'shp_pot_21';
+                                potShpInfo.pos = [-37.546, 79.474, 136.427];
+                                potShpInfo.potSize = 4;
+                                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                potShpInfo.textInfo = shpTextInfo;
+                                potShpInfo.groupName = 'group_viewer';
+                                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                            }
+                            // 目标点_02
+                            {
+                                var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                                shpTextInfo.text = '目标点_02';
+                                shpTextInfo.texBias = [1, 0];
+                                var potShpInfo = new BlackHole3D.REPotShpInfo();
+                                potShpInfo.shpName = 'shp_pot_22';
+                                potShpInfo.pos = [-34.546, 79.474, 136.427];
+                                potShpInfo.potSize = 4;
+                                potShpInfo.potClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                potShpInfo.textInfo = shpTextInfo;
+                                potShpInfo.groupName = 'group_viewer';
+                                BlackHole3D.Geometry.addPotShp(potShpInfo);
+                            }
+                            // 相机点 -> 目标点 连线
+                            {
+                                var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                                lineShpInfo.shpName = 'lineShp_02';
+                                lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 255);
+                                lineShpInfo.potList = [
+                                    [-37.546, 79.474, 136.427],
+                                    [-34.546, 79.474, 136.427],
+                                ];
+                                lineShpInfo.fillState = 0;
+                                lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 128);
+                                BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+                            }
+                        }
+                    },
+                    editShp() {
+                        if (!BlackHole3D.Projection.getAllProjectionId().length) return;
+                        this.editShp_state = !this.editShp_state;
+                        if (this.editShp_state) {
+                            BlackHole3D.Projection.startEditState();
+                        } else {
+                            BlackHole3D.Projection.endEditState();
+                        }
+                        this.updateUIStyle();
+                    },
+                    sel_type_change() {
+                        BlackHole3D.Projection.setProjectionMask('投射编辑', [], true);
+                        if (this.sel_type == '0') {
+                            this.showProj(1);
+                        } else if (this.sel_type == '1') {
+                            this.showProj(2);
+                        } else if (this.sel_type == '2') {
+                            this.showProj(3);
+                        } else if (this.sel_type == '3') {
+                            this.showProj(4);
+                        }
+                    },
+                    // UI样式更新
+                    updateUIStyle() {
+                        this.editShp_btn_text = this.editShp_state ? '关闭编辑辅助矢量' : '显示编辑辅助矢量';
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

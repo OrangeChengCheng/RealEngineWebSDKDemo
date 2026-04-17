@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3669
+﻿//版本：v3.2.0.3690
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -16210,11 +16210,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.projectionId = null; //投射标识
             this.camPos = null; //投射相机的位置信息（三元素数组）
+            this.targetPos = null; //目标点的位置信息（三元素数组）
             this.type = 0; //投射模式 0：正交投影 1：透视投影
             this.planeNormal = [0.0, 1.0, 0.0]; //投射平面法向量（三元素数组）
             this.planeRight = [-1.0, 0.0, 0.0]; //投射平面右方向（三元素数组）
-            this.planeNearDis = 1.0; //近平面相对相机位置的距离
-            this.planeFarDis = 100.0; //远平面相对相机位置的距离
+            this.nearFarPlaneOffset = [0, 0]; //表示近远裁面相对于目标点的偏倚，正数表示远离相机点方向，负数表示靠近相机点方向
             this.planeFarRectMin = [-10.0, -10.0]; //近平面范围最小值（二元素数组），仅正交投影模式有效
             this.planeFarRectMax = [10.0, 10.0]; //近平面范围最大值（二元素数组），仅正交投影模式有效
             this.aspectRatio = 16.0 / 9.0; //宽高比，默认（16.0 / 9.0），仅透视投影模式有效
@@ -16224,9 +16224,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.texClrMult = null; //纹理的颜色乘积（REColor 类型）
             this.minUV = [0.0, 0.0]; //对应的纹理UV坐标区域最小值（二元素数组），取值范围 [0.0, 1.0]
             this.maxUV = [1.0, 1.0]; //对应的纹理UV坐标区域最大值（二元素数组），取值范围 [0.0, 1.0]
+            this.uvMapPtNum = [0, 0]; //表示纹理UV坐标区域的U、V方向的映射点个数，默认[0, 0]为保持UV不变,[n,m]二元素数组
+            this.uvMapPtPosList = null; ////表示映射点对应的UV映射表点位集合,[x,y,a,b]四元素数组,(x,y)代表点阵点位置信息，(a,b)代表点位数值，点阵左下角位置(0,0)数值(0,0),右上角位置(n,m)数值(1,1)，uvMapPtNum=[0,0]无效，且uvMapPtNum.n*uvMapPtNum.m===uvMapPtPosList.length
+            this.showState = 0; //表示显示矢量数据的类型, 0表示不显示几何信息， 1表示显示视锥体几何，2表示显示裁剪面
+            this.clipPlaneValid = null; //表示投射裁剪面限制范围有效性，投射效果会作用于各裁剪面构成的包围体内，如果某一面无效，则代表这个面的方向范围不做限制，默认限制范围（REProjectionClipPlaneInfo 类型）
+            this.localClipPlanes = null; //表示视椎体关联的所有局部空间有向裁切面
         }
     }
     ExtModule.REProjectionInfo = REProjectionInfo;
+
+    class REProjectionClipPlaneInfo {
+        // 投射裁剪面信息
+        constructor() {
+            this.topValid = true; //裁剪包围体（上面）限制区域有效
+            this.bottomValid = true; //裁剪包围体（下面）限制区域有效
+            this.leftValid = true; //裁剪包围体（左面）限制区域有效
+            this.rightValid = true; //裁剪包围体（右面）限制区域有效
+            this.frontValid = true; //裁剪包围体（前面）限制区域有效
+            this.backValid = true; //裁剪包围体（后面）限制区域有效
+        }
+    }
+    ExtModule.REProjectionClipPlaneInfo = REProjectionClipPlaneInfo;
 
     /**
      * 设置投射默认信息
@@ -16323,14 +16341,36 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_strTexPath = m_strTexPath.replace('Single:Video:', '');
             texType = 2;
         }
+        // 处理剖切面相关数据
+        const _clipPlaneValid = new Module.REProjectionClipPlaneInfo();
+        _clipPlaneValid.topValid = (projection_c.m_uClipPlaneValid & 1) !== 0;
+        _clipPlaneValid.bottomValid = (projection_c.m_uClipPlaneValid & 2) !== 0;
+        _clipPlaneValid.leftValid = (projection_c.m_uClipPlaneValid & 4) !== 0;
+        _clipPlaneValid.rightValid = (projection_c.m_uClipPlaneValid & 8) !== 0;
+        _clipPlaneValid.frontValid = (projection_c.m_uClipPlaneValid & 16) !== 0;
+        _clipPlaneValid.backValid = (projection_c.m_uClipPlaneValid & 32) !== 0;
 
+        const _localClipPlanes = [];
+        for (let i = 0; i < projection_c.m_arrLocalClipPlanes.size(); i++) {
+            _localClipPlanes.push(projection_c.m_arrLocalClipPlanes.get(i));
+        }
+
+        // 处理UV映射数据
+        const _uvMapPtPosList_temp = [];
+        for (let i = 0; i < projection_c.m_arrUVMapPots.size(); i++) {
+            _uvMapPtPosList_temp.push(projection_c.m_arrUVMapPots.get(i));
+        }
+        const [n, m] = projection_c.m_vUVMapPtNum;
+        const _uvMapPtPosList = _uvMapPtPosList_temp.map((item, idx) => [idx % (n + 1), Math.floor(idx / (n + 1)), item[0] / 65535, item[1] / 65535]);
+
+        // 构造数据
         _info_js.projectionId = projection_c.m_strName;
         _info_js.camPos = projection_c.m_vPos;
+        _info_js.targetPos = projection_c.m_vDstPos;
         _info_js.type = projection_c.m_uProjType;
         _info_js.planeNormal = projection_c.m_vWorNormal;
         _info_js.planeRight = projection_c.m_vWorRight;
-        _info_js.planeNearDis = projection_c.m_dZNear;
-        _info_js.planeFarDis = projection_c.m_dZFar;
+        _info_js.nearFarPlaneOffset = projection_c.m_vOffset;
         _info_js.planeFarRectMin = [projection_c.m_qZNearRect[0], projection_c.m_qZNearRect[2]];
         _info_js.planeFarRectMax = [projection_c.m_qZNearRect[1], projection_c.m_qZNearRect[3]];
         _info_js.aspectRatio = projection_c.m_dAspect;
@@ -16340,6 +16380,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         _info_js.texClrMult = clrU32ToClr(projection_c.m_uClrMult);
         _info_js.minUV = [projection_c.m_sUMin / 32767, projection_c.m_sVMin / 32767];
         _info_js.maxUV = [projection_c.m_sUMax / 32767, projection_c.m_sVMax / 32767];
+        _info_js.uvMapPtNum = projection_c.m_vUVMapPtNum;
+        _info_js.uvMapPtPosList = _uvMapPtPosList;
+        _info_js.showState = projection_c.m_uShowState;
+        _info_js.clipPlaneValid = _clipPlaneValid;
+        _info_js.localClipPlanes = _localClipPlanes;
 
         return _info_js;
     }
@@ -16350,6 +16395,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     function projectionData_js2c_conv(projection_js) {
         if (isEmptyLog(projection_js.projectionId, 'projectionId')) return null;
         if (!checkArrCountLog(projection_js.camPos, 'camPos', 3)) return null;
+        if (!checkArrCountLog(projection_js.targetPos, 'targetPos', 3)) return null;
 
         let _planeFarRectMin = isEmpty(projection_js.planeFarRectMin) ? [-10.0, -10.0] : projection_js.planeFarRectMin;
         let _planeFarRectMax = isEmpty(projection_js.planeFarRectMax) ? [10.0, 10.0] : projection_js.planeFarRectMax;
@@ -16366,15 +16412,47 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         } else {
             // 拼接到大纹理上的纹理资源，需要小资源，会共用工具栏等纹理大小
         }
+        // 处理剖切面相关数据
+        let _m_uClipPlaneValid = 0;
+        if (!isEmpty(projection_js.clipPlaneValid)) {
+            _m_uClipPlaneValid = 0b00111111;
+        } else {
+            if (projection_js.clipPlaneValid.topValid) _m_uClipPlaneValid |= 1 << 0;
+            if (projection_js.clipPlaneValid.bottomValid) _m_uClipPlaneValid |= 1 << 1;
+            if (projection_js.clipPlaneValid.leftValid) _m_uClipPlaneValid |= 1 << 2;
+            if (projection_js.clipPlaneValid.rightValid) _m_uClipPlaneValid |= 1 << 3;
+            if (projection_js.clipPlaneValid.frontValid) _m_uClipPlaneValid |= 1 << 4;
+            if (projection_js.clipPlaneValid.backValid) _m_uClipPlaneValid |= 1 << 5;
+        }
+        let _arrLocalClipPlanes = new Module.RE_Vector_dvec4();
+        projection_js.localClipPlanes.forEach((el) => {
+            _arrLocalClipPlanes.push_back(el);
+        });
+
+        // 处理UV映射数据
+        let _arrUVMapPots = new Module.RE_Vector_ivec2();
+        const _uvMapPtNum = isEmpty(projection_js.uvMapPtNum) ? [0, 0] : projection_js.uvMapPtNum;
+        if (!checkArrCount(_uvMapPtNum, 2)) {
+            logParErr('uvMapPtNum');
+            return null;
+        }
+        const [n, m] = _uvMapPtNum;
+        if (n * m != 0 && n * m == projection_js.uvMapPtPosList.length) {
+            const sorted = [...projection_js.uvMapPtPosList].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+            const resList = sorted.map((i) => [i[2] * 65535, i[3] * 65535]);
+            resList.forEach((el) => {
+                _arrUVMapPots.push_back(el);
+            });
+        }
 
         const _info_c = {
             m_strName: projection_js.projectionId,
             m_vPos: projection_js.camPos,
+            m_vDstPos: projection_js.targetPos,
             m_uProjType: isEmpty(projection_js.type) ? 0 : projection_js.type,
             m_vWorNormal: isEmpty(projection_js.planeNormal) ? [0.0, 1.0, 0.0] : projection_js.planeNormal,
             m_vWorRight: isEmpty(projection_js.planeRight) ? [1.0, 0.0, 0.0] : projection_js.planeRight,
-            m_dZNear: isEmpty(projection_js.planeNearDis) ? 1.0 : projection_js.planeNearDis,
-            m_dZFar: isEmpty(projection_js.planeFarDis) ? 100.0 : projection_js.planeFarDis,
+            m_vOffset: isEmpty(projection_js.nearFarPlaneOffset) ? [0, 0] : projection_js.nearFarPlaneOffset,
             m_qZNearRect: [_planeFarRectMin[0], _planeFarRectMax[0], _planeFarRectMin[1], _planeFarRectMax[1]],
             m_dAspect: isEmpty(projection_js.aspectRatio) ? 16.0 / 9.0 : projection_js.aspectRatio,
             m_dFovY: isEmpty(projection_js.fieldAngle) ? 60 * (Math.PI / 180) : projection_js.fieldAngle * (Math.PI / 180),
@@ -16384,6 +16462,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_sUMax: Math.round(_maxUV[0] * 32767),
             m_sVMin: Math.round(_minUV[1] * 32767),
             m_sVMax: Math.round(_maxUV[1] * 32767),
+            m_vUVMapPtNum: _uvMapPtNum,
+            m_arrUVMapPots: _arrUVMapPots,
+            m_uShowState: isEmpty(projection_js.showState) ? 0 : projection_js.showState,
+            m_uClipPlaneValid: _m_uClipPlaneValid,
+            m_arrLocalClipPlanes: _arrLocalClipPlanes,
         };
 
         return _info_c;
@@ -16427,30 +16510,64 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetCurFrustumProjName();
     };
 
+    /**
+     * 设置投射裁剪面编辑类型
+     * @param {number} type //编辑类型 0:表示整体编辑  1:表示局部编辑
+     */
+    Module.Projection.setClipPlaneEditType = function (type) {
+        const _type = isEmpty(type) ? 0 : type;
+        Module.RealBIMWeb.SetClipPlaneEditType(_type);
+    };
+
+    /**
+     * 获取投射裁剪面编辑类型
+     */
+    Module.Projection.getClipPlaneEditType = function () {
+        return Module.RealBIMWeb.GetClipPlaneEditType();
+    };
+
+    /**
+     * 设置视锥体的翻滚角度 注：翻滚方向为相机点到目标点方向
+     * @param {String} projectionId ///投射唯一标识
+     * @param {number} angle //翻滚角度 >0:顺时针翻滚角度  <0:逆时针翻滚角度
+     */
+    Module.Projection.setPitch = function (projectionId, angle) {
+        const _angle = isEmpty(angle) ? 0 : angle;
+        return Module.RealBIMWeb.SetFrustumProjPitch(projectionId, _angle);
+    };
+
+    /**
+     * 重置裁剪面效果
+     * @param {String} projectionId ///投射唯一标识
+     */
+    Module.Projection.resetClipPlane = function (projectionId) {
+        Module.RealBIMWeb.ResetClipPlane(projectionId);
+    };
+
     // MARK 渲染效果
 
     /**
      * 设置指定投射显示状态 注：要在进入投射编辑状态之后有效, 只能改变当前已有的投射对象
      * @param {Array} projectionIdList //投射标识集合，空数组代表所有
-     * @param {boolean} showGeom //是否显示矢量数据
+     * @param {number} type //显示的状态 0：不显示几何信息 1：显示视锥体几何 2：显示裁剪面
      */
-    Module.Projection.setShowState = function (projectionIdList, showGeom) {
+    Module.Projection.setShowState = function (projectionIdList, type) {
         if (!checkTypeLog(projectionIdList, 'projectionIdList', RE_Enum.RE_Check_Array)) return;
         var _vector_projectionI_id = new Module.RE_Vector_WStr();
         projectionIdList.forEach((element) => {
             _vector_projectionI_id.push_back(element);
         });
-        let _showGeom = isEmpty(showGeom) ? true : showGeom;
-        Module.RealBIMWeb.SetFrustumProjShowState(_vector_projectionI_id, _showGeom);
+        let _type = isEmpty(type) ? 0 : type;
+        Module.RealBIMWeb.SetFrustumProjShowState(_vector_projectionI_id, _type);
     };
 
     /**
      * 获取指定投射状态的所有标识集合 注：要在进入投射编辑状态之后有效
-     * @param {boolean} showGeom //是否是矢量数据状态
+     * @param {number} type //显示的状态 0：不显示几何信息 1：显示视锥体几何 2：显示裁剪面
      */
-    Module.Projection.getIdsByShowState = function (showGeom) {
-        let _showGeom = isEmpty(showGeom) ? true : showGeom;
-        const _vector_projectionI_id = Module.RealBIMWeb.GetFrustumProjIDByShowState(_showGeom);
+    Module.Projection.getIdsByShowState = function (type) {
+        let _type = isEmpty(type) ? 0 : type;
+        const _vector_projectionI_id = Module.RealBIMWeb.GetFrustumProjIDByShowState(_type);
         let _projectionIdList = [];
         for (let i = 0; i < _vector_projectionI_id.size(); i++) {
             _projectionIdList.push(_vector_projectionI_id.get(i));
@@ -16487,6 +16604,89 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         return _projectionIdList;
     };
+
+    /**
+     * 设置裁剪面的有效性
+     * @param {String} projectionId ///投射唯一标识
+     * @param {REProjectionClipPlaneInfo} clipPlaneValid //有效性信息（REProjectionClipPlaneInfo 类型）
+     */
+    Module.Projection.setClipPlaneValid = function (projectionId, clipPlaneValid) {
+        let _m_uClipPlaneValid = 0;
+        if (!isEmpty(clipPlaneValid)) {
+            _m_uClipPlaneValid = 0b00111111;
+        } else {
+            if (clipPlaneValid.topValid) _m_uClipPlaneValid |= 1 << 0;
+            if (clipPlaneValid.bottomValid) _m_uClipPlaneValid |= 1 << 1;
+            if (clipPlaneValid.leftValid) _m_uClipPlaneValid |= 1 << 2;
+            if (clipPlaneValid.rightValid) _m_uClipPlaneValid |= 1 << 3;
+            if (clipPlaneValid.frontValid) _m_uClipPlaneValid |= 1 << 4;
+            if (clipPlaneValid.backValid) _m_uClipPlaneValid |= 1 << 5;
+        }
+        return Module.RealBIMWeb.SetClipPlaneValid(projectionId, _m_uClipPlaneValid);
+    };
+
+    /**
+     * 获取裁剪面的有效性
+     * @param {String} projectionId ///投射唯一标识
+     */
+    Module.Projection.getClipPlaneValid = function (projectionId) {
+        const uValid = Module.RealBIMWeb.GetClipPlaneValid(projectionId);
+        const _clipPlaneValid = new Module.REProjectionClipPlaneInfo();
+        _clipPlaneValid.topValid = (uValid & 1) !== 0;
+        _clipPlaneValid.bottomValid = (uValid & 2) !== 0;
+        _clipPlaneValid.leftValid = (uValid & 4) !== 0;
+        _clipPlaneValid.rightValid = (uValid & 8) !== 0;
+        _clipPlaneValid.frontValid = (uValid & 16) !== 0;
+        _clipPlaneValid.backValid = (uValid & 32) !== 0;
+        return _clipPlaneValid;
+    };
+
+    /**
+     * 设置指定投射的纹理（视频）路径
+     * @param {String} projectionId ///投射唯一标识
+     * @param {string} texPath //投射纹理路径，空字符串默认全白纹理
+     */
+    Module.Projection.setTexPath = function (projectionId, texPath) {
+        if (isEmptyLog(projectionId, 'projectionId')) return false;
+        if (isEmptyLog(texPath, 'texPath')) return false;
+        const strTexPath = Module.RealBIMWeb.GetFrustumProjTexPath(projectionId);
+        const _texPath = strTexPath.replace(/^(Single:|Single:Video:).*/, '$1' + texPath);
+
+        return Module.RealBIMWeb.SetFrustumProjTexPath(projectionId, _texPath);
+    };
+
+    /**
+     * 获取指定投射的纹理（视频）路径
+     * @param {String} projectionId ///投射唯一标识
+     */
+    Module.Projection.getTexPath = function (projectionId) {
+        if (isEmptyLog(projectionId, 'projectionId')) return '';
+        const strTexPath = Module.RealBIMWeb.GetFrustumProjTexPath(projectionId);
+        const texPath = strTexPath.replace(/Single:Video:|Single:/g, '');
+        return texPath;
+    };
+
+    /**
+     * 设置指定投射的投射类型
+     * @param {String} projectionId ///投射唯一标识
+     * @param {number} type //投射类型 0：表示正交投影 1：表示透视投影
+     */
+    Module.Projection.setType = function (projectionId, number) {
+        if (isEmptyLog(projectionId, 'projectionId')) return false;
+        const _number = isEmpty(number) ? 1 : number;
+        return Module.RealBIMWeb.SetFrustumProjType(projectionId, _number);
+    };
+
+    /**
+     * 获取指定投射的投射类型
+     * @param {String} projectionId ///投射唯一标识
+     */
+    Module.Projection.setType = function (projectionId) {
+        if (isEmptyLog(projectionId, 'projectionId')) return null;
+        return Module.RealBIMWeb.GetFrustumProjType(projectionId);
+    };
+
+
 
     /**
      * 设置投射效果是否被允许
