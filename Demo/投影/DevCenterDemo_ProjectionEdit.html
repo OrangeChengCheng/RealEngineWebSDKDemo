@@ -11,9 +11,10 @@
         <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../Demo/DevCenterConfig.js"></script>
         <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/BlackHole3D.js"></script> -->
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script> -->
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
     </head>
 
@@ -101,66 +102,58 @@
                         const proj_01 = new BlackHole3D.REProjectionInfo();
                         proj_01.projectionId = 'proj_01';
                         proj_01.camPos = [23.20177, 10.869312, 135.732378];
+                        proj_01.targetPos = [25.149, 13.136, 135.467];
                         proj_01.type = 0;
                         proj_01.planeNormal = BlackHole3D.Math.getDirection(proj_01.camPos, [25.149, 13.136, 135.467]); // 获取相机点到目标点的方向向量
                         proj_01.planeRight = BlackHole3D.Math.getVectorCross(proj_01.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
-                        proj_01.planeNearDis = 1.0;
-                        proj_01.planeFarDis = 100.0;
-                        proj_01.planeFarRectMin = [-87.0, -10.8];
-                        proj_01.planeFarRectMax = [75.0, 9.8];
+                        proj_01.nearFarPlaneOffset = [10.0, 10.0];
+                        proj_01.nearPlaneRect = [-87.0, 75.0, -10.8, 9.8];
                         proj_01.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
                         proj_01.texType = 0;
                         proj_01.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
-                        proj_01.minUV = [0.0, 0.0];
-                        proj_01.maxUV = [0.999084, 0.142857];
+                        proj_01.uvRect = [0.0, 0.999084, 0.0, 0.142857];
 
                         const proj_02 = new BlackHole3D.REProjectionInfo();
                         proj_02.projectionId = 'proj_02';
                         proj_02.camPos = [-37.546, 79.474, 136.427];
+                        proj_02.targetPos = [-34.546, 79.474, 136.427];
                         proj_02.type = 0;
                         proj_02.planeNormal = BlackHole3D.Math.getDirection(proj_02.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
                         proj_02.planeRight = BlackHole3D.Math.getVectorCross(proj_02.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
-                        proj_02.planeNearDis = 1.0;
-                        proj_02.planeFarDis = 100.0;
-                        proj_02.planeFarRectMin = [-30.0, -10];
-                        proj_02.planeFarRectMax = [6.24, -3.2];
+                        proj_02.nearFarPlaneOffset = [10.0, 10.0];
+                        proj_02.nearPlaneRect = [-30.0, 6.24, -10, -3.2];
                         proj_02.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
                         proj_02.texType = 0;
                         proj_02.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
-                        proj_02.minUV = [0.05, 0.142857];
-                        proj_02.maxUV = [0.35, 0.190476];
+                        proj_02.uvRect = [0.05, 0.35, 0.142857, 0.190476];
 
                         const proj_03 = new BlackHole3D.REProjectionInfo();
                         proj_03.projectionId = 'proj_03';
                         proj_03.camPos = [-37.546, 79.474, 136.427];
+                        proj_03.targetPos = [-34.546, 79.474, 136.427];
                         proj_03.type = 0;
                         proj_03.planeNormal = BlackHole3D.Math.getDirection(proj_03.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
                         proj_03.planeRight = BlackHole3D.Math.getVectorCross(proj_03.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
-                        proj_03.planeNearDis = 1.0;
-                        proj_03.planeFarDis = 100.0;
-                        proj_03.planeFarRectMin = [-30.0, -3.1];
-                        proj_03.planeFarRectMax = [5.48, 1.5];
+                        proj_03.nearFarPlaneOffset = [10.0, 10.0];
+                        proj_03.nearPlaneRect = [-30.0, 5.48, -3.1, 1.5];
                         proj_03.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
                         proj_03.texType = 0;
                         proj_03.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
-                        proj_03.minUV = [0.05, 0.201157];
-                        proj_03.maxUV = [0.35, 0.229813];
+                        proj_03.uvRect = [0.05, 0.35, 0.201157, 0.229813];
 
                         const proj_04 = new BlackHole3D.REProjectionInfo();
                         proj_04.projectionId = 'proj_04';
                         proj_04.camPos = [-37.546, 79.474, 136.427];
+                        proj_04.targetPos = [-34.546, 79.474, 136.427];
                         proj_04.type = 0;
                         proj_04.planeNormal = BlackHole3D.Math.getDirection(proj_04.camPos, [-34.546, 79.474, 136.427]); // 获取相机点到目标点的方向向量
                         proj_04.planeRight = BlackHole3D.Math.getVectorCross(proj_04.planeNormal, [0.0, 0.0, -1.0]); // 获取平面向量的垂直向量
-                        proj_04.planeNearDis = 1.0;
-                        proj_04.planeFarDis = 100.0;
-                        proj_04.planeFarRectMin = [-30.0, 1.7];
-                        proj_04.planeFarRectMax = [4.9, 10.2];
+                        proj_04.nearFarPlaneOffset = [10.0, 10.0];
+                        proj_04.nearPlaneRect = [-30.0, 4.9, 1.7, 10.2];
                         proj_04.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/assets/projection.png';
                         proj_04.texType = 0;
                         proj_04.texClrMult = new BlackHole3D.REColor(255, 255, 255, 112);
-                        proj_04.minUV = [0.05, 0.229813];
-                        proj_04.maxUV = [0.348474, 0.285714];
+                        proj_04.uvRect = [0.05, 0.348474, 0.229813, 0.285714];
 
                         let projectionInfoList = [];
                         switch (area) {
