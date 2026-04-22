@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3698
+﻿//版本：v3.2.0.3701
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -1114,6 +1114,21 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Common.getShpCoverDottedEnable = function () {
         return Module.RealBIMWeb.GetShpCoverDottedEnable();
+    };
+
+    /**
+     * 设置是否启用对数深度处理
+     * @param {Boolean} enable //是否启用
+     */
+    Module.Common.setLogDepthEnable = function (enable) {
+        Module.RealBIMWeb.SetLogDepthEnable(enable);
+    };
+
+    /**
+     * 获取是否启用对数深度处理
+     */
+    Module.Common.getLogDepthEnable = function () {
+        return Module.RealBIMWeb.GetLogDepthEnable();
     };
 
     // MARK 字体
