@@ -1,0 +1,68 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-04-22 17:34:29
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">dfsdfsdf</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {},
+                mounted() {},
+                methods: {
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: '3a1fd014f4c884b3ebe1a84bae811ed8',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1fd014f4c884b3ebe1a84bae811ed8',
+                            },
+                            {
+                                dataSetId: '3a1fd01bb8be2e0ad24554c0e9033af4',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1fd01bb8be2e0ad24554c0e9033af4',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        console.log('-------------');
+
+                        ElementPlus.ElMessage.error('Oops, this is a error message.');
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

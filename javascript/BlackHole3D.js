@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3701
+﻿//版本：v3.2.0.3732
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -95,6 +95,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web); //矢量添加区域检查回调事件
         document.addEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web); //矢量添加切割面回调事件
         document.addEventListener('REPanLocateCam_Web', REPanLocateCam_Web); //360全景相机定位回调事件
+        document.addEventListener('REProjPosChange_Web', REProjPosChange_Web); //投射点位改变事件
+        document.addEventListener('REEditProjFinish_Web', REEditProjFinish_Web); //投射编辑完成回调事件
+        document.addEventListener('REAddProjFinish_Web', REAddProjFinish_Web); //投射添加完成回调事件
 
         return bool;
     };
@@ -126,45 +129,48 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REAddShpRgnCheck_Web', REAddShpRgnCheck_Web);
         document.removeEventListener('REShpAddClipFace_Web', REShpAddClipFace_Web);
         document.removeEventListener('REPanLocateCam_Web', REPanLocateCam_Web);
+        document.removeEventListener('REProjPosChange_Web', REProjPosChange_Web);
+        document.removeEventListener('REEditProjFinish_Web', REEditProjFinish_Web);
+        document.removeEventListener('REAddProjFinish_Web', REAddProjFinish_Web);
     }
 
     // MARK 回调事件
     function RESystemSel_Web(e) {
-        const re_event_RESystemSel = new CustomEvent('RESystemSel', {
+        const re_event = new CustomEvent('RESystemSel', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_RESystemSel);
+        document.dispatchEvent(re_event);
     }
 
     function REWorldPosChange_Web(e) {
-        const re_event_REWorldPosStates = new CustomEvent('REWorldPosChange', {
+        const re_event = new CustomEvent('REWorldPosChange', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REWorldPosStates);
+        document.dispatchEvent(re_event);
     }
 
     function REEditControlPosMatchFinish_Web(e) {
-        const re_event_REEditControlPosMatchFinish = new CustomEvent('REEditControlPosMatchFinish', {
+        const re_event = new CustomEvent('REEditControlPosMatchFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REEditControlPosMatchFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAnimPlayScriptState_Web(e) {
-        const re_event_REAnimPlayScriptState = new CustomEvent('REAnimPlayScriptState', {
+        const re_event = new CustomEvent('REAnimPlayScriptState', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAnimPlayScriptState);
+        document.dispatchEvent(re_event);
     }
     function REMeasureFinish_Web(e) {
         let posData = e.detail;
         if (e.detail.canvasid.length) {
             let measure_res = Module.Measure.getResultData(e.detail.measureId);
             posData.measureData = measure_res;
-            const re_event_REMeasureFinish = new CustomEvent('REMeasureFinish', {
+            const re_event = new CustomEvent('REMeasureFinish', {
                 detail: posData,
             });
-            document.dispatchEvent(re_event_REMeasureFinish);
+            document.dispatchEvent(re_event);
         }
     }
     function REElemSelRegFinish_Web(e) {
@@ -172,18 +178,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (e.detail.canvasid.length) {
             const elemids = Array.from(e.detail.elemids);
             posData.elemids = elemids;
-            const re_event_REElemSelRegFinish = new CustomEvent('REElemSelRegFinish', {
+            const re_event = new CustomEvent('REElemSelRegFinish', {
                 detail: posData,
             });
-            document.dispatchEvent(re_event_REElemSelRegFinish);
+            document.dispatchEvent(re_event);
         }
     }
 
     function RECreateTPPFinish_Web(e) {
-        const re_event_RECreateTPPFinish = new CustomEvent('RECreateTPPFinish', {
+        const re_event = new CustomEvent('RECreateTPPFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_RECreateTPPFinish);
+        document.dispatchEvent(re_event);
     }
 
     function RECADCommentDrawFinish_Web(e) {
@@ -204,136 +210,157 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     break;
             }
         }
-        const re_event_RECADCommentDrawFinish = new CustomEvent('RECADCommentDrawFinish', {
+        const re_event = new CustomEvent('RECADCommentDrawFinish', {
             detail: commentData,
         });
-        document.dispatchEvent(re_event_RECADCommentDrawFinish);
+        document.dispatchEvent(re_event);
     }
 
     function RECalcHeightRangeFinish_Web(e) {
-        const re_event_RECalcHeightRangeFinish = new CustomEvent('RECalcHeightRangeFinish', {
+        const re_event = new CustomEvent('RECalcHeightRangeFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_RECalcHeightRangeFinish);
+        document.dispatchEvent(re_event);
     }
 
     function RECADSwitchLayoutFinished_Web(e) {
-        const re_event_RECADSwitchLayoutFinished = new CustomEvent('RECADSwitchLayoutFinished', {
+        const re_event = new CustomEvent('RECADSwitchLayoutFinished', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_RECADSwitchLayoutFinished);
+        document.dispatchEvent(re_event);
     }
 
     function RESystemKeyDown_Web(e) {
-        const re_event_RESystemKeyDown = new CustomEvent('RESystemKeyDown', {
+        const re_event = new CustomEvent('RESystemKeyDown', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_RESystemKeyDown);
+        document.dispatchEvent(re_event);
     }
 
     function REAddWaterRgnFinish_Web(e) {
-        const re_event_REAddWaterRgnFinish = new CustomEvent('REAddWaterRgnFinish', {
+        const re_event = new CustomEvent('REAddWaterRgnFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddWaterRgnFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddWaterRgnCheck_Web(e) {
-        const re_event_REAddWaterRgnCheck = new CustomEvent('REAddWaterRgnCheck', {
+        const re_event = new CustomEvent('REAddWaterRgnCheck', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddWaterRgnCheck);
+        document.dispatchEvent(re_event);
     }
 
     function REEditWaterFinish_Web(e) {
-        const re_event_REEditWaterFinish = new CustomEvent('REEditWaterFinish', {
+        const re_event = new CustomEvent('REEditWaterFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REEditWaterFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddExtrudeRgnFinish_Web(e) {
-        const re_event_REAddExtrudeRgnFinish = new CustomEvent('REAddExtrudeRgnFinish', {
+        const re_event = new CustomEvent('REAddExtrudeRgnFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddExtrudeRgnFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddExtrudeRgnCheck_Web(e) {
-        const re_event_REAddExtrudeRgnCheck = new CustomEvent('REAddExtrudeRgnCheck', {
+        const re_event = new CustomEvent('REAddExtrudeRgnCheck', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddExtrudeRgnCheck);
+        document.dispatchEvent(re_event);
     }
 
     function REEditExtrudeFinish_Web(e) {
-        const re_event_REEditExtrudeFinish = new CustomEvent('REEditExtrudeFinish', {
+        const re_event = new CustomEvent('REEditExtrudeFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REEditExtrudeFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddMonomerRgnFinish_Web(e) {
-        const re_event_REAddMonomerRgnFinish = new CustomEvent('REAddMonomerRgnFinish', {
+        const re_event = new CustomEvent('REAddMonomerRgnFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddMonomerRgnFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddMonomerRgnCheck_Web(e) {
-        const re_event_REAddMonomerRgnCheck = new CustomEvent('REAddMonomerRgnCheck', {
+        const re_event = new CustomEvent('REAddMonomerRgnCheck', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddMonomerRgnCheck);
+        document.dispatchEvent(re_event);
     }
 
     function REEditMonomerFinish_Web(e) {
-        const re_event_REEditMonomerFinish = new CustomEvent('REEditMonomerFinish', {
+        const re_event = new CustomEvent('REEditMonomerFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REEditMonomerFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REEditShpFinish_Web(e) {
-        const re_event_REEditShpFinish = new CustomEvent('REEditShpFinish', {
+        const re_event = new CustomEvent('REEditShpFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REEditShpFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddShpRgnFinish_Web(e) {
-        const re_event_REAddShpRgnFinish = new CustomEvent('REAddShpRgnFinish', {
+        const re_event = new CustomEvent('REAddShpRgnFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddShpRgnFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REShpClipFinish_Web(e) {
-        const re_event_REShpClipFinish = new CustomEvent('REShpClipFinish', {
+        const re_event = new CustomEvent('REShpClipFinish', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REShpClipFinish);
+        document.dispatchEvent(re_event);
     }
 
     function REAddShpRgnCheck_Web(e) {
-        const re_event_REAddShpRgnCheck = new CustomEvent('REAddShpRgnCheck', {
+        const re_event = new CustomEvent('REAddShpRgnCheck', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REAddShpRgnCheck);
+        document.dispatchEvent(re_event);
     }
 
     function REShpAddClipFace_Web(e) {
-        const re_event_REShpAddClipFace = new CustomEvent('REShpAddClipFace', {
+        const re_event = new CustomEvent('REShpAddClipFace', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REShpAddClipFace);
+        document.dispatchEvent(re_event);
     }
 
     function REPanLocateCam_Web(e) {
-        const re_event_REPanLocateCam = new CustomEvent('REPanLocateCam', {
+        const re_event = new CustomEvent('REPanLocateCam', {
             detail: e.detail,
         });
-        document.dispatchEvent(re_event_REPanLocateCam);
+        document.dispatchEvent(re_event);
+    }
+
+    function REProjPosChange_Web(e) {
+        const re_event = new CustomEvent('REProjPosChange', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REEditProjFinish_Web(e) {
+        const re_event = new CustomEvent('REEditProjFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REAddProjFinish_Web(e) {
+        const re_event = new CustomEvent('REAddProjFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
     }
 
     // MARK 基础
@@ -1704,7 +1731,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.camPos = null; //相机位置
             this.camRotate = [1e30, 1e30, 1e30, 1e30]; //相机的朝向
-            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向（欧拉角）
+            this.camDir = [1e30, 1e30, 1e30]; //相机的朝向(相机的中心视线方向的单位向量)
+            this.camUpDir = [0.0, 1.0, 0.0]; //相机的上方单位向量
+            this.camRightDir = [1.0, 0.0, 0.0]; //相机的右方单位向量
         }
     }
     ExtModule.RECamLoc = RECamLoc;
@@ -1723,9 +1752,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var camLoc = new RECamLoc();
         var _camLoc01 = Module.RealBIMWeb.GetCamLocation();
         var _camLoc02 = Module.RealBIMWeb.GetCamLocation_Dir();
+        const _camUpDir = Module.RealBIMWeb.GetCamUpDir();
+        const _camRightDir = Module.RealBIMWeb.GetCamRightDir();
         camLoc.camPos = _camLoc01.m_vCamPos;
         camLoc.camRotate = _camLoc01.m_qCamRotate;
         camLoc.camDir = _camLoc02.m_qCamDir;
+        camLoc.camUpDir = _camUpDir;
+        camLoc.camRightDir = _camRightDir;
         return camLoc;
     };
 
@@ -8898,6 +8931,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         }
         let _resType = isEmpty(resType) ? Module.RE_TERR_RES_TYPE.ALL : eval(resType);
         return Module.RealBIMWeb.GetTerrUnitMinVirPxlH(dataSetId, unitId, _resType);
+    };
+
+    /**
+     * 刷新数据集地形模型 注：多个地形会合并成一个地形系统，任意一个地形系统内的所有数据集标识，效果作用于整个地形系统
+     * @param {String} dataSetId //数据集标识
+     * @param {Boolean} loadNewData //表示刷新主体数据后是否允许重新加载数据
+     */
+    Module.Terrain.refreshDataSet = function (dataSetId, loadNewData) {
+        Module.RealBIMWeb.RefreshTerrRenderData(dataSetId, loadNewData);
     };
 
     // MARK 加载属性
@@ -16234,14 +16276,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.aspectRatio = 16.0 / 9.0; //宽高比，默认（16.0 / 9.0），仅透视投影模式有效
             this.fieldAngle = 60; //视场角，默认（60°），仅透视投影模式有效
             this.texPath = ''; //投射纹理路径，空字符串默认全白纹理
-            this.texType = 0; //纹理类型 0：大资源图片纹理（占用更多的显存，效果好）  1：小资源图片纹理（占用较小的显存，效果一般）  2：视频纹理
+            this.texType = 0; //纹理类型  0：小资源图片纹理（占用较小的显存，效果一般） 1：大资源图片纹理（占用更多的显存，效果好）  2：视频纹理
             this.texClrMult = null; //纹理的颜色乘积（REColor 类型）
             this.uvRect = [0, 1.0, 0, 1.0]; //对应的纹理UV坐标区域（四元素数组）【u-min,u-max,v-min,v-max】，取值范围 [0.0, 1.0]
             this.uvMapPtNum = [0, 0]; //表示纹理UV坐标区域的U、V方向的映射点个数，默认[0, 0]为保持UV不变,[n,m]二元素数组
             this.uvMapPtPosList = null; //表示映射点对应的UV映射表点位集合,[x,y,a,b]四元素数组,(x,y)代表点阵点位置信息，(a,b)代表点位数值，点阵左下角位置(0,0)数值(0,0),右上角位置(n,m)数值(1,1)，uvMapPtNum=[0,0]无效，且uvMapPtNum.n*uvMapPtNum.m===uvMapPtPosList.length
             this.showState = 0; //表示显示矢量数据的类型, 0表示不显示几何信息， 1表示显示视锥体几何，2表示显示裁剪面
             this.clipPlaneValid = null; //表示投射裁剪面限制范围有效性，投射效果会作用于各裁剪面构成的包围体内，如果某一面无效，则代表这个面的方向范围不做限制，默认限制范围（REProjectionClipPlaneInfo 类型）
-            this.localClipPlanes = null; //表示视椎体关联的所有局部空间有向裁切面信息
+            this.clipBoxGeom = null; //表示裁剪面组成的包围盒几何,目前是八个点位组成的包围体,严格顺序为：【面（下）左下角点，面（下）右下角点，面（下）右上角点，面（下）左上角点， 面（上）左下角点，面（上）右下角点，面（上）右上角点，面（上）左上角点】
         }
     }
     ExtModule.REProjectionInfo = REProjectionInfo;
@@ -16345,11 +16387,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     function projectionData_c2js_conv(projection_c) {
         const _info_js = new Module.REProjectionInfo();
 
-        let texType = 1;
+        let texType = 0;
         let m_strTexPath = projection_c.m_strTexPath;
         if (m_strTexPath.includes('Single:')) {
             m_strTexPath = m_strTexPath.replace('Single:', '');
-            texType = 0;
+            texType = 1;
         } else if (m_strTexPath.includes('Single:Video:')) {
             m_strTexPath = m_strTexPath.replace('Single:Video:', '');
             texType = 2;
@@ -16363,9 +16405,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         _clipPlaneValid.frontValid = (projection_c.m_uClipPlaneValid & 16) !== 0;
         _clipPlaneValid.backValid = (projection_c.m_uClipPlaneValid & 32) !== 0;
 
-        const _localClipPlanes = [];
-        for (let i = 0; i < projection_c.m_arrLocalClipPlanes.size(); i++) {
-            _localClipPlanes.push(projection_c.m_arrLocalClipPlanes.get(i));
+        const _clipBoxGeom = [];
+        for (let i = 0; i < projection_c.m_arrBoxGeom.size(); i++) {
+            _clipBoxGeom.push(projection_c.m_arrBoxGeom.get(i));
         }
 
         // 处理UV映射数据
@@ -16395,7 +16437,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         _info_js.uvMapPtPosList = _uvMapPtPosList;
         _info_js.showState = projection_c.m_uShowState;
         _info_js.clipPlaneValid = _clipPlaneValid;
-        _info_js.localClipPlanes = _localClipPlanes;
+        _info_js.clipBoxGeom = _clipBoxGeom;
 
         return _info_js;
     }
@@ -16413,10 +16455,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         let _uvRect = isEmpty(projection_js.uvRect) ? [0.0, 1.0, 0.0, 1.0] : projection_js.uvRect;
         let _texType = isEmpty(projection_js.texType) ? 0 : projection_js.texType;
         let m_strTexPath = isEmpty(projection_js.texPath) ? '' : projection_js.texPath;
-        if (_texType == 0) {
+        if (_texType == 1 && m_strTexPath.length) {
             // 纹理独立参与渲染，不合并到拼接大纹理，可以放大一点的资源，占用显存
             m_strTexPath = 'Single:' + m_strTexPath;
-        } else if (_texType == 2) {
+        } else if (_texType == 2 && m_strTexPath.length) {
             // 视频纹理
             m_strTexPath = 'Single:Video:' + m_strTexPath;
         } else {
@@ -16434,10 +16476,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             if (projection_js.clipPlaneValid.frontValid) _m_uClipPlaneValid |= 1 << 4;
             if (projection_js.clipPlaneValid.backValid) _m_uClipPlaneValid |= 1 << 5;
         }
-        const _localClipPlanes = isEmpty(projection_js.localClipPlanes) ? [] : projection_js.localClipPlanes;
-        let _arrLocalClipPlanes = new Module.RE_Vector_dvec4();
-        _localClipPlanes.forEach((el) => {
-            _arrLocalClipPlanes.push_back(el);
+        const _clipBoxGeom = isEmpty(projection_js.clipBoxGeom) ? [] : projection_js.clipBoxGeom;
+        let _arrBoxGeom = new Module.RE_Vector_dvec3();
+        _clipBoxGeom.forEach((el) => {
+            _arrBoxGeom.push_back(el);
         });
 
         // 处理UV映射数据
@@ -16477,7 +16519,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_arrUVMapPots: _arrUVMapPots,
             m_uShowState: isEmpty(projection_js.showState) ? 0 : projection_js.showState,
             m_uClipPlaneValid: _m_uClipPlaneValid,
-            m_arrLocalClipPlanes: _arrLocalClipPlanes,
+            m_arrBoxGeom: _arrBoxGeom,
         };
 
         return _info_c;
@@ -16565,15 +16607,17 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * 设置指定投射显示状态 注：要在进入投射编辑状态之后有效, 只能改变当前已有的投射对象
      * @param {Array} projectionIdList //投射标识集合，空数组代表所有
      * @param {number} type //显示的状态 0：不显示几何信息 1：显示视锥体几何 2：显示裁剪面
+     * @param {boolean} needRefreshClipBox //是否重新计算裁剪面, 默认需要重新计算，除非需要保持裁剪面包围体固定位置
      */
-    Module.Projection.setShowState = function (projectionIdList, type) {
+    Module.Projection.setShowState = function (projectionIdList, type, needRefreshClipBox) {
         if (!checkTypeLog(projectionIdList, 'projectionIdList', RE_Enum.RE_Check_Array)) return;
         var _vector_projectionI_id = new Module.RE_Vector_WStr();
         projectionIdList.forEach((element) => {
             _vector_projectionI_id.push_back(element);
         });
         let _type = isEmpty(type) ? 0 : type;
-        Module.RealBIMWeb.SetFrustumProjShowState(_vector_projectionI_id, _type);
+        let _needRefreshClipBox = isEmpty(needRefreshClipBox) ? true : needRefreshClipBox;
+        Module.RealBIMWeb.SetFrustumProjShowState(_vector_projectionI_id, _type, _needRefreshClipBox);
     };
 
     /**
@@ -16627,7 +16671,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Projection.setClipPlaneValid = function (projectionId, clipPlaneValid) {
         let _m_uClipPlaneValid = 0;
-        if (!isEmpty(clipPlaneValid)) {
+        if (isEmpty(clipPlaneValid)) {
             _m_uClipPlaneValid = 0b00111111;
         } else {
             if (clipPlaneValid.topValid) _m_uClipPlaneValid |= 1 << 0;
@@ -16667,7 +16711,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(texPath, 'texPath')) return false;
         const _texType = isEmpty(texType) ? 0 : texType;
         let m_strTexPath = isEmpty(texPath) ? '' : texPath;
-        if (_texType == 0) {
+        if (_texType == 1) {
             // 纹理独立参与渲染，不合并到拼接大纹理，可以放大一点的资源，占用显存
             m_strTexPath = 'Single:' + m_strTexPath;
         } else if (_texType == 2) {
@@ -16686,11 +16730,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Projection.getTexPath = function (projectionId) {
         if (isEmptyLog(projectionId, 'projectionId')) return '';
         const m_strTexPath = Module.RealBIMWeb.GetFrustumProjTexPath(projectionId);
-        let texType = 1;
+        let texType = 0;
         let texPath = '';
         if (m_strTexPath.includes('Single:')) {
             texPath = m_strTexPath.replace('Single:', '');
-            texType = 0;
+            texType = 1;
         } else if (m_strTexPath.includes('Single:Video:')) {
             texPath = m_strTexPath.replace('Single:Video:', '');
             texType = 2;
@@ -16829,19 +16873,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Projection.setUVMap = function (projectionId, uvMapPtNum, uvMapPtPosList) {
         if (isEmptyLog(projectionId, 'projectionId')) return false;
-        if (checkArrCountLog(uvMapPtPosList, 'uvMapPtPosList')) return false;
         if (!checkArrCount(uvMapPtNum, 2)) {
             logParErr('uvMapPtNum');
             return false;
         }
+        if (!checkTypeLog(uvMapPtPosList, 'uvMapPtPosList', RE_Enum.RE_Check_Array)) return;
         // 处理UV映射数据
-        let _arrUVMapPots = new Module.RE_Vector_ivec2();
         const _uvMapPtNum = isEmpty(uvMapPtNum) ? [0, 0] : uvMapPtNum;
-        if (!checkArrCount(_uvMapPtNum, 2)) {
-            logParErr('uvMapPtNum');
-            return false;
-        }
         const [n, m] = _uvMapPtNum;
+        let _arrUVMapPots = new Module.RE_Vector_ivec2();
         if (n * m != 0 && n * m == uvMapPtPosList.length) {
             const sorted = [...uvMapPtPosList].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
             const resList = sorted.map((i) => [i[2] * 65535, i[3] * 65535]);

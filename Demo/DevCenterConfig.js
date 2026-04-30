@@ -115,6 +115,7 @@ function RESystemEngineCreated(e) {
         //场景初始化成功，执行模型加载
         if (typeof RESystemEngineCreatedCallBack !== 'undefined') {
             RESystemEngineCreatedCallBack();
+            window.vm.RESystemEngineCreatedCallBack();
         } else {
             let _dataSetList = typeof dataSetList !== 'undefined' ? dataSetList : localDataSetList; //若已指定资源数据，则用指定的
             BlackHole3D.Model.loadDataSet(_dataSetList, true);
@@ -130,7 +131,9 @@ function RESystemEngineCreated(e) {
 // 以下为加载进度条的示例代码，仅供参考
 function REDataSetLoadProgress(e) {
     if (typeof REDataSetLoadProgressCallBack !== 'undefined') {
-        REDataSetLoadProgressCallBack();
+        REDataSetLoadProgressCallBack(e);
+    } else if (window.vm && typeof window.vm.REDataSetLoadProgressCallBack !== 'undefined') {
+        window.vm.REDataSetLoadProgressCallBack(e);
     } else {
         var progBoxCntr = document.querySelector('.custom-loading-container');
         var progBox = document.querySelector('.progress-bar-inner');
@@ -153,15 +156,25 @@ function REDataSetLoadProgress(e) {
 // 场景模型加载完成，此时可浏览完整模型，所有和模型相关的操作只能在场景加载完成后执行
 function REDataSetLoadFinish(e) {
     console.log('REDataSetLoadFinish: ', e.detail);
-    if (e.detail.succeed) {
-        if (typeof REDataSetLoadFinishCallBack !== 'undefined') {
-            REDataSetLoadFinishCallBack(e);
-        }
-        //模型加载完成,这里最适合执行模型加载完后需要执行的事件
-        document.getElementById('canvas').style.display = 'block';
-        BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
+    if (typeof REDataSetLoadFinishCallBack !== 'undefined') {
+        REDataSetLoadFinishCallBack(e);
+    } else if (window.vm && typeof window.vm.REDataSetLoadFinishCallBack !== 'undefined') {
+        window.vm.REDataSetLoadFinishCallBack(e);
     } else {
-        //模型加载失败！！！
+        if (e.detail.succeed) {
+            //模型加载完成,这里最适合执行模型加载完后需要执行的事件
+            document.getElementById('canvas').style.display = 'block';
+            BlackHole3D.canvas.focus(); //为了解决键盘事件的冲突
+        } else {
+            //模型加载失败！！！
+            let dataSetIdList = BlackHole3D.Model.getAllDataSetId(); // 获取所有加载的模型数据集标识
+            dataSetIdList.forEach((dataSetId) => {
+                if (BlackHole3D.Model.getDataSetReady(dataSetId)) {
+                    // 获取加载失败的数据集标识
+                    console.log('模型加载失败：', dataSetId);
+                }
+            });
+        }
     }
 }
 //全景场景加载完成，需要设置图形窗口显示全景图
@@ -169,6 +182,8 @@ function REDataSetLoadPanFinish(isSuccess) {
     if (isSuccess) {
         if (typeof REDataSetLoadPanFinishCallBack !== 'undefined') {
             REDataSetLoadPanFinishCallBack();
+        } else if (window.vm && typeof window.vm.REDataSetLoadPanFinishCallBack !== 'undefined') {
+            window.vm.REDataSetLoadPanFinishCallBack(e);
         }
     } else {
         console.log('360全景加载失败！！！！！！！！！！！！！！！！！！！！！！！');
@@ -180,6 +195,8 @@ function REPanLoadSingleFinish(isSuccess) {
     if (isSuccess) {
         if (typeof REPanLoadSingleFinishCallBack !== 'undefined') {
             REPanLoadSingleFinishCallBack();
+        } else if (window.vm && typeof window.vm.REPanLoadSingleFinishCallBack !== 'undefined') {
+            window.vm.REPanLoadSingleFinishCallBack(e);
         }
         console.log('图片设置成功!！！！！！！！！！！！！！！！！！！！！！！！');
     } else {
@@ -191,6 +208,8 @@ function RECADLoadFinish(isSuccess) {
     if (isSuccess) {
         if (typeof RECADLoadFinishCallBack !== 'undefined') {
             RECADLoadFinishCallBack();
+        } else if (window.vm && typeof window.vm.RECADLoadFinishCallBack !== 'undefined') {
+            window.vm.RECADLoadFinishCallBack(e);
         }
         document.getElementById('canvas').style.display = 'block';
         BlackHole3D.canvas.focus(); //涓轰簡瑙ｅ喅閿洏浜嬩欢鐨勫啿绐�
@@ -204,6 +223,8 @@ function REMiniMapLoadCAD(e) {
     if (e.detail.succeed == 1) {
         if (typeof REMiniMapLoadCADCallBack !== 'undefined') {
             REMiniMapLoadCADCallBack();
+        } else if (window.vm && typeof window.vm.REMiniMapLoadCADCallBack !== 'undefined') {
+            window.vm.REMiniMapLoadCADCallBack(e);
         }
         console.log('------ 概略图中的CAD数据 加载成功 ------');
     }
@@ -213,15 +234,18 @@ function REMiniMapLoadCAD(e) {
 function RESystemSel(e) {
     if (typeof RESystemSelCallBack !== 'undefined') {
         RESystemSelCallBack(e);
-    } else {
-        console.log('-- 引擎探测事件 --', BlackHole3D.Probe.getCurSelInfo(), e);
+    } else if (window.vm && typeof window.vm.RESystemSelCallBack !== 'undefined') {
+        window.vm.RESystemSelCallBack(e);
     }
+    console.log('-- 引擎探测事件 --', BlackHole3D.Probe.getCurSelInfo(), e);
 }
 
 //获取当前探测结果
 function RESystemSelElement(e) {
     if (typeof RESystemSelElementCallBack !== 'undefined') {
         RESystemSelElementCallBack(e);
+    } else if (window.vm && typeof window.vm.RESystemSelElementCallBack !== 'undefined') {
+        window.vm.RESystemSelElementCallBack(e);
     } else {
         console.log('-- 鼠标探测模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
     }
@@ -231,6 +255,8 @@ function RESystemSelElement(e) {
 function RESystemSelShpElement(e) {
     if (typeof RESystemSelShpElementCallBack !== 'undefined') {
         RESystemSelShpElementCallBack(e);
+    } else if (window.vm && typeof window.vm.RESystemSelShpElementCallBack !== 'undefined') {
+        window.vm.RESystemSelShpElementCallBack(e);
     } else {
         console.log('-- 鼠标探测矢量模型事件 --', BlackHole3D.Probe.getCurCombProbeRet());
     }
@@ -240,6 +266,8 @@ function RESystemSelShpElement(e) {
 function RECADSelElement(e) {
     if (typeof RECADSelElementCallBack !== 'undefined') {
         RECADSelElementCallBack(e);
+    } else if (window.vm && typeof window.vm.RECADSelElementCallBack !== 'undefined') {
+        window.vm.RECADSelElementCallBack(e);
     } else {
         console.log('CAD探测监听', e);
     }

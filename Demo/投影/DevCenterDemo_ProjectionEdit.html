@@ -80,7 +80,21 @@
                         ],
                     };
                 },
+                created() {
+                    document.addEventListener('REProjPosChange', this.REProjPosChange);
+                    document.addEventListener('REEditProjFinish', this.REEditProjFinish);
+                    document.addEventListener('REAddProjFinish', this.REAddProjFinish);
+                },
                 methods: {
+                    REEditProjFinish(e) {
+                        console.log("编辑完成", e.detail);
+                    },
+                    REAddProjFinish(e) {
+                        console.log("添加完成", e.detail);
+                    },
+                    REProjPosChange(e) {
+                        console.log(e.detail);
+                    },
                     finalRender() {
                         this.showProj(0);
 
