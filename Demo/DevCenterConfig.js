@@ -115,6 +115,7 @@ function RESystemEngineCreated(e) {
         //场景初始化成功，执行模型加载
         if (typeof RESystemEngineCreatedCallBack !== 'undefined') {
             RESystemEngineCreatedCallBack();
+        } else if (window.vm && typeof window.vm.RESystemEngineCreatedCallBack !== 'undefined') {
             window.vm.RESystemEngineCreatedCallBack();
         } else {
             let _dataSetList = typeof dataSetList !== 'undefined' ? dataSetList : localDataSetList; //若已指定资源数据，则用指定的
