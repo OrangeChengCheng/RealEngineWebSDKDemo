@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3732
+﻿//版本：v3.2.0.3738
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -16284,6 +16284,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.showState = 0; //表示显示矢量数据的类型, 0表示不显示几何信息， 1表示显示视锥体几何，2表示显示裁剪面
             this.clipPlaneValid = null; //表示投射裁剪面限制范围有效性，投射效果会作用于各裁剪面构成的包围体内，如果某一面无效，则代表这个面的方向范围不做限制，默认限制范围（REProjectionClipPlaneInfo 类型）
             this.clipBoxGeom = null; //表示裁剪面组成的包围盒几何,目前是八个点位组成的包围体,严格顺序为：【面（下）左下角点，面（下）右下角点，面（下）右上角点，面（下）左上角点， 面（上）左下角点，面（上）右下角点，面（上）右上角点，面（上）左上角点】
+            this.picth = 0; //表示绕法向量翻滚的角度
         }
     }
     ExtModule.REProjectionInfo = REProjectionInfo;
@@ -16438,6 +16439,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         _info_js.showState = projection_c.m_uShowState;
         _info_js.clipPlaneValid = _clipPlaneValid;
         _info_js.clipBoxGeom = _clipBoxGeom;
+        _info_js.picth = projection_c.m_dPicth;
 
         return _info_js;
     }
@@ -16520,6 +16522,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             m_uShowState: isEmpty(projection_js.showState) ? 0 : projection_js.showState,
             m_uClipPlaneValid: _m_uClipPlaneValid,
             m_arrBoxGeom: _arrBoxGeom,
+            m_dPicth: isEmpty(projection_js.picth) ? 0 : projection_js.picth,
         };
 
         return _info_c;
