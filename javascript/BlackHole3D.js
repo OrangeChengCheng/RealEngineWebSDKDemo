@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3738
+﻿//版本：v3.2.0.3743
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -456,6 +456,28 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.resumeRenderLoop = function () {
         Module.RealBIMWeb.ResumeRenderLoop();
+    };
+
+    /**
+     * 添加SOCKS代理 注：需要在加载模型前设置才有效
+     * @param {String} proxyUrl //代理地址
+     * @param {String} user //账户名，没有传空字符串
+     * @param {String} password //密码，没有传空字符串
+     */
+    Module.setURLGolExtProxy = function (proxyUrl, user, password) {
+        if (isEmptyLog(proxyUrl, 'proxyUrl')) return false;
+        const _proxyUrl = isEmpty(proxyUrl) ? '' : proxyUrl;
+        const _user = isEmpty(user) ? '' : user;
+        const _password = isEmpty(password) ? '' : password;
+        Module.RealBIMWeb.SetURLGolExtProxy(_proxyUrl, _user, _password);
+        return true;
+    };
+
+    /**
+     * 删除SOCKS代理 注：需要在加载模型前设置才有效
+     */
+    Module.delURLGolExtProxy = function () {
+        Module.RealBIMWeb.SetURLGolExtProxy('', '', '');
     };
 
     // MARK 效果展示
@@ -16938,6 +16960,77 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(projectionId, 'projectionId')) return null;
         const arrRect = Module.RealBIMWeb.GetFrustumProjUVRect(projectionId);
         return [arrRect[0] / 32767, arrRect[1] / 32767, arrRect[2] / 32767, arrRect[3] / 32767];
+    };
+
+    class REProjectionShpClrInfo {
+        // 投射矢量颜色信息
+        constructor() {
+            this.camLineClr = null; //相机线的颜色（REColor 类型）
+            this.camFaceClr = null; //相机面的颜色（REColor 类型）
+            this.nearLineClr = null; //近裁面线的颜色（REColor 类型）
+            this.nearFaceClr = null; //近裁面面的颜色，远裁面的淡色也用这个（REColor 类型）
+            this.farLineClr = null; //远裁面线的颜色（REColor 类型）
+            this.farFaceClr = null; //远裁面面的颜色，远裁面的深色也用这个（REColor 类型）
+            this.lineFillFaceClr = null; //近远裁面连接填充面颜色（REColor 类型）
+            this.clipBoxFaceTopClr = null; //裁剪剖切盒面颜色（渐进色上部）（REColor 类型）
+            this.clipBoxFaceBottomClr = null; //裁剪剖切盒面颜色（渐进色下部）（REColor 类型）
+            this.clipBoxLineClr = null; //裁剪剖切盒线颜色（REColor 类型）
+            this.clipBoxInvalidFaceClr = null; //裁剪剖切盒无效面颜色（REColor 类型）
+        }
+    }
+    ExtModule.REProjectionShpClrInfo = REProjectionShpClrInfo;
+
+    /**
+     * 设置指定投射矢量的临时颜色
+     * @param {REProjectionShpClrInfo} clrInfo //颜色信息（REProjectionShpClrInfo 类型）
+     */
+    Module.Projection.setShpClr = function (clrInfo) {
+        if (isEmptyLog(clrInfo, 'clrInfo')) return;
+        const uClrLine01 = isEmpty(clrInfo.camLineClr) ? 0xfffaff82 : clrToU32(clrInfo.camLineClr);
+        const uClrFace01 = isEmpty(clrInfo.camFaceClr) ? 0xc8faff82 : clrToU32(clrInfo.camFaceClr);
+        const uClrLine02 = isEmpty(clrInfo.nearLineClr) ? 0xffeeef7e : clrToU32(clrInfo.nearLineClr);
+        const uClrFace02 = isEmpty(clrInfo.nearFaceClr) ? 0xcc938300 : clrToU32(clrInfo.nearFaceClr);
+        const uClrLine03 = isEmpty(clrInfo.farLineClr) ? 0xffeeef7e : clrToU32(clrInfo.farLineClr);
+        const uClrFace03 = isEmpty(clrInfo.farFaceClr) ? 0x66f3da00 : clrToU32(clrInfo.farFaceClr);
+        const uClrFace04 = isEmpty(clrInfo.lineFillFaceClr) ? 0x66fff7d2 : clrToU32(clrInfo.lineFillFaceClr);
+        const uBoxFaceClr = isEmpty(clrInfo.clipBoxFaceTopClr) ? 0xcc938300 : clrToU32(clrInfo.clipBoxFaceTopClr);
+        const uBoxFaceClr02 = isEmpty(clrInfo.clipBoxFaceBottomClr) ? 0x66f3da00 : clrToU32(clrInfo.clipBoxFaceBottomClr);
+        const uBoxLineClr = isEmpty(clrInfo.clipBoxLineClr) ? 0xffeeef7e : clrToU32(clrInfo.clipBoxLineClr);
+        const uBoxInvalidFaceClr = isEmpty(clrInfo.clipBoxInvalidFaceClr) ? 0x96ffffff : clrToU32(clrInfo.clipBoxInvalidFaceClr);
+        Module.RealBIMWeb.SetFrustumProjShpClr(
+            uClrLine01,
+            uClrFace01,
+            uClrLine02,
+            uClrFace02,
+            uClrLine03,
+            uClrFace03,
+            uClrFace04,
+            uBoxFaceClr,
+            uBoxFaceClr02,
+            uBoxLineClr,
+            uBoxInvalidFaceClr
+        );
+    };
+
+    /**
+     * 获取指定投射矢量的临时颜色
+     */
+    Module.Projection.getShpClr = function () {
+        const arrClr = Module.RealBIMWeb.GetFrustumProjShpClr();
+        if (arrClr.size() != 11) return null;
+        const clrInfo = new Module.REProjectionShpClrInfo();
+        clrInfo.camLineClr = clrU32ToClr(arrClr.get(0));
+        clrInfo.camFaceClr = clrU32ToClr(arrClr.get(1));
+        clrInfo.nearLineClr = clrU32ToClr(arrClr.get(2));
+        clrInfo.nearFaceClr = clrU32ToClr(arrClr.get(3));
+        clrInfo.farLineClr = clrU32ToClr(arrClr.get(4));
+        clrInfo.farFaceClr = clrU32ToClr(arrClr.get(5));
+        clrInfo.lineFillFaceClr = clrU32ToClr(arrClr.get(6));
+        clrInfo.clipBoxFaceTopClr = clrU32ToClr(arrClr.get(7));
+        clrInfo.clipBoxFaceBottomClr = clrU32ToClr(arrClr.get(8));
+        clrInfo.clipBoxLineClr = clrU32ToClr(arrClr.get(9));
+        clrInfo.clipBoxInvalidFaceClr = clrU32ToClr(arrClr.get(10));
+        return clrInfo;
     };
 
     /**
