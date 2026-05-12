@@ -16412,12 +16412,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         let texType = 0;
         let m_strTexPath = projection_c.m_strTexPath;
-        if (m_strTexPath.includes('Single:')) {
-            m_strTexPath = m_strTexPath.replace('Single:', '');
-            texType = 1;
-        } else if (m_strTexPath.includes('Single:Video:')) {
+
+        if (m_strTexPath.includes('Single:Video:')) {
             m_strTexPath = m_strTexPath.replace('Single:Video:', '');
             texType = 2;
+        } else if (m_strTexPath.includes('Single:')) {
+            m_strTexPath = m_strTexPath.replace('Single:', '');
+            texType = 1;
         }
         // 处理裁剪面相关数据
         const _clipPlaneValid = new Module.REProjectionClipPlaneInfo();
@@ -16757,12 +16758,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         const m_strTexPath = Module.RealBIMWeb.GetFrustumProjTexPath(projectionId);
         let texType = 0;
         let texPath = '';
-        if (m_strTexPath.includes('Single:')) {
-            texPath = m_strTexPath.replace('Single:', '');
-            texType = 1;
-        } else if (m_strTexPath.includes('Single:Video:')) {
+        if (m_strTexPath.includes('Single:Video:')) {
             texPath = m_strTexPath.replace('Single:Video:', '');
             texType = 2;
+        } else if (m_strTexPath.includes('Single:')) {
+            texPath = m_strTexPath.replace('Single:', '');
+            texType = 1;
         }
         return { texType, texPath };
     };
