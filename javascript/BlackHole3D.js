@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3743
+﻿//版本：v3.2.0.3751
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -17032,6 +17032,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         clrInfo.clipBoxLineClr = clrU32ToClr(arrClr.get(9));
         clrInfo.clipBoxInvalidFaceClr = clrU32ToClr(arrClr.get(10));
         return clrInfo;
+    };
+
+    /**
+     * 设置投射效果是否与主场景发生遮挡
+     * @param {Boolean} enable //是否允许
+     */
+    Module.Projection.setProjShpCanOverlap = function (enable) {
+        const _enable = isEmpty(enable) ? true : enable;
+        Module.RealBIMWeb.SetFrustumProjShpContactSce(_enable);
+    };
+
+    /**
+     * 获取投射效果是否与主场景发生遮挡
+     */
+    Module.Projection.getProjShpCanOverlap = function () {
+        return Module.RealBIMWeb.GetFrustumProjShpContactSce();
     };
 
     /**
