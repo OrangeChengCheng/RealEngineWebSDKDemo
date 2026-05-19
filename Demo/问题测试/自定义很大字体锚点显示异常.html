@@ -1,0 +1,106 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-05-19 11:06:59
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">dfsdfsdf</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {},
+                mounted() {},
+                methods: {
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: '3a209837-b34a-8dbb-57fe-73f77d7fd2d8',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a209837b34a8dbb57fe73f77d7fd2d8',
+                            },
+                            {
+                                dataSetId: '3a209838-af7a-1d3b-e52c-601886aa2f6f',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a209838af7a1d3be52c601886aa2f6f',
+                            },
+                            {
+                                dataSetId: '3a209839-493e-d77a-15d5-6fb2f1703927',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a209839493ed77a15d56fb2f1703927',
+                            },
+                            {
+                                dataSetId: '3a2126f9-fa6a-9e56-794f-b9531890d41a',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a2126f9fa6a9e56794fb9531890d41a',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        var fontInfo = new BlackHole3D.REFontInfo();
+                        fontInfo.fontId = 'font01';
+                        fontInfo.width = 50;
+                        fontInfo.height = 50;
+                        fontInfo.weight = 2;
+                        BlackHole3D.Common.addGolFont(fontInfo);
+                        var ancList = [
+                            {
+                                groupName: 'camera',
+                                ancName: 'anc1',
+                                pos: [102.04, 38.14, -0.08],
+                                picPath: 'https://hubei-41.zos.ctyun.cn/zjypwy-pre/e84c7b4d-202b-44eb-a02e-5a5cad70fe63-10.png',
+                                // "picPath": location.origin + import.meta.env.VITE_BASE_URL + "/images/hydrant1.png",
+                                // "picPath": '',
+                                textInfo: '8#楼东北角园区监控-1',
+                                fontName: 'font01',
+                                picWidth: 60,
+                                picHeight: 60,
+                                linePos: [0, 0],
+                                lineClr: new BlackHole3D.REColor(252, 61, 61, 255),
+                                ancSize: 200,
+                                // "selfAutoScaleDist": 20,
+                                // selfAutoScaleDist: 4,
+                                selfVisDist: -1,
+                                texBias: [1, 0],
+                                // texFocus: [234 / 2, 0],
+                            },
+                        ];
+                        ancList[0].picPath = 'https://demo.bjblackhole.com/demopage/examplesImgs/anc.png'
+                        BlackHole3D.Anchor.addAnc(ancList);
+                        BlackHole3D.Anchor.setAncCanOverlap('camera', false); //设置不被遮挡
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
