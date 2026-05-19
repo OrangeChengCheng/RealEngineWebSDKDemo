@@ -16314,12 +16314,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     class REProjectionClipPlaneInfo {
         // 投射裁剪面信息
         constructor() {
-            this.topValid = true; //裁剪包围体（上面）限制区域有效
-            this.bottomValid = true; //裁剪包围体（下面）限制区域有效
-            this.leftValid = true; //裁剪包围体（左面）限制区域有效
-            this.rightValid = true; //裁剪包围体（右面）限制区域有效
-            this.frontValid = true; //裁剪包围体（前面）限制区域有效
-            this.backValid = true; //裁剪包围体（后面）限制区域有效
+            this.topValid = false; //裁剪包围体（上面）限制区域有效
+            this.bottomValid = false; //裁剪包围体（下面）限制区域有效
+            this.leftValid = false; //裁剪包围体（左面）限制区域有效
+            this.rightValid = false; //裁剪包围体（右面）限制区域有效
+            this.frontValid = false; //裁剪包围体（前面）限制区域有效
+            this.backValid = false; //裁剪包围体（后面）限制区域有效
         }
     }
     ExtModule.REProjectionClipPlaneInfo = REProjectionClipPlaneInfo;
@@ -16492,7 +16492,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         // 处理裁剪面相关数据
         let _m_uClipPlaneValid = 0;
         if (isEmpty(projection_js.clipPlaneValid)) {
-            _m_uClipPlaneValid = 0b00111111;
+            _m_uClipPlaneValid = 0b00000000;
         } else {
             if (projection_js.clipPlaneValid.topValid) _m_uClipPlaneValid |= 1 << 0;
             if (projection_js.clipPlaneValid.bottomValid) _m_uClipPlaneValid |= 1 << 1;
