@@ -1,0 +1,121 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-05-22 09:48:18
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+        <script src="https://unpkg.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="../../javascript/mpegts.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">成功视频</el-button>
+                <el-button type="primary" @click="alert_click2">失败视频</el-button>
+                <el-button type="primary" @click="alert_click3">失败直播</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {},
+                mounted() {},
+                methods: {
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: '视频投射',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1fe27477c3c51efab582a414dcb777',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        const projectionInfoList = [
+                            {
+                                projectionId: 'proj_001',
+                                camPos: [-58.36655968464183, 1.7393497345894176, 151.83251010184952],
+                                targetPos: [-57.910377873757234, 2.332996452755829, 123.61315751166394],
+                                type: 1,
+                                planeNormal: [0.01615987987652617, 0.021029465502056408, -0.9996482480668258],
+                                planeRight: [0.7929269603513803, -0.6093166956090411, 0],
+                                nearFarPlaneOffset: [-5, 5],
+                                nearPlaneRect: [-10, 10, -10, 10],
+                                texPath:
+                                    'http://192.168.31.6:9012/DownloadService/blackHole3D/files/download/3a214b59-2cde-5d58-0e47-b5b8da7ae174?token=F8B88238C28D585087F8288748B28B8A08C4897838F18',
+                                texType: 2,
+                                showState: 1,
+                            },
+                        ];
+
+                        BlackHole3D.Projection.setData(projectionInfoList);
+                    },
+                    alert_click2() {
+                        const projectionInfoList = [
+                            {
+                                projectionId: 'proj_002',
+                                camPos: [10.430952197032145, -48.44302590964034, 151.83251010184952],
+                                targetPos: [10.887134007916739, -47.84937919147393, 123.61315751166394],
+                                type: 1,
+                                planeNormal: [0.01615987987652617, 0.021029465502056408, -0.9996482480668258],
+                                planeRight: [0.7929269603513803, -0.6093166956090411, 0],
+                                nearFarPlaneOffset: [-5, 5],
+                                nearPlaneRect: [-10, 10, -10, 10],
+                                texPath:
+                                    'http://192.168.31.6:9012/DownloadService/blackHole3D/files/download/3a214b59-2cde-5d58-0e47-b5b8da7ae174?token=F8B88238C28D585087F8288748B28B8A08C4897838F18_',
+                                texType: 2,
+                                showState: 1,
+                            },
+                        ];
+
+                        BlackHole3D.Projection.setData(projectionInfoList);
+                    },
+                    alert_click3() {
+                        const projectionInfoList = [
+                            {
+                                projectionId: 'proj_003',
+                                camPos: [113.2495799203147, -114.47900615371942, 151.83251010184952],
+                                targetPos: [113.7057617311993, -113.88535943555301, 123.61315751166394],
+                                type: 1,
+                                planeNormal: [0.01615987987652617, 0.021029465502056408, -0.9996482480668258],
+                                planeRight: [0.7929269603513803, -0.6093166956090411, 0],
+                                nearFarPlaneOffset: [-5, 5],
+                                nearPlaneRect: [-10, 10, -10, 10],
+                                texPath:
+                                    'https://realbim.bjblackhole.cn:7996/live1/livestream0.flv',
+                                texType: 2,
+                                showState: 1,
+                            },
+                        ];
+
+                        BlackHole3D.Projection.setData(projectionInfoList);
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
