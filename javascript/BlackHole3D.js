@@ -16963,6 +16963,27 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return [arrRect[0] / 32767, arrRect[1] / 32767, arrRect[2] / 32767, arrRect[3] / 32767];
     };
 
+    /**
+     * 设置指定投射纹理的颜色乘积
+     * @param {String} projectionId //投射唯一标识
+     * @param {REColor} texClrMult //纹理的颜色乘积（REColor 类型）
+     */
+    Module.Projection.setTexClrMult = function (projectionId, texClrMult) {
+        if (isEmptyLog(projectionId, 'projectionId')) return false;
+        const _texClrMult = isEmpty(texClrMult) ? 0xffffffff : clrToU32(texClrMult);
+        return Module.RealBIMWeb.SetFrustumProjClrMult(projectionId, _texClrMult);
+    };
+
+    /**
+     * 获取指定投射纹理的颜色乘积
+     * @param {String} projectionId //投射唯一标识
+     */
+    Module.Projection.getTexClrMult = function (projectionId) {
+        if (isEmptyLog(projectionId, 'projectionId')) return false;
+        const _uClrMult = Module.RealBIMWeb.GetFrustumProjClrMult(projectionId);
+        return clrU32ToClr(_uClrMult);
+    };
+
     class REProjectionShpClrInfo {
         // 投射矢量颜色信息
         constructor() {
