@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3762
+﻿//版本：v3.2.0.3765
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -6713,6 +6713,32 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             return;
         }
         var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDs(dataSetId, '', visibalOnly));
+        var elemIds = [];
+        for (let i = 0; i < tempelemids.length; i += 2) {
+            if (tempelemids[i] == 4294967280) {
+                //去除c++辅助局部元素的构件id （挖坑用的辅助元素）
+                continue;
+            }
+            elemIds.push(tempelemids[i]);
+        }
+        return elemIds;
+    };
+
+    /**
+     * 获取当前场景指定显示效果的构件id 集合 注：不显示的效果分为透明度为0和非有效性两种效果控制，设置和获取方式各不相同，工具栏的隔离隐藏的等，是通过有效性控制的
+     * @param {String} dataSetId //数据集标识
+     * @param {number} validFilter //表示对元素有效性的过滤状态(0->仅获取无效的元素；1->仅获取有效的元素；2->获取元素时忽略有效性), 默认为0
+     * @param {number} alphaFilter //表示对元素透明度的过滤状态(0->仅获取透明度为0的元素；1->仅获取透明度非0的元素；2->获取元素时忽略透明度), 默认为0
+     */
+    Module.BIM.getDateSetElemIds = function (dataSetId, validFilter, alphaFilter) {
+        if (isEmpty(dataSetId) || dataSetId == '') {
+            logParErr('dataSetId');
+            return;
+        }
+        const _validFilter = isEmpty(validFilter) ? 0 : validFilter;
+        const _alphaFilter = isEmpty(alphaFilter) ? 0 : alphaFilter;
+
+        var tempelemids = new Uint32Array(Module.RealBIMWeb.GetHugeObjSubElemIDsExt(dataSetId, '', _validFilter, _alphaFilter));
         var elemIds = [];
         for (let i = 0; i < tempelemids.length; i += 2) {
             if (tempelemids[i] == 4294967280) {
