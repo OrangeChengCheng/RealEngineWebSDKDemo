@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3767
+﻿//版本：v3.2.0.3772
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -17080,6 +17080,44 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         clrInfo.clipBoxFaceBottomClr = clrU32ToClr(arrClr.get(8));
         clrInfo.clipBoxLineClr = clrU32ToClr(arrClr.get(9));
         clrInfo.clipBoxInvalidFaceClr = clrU32ToClr(arrClr.get(10));
+        return clrInfo;
+    };
+
+    class REProjectionShpSelClrInfo {
+        // 投射矢量选中颜色信息
+        constructor() {
+            this.camDstLineSelClr = null; //相机和目标点连接线的选中颜色，以及相机线的选中颜色（REColor 类型）
+            this.camDstFaceSelClr = null; //相机和目标点面的选中颜色（REColor 类型）
+            this.boxLineSelClr = null; //包围盒线的选中颜色（REColor 类型）
+            this.boxFaceSelClr = null; //包围盒面的选中颜色（REColor 类型）
+        }
+    }
+    ExtModule.REProjectionShpSelClrInfo = REProjectionShpSelClrInfo;
+
+    /**
+     * 设置指定投射矢量的选中颜色
+     * @param {REProjectionShpSelClrInfo} clrInfo //颜色信息（REProjectionShpSelClrInfo 类型）
+     */
+    Module.Projection.setShpSelClr = function (clrInfo) {
+        if (isEmptyLog(clrInfo, 'clrInfo')) return;
+        const uCamDstConLineSelClr = isEmpty(clrInfo.camDstLineSelClr) ? 0x4C00A2FF : clrToU32(clrInfo.camDstLineSelClr);
+        const uCamDstFaceSelClr = isEmpty(clrInfo.camDstFaceSelClr) ? 0x8C277FFF : clrToU32(clrInfo.camDstFaceSelClr);
+        const uBoxLineSelClr = isEmpty(clrInfo.boxLineSelClr) ? 0x4C00A2FF : clrToU32(clrInfo.boxLineSelClr);
+        const uBoxFaceSelClr = isEmpty(clrInfo.boxFaceSelClr) ? 0x8C277FFF : clrToU32(clrInfo.boxFaceSelClr);
+        Module.RealBIMWeb.SetFrustumProjShpSelClr(uCamDstConLineSelClr, uCamDstFaceSelClr, uBoxLineSelClr, uBoxFaceSelClr);
+    };
+
+    /**
+     * 获取指定投射矢量的选中颜色
+     */
+    Module.Projection.getShpSelClr = function () {
+        const arrClr = Module.RealBIMWeb.GetFrustumProjShpSelClr();
+        if (arrClr.size() != 4) return null;
+        const clrInfo = new Module.REProjectionShpSelClrInfo();
+        clrInfo.camDstLineSelClr = clrU32ToClr(arrClr.get(0));
+        clrInfo.camDstFaceSelClr = clrU32ToClr(arrClr.get(1));
+        clrInfo.boxLineSelClr = clrU32ToClr(arrClr.get(2));
+        clrInfo.boxFaceSelClr = clrU32ToClr(arrClr.get(3));
         return clrInfo;
     };
 
