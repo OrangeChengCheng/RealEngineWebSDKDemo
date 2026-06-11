@@ -12125,21 +12125,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (!dataList.length) {
             Module.RealBIMWeb.BeginSceneClippingByElemSet(false, 0, 0);
         } else {
-            var count = 0;
+            let tiled_list = [];
             for (let i = 0; i < dataList.length; i++) {
                 let _obj = dataList[i];
                 let _list = _obj['elemIdList'];
-                count += _list.length;
+                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj['dataSetId']);
+                _list.forEach((el) => {
+                    tiled_list.push({ projid: _projid, elemid: el });
+                });
             }
-
+            const count = tiled_list.length;
             var _moemory = (count * 8).toString();
             Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
             var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
             for (let i = 0; i < count; i++) {
-                let _obj = dataList[i];
-                let _list = _obj['elemIdList'];
-                let _projid = Module.RealBIMWeb.ConvGolStrID2IntID(_obj['dataSetId']);
-                let elemid = _list[i];
+                let _obj = tiled_list[i];
+                let _projid = _obj['projid'];
+                let elemid = _obj['elemid'];
                 _elemIds.set([elemid, _projid], i * 2);
             }
             Module.RealBIMWeb.BeginSceneClippingByElemSet(false, _elemIds.byteLength, _elemIds.byteOffset);
@@ -18010,7 +18012,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} type
      */
     function convIntToU32(type) {
-        let _type = 1;
+        let _type = 0;
         switch (type) {
             case 1:
                 _type = 1; //1<<0
@@ -18045,7 +18047,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {Number} type
      */
     function convU32ToInt(type) {
-        let _type = 1;
+        let _type = 0;
         switch (type) {
             case 1:
                 _type = 1; //1<<0
