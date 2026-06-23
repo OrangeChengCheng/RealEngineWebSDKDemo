@@ -1,0 +1,309 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-06-22 12:18:01
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">进入模式</el-button>
+                <el-button type="primary" @click="alert_click2">点模式</el-button>
+                <el-button type="primary" @click="alert_click3">点模式(多模式)</el-button>
+                <el-button type="primary" @click="alert_click4">线模式</el-button>
+                <el-button type="primary" @click="alert_click5">面模式</el-button>
+                <el-button type="primary" @click="alert_click6">结束编辑模式</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {
+                    document.addEventListener('RELineAddEntityCheck', this.RELineAddEntityCheck);
+                    document.addEventListener('REPlyAddEntityCheck', this.REPlyAddEntityCheck);
+                    document.addEventListener('REExitEntityEditMode', this.REExitEntityEditMode);
+                    document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
+                },
+                mounted() {},
+                methods: {
+                    RELineAddEntityCheck() {console.log("--- 线模式 添加检查回调");},
+                    REPlyAddEntityCheck() {console.log("--- 面模式 添加检查回调");},
+                    REExitEntityEditMode() {console.log("--- 单构件编辑模式 点选添加结束");},
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: 'changdi',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        BlackHole3D.Entity.enterEditMode();
+                    },
+                    alert_click2() {
+                        let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+                        entity.dataSetId = 'res_entity_anim_test02';
+                        entity.entityType = '[glb]out1';
+                        entity.elemId = 0; //自定义构件id，不可重复，重复添加失败
+
+                        let batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_point.batchEntityId = 'batchEntity_point';
+                        batchEntity_point.copyEntityList = [entity];
+                        batchEntity_point.showState = true;
+                        batchEntity_point.type = 0;
+
+                        let batchEntityList = [batchEntity_point];
+
+                        let editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.castToGround = true;
+                        editParam.scaleRange = [0.3, 3.0];
+                        editParam.rotateRange = [0.1, 2.0];
+
+                        BlackHole3D.Entity.startAddState('batch_01', 0, batchEntityList, editParam);
+                    },
+                    alert_click3() {
+                        let batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_point.batchEntityId = 'batchEntity_point_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_point.copyEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 12,
+                                scale: [1.7693052291870117, 1.7693052291870117, 1.7693052291870117],
+                                rotate: [0, 0, 0.6664426326751709, 0.7455562949180603],
+                                offset: [271.27523747733306, 422.6032111540347, 2.162652206117187],
+                            },
+                        ];
+                        batchEntity_point.templateEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 0,
+                            },
+                        ];
+                        batchEntity_point.showState = true;
+                        batchEntity_point.type = 0;
+                        batchEntity_point.shpPotList = [[271.2752399083085, 422.6032112013012, 2.1626618233065997]];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        batchEntity_point.editParam = {
+                            distType: 0,
+                            scaleRange: [0.3, 3],
+                            rotateRange: [0.1, 2],
+                            mode: 0,
+                            totalNum: 10,
+                            dist: 10,
+                            castToGround: true,
+                        };
+
+                        let batchEntity_line = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_line.batchEntityId = 'batchEntity_line_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_line.copyEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 21,
+                                scale: [1.8466891050338745, 1.8466891050338745, 1.8466891050338745],
+                                rotate: [0, 0, 0.5854828953742981, 0.8106847405433655],
+                                offset: [259.31810925344814, 420.2306726010166, 2.1626538418761854],
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 22,
+                                scale: [2.355786085128784, 2.355786085128784, 2.355786085128784],
+                                rotate: [0, 0, 0.09018243849277496, 0.99592524766922],
+                                offset: [297.4884943390997, 414.982468888267, 2.1626538418761854],
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 23,
+                                scale: [2.0296497344970703, 2.0296497344970703, 2.0296497344970703],
+                                rotate: [0, 0, 0.39068612456321716, 0.9205239415168762],
+                                offset: [304.98455348699486, 404.3462223289836, 2.1625622891418104],
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 24,
+                                scale: [0.5805498361587524, 0.5805498361587524, 0.5805498361587524],
+                                rotate: [0, 0, 0.1195525974035263, 0.9928278923034668],
+                                offset: [276.5519062871872, 387.53359979446986, 2.1625222348205213],
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 25,
+                                scale: [1.5826071500778198, 1.5826071500778198, 1.5826071500778198],
+                                rotate: [0, 0, 0.07701222598552704, 0.9970301389694214],
+                                offset: [314.92295347981815, 384.04289600462147, 2.1625222348205213],
+                            },
+                        ];
+                        batchEntity_line.templateEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 0,
+                            },
+                        ];
+                        batchEntity_line.showState = true;
+                        batchEntity_line.type = 1;
+                        batchEntity_line.shpPotList = [
+                            [259.3181090321957, 420.23067813155274, 2.162663739299063],
+                            [319.45721281822347, 411.96189993325606, 2.162596644110579],
+                            [273.5527331015044, 387.80643935242153, 2.1625338860711167],
+                            [314.92295194690587, 384.0428967070622, 2.1625402914422125],
+                        ];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        batchEntity_line.editParam = {
+                            distType: 0,
+                            scaleRange: [0.3, 3],
+                            rotateRange: [0.1, 2],
+                            mode: 0,
+                            totalNum: 5,
+                            dist: 10,
+                            castToGround: true,
+                        };
+
+                        let batchEntity_face = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_face.batchEntityId = 'batchEntity_face_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_face.copyEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 31,
+                                scale: [1.2802718877792358, 1.2802718877792358, 1.2802718877792358],
+                                rotate: [0, 0, 0.0992700457572937, 0.9950605034828186],
+                                offset: [265.22732359544176, 396.218364170901, 2.162650125086652],
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 32,
+                                scale: [0.7029156684875488, 0.7029156684875488, 0.7029156684875488],
+                                rotate: [0, 0, 0.38970527052879333, 0.9209396243095398],
+                                offset: [267.2889672134471, 391.37301909811913, 2.1626530816756286],
+                            },
+                        ];
+                        batchEntity_face.templateEntityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 0,
+                            },
+                        ];
+                        batchEntity_face.showState = true;
+                        batchEntity_face.type = 2;
+                        batchEntity_face.shpPotList = [
+                            [265.0235734602586, 399.9670551214557, 2.1626533590656507],
+                            [256.4887616230648, 397.64450613278956, 2.1626522900214837],
+                            [262.15679598544057, 387.7976147092089, 2.1626622288325805],
+                            [269.95883303392816, 391.19317845488706, 2.1626447261728217],
+                        ];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        batchEntity_face.editParam = {
+                            distType: 0,
+                            scaleRange: [0.3, 3],
+                            rotateRange: [0.1, 2],
+                            mode: 0,
+                            totalNum: 2,
+                            dist: 10,
+                            castToGround: false,
+                        };
+
+                        let batchEntityList = [batchEntity_point, batchEntity_line, batchEntity_face];
+
+                        let editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.castToGround = true;
+                        editParam.scaleRange = [0.3, 1.0];
+                        editParam.rotateRange = [0.1, 1.0];
+
+                        BlackHole3D.Entity.startAddState('batch_02', 0, batchEntityList, editParam);
+                    },
+                    alert_click4() {
+                        let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+                        entity.dataSetId = 'res_entity_anim_test02';
+                        entity.entityType = '[glb]out1';
+                        entity.elemId = 0; //自定义构件id，不可重复，重复添加失败
+
+                        let batchEntity_line = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_line.batchEntityId = 'batchEntity_line';
+                        batchEntity_line.copyEntityList = [entity];
+                        batchEntity_line.showState = true;
+                        batchEntity_line.type = 1;
+
+                        let batchEntityList = [batchEntity_line];
+
+                        let editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.totalNum = 5;
+                        editParam.castToGround = true;
+                        editParam.scaleRange = [0.3, 3.0];
+                        editParam.rotateRange = [0.1, 2.0];
+
+                        BlackHole3D.Entity.startAddState('batch_03', 1, batchEntityList, editParam);
+                    },
+                    alert_click5() {
+                        let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+                        entity.dataSetId = 'res_entity_anim_test02';
+                        entity.entityType = '[glb]out1';
+                        entity.elemId = 0; //自定义构件id，不可重复，重复添加失败
+
+                        let batchEntity_face = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_face.batchEntityId = 'batchEntity_face';
+                        batchEntity_face.copyEntityList = [entity];
+                        batchEntity_face.showState = true;
+                        batchEntity_face.type = 2;
+
+                        let batchEntityList = [batchEntity_face];
+
+                        let editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.castToGround = false;
+                        editParam.scaleRange = [0.3, 3.0];
+                        editParam.rotateRange = [0.1, 2.0];
+
+                        BlackHole3D.Entity.startAddState('batch_04', 2, batchEntityList, editParam);
+                    },
+                    alert_click6() {
+                        BlackHole3D.Entity.exitEditMode();
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

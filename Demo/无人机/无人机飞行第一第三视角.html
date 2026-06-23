@@ -1,0 +1,451 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-06-23 14:33:29
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>无人机行进视角</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <!-- <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdktest/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/sdktest/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/BlackHole3.0/js/UAVCameraView.js"></script>
+        <!-- <script async type="text/javascript" src="./UAVCameraView.js"></script> -->
+
+        <style>
+            #canvas_firstP {
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                width: 400px;
+                height: 300px;
+                z-index: 1;
+                pointer-events: none;
+            }
+            #canvas_thirdP {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas_firstP" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <canvas id="canvas_thirdP" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button :disabled="isDisabled" type="primary" @click="alert_click0">{{btnText}}</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    const flyTop = 500.0;
+                    const shpDis = 80.0;
+                    const startP = [12778461.0, 4680047.0, 114.0];
+                    const middleP = [12778461.0, 4680047.0, 114.0 + flyTop];
+                    const endP = [12775735.0, 4691143.0, 163.0];
+                    return {
+                        isDisabled: false,
+                        btnText: '开始操作',
+                        flyTop: flyTop,
+                        shpDis: shpDis,
+                        flyTopTime: 4,
+                        flyGoTime: 30,
+                        flyDurationTime: 2,
+                        startP: startP,
+                        middleP: middleP,
+                        endP: endP,
+
+                        starP_line: startP,
+                        middleP_line: middleP,
+                        endP_line: [endP[0], endP[1], endP[2] + flyTop],
+
+                        startP_model: [startP[0], startP[1], startP[2] + 60],
+                        middleP_model: [startP[0], startP[1], startP[2] + flyTop + 60],
+                        endP_model: [endP[0], endP[1], endP[2] + flyTop + 60],
+
+                        startP_shp: [startP[0], startP[1], startP[2] + 60],
+                        middleP_shp: [startP[0], startP[1], startP[2] + flyTop + 60],
+                        endP_shp: [endP[0], endP[1], endP[2] + flyTop + 60],
+
+                        startP_firstP: startP,
+                        middleP_firstP: middleP,
+                        endP_firstP: [endP[0], endP[1], endP[2] + flyTop],
+
+                        startP_thirdP: [12779099.045455597, 4681158.335858921, 1233.0],
+                        endP_thirdP: [12776468.0, 4691728.0, 1233.0],
+                    };
+                },
+                created() {
+                    document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
+                },
+                mounted() {
+                    
+                },
+                methods: {
+                    RESystemEngineCreatedCallBack(e) {
+                        if (e.detail.canvasid == 'canvas_firstP') {
+                            var dataSetList = [
+                                {
+                                    dataSetId: 'changdi',
+                                    resourcesAddress:
+                                        'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a15f27cd17b394959b55b26a049bcb3',
+                                },
+                            ];
+                            BlackHole3D_firstP.Model.loadDataSet(dataSetList);
+                        } else if (e.detail.canvasid == 'canvas_thirdP') {
+                            var dataSetList = [
+                                {
+                                    dataSetId: 'changdi',
+                                    resourcesAddress:
+                                        'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a15f27cd17b394959b55b26a049bcb3',
+                                },
+                                {
+                                    dataSetId: 'res_feiji',
+                                    resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_feiji',
+                                },
+                            ];
+                            BlackHole3D_thirdP.Model.loadDataSet(dataSetList);
+                        }
+                    },
+                    REDataSetLoadFinishCallBack(e) {
+                        if (e.detail.canvasid == 'canvas_firstP') {
+                            BlackHole3D_firstP.Graphics.setSysUIPanelVisible(false);
+                            BlackHole3D_firstP.Graphics.setViewCubeVisible(false);
+                            BlackHole3D_firstP.Graphics.setGeoCoordVisible(false);
+                        } else if (e.detail.canvasid == 'canvas_thirdP') {
+                            BlackHole3D_thirdP.Graphics.setSysUIPanelVisible(false);
+                            this.alert_click();
+                            this.alert_click2();
+                            BlackHole3D_thirdP.RealBIMWeb.SetHugeObjSubElemProjMasks("res_feiji", '', 0xffffffff, 0, 0b00000000, 0b00000000, 0);
+                        }
+                    },
+                    REAddEntityFinish(e) {
+                        if (e.detail.canvasid == 'canvas_firstP') {
+                        } else if (e.detail.canvasid == 'canvas_thirdP') {
+                            const camDir_firstP = BlackHole3D_firstP.Math.getDirection(this.startP, this.endP);
+                            BlackHole3D_firstP.Camera.setCamLocateTo({ camPos: this.startP_firstP, camDir: camDir_firstP }, 0, 1);
+                            const camDir_thirdP = BlackHole3D_thirdP.Math.getDirection(this.startP_thirdP, this.startP);
+                            BlackHole3D_thirdP.Camera.setCamLocateTo({ camPos: this.startP_thirdP, camDir: camDir_thirdP }, 0, 1);
+                            // 添加视锥体矢量
+                            {
+                                const shpDir = BlackHole3D_thirdP.Math.getDirection(this.startP_shp, this.endP_shp);
+                                const newPoint = [
+                                    this.startP_shp[0] + shpDir[0] * this.shpDis,
+                                    this.startP_shp[1] + shpDir[1] * this.shpDis,
+                                    this.startP_shp[2] + shpDir[2] * this.shpDis,
+                                ];
+                                BlackHole3D_thirdP.RealBIMWeb.AddCustomFrustumShp(this.startP_shp, newPoint);
+                            }
+                            setTimeout(() => {
+                                
+                            }, 3000);
+                        }
+                    },
+                    reset() {
+                        this.isDisabled = false;
+                        BlackHole3D_thirdP.Entity.setTransInfo('res_feiji', 1, {
+                            offset: this.startP_model,
+                            scale: [100.0, 100.0, 100.0],
+                            rotate: [0.0, 0.0, -1, 0.2],
+                        });
+                        const shpDir = BlackHole3D_thirdP.Math.getDirection(this.startP_shp, this.endP_shp);
+                        const newPoint = [
+                            this.startP_shp[0] + shpDir[0] * this.shpDis,
+                            this.startP_shp[1] + shpDir[1] * this.shpDis,
+                            this.startP_shp[2] + shpDir[2] * this.shpDis,
+                        ];
+                        BlackHole3D_thirdP.RealBIMWeb.AddCustomFrustumShp(this.startP_shp, newPoint);
+                        const camDir_firstP = BlackHole3D_firstP.Math.getDirection(this.startP, this.endP);
+                        BlackHole3D_firstP.Camera.setCamLocateTo({ camPos: this.startP_firstP, camDir: camDir_firstP }, 0, 1);
+                        const camDir_thirdP = BlackHole3D_thirdP.Math.getDirection(this.startP_thirdP, this.startP);
+                        BlackHole3D_thirdP.Camera.setCamLocateTo({ camPos: this.startP_thirdP, camDir: camDir_thirdP }, 0, 1);
+                    },
+                    alert_click0() {
+                        if (this.btnText == '重置') {
+                            this.isDisabled = false;
+                            this.btnText = '开始操作'
+                            this.reset();
+                        } else {
+                            this.isDisabled = true;
+                            this.alert_click3();
+                            this.btnText = '重置'
+                        }
+                    },
+                    alert_click() {
+                        // 第一视角
+                        {
+                            //创建一个规则的路径平面
+                            var animAreaBufferInfo = new BlackHole3D_firstP.REAnimAreaBufferInfo();
+                            animAreaBufferInfo.groupName = 'Area';
+                            animAreaBufferInfo.name = 'Area01';
+                            animAreaBufferInfo.potList = [this.startP, this.endP];
+                            animAreaBufferInfo.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/imgs/15.png';
+                            animAreaBufferInfo.width = 50;
+                            animAreaBufferInfo.policy = 1;
+                            animAreaBufferInfo.projSce = true;
+                            BlackHole3D_firstP.Animation.addAnimAreaBuffer(animAreaBufferInfo);
+
+                            //按组名称设置矢量动画的参数
+                            var animStyle = new BlackHole3D_firstP.REShpAnimStyle();
+                            animStyle.groupName = 'Area';
+                            animStyle.nameList = [];
+                            animStyle.animClr = new BlackHole3D_thirdP.REColor(0, 255, 0);
+                            animStyle.clrWeight = 255;
+                            animStyle.scaleAndOffset = [50.0, 1.0, -0.3, 0.0];
+                            BlackHole3D_firstP.Animation.setShapeAnimStyle(animStyle);
+
+                            var ancList = [
+                                {
+                                    groupName: 'localPoint',
+                                    ancName: 'anc01',
+                                    pos: this.startP,
+                                    picPath: 'https://demo.bjblackhole.com/BlackHole3.0/imgs/loc.png',
+                                    textInfo: '出发点',
+                                    picWidth: 32,
+                                    picHeight: 32,
+                                    ancSize: 60,
+                                    selfAutoScaleDist: -1,
+                                    selfVisDist: -1,
+                                    texBias: [0, 1],
+                                    texFocus: [0, 0],
+                                },
+                                {
+                                    groupName: 'localPoint',
+                                    ancName: 'anc02',
+                                    pos: this.endP,
+                                    picPath: 'https://demo.bjblackhole.com/BlackHole3.0/imgs/loc.png',
+                                    textInfo: '目的点',
+                                    picWidth: 32,
+                                    picHeight: 32,
+                                    ancSize: 60,
+                                    selfAutoScaleDist: -1,
+                                    selfVisDist: -1,
+                                    texBias: [0, 1],
+                                    texFocus: [0, 0],
+                                },
+                            ];
+                            BlackHole3D_firstP.Anchor.addAnc(ancList);
+                        }
+
+                        // 第三视角
+                        {
+                            //创建一个规则的路径平面
+                            var animAreaBufferInfo = new BlackHole3D_thirdP.REAnimAreaBufferInfo();
+                            animAreaBufferInfo.groupName = 'Area';
+                            animAreaBufferInfo.name = 'Area01';
+                            animAreaBufferInfo.potList = [this.startP, this.endP];
+                            animAreaBufferInfo.texPath = 'https://demo.bjblackhole.com/BlackHole3.0/imgs/15.png';
+                            animAreaBufferInfo.width = 50;
+                            animAreaBufferInfo.policy = 1;
+                            animAreaBufferInfo.projSce = true;
+                            BlackHole3D_thirdP.Animation.addAnimAreaBuffer(animAreaBufferInfo);
+
+                            //按组名称设置矢量动画的参数
+                            var animStyle = new BlackHole3D_thirdP.REShpAnimStyle();
+                            animStyle.groupName = 'Area';
+                            animStyle.nameList = [];
+                            animStyle.animClr = new BlackHole3D_thirdP.REColor(0, 255, 0);
+                            animStyle.clrWeight = 255;
+                            animStyle.scaleAndOffset = [50.0, 1.0, -0.3, 0.0];
+                            BlackHole3D_thirdP.Animation.setShapeAnimStyle(animStyle);
+
+                            //创建动态圆形管道
+                            var animCylinderInfo = new BlackHole3D_thirdP.REAnimCylinderInfo();
+                            animCylinderInfo.groupName = 'Cylinder';
+                            animCylinderInfo.name = 'cylinder01';
+                            animCylinderInfo.potList = [this.starP_line, this.middleP_line, this.endP_line];
+                            animCylinderInfo.radius = 2;
+                            BlackHole3D_thirdP.Animation.addAnimCylinder(animCylinderInfo);
+
+                            //按组名称设置矢量动画的参数
+                            var animStyle = new BlackHole3D_thirdP.REShpAnimStyle();
+                            animStyle.groupName = 'Cylinder';
+                            animStyle.nameList = [];
+                            animStyle.animClr = new BlackHole3D_thirdP.REColor(0, 255, 255);
+                            animStyle.clrWeight = 255;
+                            animStyle.scaleAndOffset = [1.0, 1.0, 0.0, 0.0];
+                            BlackHole3D_thirdP.Animation.setShapeAnimStyle(animStyle);
+
+                            var ancList = [
+                                {
+                                    groupName: 'localPoint',
+                                    ancName: 'anc01',
+                                    pos: this.startP,
+                                    picPath: 'https://demo.bjblackhole.com/BlackHole3.0/imgs/loc.png',
+                                    textInfo: '出发点',
+                                    picWidth: 50,
+                                    picHeight: 50,
+                                    ancSize: 60,
+                                    selfAutoScaleDist: -1,
+                                    selfVisDist: -1,
+                                    texBias: [0, 1],
+                                    texFocus: [0, 0],
+                                },
+                                {
+                                    groupName: 'localPoint',
+                                    ancName: 'anc02',
+                                    pos: this.endP,
+                                    picPath: 'https://demo.bjblackhole.com/BlackHole3.0/imgs/loc.png',
+                                    textInfo: '目的点',
+                                    picWidth: 50,
+                                    picHeight: 50,
+                                    ancSize: 60,
+                                    selfAutoScaleDist: -1,
+                                    selfVisDist: -1,
+                                    texBias: [0, 1],
+                                    texFocus: [0, 0],
+                                },
+                            ];
+                            BlackHole3D_thirdP.Anchor.addAnc(ancList);
+                        }
+                    },
+                    alert_click2() {
+                        let typeNames = BlackHole3D_thirdP.Entity.getAllTypeNames('res_feiji'); //获取所有的实例类型名称
+                        if (typeNames.length) {
+                            let entityList = [];
+                            let entity = new BlackHole3D_thirdP.REEntityInfo(); //创建实例信息对象
+                            entity.dataSetId = 'res_feiji';
+                            entity.entityType = typeNames[0];
+                            entity.elemId = 1; //自定义构件id，不可重复，重复添加失败
+                            entity.scale = [100.0, 100.0, 100.0]; // 缩放
+                            entity.rotate = [0.0, 0.0, -1, 0.2]; // 旋转
+                            entity.offset = this.startP_model; // 平移
+                            entity.dataSetCRS = ''; // 坐标系标识
+                            entityList.push(entity);
+                            BlackHole3D_thirdP.Entity.addEntities(entityList); //添加实例对象
+                        }
+                    },
+                    alert_click3() {
+                        // 禁止操作
+                        const canvas_thirdP = document.getElementById('canvas_thirdP');
+                        canvas_thirdP.style.pointerEvents = 'none';
+                        canvas_thirdP.style.cursor = 'not-allowed';
+
+                        // 起飞
+                        {
+                            // 第一人称
+                            const camDir_firstP_fly = BlackHole3D_firstP.Math.getDirection(this.startP, this.endP);
+                            BlackHole3D_firstP.Camera.setCamLocateTo({ camPos: this.middleP_firstP, camDir: camDir_firstP_fly }, 0, this.flyTopTime);
+
+                            // 模型位移
+                            this.fly_track(this.startP_model, this.middleP_model, this.flyTopTime * 1000, (point) => {
+                                BlackHole3D_thirdP.Entity.setTransInfo('res_feiji', 1, {
+                                    offset: point,
+                                    scale: [100.0, 100.0, 100.0],
+                                    rotate: [0.0, 0.0, -1, 0.2],
+                                });
+                            });
+
+                            // 视锥体矢量位移
+                            this.fly_track(this.startP_shp, this.middleP_shp, this.flyTopTime * 1000, (point) => {
+                                const shpDir = BlackHole3D_thirdP.Math.getDirection(this.startP_shp, this.endP_shp);
+                                const newPoint = [
+                                    point[0] + shpDir[0] * this.shpDis,
+                                    point[1] + shpDir[1] * this.shpDis,
+                                    point[2] + shpDir[2] * this.shpDis,
+                                ];
+                                BlackHole3D_thirdP.RealBIMWeb.AddCustomFrustumShp(point, newPoint);
+                            });
+                        }
+
+                        // 前进
+                        {
+                            setTimeout(() => {
+                                // 第一人称
+                                const camDir_firstP_go = BlackHole3D_firstP.Math.getDirection(this.startP, this.endP);
+                                BlackHole3D_firstP.Camera.setCamLocateTo({ camPos: this.endP_firstP, camDir: camDir_firstP_go }, 0, this.flyGoTime);
+                                // 第三人称
+                                const camDir_thirdP = BlackHole3D_thirdP.Math.getDirection(this.startP_thirdP, this.startP);
+                                BlackHole3D_thirdP.Camera.setCamLocateTo({ camPos: this.endP_thirdP, camDir: camDir_thirdP }, 0, this.flyGoTime);
+                                // 模型位移
+                                this.fly_track(this.middleP_model, this.endP_model, this.flyGoTime * 1000, (point) => {
+                                    BlackHole3D_thirdP.Entity.setTransInfo('res_feiji', 1, {
+                                        offset: point,
+                                        scale: [100.0, 100.0, 100.0],
+                                        rotate: [0.0, 0.0, -1, 0.2],
+                                    });
+                                });
+                                // 视锥体矢量位移
+                                this.fly_track(this.middleP_shp, this.endP_shp, this.flyGoTime * 1000, (point) => {
+                                    const shpDir = BlackHole3D_thirdP.Math.getDirection(this.startP_shp, this.endP_shp);
+                                    const newPoint = [
+                                        point[0] + shpDir[0] * this.shpDis,
+                                        point[1] + shpDir[1] * this.shpDis,
+                                        point[2] + shpDir[2] * this.shpDis,
+                                    ];
+                                    BlackHole3D_thirdP.RealBIMWeb.AddCustomFrustumShp(point, newPoint);
+                                });
+                            }, this.flyDurationTime * 1000 + this.flyTopTime * 1000);
+                            setTimeout(() => {
+                                // 恢复操作
+                                canvas_thirdP.style.pointerEvents = 'auto';
+                                canvas_thirdP.style.cursor = 'default';
+                                this.isDisabled = false;
+                            }, this.flyDurationTime * 1000 + this.flyTopTime * 1000 + this.flyGoTime * 1000);
+                        }
+                    },
+                    fly_track(from, go, time, optionFunc) {
+                        const A = from; // 起点
+                        const B = go; // 终点
+                        let timerId = null;
+                        let startTime = 0; // 记录开始执行的时间戳
+                        let totalTime = time; // 总时长
+
+                        const repeatTask = () => {
+                            // 计算从开始到现在的已用时间（毫秒）
+                            const elapsed = Date.now() - startTime;
+                            // 计算进度比例 t，限制在 0~1 之间
+                            const t = Math.min(elapsed / totalTime, 1);
+
+                            // 计算当前插值点坐标
+                            const x = A[0] + t * (B[0] - A[0]);
+                            const y = A[1] + t * (B[1] - A[1]);
+                            const z = A[2] + t * (B[2] - A[2]);
+
+                            if (optionFunc) {
+                                optionFunc([x, y, z]);
+                            }
+
+                            // 如果已经到达终点（t >= 1），就不再继续递归
+                            if (t >= 1) {
+                                clearTimeout(timerId);
+                                return;
+                            }
+
+                            // 否则继续设置下一次 50ms 后执行
+                            timerId = setTimeout(repeatTask, 17);
+                        };
+
+                        // 记录开始时间（用于计算进度）
+                        startTime = Date.now();
+                        // 启动循环（立即执行第一次，相当于 0ms 时刻）
+                        repeatTask();
+
+                        // 5 秒后强制停止（保险，但上面 t>=1 时会自己停止）
+                        setTimeout(() => {
+                            clearTimeout(timerId);
+                        }, totalTime);
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

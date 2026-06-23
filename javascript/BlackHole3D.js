@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3772
+﻿//版本：v3.2.0.3782
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -98,6 +98,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REProjPosChange_Web', REProjPosChange_Web); //投射点位改变事件
         document.addEventListener('REEditProjFinish_Web', REEditProjFinish_Web); //投射编辑完成回调事件
         document.addEventListener('REAddProjFinish_Web', REAddProjFinish_Web); //投射添加完成回调事件
+        document.addEventListener('RELineAddEntityCheck_Web', RELineAddEntityCheck_Web); //批量添加单构件线添加模式检查回调事件
+        document.addEventListener('REPlyAddEntityCheck_Web', REPlyAddEntityCheck_Web); //批量添加单构件面添加模式检查回调事件
 
         return bool;
     };
@@ -358,6 +360,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function REAddProjFinish_Web(e) {
         const re_event = new CustomEvent('REAddProjFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function RELineAddEntityCheck_Web(e) {
+        const re_event = new CustomEvent('RELineAddEntityCheck', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REPlyAddEntityCheck_Web(e) {
+        const re_event = new CustomEvent('REPlyAddEntityCheck', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event);
@@ -1916,15 +1932,14 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (isEmptyLog(camLoc, 'camLoc')) return;
         if (isEmptyLog(camLoc.camPos, 'camPos')) return;
 
-        var _delay = 0;
-        if (!isEmpty(locDelay)) _delay = locDelay;
-        var _time = 1.0;
-        if (!isEmpty(locTime)) _time = locTime;
-        if (camLoc.camRotate[0] != 1e30) {
+        var _delay = isEmpty(locDelay) ? 0 : locDelay;
+        var _time = isEmpty(locTime) ? 1.0 : locTime;
+
+        if (!isEmpty(camLoc.camRotate) && camLoc.camRotate[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo(camLoc.camPos, camLoc.camRotate, _delay, _time);
             return;
         }
-        if (camLoc.camDir[0] != 1e30) {
+        if (!isEmpty(camLoc.camDir) && camLoc.camDir[0] != 1e30) {
             Module.RealBIMWeb.LocateCamTo_Dir(camLoc.camPos, camLoc.camDir, _delay, _time);
         }
     };
@@ -3524,6 +3539,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Graphics.setTabItemVisable = function (uiID, visable) {
         if (isEmptyLog(uiID, 'uiID')) return;
         return Module.RealBIMWeb.UIWgtSetTabItemOpenState(uiID, visable);
+    };
+
+    /**
+     * 设置地形透明度滑动条数据 注：只影响显示效果，不影响实际数据
+     * @param {Number} value //滑动条数据，取值范围【0，100】整数类型
+     */
+    Module.Graphics.setTerrainAlphaSilder = function (value) {
+        const _value = isEmpty(value) ? 100 : value >= 0 && value <= 100 ? Math.ceil(value) : 100;
+        const _strText = `${_value} %`;
+
+        const result1 = Module.RealBIMWeb.UIWgtSetSliderBarValue('BuiltIn_Slider_TerrAlpha', [_value / 100, 1, 1, 1]);
+        const result2 = Module.RealBIMWeb.UIWgtSetLableText('BuiltIn_Label_TerrAlpha', _strText);
+        return result1 && result2;
     };
 
     // MARK 按钮（Button）
@@ -13260,36 +13288,545 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.ExitEntityEditMode();
     };
 
-    /**
-     * 开始进入实例添加状态
-     * @param {Number} type //添加类型 0:点模式  1:线模式  2：面模式  3：复制模式
-     */
-    Module.Entity.startAddState = function (type) {
-        let _type = Module.RE_ENTITY_EDIT_STATE.POINT;
-        switch (type) {
-            case 0:
-                _type = Module.RE_ENTITY_EDIT_STATE.POINT;
-                break;
-            case 1:
-                _type = Module.RE_ENTITY_EDIT_STATE.LINE;
-                break;
-            // case 2:
-            //     _type = Module.RE_ENTITY_EDIT_STATE.POLYGON;
-            //     break;
-            case 3:
-                _type = Module.RE_ENTITY_EDIT_STATE.COPY;
-                break;
-            default:
-                return;
+    class REBatchEntityInfo {
+        // 批量实例信息
+        constructor() {
+            this.batchEntityId = null; // 批量实例标识
+            this.templateEntityList = null; // 模板类型集合（REEntityInfo 类型）
+            this.copyEntityList = null; // 需要拷贝的实例信息集合（REEntityInfo 类型）
+            this.type = 0; // 批量实例操作类型 0：点添加  1：线添加  2：面添加
+            this.shpPotList = null; // 显示或者编辑的矢量点信息
+            this.showState = 0; // 显示状态 0：不显示矢量效果  1：显示矢量效果
+            this.dataSetCRS = null; // 坐标系标识
+            this.editParam = null; // 实例编辑参数（REEntityEditParam 类型）
         }
-        Module.RealBIMWeb.BeginAddEntity(_type, '');
-    };
+    }
+    ExtModule.REBatchEntityInfo = REBatchEntityInfo;
+
+    class REEntityEditParam {
+        // 实例编辑的参数
+        constructor() {
+            this.distType = 1; //表示分布类型，0: 按照比例分布添加，1: 组团分布添加
+            this.scaleRange = [1.0, 1.0]; // 随机数的缩放范围, 二元素数组
+            this.rotateRange = [0, 0]; // 随机数的旋转角度范围, 二元素数组
+            this.mode = 1; //表示模式，0: 按照指定数量模式进行添加，1: 按照指定距离添加，距离添加仅批量实例线添加模式支持
+            this.totalNum = 10.0; // 表示添加数量的总数
+            this.dist = 10.0; // 表示添加构件时的指定间隔距离
+            this.castToGround = false; // 否要将添加点投射到模型，贴地模式
+        }
+    }
+    ExtModule.REEntityEditParam = REEntityEditParam;
 
     /**
-     * 结束实例添加状态
+     * 开始进入批量实例添加状态
+     * @param {String} batchId //批量操作标识
+     * @param {Number} editType //编辑模式 0:点模式  1:线模式  2：面模式
+     * @param {Array} batchEntityList //将要添加的批量实例信息集合（REBatchEntityInfo 类型）
+     * @param {REEntityEditParam} editParam //批量操作时的编辑参数
+     */
+    Module.Entity.startAddState = function (batchId, editType, batchEntityList, editParam) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        if (isEmptyLog(editType, 'editType')) return false;
+        if (!checkTypeLog(batchEntityList, 'batchEntityList', RE_Enum.RE_Check_Array)) return false;
+        if (isEmptyLog(editParam, 'editParam')) return false;
+
+        const _editType = isEmpty(editType) ? 0 : editType;
+
+        let _arrEntityInfo = new Module.RE_Vector_ENTITY_EDIT_INFO();
+        for (const batchEntity of batchEntityList) {
+            const templateEntityList = isEmpty(batchEntity.templateEntityList) ? [] : batchEntity.templateEntityList;
+            let m_arrTemplateInfo = new Module.RE_Vector_ENTITY_INFO();
+            for (const entityInfo of templateEntityList) {
+                let cEntity_obj = {
+                    m_strProjName: entityInfo.dataSetId,
+                    m_strTypeName: entityInfo.entityType,
+                    m_uEntityID: isEmpty(entityInfo.elemId) ? 0 : entityInfo.elemId,
+                    m_vCustomScale: isEmpty(entityInfo.scale) ? [1.0, 1.0, 1.0] : entityInfo.scale,
+                    m_qCustomRotate: isEmpty(entityInfo.rotate) ? [0.0, 0.0, 0.0, 1.0] : entityInfo.rotate,
+                    m_vCustomOffset: isEmpty(entityInfo.offset) ? [0.0, 0.0, 0.0] : entityInfo.offset,
+                    m_strCRS: isEmpty(entityInfo.dataSetCRS) ? '' : entityInfo.dataSetCRS,
+                };
+                m_arrTemplateInfo.push_back(cEntity_obj);
+            }
+
+            let m_arrCopyOrAddEntity = new Module.RE_Vector_ENTITY_INFO();
+            for (const entityInfo of batchEntity.copyEntityList) {
+                let cEntity_obj = {
+                    m_strProjName: entityInfo.dataSetId,
+                    m_strTypeName: entityInfo.entityType,
+                    m_uEntityID: isEmpty(entityInfo.elemId) ? 0 : entityInfo.elemId,
+                    m_vCustomScale: isEmpty(entityInfo.scale) ? [1.0, 1.0, 1.0] : entityInfo.scale,
+                    m_qCustomRotate: isEmpty(entityInfo.rotate) ? [0.0, 0.0, 0.0, 1.0] : entityInfo.rotate,
+                    m_vCustomOffset: isEmpty(entityInfo.offset) ? [0.0, 0.0, 0.0] : entityInfo.offset,
+                    m_strCRS: isEmpty(entityInfo.dataSetCRS) ? '' : entityInfo.dataSetCRS,
+                };
+                m_arrCopyOrAddEntity.push_back(cEntity_obj);
+            }
+
+            const shpPotList = isEmpty(batchEntity.shpPotList) ? [] : batchEntity.shpPotList;
+            let m_arrEditShp = new Module.RE_Vector_dvec3();
+            for (const item of shpPotList) {
+                m_arrEditShp.push_back(item);
+            }
+
+            let _cEditParam = {
+                m_uDistType: 1,
+                m_vScaleRange: [1.0, 1.0],
+                m_vRotateAngle: [0, 0],
+                m_uMode: 1,
+                m_uTotalNum: 10.0,
+                m_dDist: 10.0,
+                m_bCastToGround: false,
+            };
+
+            if (!isEmpty(batchEntity.editParam)) {
+                _cEditParam = {
+                    m_uDistType: isEmpty(batchEntity.editParam.distType) ? 1 : batchEntity.editParam.distType,
+                    m_vScaleRange: isEmpty(batchEntity.editParam.scaleRange) ? [1.0, 1.0] : batchEntity.editParam.scaleRange,
+                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange) ? [0, 0] : batchEntity.editParam.rotateRange,
+                    m_uMode: isEmpty(batchEntity.editParam.mode) ? 1 : batchEntity.editParam.mode,
+                    m_uTotalNum: isEmpty(batchEntity.editParam.totalNum) ? 10.0 : batchEntity.editParam.totalNum,
+                    m_dDist: isEmpty(batchEntity.editParam.dist) ? 10.0 : batchEntity.editParam.dist,
+                    m_bCastToGround: isEmpty(batchEntity.editParam.castToGround) ? false : batchEntity.editParam.castToGround,
+                };
+            }
+
+            const _cBatchEntity = {
+                m_strName: batchEntity.batchEntityId,
+                m_arrTemplateInfo: m_arrTemplateInfo,
+                m_arrCopyOrAddEntity: m_arrCopyOrAddEntity,
+                m_cParam: _cEditParam,
+                m_uGeomEditState: isEmpty(batchEntity.type) ? 0 : batchEntity.type,
+                m_arrEditShp: m_arrEditShp,
+                m_strShpCRS: isEmpty(batchEntity.dataSetCRS) ? '' : batchEntity.dataSetCRS,
+                m_bShowShp: isEmpty(batchEntity.showState) ? false : batchEntity.showState == 1 ? true : false,
+            };
+            _arrEntityInfo.push_back(_cBatchEntity);
+        }
+
+        let _cBatchEditParam = {
+            m_uDistType: 1,
+            m_vScaleRange: [1.0, 1.0],
+            m_vRotateAngle: [0, 0],
+            m_uMode: 1,
+            m_uTotalNum: 10.0,
+            m_dDist: 10.0,
+            m_bCastToGround: false,
+        };
+
+        if (!isEmpty(editParam)) {
+            _cBatchEditParam = {
+                m_uDistType: isEmpty(editParam.distType) ? 1 : editParam.distType,
+                m_vScaleRange: isEmpty(editParam.scaleRange) ? [1.0, 1.0] : editParam.scaleRange,
+                m_vRotateAngle: isEmpty(editParam.rotateRange) ? [0, 0] : editParam.rotateRange,
+                m_uMode: isEmpty(editParam.mode) ? 1 : editParam.mode,
+                m_uTotalNum: isEmpty(editParam.totalNum) ? 10.0 : editParam.totalNum,
+                m_dDist: isEmpty(editParam.dist) ? 10.0 : editParam.dist,
+                m_bCastToGround: isEmpty(editParam.castToGround) ? false : editParam.castToGround,
+            };
+        }
+        return Module.RealBIMWeb.BeginAddEntity(batchId, _editType, _arrEntityInfo, _cBatchEditParam);
+    };
+
+    // /**
+    //  * 开始进入实例添加状态
+    //  * @param {Number} type //添加类型 0:点模式  1:线模式  2：面模式  3：复制模式
+    //  */
+    // Module.Entity.startAddState = function (type) {
+    //     let _type = Module.RE_ENTITY_EDIT_STATE.POINT;
+    //     switch (type) {
+    //         case 0:
+    //             _type = Module.RE_ENTITY_EDIT_STATE.POINT;
+    //             break;
+    //         case 1:
+    //             _type = Module.RE_ENTITY_EDIT_STATE.LINE;
+    //             break;
+    //         // case 2:
+    //         //     _type = Module.RE_ENTITY_EDIT_STATE.POLYGON;
+    //         //     break;
+    //         case 3:
+    //             _type = Module.RE_ENTITY_EDIT_STATE.COPY;
+    //             break;
+    //         default:
+    //             return;
+    //     }
+    //     Module.RealBIMWeb.BeginAddEntity(_type, '');
+    // };
+
+    /**
+     * 结束批量实例添加状态
      */
     Module.Entity.endAddState = function () {
         Module.RealBIMWeb.EndAddEntity();
+    };
+
+    /**
+     * 获取当前的批次标识
+     */
+    Module.Entity.getCurBatchId = function () {
+        return Module.RealBIMWeb.GetCurEntityBatchID();
+    };
+
+    /**
+     * 获取所有的批次标识
+     */
+    Module.Entity.getAllBatchId = function () {
+        const _arrAllBatchID = Module.RealBIMWeb.GetAllEntityBatchID();
+        const allBatchIdList = [];
+        for (let i = 0; i < _arrAllBatchID.size(); i++) {
+            allBatchIdList.push(_arrAllBatchID.get(i));
+        }
+        return allBatchIdList;
+    };
+
+    /**
+     * 获取所有的组标识 注：目前只有点添加模式会存在组概念，会将对应模式的批次标识作为组标识增加后缀，在点模式添加下，只有矢量点集合存在的情况下，即需要有二次编辑操作下有效
+     */
+    Module.Entity.getAllGroupId = function () {
+        const _arrAllGroupID = Module.RealBIMWeb.GetAllEntityGroupID();
+        const allGroupIdList = [];
+        for (let i = 0; i < _arrAllGroupID.size(); i++) {
+            allGroupIdList.push(_arrAllGroupID.get(i));
+        }
+        return allGroupIdList;
+    };
+
+    /**
+     * 根据组标识获取添加的批量实例标识集合 注：目前只有点添加模式会存在组概念，会将对应模式的批次标识作为组标识增加后缀，在点模式添加下，只有矢量点集合存在的情况下，即需要有二次编辑操作下有效
+     * @param {String} groupId //组标识
+     */
+    Module.Entity.getAllBatchEntityIdByGroupId = function (groupId) {
+        if (isEmptyLog(groupId, 'groupId')) return [];
+        const _arrAllEntityEditID = Module.RealBIMWeb.GetEntityEditIDByGroupID(groupId);
+        const allEntityEditIdList = [];
+        for (let i = 0; i < _arrAllEntityEditID.size(); i++) {
+            allEntityEditIdList.push(_arrAllEntityEditID.get(i));
+        }
+        return allEntityEditIdList;
+    };
+
+    /**
+     * 删除记录的组信息 注：目前只有点添加模式会存在组概念，会将对应模式的批次标识作为组标识增加后缀，在点模式添加下，只有矢量点集合存在的情况下，即需要有二次编辑操作下有效
+     * @param {Array} groupIdList //组标识集合，空数组代表删除所有
+     */
+    Module.Entity.delGroupInfo = function (groupIdList) {
+        if (!checkTypeLog(groupIdList, 'groupIdList', RE_Enum.RE_Check_Array)) return;
+        let _arrGroupId = new Module.RE_Vector_WStr();
+        for (const groupId of groupIdList) {
+            _arrGroupId.push_back(groupId);
+        }
+        Module.RealBIMWeb.DelEntityEditGroupInfo(_arrGroupId);
+    };
+
+    /**
+     * 重命名批次标识 注：需要处于编辑状态
+     * @param {String} batchId //批量操作标识
+     * @param {String} newBatchId //新的批量操作标识
+     */
+    Module.Entity.renameBatchId = function (batchId, newBatchId) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        if (isEmptyLog(newBatchId, 'newBatchId')) return false;
+        return Module.RealBIMWeb.RenameEntityEditID(batchId, newBatchId);
+    };
+
+    /**
+     * 设置批量实例信息
+     * @param {Array} batchEntityList //批量实例信息集合（REBatchEntityInfo 类型）
+     */
+    Module.Entity.setBatchEntityInfo = function (batchEntityList) {
+        if (!checkTypeLog(batchEntityList, 'batchEntityList', RE_Enum.RE_Check_Array)) return;
+
+        let _arrEntityInfo = new Module.RE_Vector_ENTITY_EDIT_INFO();
+        for (const batchEntity of batchEntityList) {
+            const templateEntityList = isEmpty(batchEntity.templateEntityList) ? [] : batchEntity.templateEntityList;
+            let m_arrTemplateInfo = new Module.RE_Vector_ENTITY_INFO();
+            for (const entityInfo of templateEntityList) {
+                let cEntity_obj = {
+                    m_strProjName: entityInfo.dataSetId,
+                    m_strTypeName: entityInfo.entityType,
+                    m_uEntityID: isEmpty(entityInfo.elemId) ? 0 : entityInfo.elemId,
+                    m_vCustomScale: isEmpty(entityInfo.scale) ? [1.0, 1.0, 1.0] : entityInfo.scale,
+                    m_qCustomRotate: isEmpty(entityInfo.rotate) ? [0.0, 0.0, 0.0, 1.0] : entityInfo.rotate,
+                    m_vCustomOffset: isEmpty(entityInfo.offset) ? [0.0, 0.0, 0.0] : entityInfo.offset,
+                    m_strCRS: isEmpty(entityInfo.dataSetCRS) ? '' : entityInfo.dataSetCRS,
+                };
+                m_arrTemplateInfo.push_back(cEntity_obj);
+            }
+
+            let m_arrCopyOrAddEntity = new Module.RE_Vector_ENTITY_INFO();
+            for (const entityInfo of batchEntity.copyEntityList) {
+                let cEntity_obj = {
+                    m_strProjName: entityInfo.dataSetId,
+                    m_strTypeName: entityInfo.entityType,
+                    m_uEntityID: isEmpty(entityInfo.elemId) ? 0 : entityInfo.elemId,
+                    m_vCustomScale: isEmpty(entityInfo.scale) ? [1.0, 1.0, 1.0] : entityInfo.scale,
+                    m_qCustomRotate: isEmpty(entityInfo.rotate) ? [0.0, 0.0, 0.0, 1.0] : entityInfo.rotate,
+                    m_vCustomOffset: isEmpty(entityInfo.offset) ? [0.0, 0.0, 0.0] : entityInfo.offset,
+                    m_strCRS: isEmpty(entityInfo.dataSetCRS) ? '' : entityInfo.dataSetCRS,
+                };
+                m_arrCopyOrAddEntity.push_back(cEntity_obj);
+            }
+
+            const shpPotList = isEmpty(batchEntity.shpPotList) ? [] : batchEntity.shpPotList;
+            let m_arrEditShp = new Module.RE_Vector_dvec3();
+            for (const item of shpPotList) {
+                m_arrEditShp.push_back(item);
+            }
+
+            let _cEditParam = {
+                m_uDistType: 1,
+                m_vScaleRange: [1.0, 1.0],
+                m_vRotateAngle: [0, 0],
+                m_uMode: 1,
+                m_uTotalNum: 10.0,
+                m_dDist: 10.0,
+                m_bCastToGround: false,
+            };
+
+            if (!isEmpty(batchEntity.editParam)) {
+                _cEditParam = {
+                    m_uDistType: isEmpty(batchEntity.editParam.distType) ? 1 : batchEntity.editParam.distType,
+                    m_vScaleRange: isEmpty(batchEntity.editParam.scaleRange) ? [1.0, 1.0] : batchEntity.editParam.scaleRange,
+                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange) ? [0, 0] : batchEntity.editParam.rotateRange,
+                    m_uMode: isEmpty(batchEntity.editParam.mode) ? 1 : batchEntity.editParam.mode,
+                    m_uTotalNum: isEmpty(batchEntity.editParam.totalNum) ? 10.0 : batchEntity.editParam.totalNum,
+                    m_dDist: isEmpty(batchEntity.editParam.dist) ? 10.0 : batchEntity.editParam.dist,
+                    m_bCastToGround: isEmpty(batchEntity.editParam.castToGround) ? false : batchEntity.editParam.castToGround,
+                };
+            }
+
+            const cBatchEntity = {
+                m_strName: batchEntity.batchEntityId,
+                m_arrTemplateInfo: m_arrTemplateInfo,
+                m_arrCopyOrAddEntity: m_arrCopyOrAddEntity,
+                m_cParam: _cEditParam,
+                m_uGeomEditState: isEmpty(batchEntity.type) ? 0 : batchEntity.type,
+                m_arrEditShp: m_arrEditShp,
+                m_strShpCRS: isEmpty(batchEntity.dataSetCRS) ? '' : batchEntity.dataSetCRS,
+                m_bShowShp: isEmpty(batchEntity.showState) ? false : batchEntity.showState == 1 ? true : false,
+            };
+            _arrEntityInfo.push_back(cBatchEntity);
+        }
+
+        Module.RealBIMWeb.SetEntityEditInfo(_arrEntityInfo);
+    };
+
+    /**
+     * 获取批量实例信息
+     * @param {Array} batchIdList //批量实例标识集合
+     */
+    Module.Entity.getBatchEntityInfo = function (batchIdList) {
+        if (!checkTypeLog(batchIdList, 'batchIdList', RE_Enum.RE_Check_Array)) return [];
+        let _arrBatchId = new Module.RE_Vector_WStr();
+        for (const batchId of batchIdList) {
+            _arrBatchId.push_back(batchId);
+        }
+        const batchEntityList = [];
+        const _arrEntityInfo = Module.RealBIMWeb.GetEntityEditInfo(_arrBatchId);
+        for (let i = 0; i < _arrEntityInfo.size(); i++) {
+            const _cEntityEdit = _arrEntityInfo.get(i);
+            const templateEntityList = [];
+            for (let j = 0; j < _cEntityEdit.m_arrTemplateInfo.size(); j++) {
+                const _cEntity = _cEntityEdit.m_arrTemplateInfo.get(j);
+                const entity = new REEntityInfo();
+                entity.dataSetId = _cEntity.m_strProjName;
+                entity.entityType = _cEntity.m_strTypeName;
+                entity.elemId = _cEntity.m_uEntityID;
+                entity.scale = _cEntity.m_vCustomScale;
+                entity.rotate = _cEntity.m_qCustomRotate;
+                entity.offset = _cEntity.m_vCustomOffset;
+                entity.dataSetCRS = _cEntity.m_strCRS;
+                templateEntityList.push(entity);
+            }
+
+            const copyEntityList = [];
+            for (let j = 0; j < _cEntityEdit.m_arrCopyOrAddEntity.size(); j++) {
+                const _cEntity = _cEntityEdit.m_arrCopyOrAddEntity.get(j);
+                const entity = new REEntityInfo();
+                entity.dataSetId = _cEntity.m_strProjName;
+                entity.entityType = _cEntity.m_strTypeName;
+                entity.elemId = _cEntity.m_uEntityID;
+                entity.scale = _cEntity.m_vCustomScale;
+                entity.rotate = _cEntity.m_qCustomRotate;
+                entity.offset = _cEntity.m_vCustomOffset;
+                entity.dataSetCRS = _cEntity.m_strCRS;
+                copyEntityList.push(entity);
+            }
+
+            const shpPotList = [];
+            for (let j = 0; j < _cEntityEdit.m_arrEditShp.size(); j++) {
+                shpPotList.push(_cEntityEdit.m_arrEditShp.get(j));
+            }
+
+            const editParam = new REEntityEditParam();
+            editParam.distType = _cEntityEdit.m_cParam.m_uDistType;
+            editParam.scaleRange = _cEntityEdit.m_cParam.m_vScaleRange;
+            editParam.rotateRange = _cEntityEdit.m_cParam.m_vRotateAngle;
+            editParam.mode = _cEntityEdit.m_cParam.m_uMode;
+            editParam.totalNum = _cEntityEdit.m_cParam.m_uTotalNum;
+            editParam.dist = _cEntityEdit.m_cParam.m_dDist;
+            editParam.castToGround = _cEntityEdit.m_cParam.m_bCastToGround;
+
+            const batchEntityInfo = new REBatchEntityInfo();
+            batchEntityInfo.batchEntityId = _cEntityEdit.m_strName;
+            batchEntityInfo.templateEntityList = templateEntityList;
+            batchEntityInfo.copyEntityList = copyEntityList;
+            batchEntityInfo.type = _cEntityEdit.m_uGeomEditState;
+            batchEntityInfo.shpPotList = shpPotList;
+            batchEntityInfo.showState = _cEntityEdit.m_bShowShp ? 1 : 0;
+            batchEntityInfo.dataSetCRS = _cEntityEdit.m_strShpCRS;
+            batchEntityInfo.editParam = editParam;
+
+            batchEntityList.push(batchEntityInfo);
+        }
+        return batchEntityList;
+    };
+
+    /**
+     * 根据批次标识集合删除批量实例信息
+     * @param {Array} batchIdList //批量实例标识集合
+     */
+    Module.Entity.delBatchEntity = function (batchIdList) {
+        if (!checkTypeLog(batchIdList, 'batchIdList', RE_Enum.RE_Check_Array)) return;
+        let _arrBatchId = new Module.RE_Vector_WStr();
+        for (const batchId of batchIdList) {
+            _arrBatchId.push_back(batchId);
+        }
+        Module.RealBIMWeb.DelEntityEditInfo(_arrBatchId);
+    };
+
+    /**
+     * 设置指定批次操作的批量添加的编辑参数信息
+     * @param {String} batchId //批量操作标识
+     * @param {Number} mode //表示模式，0: 按照指定数量模式进行添加，1: 按照指定距离添加，距离添加仅批量实例线添加模式支持
+     * @param {Number} totalNum //表示添加数量的总数
+     * @param {Number} dist //表示添加构件时的指定间隔距离
+     */
+    Module.Entity.setBatchEditParam = function (batchId, mode, totalNum, dist) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        const _mode = isEmpty(mode) ? 1 : mode;
+        const _totalNum = isEmpty(totalNum) ? 10.0 : totalNum;
+        const _dist = isEmpty(dist) ? 10.0 : dist;
+        return Module.RealBIMWeb.SetEntityEditParam(batchId, _mode, _totalNum, _dist);
+    };
+
+    /**
+     * 获取指定批次操作的批量添加的编辑参数信息
+     * @param {String} batchId //批量操作标识
+     */
+    Module.Entity.getBatchEditParam = function (batchId) {
+        if (isEmptyLog(batchId, 'batchId')) return null;
+        const _cInfo = Module.RealBIMWeb.SetEntityEditParam(batchId, _mode, _totalNum, _dist);
+        return { mode: _cInfo.m_u32Value1, totalNum: _cInfo.m_u32Value2, dist: _cInfo.m_dValue1 };
+    };
+
+    /**
+     * 设置指定批次操作的随机缩放范围
+     * @param {String} batchId //批量操作标识
+     * @param {Array} scaleRange //随机数的缩放范围, 二元素数组
+     */
+    Module.Entity.setBatchEditScaleRange = function (batchId, scaleRange) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        const _scaleRange = isEmpty(scaleRange) ? [1.0, 1.0] : scaleRange;
+        return Module.RealBIMWeb.SetEntityEditScaleRange(batchId, _scaleRange);
+    };
+
+    /**
+     * 获取指定批次操作的随机缩放范围
+     * @param {String} batchId //批量操作标识
+     */
+    Module.Entity.getBatchEditScaleRange = function (batchId) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        return Module.RealBIMWeb.GetEntityEditScaleRange(batchId);
+    };
+
+    /**
+     * 设置指定批次操作的随机旋转范围
+     * @param {String} batchId //批量操作标识
+     * @param {Array} rotateRange //随机数的旋转角度范围, 二元素数组
+     */
+    Module.Entity.setBatchEditRotateRange = function (batchId, rotateRange) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        const _rotateRange = isEmpty(rotateRange) ? [0.0, 0.0] : rotateRange;
+        return Module.RealBIMWeb.SetEntityEditRotateRange(batchId, _rotateRange);
+    };
+
+    /**
+     * 获取指定批次操作的随机旋转范围
+     * @param {String} batchId //批量操作标识
+     */
+    Module.Entity.getBatchEditRotateRange = function (batchId) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        return Module.RealBIMWeb.GetEntityEditRotateRange(batchId);
+    };
+
+    /**
+     * 设置指定批次操作否要将添加点投射到模型
+     * @param {String} batchId //批量操作标识
+     * @param {Boolean} castToGround // 是否要将添加点投射到模型，贴地模式
+     */
+    Module.Entity.setBatchEditCastToGround = function (batchId, castToGround) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        const _castToGround = isEmpty(castToGround) ? false : castToGround;
+        return Module.RealBIMWeb.SetEntityIsCastToGround(batchId, _castToGround);
+    };
+
+    /**
+     * 获取指定批次操作否要将添加点投射到模型
+     * @param {String} batchId //批量操作标识
+     */
+    Module.Entity.getBatchEditCastToGround = function (batchId) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        return Module.RealBIMWeb.SetEntityIsCastToGround(batchId);
+    };
+
+    /**
+     * 设置指定批次操作的编辑矢量是否显示
+     * @param {Array} batchIdList //批量操作标识集合
+     * @param {Boolean} visible // 是否显示
+     */
+    Module.Entity.setBatchEditShpVisible = function (batchIdList, visible) {
+        if (!checkTypeLog(batchIdList, 'batchIdList', RE_Enum.RE_Check_Array)) return;
+        let _arrBatchId = new Module.RE_Vector_WStr();
+        for (const batchId of batchIdList) {
+            _arrBatchId.push_back(batchId);
+        }
+        const _visible = isEmpty(visible) ? false : visible;
+        return Module.RealBIMWeb.SetEntityEditShpVisible(_arrBatchId, _visible);
+    };
+
+    /**
+     * 获取编辑矢量显示效果的批次标志集合
+     * @param {Boolean} visible // 是否显示
+     */
+    Module.Entity.getBatchEditShpVisible = function (visible) {
+        const _visible = isEmpty(visible) ? false : visible;
+        const _arrAllBatchID = Module.RealBIMWeb.GetEntityEditShpVisible(_visible);
+        const allBatchIdList = [];
+        for (let i = 0; i < _arrAllBatchID.size(); i++) {
+            allBatchIdList.push(_arrAllBatchID.get(i));
+        }
+        return allBatchIdList;
+    };
+
+    /**
+     * 设置指定批次操作添加时的分布类型
+     * @param {String} batchId //批量操作标识
+     * @param {Number} distType //表示分布类型，0: 按照比例分布添加，1: 组团分布添加
+     */
+    Module.Entity.setBatchEditDistType = function (batchId, distType) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        const _distType = isEmpty(distType) ? 1 : distType;
+        return Module.RealBIMWeb.SetEntityEditDistType(batchId, _distType);
+    };
+
+    /**
+     * 获取指定批次操作添加时的分布类型
+     * @param {String} batchId //批量操作标识
+     */
+    Module.Entity.getBatchEditDistType = function (batchId) {
+        if (isEmptyLog(batchId, 'batchId')) return false;
+        return Module.RealBIMWeb.GetEntityEditDistType(batchId);
     };
 
     class REEntityTempTranInfo {
@@ -13315,15 +13852,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetEntityTypeInfo(dataSetId, entityType, _tranInfo);
     };
 
-    if (!hasNewEntity) {
-        /**
-         * 设置是否连续添加实例
-         * @param {Boolean} multiAdd //true为连续添加， false为单次添加
-         */
-        Module.Entity.setMultiAddEntity = function (multiAdd) {
-            Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
-        };
+    /**
+     * 设置是否连续添加实例
+     * @param {Boolean} multiAdd //true为连续添加， false为单次添加
+     */
+    Module.Entity.setMultiAddEntity = function (multiAdd) {
+        Module.RealBIMWeb.SetIsMultiAddEntity(multiAdd);
+    };
 
+    if (!hasNewEntity) {
         /**
          * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
          * @param {String} dataSetId //数据集标识，必填
@@ -13340,6 +13877,48 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
             Module.RealBIMWeb.SetEntityType(dataSetId, entityType);
         };
+    }
+
+    // MARK 渲染效果
+    /**
+     * 设置单构件实例实时阴影偏好 注：动态单构件实例默认没有实时阴影效果，需要自行打开
+     * @param {String} dataSetId //数据集标识
+     * @param {Array} elemIdList //构件id集合
+     * @param {Boolean} preferRealtime //偏好实时阴影效果
+     */
+    Module.Entity.setShadowPrefer = function (dataSetId, elemIdList, preferRealtime, elemScope) {
+        if (isEmptyLog(dataSetId, 'dataSetId')) return;
+        if (isEmptyLog(elemIdList, 'elemIdList')) return;
+
+        var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
+        var _preferRealtime = preferRealtime ? false : preferRealtime;
+
+        if (dataSetId == '') {
+            //多数据集设置
+            Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer('', '', 0xffffffff, 0, _preferRealtime, _elemScope);
+        } else {
+            //指定数据集设置
+            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
+            var _count = elemIdList.length;
+            if (_count == 0) {
+                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', 0xffffffff, 0, _preferRealtime, _elemScope);
+            } else {
+                var _moemory = (_count * 8).toString();
+                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+                for (let i = 0; i < _count; ++i) {
+                    _elemIds.set([elemIdList[i], _projid], i * 2);
+                }
+                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, _preferRealtime, _elemScope);
+            }
+        }
+    };
+    if (sharding) {
+        // 使用分片包装器处理接口
+        Module.Entity.setShadowPrefer = sharding_createShardingConstuctor(Module.Entity.setShadowPrefer, {
+            idPath: '',
+            argIndex: 1,
+        });
     }
 
     /**
@@ -13458,48 +14037,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
     };
-
-    // MARK 渲染效果
-    /**
-     * 设置单构件实例实时阴影偏好 注：动态单构件实例默认没有实时阴影效果，需要自行打开
-     * @param {String} dataSetId //数据集标识
-     * @param {Array} elemIdList //构件id集合
-     * @param {Boolean} preferRealtime //偏好实时阴影效果
-     */
-    Module.Entity.setShadowPrefer = function (dataSetId, elemIdList, preferRealtime, elemScope) {
-        if (isEmptyLog(dataSetId, 'dataSetId')) return;
-        if (isEmptyLog(elemIdList, 'elemIdList')) return;
-
-        var _elemScope = isEmpty(elemScope) ? 0 : elemScope;
-        var _preferRealtime = preferRealtime ? false : preferRealtime;
-
-        if (dataSetId == '') {
-            //多数据集设置
-            Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer('', '', 0xffffffff, 0, _preferRealtime, _elemScope);
-        } else {
-            //指定数据集设置
-            var _projid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetId);
-            var _count = elemIdList.length;
-            if (_count == 0) {
-                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', 0xffffffff, 0, _preferRealtime, _elemScope);
-            } else {
-                var _moemory = (_count * 8).toString();
-                Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
-                var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
-                for (let i = 0; i < _count; ++i) {
-                    _elemIds.set([elemIdList[i], _projid], i * 2);
-                }
-                Module.RealBIMWeb.SetHugeObjSubElemShadowPrefer(dataSetId, '', _elemIds.byteLength, _elemIds.byteOffset, _preferRealtime, _elemScope);
-            }
-        }
-    };
-    if (sharding) {
-        // 使用分片包装器处理接口
-        Module.Entity.setShadowPrefer = sharding_createShardingConstuctor(Module.Entity.setShadowPrefer, {
-            idPath: '',
-            argIndex: 1,
-        });
-    }
 
     // MARK 动画通用
 
@@ -17100,10 +17637,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Projection.setShpSelClr = function (clrInfo) {
         if (isEmptyLog(clrInfo, 'clrInfo')) return;
-        const uCamDstConLineSelClr = isEmpty(clrInfo.camDstLineSelClr) ? 0x4C00A2FF : clrToU32(clrInfo.camDstLineSelClr);
-        const uCamDstFaceSelClr = isEmpty(clrInfo.camDstFaceSelClr) ? 0x8C277FFF : clrToU32(clrInfo.camDstFaceSelClr);
-        const uBoxLineSelClr = isEmpty(clrInfo.boxLineSelClr) ? 0x4C00A2FF : clrToU32(clrInfo.boxLineSelClr);
-        const uBoxFaceSelClr = isEmpty(clrInfo.boxFaceSelClr) ? 0x8C277FFF : clrToU32(clrInfo.boxFaceSelClr);
+        const uCamDstConLineSelClr = isEmpty(clrInfo.camDstLineSelClr) ? 0x4c00a2ff : clrToU32(clrInfo.camDstLineSelClr);
+        const uCamDstFaceSelClr = isEmpty(clrInfo.camDstFaceSelClr) ? 0x8c277fff : clrToU32(clrInfo.camDstFaceSelClr);
+        const uBoxLineSelClr = isEmpty(clrInfo.boxLineSelClr) ? 0x4c00a2ff : clrToU32(clrInfo.boxLineSelClr);
+        const uBoxFaceSelClr = isEmpty(clrInfo.boxFaceSelClr) ? 0x8c277fff : clrToU32(clrInfo.boxFaceSelClr);
         Module.RealBIMWeb.SetFrustumProjShpSelClr(uCamDstConLineSelClr, uCamDstFaceSelClr, uBoxLineSelClr, uBoxFaceSelClr);
     };
 
@@ -17272,6 +17809,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
         // 3. 归一化（单位向量）
         return [dx / length, dy / length, dz / length];
+    };
+
+    /**
+     * 获取两点间距离
+     * @param {Array<number>} from // 起点 [x,y,z]
+     * @param {Array<number>} to // 终点 [x,y,z]
+     * @return {number} 距离
+     */
+    Module.Math.getDistance = function (from, to) {
+        // 1. 向量相减：to - from
+        const dx = to[0] - from[0];
+        const dy = to[1] - from[1];
+        const dz = to[2] - from[2];
+
+        // 2. 计算向量长度
+        const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return length;
     };
 
     /**
@@ -17591,6 +18145,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
          */
         Module.Measure.setSingleStyleState = function (enable) {
             logWarn('温馨提示：当前使用接口（Measure.setSingleStyleState）功能已废弃，功能已合并到Measure.setMeasureType，请调整使用');
+        };
+
+        /**
+         * 设置鼠标操作添加实例的模板信息  REExitEntityEditMode 事件表示退出添加
+         * @param {String} dataSetId //数据集标识，必填
+         * @param {String} entityType //实例类型名称，必填
+         */
+        Module.Entity.setMouseAddEntity = function (dataSetId, entityType) {
+            logWarn('温馨提示：当前使用接口（Entity.setMouseAddEntity）功能已废弃，功能已合并到Entity.startAddState，请调整使用');
         };
     }
 

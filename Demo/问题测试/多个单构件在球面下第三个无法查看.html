@@ -1,0 +1,122 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-06-17 16:39:46
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">加载单构件</el-button>
+                <el-button type="primary" @click="alert_click1">1</el-button>
+                <el-button type="primary" @click="alert_click2">2</el-button>
+                <el-button type="primary" @click="alert_click3">3</el-button>
+                <el-button type="primary" @click="alert_click4">大气散色关</el-button>
+                <el-button type="primary" @click="alert_click5">大气散色开</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {},
+                mounted() {},
+                methods: {
+                    RESystemEngineCreatedCallBack() {
+                        BlackHole3D.Common.setFakeSphMode(true);
+                        var dataSetList = [
+                            {
+                                dataSetId: '3a1bd88c423b626a30dfa7e2802d4f77',
+                                resourcesAddress:
+                                    'http://192.168.31.7:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1bd88c423b626a30dfa7e2802d4f77',
+                            },
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        console.log('-------------');
+                        let entityList = [
+                            {
+                                dataSetId: 'res_entity_anim_test02',
+                                entityType: '[glb]out1',
+                                elemId: 1,
+                                scale: [1, 1, 1],
+                                rotate: [0, 0, 0, 1],
+                                offset: [13433126.17489137, 3672771.317988277, 66.84558041521069],
+                            },
+                            // {
+                            //     dataSetId: '3a1bd88c423b626a30dfa7e2802d4f77',
+                            //     entityType: '1',
+                            //     elemId: 2,
+                            //     scale: [1, 1, 1],
+                            //     rotate: [0, 0, 0, 1],
+                            //     offset: [12969558.039529853, 3868285.2169948295, -0.2500019509109057],
+                            // },
+                            {
+                                dataSetId: '3a1bd88c423b626a30dfa7e2802d4f77',
+                                entityType: '1',
+                                elemId: 3,
+                                scale: [1, 1, 1],
+                                rotate: [0, 0, 0, 1],
+                                offset: [-114.02124141295468, -378.05787227985263, 8.564429550049203],
+                            },
+                        ];
+                        BlackHole3D.Entity.addEntities(entityList);
+                    },
+                    alert_click1() {
+                        var locIDList = [{ dataSetId: 'res_entity_anim_test02', elemIdList: [1] }];
+                        var backDepth = 1.0;
+                        var locType = BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                        BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
+                    },
+                    alert_click2() {
+                        var locIDList = [{ dataSetId: '3a1bd88c423b626a30dfa7e2802d4f77', elemIdList: [2] }];
+                        var backDepth = 1.0;
+                        var locType = BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                        BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
+                    },
+                    alert_click3() {
+                        var locIDList = [{ dataSetId: '3a1bd88c423b626a30dfa7e2802d4f77', elemIdList: [3] }];
+                        var backDepth = 1.0;
+                        var locType = BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT;
+                        BlackHole3D.Camera.setCamLocateToElem(locIDList, backDepth, locType);
+                    },
+                    alert_click4() {
+                        BlackHole3D.SkyBox.setSkyAtmActive(false);
+                    },
+                    alert_click5() {
+                        BlackHole3D.SkyBox.setSkyAtmActive(true);
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2026-06-11 14:38:04
+ * @LastEditTime: 2026-06-23 11:47:52
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -47,25 +47,18 @@
         <!-- 引擎初始化 -->
         <script type="text/javascript">
             function RESystemEngineCreatedCallBack() {
-                var worldCRS = 'EPSG:3857';
-                BlackHole3D.Coordinate.setEngineWorldCRS(worldCRS);
+                BlackHole3D.Common.setFakeSphMode(true);
                 var dataSetList = [
                     {
-                        dataSetId: '3a1c499d-179f-3614-31cb-922e5dbad883',
-                        dataSetCRS: 'ENU:31.262272,121.495372',
-                        resourcesAddress:
-                            'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1c499d179f361431cb922e5dbad883',
+                        dataSetId: 'res_jifang2',
+                        resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                        useTransInfo: true,
+                        transInfo: [
+                            [1, 1, 1],
+                            [0, 0, 0, 1],
+                            [0.0, 0.0, 10.0],
+                        ],
                     },
-                    // {
-                    //     dataSetId: 'res_jifang2',
-                    //     resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
-                    //     useTransInfo: true,
-                    //     transInfo: [
-                    //         [1, 1, 1],
-                    //         [0, 0, 0, 1],
-                    //         [0.0, 0.0, 10.0],
-                    //     ],
-                    // },
                 ];
                 BlackHole3D.Model.loadDataSet(dataSetList, true);
                 BlackHole3D.Common.setMaxResMemMB(5500);
@@ -73,7 +66,19 @@
                 BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
                 BlackHole3D.Common.setPageLoadLev(2);
             }
-            function REDataSetLoadFinishCallBack() {}
+            function REDataSetLoadFinishCallBack() {
+                //添加系统UI面板单次点击按钮
+                var btnInfo = new BlackHole3D.REUIBtnInfo();
+                btnInfo.uiID = 'btn_003';
+
+                var statePar1 = new BlackHole3D.REUIBtnStateInfo();
+                statePar1.text = '';
+                statePar1.hintText = '自定义按钮';
+                statePar1.texPath = 'https://demo.bjblackhole.com/demopage/examplesImgs/particle/fire.png';
+
+                btnInfo.stateParList = [statePar1];
+                BlackHole3D.Graphics.createSysPanelBtn(btnInfo);
+            }
         </script>
     </body>
 </html>

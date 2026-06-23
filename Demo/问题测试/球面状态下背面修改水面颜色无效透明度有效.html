@@ -1,0 +1,104 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-06-17 16:17:23
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">点击按钮</el-button>
+                <el-button type="primary" @click="alert_click1">1</el-button>
+                <el-button type="primary" @click="alert_click2">2</el-button>
+                <el-button type="primary" @click="alert_click3">3</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {},
+                mounted() {},
+                methods: {
+                    RESystemEngineCreatedCallBack() {
+                        BlackHole3D.Common.setFakeSphMode(true);
+                        var dataSetList = [
+                            {
+                                dataSetId: 'res_skymap',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_skymap',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        console.log('-------------');
+                        //相机定位
+                        var camLoc = new BlackHole3D.RECamLoc();
+                        camLoc.camPos = [-122.73036313164745, -386.7669939987073, 19.4272820047404];
+                        camLoc.camRotate = [0.42470820027786715, -0.17591989660616084, -0.3398511429799866, 0.8204732385702836];
+                        //camLoc.camDir = [0.5134256799733397, 0.5760270273236284, -0.636071485712587];
+                        BlackHole3D.Camera.setCamLocateTo(camLoc, 0, 1.0);
+                    },
+                    alert_click1() {
+                        // 创建水面顶点区域对象（1）
+                        let waterList = [
+                            {
+                                waterName: 'water_0',
+                                waterClr: {
+                                    red: 0,
+                                    green: 47,
+                                    blue: 38,
+                                    alpha: 127,
+                                },
+                                blendDist: 1,
+                                visible: true,
+                                expandDist: 0,
+                                depthBias: 0,
+                                visDist: 200000,
+                                rgnList: [
+                                    {
+                                        pointList: [
+                                            [-85.45025267169223, -340.9633130053905, 10.060665061170644005],
+                                            [-120.86875267889924, -353.167289095779, 10.060848979646475294],
+                                            [-111.93773415504387, -387.8229827836453, 10.060893421146279984],
+                                            [-46.62047986934233, -389.61866144465745, 10.06035815566739218],
+                                        ],
+                                        indexList: [],
+                                    },
+                                ],
+                            },
+                        ];
+
+                        BlackHole3D.Water.setData(waterList);
+                    },
+                    alert_click2() {BlackHole3D.SkyBox.setSkyAtmActive(false);},
+                    alert_click3() {},
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
