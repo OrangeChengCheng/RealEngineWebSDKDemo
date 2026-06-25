@@ -13322,7 +13322,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} batchId //批量操作标识
      * @param {Number} editType //编辑模式 0:点模式  1:线模式  2：面模式
      * @param {Array} batchEntityList //将要添加的批量实例信息集合（REBatchEntityInfo 类型）
-     * @param {REEntityEditParam} editParam //批量操作时的编辑参数
+     * @param {REEntityEditParam} editParam //批量操作时的编辑参数（REEntityEditParam 类型）
      */
     Module.Entity.startAddState = function (batchId, editType, batchEntityList, editParam) {
         if (isEmptyLog(batchId, 'batchId')) return false;
@@ -13349,8 +13349,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_arrTemplateInfo.push_back(cEntity_obj);
             }
 
+            const copyEntityList = isEmpty(batchEntity.copyEntityList) ? [] : batchEntity.copyEntityList;
             let m_arrCopyOrAddEntity = new Module.RE_Vector_ENTITY_INFO();
-            for (const entityInfo of batchEntity.copyEntityList) {
+            for (const entityInfo of copyEntityList) {
                 let cEntity_obj = {
                     m_strProjName: entityInfo.dataSetId,
                     m_strTypeName: entityInfo.entityType,
@@ -13553,8 +13554,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_arrTemplateInfo.push_back(cEntity_obj);
             }
 
+            const copyEntityList = isEmpty(batchEntity.copyEntityList) ? [] : batchEntity.copyEntityList;
             let m_arrCopyOrAddEntity = new Module.RE_Vector_ENTITY_INFO();
-            for (const entityInfo of batchEntity.copyEntityList) {
+            for (const entityInfo of copyEntityList) {
                 let cEntity_obj = {
                     m_strProjName: entityInfo.dataSetId,
                     m_strTypeName: entityInfo.entityType,
