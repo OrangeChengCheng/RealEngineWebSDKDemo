@@ -578,7 +578,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置鼠标中键按下对应的相机操作
-     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移 3:相机沿近裁面移动
      */
     Module.setCamModeOnMidBtnDown = function (operationMode) {
         if (isEmpty(operationMode)) operationMode = 0;
@@ -587,6 +587,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        if (operationMode == 3) _operationMode = Module.RE_CAM_MODE.M_DRAG_VIEW;
         Module.RealBIMWeb.SetCamModeOnMidBtnDown(_operationMode);
     };
 
@@ -598,12 +599,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_VIEW) numType = 3;
         return numType;
     };
 
     /**
      * 设置鼠标左键按下对应的相机操作
-     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移 3:相机沿近裁面移动
      */
     Module.setCamModeOnLeftBtnDown = function (operationMode) {
         if (isEmpty(operationMode)) operationMode = 2;
@@ -612,6 +614,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        if (operationMode == 3) _operationMode = Module.RE_CAM_MODE.M_DRAG_VIEW;
         Module.RealBIMWeb.SetCamModeOnLBtnDown(_operationMode);
     };
 
@@ -623,12 +626,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_VIEW) numType = 3;
         return numType;
     };
 
     /**
      * 设置鼠标右键按下对应的相机操作
-     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移
+     * @param {Number} operationMode //模式类型  -1:相机空闲模式 0:相机围绕选择点旋转 1:相机以视点为中心旋转视角 2:相机平移 3:相机沿近裁面移动
      */
     Module.setCamModeOnRightBtnDown = function (operationMode) {
         if (isEmpty(operationMode)) operationMode = 1;
@@ -637,6 +641,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (operationMode == 0) _operationMode = Module.RE_CAM_MODE.M_ROT_AROUND;
         if (operationMode == 1) _operationMode = Module.RE_CAM_MODE.M_ROT_CAMERA;
         if (operationMode == 2) _operationMode = Module.RE_CAM_MODE.M_DRAG_MOVE;
+        if (operationMode == 3) _operationMode = Module.RE_CAM_MODE.M_DRAG_VIEW;
         Module.RealBIMWeb.SetCamModeOnRBtnDown(_operationMode);
     };
 
@@ -648,6 +653,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         if (_type == Module.RE_CAM_MODE.M_ROT_AROUND) numType = 0;
         if (_type == Module.RE_CAM_MODE.M_ROT_CAMERA) numType = 1;
         if (_type == Module.RE_CAM_MODE.M_DRAG_MOVE) numType = 2;
+        if (_type == Module.RE_CAM_MODE.M_DRAG_VIEW) numType = 3;
         return numType;
     };
 
