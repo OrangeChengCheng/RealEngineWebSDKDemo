@@ -1,0 +1,622 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-07-01 11:39:23
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-select
+                    v-model="sel_lev"
+                    placeholder="选择楼层"
+                    style="width: 160px; margin-left: 10px; margin-right: 10px"
+                    @change="sel_lev_change">
+                    <el-option v-for="item in lev_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+
+                <el-select
+                    v-model="sel_area"
+                    placeholder="选择区域"
+                    :disabled="sel_area_disabled"
+                    style="width: 160px; margin-left: 10px; margin-right: 10px"
+                    @change="sel_area_change">
+                    <el-option v-for="item in area_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+
+                <el-select
+                    v-model="sel_model"
+                    placeholder="选择模型"
+                    :disabled="sel_model_disabled"
+                    style="width: 160px; margin-left: 10px; margin-right: 10px"
+                    @change="sel_model_change">
+                    <el-option v-for="item in model_options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+
+                <el-button type="primary" @click="alert_click">恢复</el-button>
+                <!-- <el-button type="primary" @click="alert_click2">1层</el-button>
+                <el-button type="primary" @click="alert_click22">1层(剖切)</el-button>
+                <el-button type="primary" @click="alert_click3">1层A区</el-button>
+                <el-button type="primary" @click="alert_click4">1层A（门）</el-button> -->
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        sel_lev: null,
+                        lev_options: [
+                            {
+                                value: 1,
+                                label: '1 层',
+                            },
+                            {
+                                value: 2,
+                                label: '2 层',
+                            },
+                            {
+                                value: 3,
+                                label: '3 层',
+                            },
+                        ],
+                        sel_area_disabled: true,
+                        sel_area: null,
+                        area_options: [
+                            {
+                                value: 1,
+                                label: '区域 A',
+                            },
+                            {
+                                value: 2,
+                                label: '区域 B',
+                            },
+                            {
+                                value: 3,
+                                label: '区域 C',
+                            },
+                        ],
+                        sel_model_disabled: true,
+                        sel_model: null,
+                        model_options: [
+                            {
+                                value: 1,
+                                label: '1层区域C桌子',
+                                data: [
+                                    6, 10, 28, 206, 207, 215, 233, 234, 352, 402, 406, 418, 463, 490, 532, 666, 791, 931, 999, 1113, 1114, 1121, 1192,
+                                    1317, 1332, 1457, 1473, 1527, 1662, 1764, 1772, 2018, 2071, 2079, 2137, 2334, 2508, 2545, 2572, 2602, 2616, 2948,
+                                    2961, 3037, 3108, 3240, 3262, 3266, 3391, 3463, 3482, 3498, 3499, 3512, 3592, 3606, 3638, 3645, 3651, 3660, 3665,
+                                    3671, 3675, 3680, 3683, 3688, 3693, 3694, 3701, 3704, 3706, 3709, 3713, 3719, 3722, 3726, 3732, 3737, 3741, 3744,
+                                    3750, 3760, 3768, 3772, 3778, 4345,
+                                ],
+                            },
+                            {
+                                value: 2,
+                                label: '1层区域C门',
+                                data: [1271, 1431, 1433, 1442, 1448, 1451, 1455, 1458, 1465],
+                            },
+                            {
+                                value: 3,
+                                label: '1层区域C窗户',
+                                data: [1382, 1387, 1395, 1407, 1413, 1423],
+                            },
+                            {
+                                value: 4,
+                                label: '2层区域C门',
+                                data: [941, 1212, 2010, 2128, 2477, 2659, 2665, 2195],
+                            },
+                            {
+                                value: 5,
+                                label: '2层区域C窗户',
+                                data: [44, 166, 196, 263, 632, 2026, 3229, 3743, 4196],
+                            },
+                            {
+                                value: 6,
+                                label: '3层区域C地板',
+                                data: [406],
+                            },
+                            {
+                                value: 7,
+                                label: '1层区域A门',
+                                data: [175, 249, 1098, 1800, 1941, 1991, 1995, 1999, 2008, 2017, 2021, 2060],
+                            },
+                            {
+                                value: 8,
+                                label: '2层区域A白墙',
+                                data: [
+                                    850, 1062, 1228, 1955, 1956, 2107, 2245, 2252, 2260, 2266, 2272, 2278, 2285, 2297, 2507, 2515, 2520, 2523, 2824,
+                                ],
+                            },
+                            {
+                                value: 9,
+                                label: '3层区域A门',
+                                data: [24, 141, 142, 580, 1273, 1611, 2332, 2828, 2978, 2981, 2986, 2992, 2996, 3019, 3023],
+                            },
+                            {
+                                value: 10,
+                                label: '1层区域B楼梯',
+                                data: [1600, 1739, 2032, 3629, 3784, 3790],
+                            },
+                            {
+                                value: 11,
+                                label: '2层区域B吊灯',
+                                data: [59, 870, 1180, 2046, 2608, 3121, 3346, 3486, 3845, 4152, 4560, 4667],
+                            },
+                            {
+                                value: 12,
+                                label: '3层区域B沙发',
+                                data: [903, 1041, 1305, 2648, 3213, 3431, 3612, 4094, 4129, 4643],
+                            },
+                        ],
+                        shpInfoList: [],
+                        volumeShpList: [],
+                        clipList: [],
+                    };
+                },
+                created() {},
+                mounted() {
+                    this.handleData();
+                },
+                methods: {
+                    REDataSetLoadFinishCallBack() {
+                        BlackHole3D.BIM.setElemAlpha('BIM模型', [78, 205, 212, 214, 1394, 5467], 0);
+                    },
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: 'BIM模型',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a1dac586469d6601e51883954fa4a6e',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    handleData() {
+                        const shpInfoList = [
+                            {
+                                shpId: 'Shp_0',
+                                shpClr: {
+                                    red: 170,
+                                    green: 105,
+                                    blue: 70,
+                                    alpha: 140,
+                                },
+                                visible: true,
+                                rgnList: [
+                                    [
+                                        [57.0, -12.0, 0.0],
+                                        [-10.0, -12.0, 0.0],
+                                        [-10.0, -24.0, 0.0],
+                                        [57.0, -24.0, 0.0],
+                                    ],
+                                ],
+                            },
+                            {
+                                shpId: 'Shp_1',
+                                shpClr: {
+                                    red: 170,
+                                    green: 105,
+                                    blue: 70,
+                                    alpha: 140,
+                                },
+                                visible: true,
+                                rgnList: [
+                                    [
+                                        [-10.0, 19.0, 0.0],
+                                        [7.4, 19.0, 0.0],
+                                        [7.4, -11.5, 0.0],
+                                        [-10.0, -11.5, 0.0],
+                                    ],
+                                ],
+                            },
+                            {
+                                shpId: 'Shp_2',
+                                shpClr: {
+                                    red: 170,
+                                    green: 105,
+                                    blue: 70,
+                                    alpha: 140,
+                                },
+                                visible: true,
+                                rgnList: [
+                                    [
+                                        [27.5, 31.0, 0.0],
+                                        [-10.0, 31.0, 0.0],
+                                        [-10.0, 19.5, 0.0],
+                                        [27.5, 19.5, 0.0],
+                                    ],
+                                ],
+                            },
+                        ];
+                        this.shpInfoList = shpInfoList;
+
+                        const volumeShpList = [];
+                        const layerNum = 3;
+                        const layerHeight = 3.2;
+                        for (let i = 0; i < layerNum; i++) {
+                            // 每层
+                            shpInfoList.forEach((shpInfo) => {
+                                // 每户
+                                let potList = JSON.parse(JSON.stringify(shpInfo.rgnList[0]));
+                                potList.forEach((element) => {
+                                    element.push(layerHeight);
+                                    element[2] += i * layerHeight;
+                                });
+                                //体积矢量对象
+                                const volumeShpInfo = {
+                                    shpName: shpInfo.shpId + '_volume' + '_layer_' + i,
+                                    potList: potList,
+                                    fenceClr: {
+                                        red: Math.floor(Math.random() * 256),
+                                        green: Math.floor(Math.random() * 256),
+                                        blue: Math.floor(Math.random() * 256),
+                                        alpha: 30,
+                                    },
+                                    genLine: true,
+                                    lineWidth: 1,
+                                    lineClr: {
+                                        red: 255,
+                                        green: 0,
+                                        blue: 0,
+                                        alpha: 30,
+                                    },
+                                };
+                                volumeShpList.push(volumeShpInfo);
+                            });
+                        }
+                        this.volumeShpList = volumeShpList;
+
+                        const areaCenter = [];
+                        shpInfoList.forEach((el) => {
+                            const center = this.getPolygonCenter(el.rgnList[0]);
+                            areaCenter.push(center);
+                        });
+                        console.log(areaCenter);
+
+                        const clipList = [
+                            {
+                                id: 'Shp_666_volume_layer_0',
+                                data: {
+                                    scale: [35.0, 29.0, 2.0],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.0, 3.0, 0.5],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_666_volume_layer_1',
+                                data: {
+                                    scale: [35.0, 29.0, 1.7],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.0, 3.0, 4.6],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_666_volume_layer_2',
+                                data: {
+                                    scale: [35.0, 29.0, 1.6],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.0, 3.0, 8.5],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_0_volume_layer_0',
+                                data: {
+                                    scale: [35.0, 5.9, 2.0],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.5, -18, 0],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_1_volume_layer_0',
+                                data: {
+                                    scale: [9.0, 15.5, 2.0],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [-1.3, 3.75, 0],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_2_volume_layer_0',
+                                data: {
+                                    scale: [19.0, 6.0, 2.0],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [8.75, 25.25, 0],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_0_volume_layer_1',
+                                data: {
+                                    scale: [35.0, 5.9, 1.7],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.5, -18, 4.6],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_1_volume_layer_1',
+                                data: {
+                                    scale: [9.0, 15.5, 1.7],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [-1.3, 3.75, 4.6],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_2_volume_layer_1',
+                                data: {
+                                    scale: [19.0, 6.0, 1.7],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [8.75, 25.25, 4.6],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_0_volume_layer_2',
+                                data: {
+                                    scale: [35.0, 5.9, 1.6],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [23.5, -18, 8.5],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_1_volume_layer_2',
+                                data: {
+                                    scale: [9.0, 15.5, 1.6],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [-1.3, 3.75, 8.5],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                            {
+                                id: 'Shp_2_volume_layer_2',
+                                data: {
+                                    scale: [19.0, 6.0, 1.6],
+                                    rotate: [0, 0, 0, 1],
+                                    offset: [8.75, 25.25, 8.5],
+                                    isSingleSurfaceClip: false,
+                                },
+                            },
+                        ];
+                        this.clipList = clipList;
+                    },
+                    sel_lev_change(type) {
+                        this.sel_area_disabled = false;
+                        this.clipTo(this.sel_lev, this.sel_area);
+                    },
+                    sel_area_change(type) {
+                        this.sel_model_disabled = false;
+                        this.clipTo(this.sel_lev, this.sel_area);
+                    },
+                    clipTo(level, area) {
+                        console.log(level, area);
+                        const filterList = this.clipList.filter((el) => {
+                            if (!area) {
+                                return el.id.includes(`Shp_666`) && el.id.includes(`layer_${level - 1}`);
+                            } else {
+                                return el.id.includes(`Shp_${area - 1}`) && el.id.includes(`layer_${level - 1}`);
+                            }
+                        });
+                        const clipInfo = filterList[0].data;
+                        console.log(clipInfo);
+                        BlackHole3D.Clip.setDataIntoClip(clipInfo);
+                        BlackHole3D.Clip.setClipBrowseStyle();
+
+                        // 相机定位
+                        const aabb = this.getBoxAABB(clipInfo.offset, clipInfo.scale);
+                        BlackHole3D.Camera.setCamLocateToBound([aabb.min, aabb.max], 1.0, BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT);
+                    },
+
+                    alert_click() {
+                        BlackHole3D.Clip.resetClip();
+                        BlackHole3D.Clip.endClip();
+                        BlackHole3D.Camera.setCamLocateDefault(BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT, false);
+                    },
+                    sel_model_change(type) {
+                        BlackHole3D.BIM.delAllSelElems();
+                        let elemIdList = this.model_options.find((el) => el.value == type).data;
+                        BlackHole3D.BIM.addToSelElems('BIM模型', elemIdList);
+                    },
+                    alert_click2222(el) {},
+                    alert_click2() {
+                        BlackHole3D.BIM.delAllSelElems();
+                        BlackHole3D.Geometry.delAllShps();
+                        const filterList = this.volumeShpList.filter((el) => el.shpName.includes('_volume_layer_0'));
+                        console.log(filterList);
+                        filterList.forEach((item, index) => {
+                            BlackHole3D.Geometry.addPolyVolumeShp(item);
+
+                            //矢量文字信息
+                            var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                            shpTextInfo.text = index == 0 ? '区域 A' : index == 1 ? '区域 B' : '区域 C';
+                            shpTextInfo.texBias = [1, 0];
+                            shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                            shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            shpTextInfo.textBackMode = 2;
+                            shpTextInfo.textBackBorder = 2;
+                            shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            //矢量线信息
+                            var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                            lineShpInfo.shpName = item.shpName + '_text';
+                            lineShpInfo.potList = item.potList ? item.potList.map((item) => item.slice(0, -1)) : [];
+                            lineShpInfo.fillState = 0;
+                            lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 0);
+                            lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 0);
+                            lineShpInfo.textPos = -2;
+                            lineShpInfo.scrASDist = -1.0;
+                            lineShpInfo.scrVisDist = -1;
+                            lineShpInfo.contactSce = false;
+                            lineShpInfo.groupName = 'volume_layer_0';
+                            lineShpInfo.textInfo = shpTextInfo;
+                            BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+                        });
+
+                        // var shpNameList = filterList.map((el) => el.shpName + '_text');
+                        // var backwardAmp = 1;
+                        // BlackHole3D.Geometry.setCamToShpList(shpNameList, backwardAmp);
+                    },
+                    alert_click22() {
+                        // 剖切
+                        const clipInfo = {
+                            scale: [35.0, 29.0, 2.0],
+                            rotate: [0, 0, 0, 1],
+                            offset: [23.0, 3.0, 0.5],
+                            isSingleSurfaceClip: false,
+                        };
+
+                        BlackHole3D.Clip.setDataIntoClip(clipInfo);
+                        BlackHole3D.Clip.setClipBrowseStyle();
+
+                        // 提示
+                        BlackHole3D.BIM.delAllSelElems();
+                        BlackHole3D.Geometry.delAllShps();
+                        const filterList = this.volumeShpList.filter((el) => el.shpName.includes('_volume_layer_0'));
+                        console.log(filterList);
+                        filterList.forEach((item, index) => {
+                            // BlackHole3D.Geometry.addPolyVolumeShp(item);
+
+                            //矢量文字信息
+                            var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                            shpTextInfo.text = index == 0 ? '区域 A' : index == 1 ? '区域 B' : '区域 C';
+                            shpTextInfo.texBias = [1, 0];
+                            shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                            shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            shpTextInfo.textBackMode = 2;
+                            shpTextInfo.textBackBorder = 1;
+                            shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            //矢量线信息
+                            const potList = item.potList
+                                ? item.potList.map((point) => {
+                                      // 先截掉最后一位
+                                      const arr = point.slice(0, -1);
+                                      // 最后一位 +1
+                                      arr[arr.length - 1] += 3.0;
+                                      return arr;
+                                  })
+                                : [];
+                            var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                            lineShpInfo.shpName = item.shpName + '_text';
+                            lineShpInfo.potList = potList;
+                            lineShpInfo.fillState = 0;
+                            lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 0);
+                            lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 0);
+                            lineShpInfo.textPos = -2;
+                            lineShpInfo.scrASDist = -1.0;
+                            lineShpInfo.scrVisDist = -1;
+                            lineShpInfo.contactSce = false;
+                            lineShpInfo.groupName = 'volume_layer_0';
+                            lineShpInfo.textInfo = shpTextInfo;
+                            BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+                        });
+
+                        const aabb = this.getBoxAABB([23.0, 3.0, 0.5], [35.0, 29.0, 2.0]);
+                        BlackHole3D.Camera.setCamLocateToBound([aabb.min, aabb.max], 1.0, BlackHole3D.RECamDirEm.CAM_DIR_DEFAULT);
+                    },
+                    alert_click3() {
+                        BlackHole3D.BIM.delAllSelElems();
+                        BlackHole3D.Geometry.delAllShps();
+                        const filterList = this.volumeShpList.filter((el) => el.shpName.includes('Shp_0_volume_layer_0'));
+                        console.log(filterList);
+                        filterList.forEach((item, index) => {
+                            BlackHole3D.Geometry.addPolyVolumeShp(item);
+
+                            //矢量文字信息
+                            var shpTextInfo = new BlackHole3D.REShpTextInfo();
+                            shpTextInfo.text = '区域 A';
+                            shpTextInfo.texBias = [1, 0];
+                            shpTextInfo.textClr = new BlackHole3D.REColor(255, 255, 255, 255);
+                            shpTextInfo.textBorderClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            shpTextInfo.textBackMode = 2;
+                            shpTextInfo.textBackBorder = 2;
+                            shpTextInfo.textBackClr = new BlackHole3D.REColor(0, 0, 0, 128);
+                            //矢量线信息
+                            var lineShpInfo = new BlackHole3D.RELineShpInfo();
+                            lineShpInfo.shpName = 'Shp_0_volume_layer_0_text';
+                            lineShpInfo.potList = item.potList ? item.potList.map((item) => item.slice(0, -1)) : [];
+                            lineShpInfo.fillState = 0;
+                            lineShpInfo.lineClr = new BlackHole3D.REColor(255, 0, 0, 0);
+                            lineShpInfo.fillClr = new BlackHole3D.REColor(255, 255, 255, 0);
+                            lineShpInfo.textPos = -2;
+                            lineShpInfo.scrASDist = -1.0;
+                            lineShpInfo.scrVisDist = -1;
+                            lineShpInfo.contactSce = false;
+                            lineShpInfo.groupName = 'volume_layer_0';
+                            lineShpInfo.textInfo = shpTextInfo;
+                            BlackHole3D.Geometry.addPolylineShp(lineShpInfo);
+                        });
+                        var shpNameList = ['Shp_0_volume_layer_0_text'];
+                        var backwardAmp = 1;
+                        BlackHole3D.Geometry.setCamToShpList(shpNameList, backwardAmp);
+                    },
+                    alert_click4() {
+                        BlackHole3D.BIM.addToSelElems('BIM模型', [175, 249, 1098, 1800, 1941, 1991, 1995, 1999, 2008, 2017, 2021, 2060]);
+                    },
+
+                    /**
+                     * 根据中心点、基础边长2、缩放系数计算AABB包围盒
+                     * @param {number[]} center - 中心点 [x, y, z]
+                     * @param {number[]} scale - 缩放系数 [a, b, c]
+                     * @returns {Object} aabb { min: [x,y,z], max: [x,y,z] }
+                     */
+                    getBoxAABB(center, scale) {
+                        const [cx, cy, cz] = center;
+                        const [a, b, c] = scale;
+                        // 原始盒子边长2，半长为1，乘以缩放系数
+                        const halfX = 1 * a;
+                        const halfY = 1 * b;
+                        const halfZ = 1 * c;
+
+                        const min = [cx - halfX, cy - halfY, cz - halfZ];
+                        const max = [cx + halfX, cy + halfY, cz + halfZ];
+
+                        return { min, max };
+                    },
+                    /**
+                     * 多点平面求中心坐标
+                     * @param {number[][]} points 三维点数组 [[x,y,z],...]
+                     * @returns {number[]} [cx, cy, cz] 中心点
+                     */
+                    getPolygonCenter(points) {
+                        let sumX = 0,
+                            sumY = 0,
+                            sumZ = 0;
+                        const count = points.length;
+                        for (const [x, y, z] of points) {
+                            sumX += x;
+                            sumY += y;
+                            sumZ += z;
+                        }
+                        return [sumX / count, sumY / count, sumZ / count];
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

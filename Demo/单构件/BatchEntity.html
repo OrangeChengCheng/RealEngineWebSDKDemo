@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-06-22 12:18:01
+ * @LastEditTime: 2026-06-29 15:33:57
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -47,9 +47,22 @@
                 },
                 mounted() {},
                 methods: {
-                    RELineAddEntityCheck() {console.log("--- 线模式 添加检查回调");},
-                    REPlyAddEntityCheck() {console.log("--- 面模式 添加检查回调");},
-                    REExitEntityEditMode() {console.log("--- 单构件编辑模式 点选添加结束");},
+                    RELineAddEntityCheck() {
+                        console.log('--- 线模式 添加检查回调');
+                    },
+                    REPlyAddEntityCheck() {
+                        console.log('--- 面模式 添加检查回调');
+                    },
+                    REExitEntityEditMode() {
+                        console.log('--- 单构件编辑模式 点选添加结束');
+                        setTimeout(() => {
+                            const curBatchId = BlackHole3D.Entity.getCurBatchId();
+                            const data = BlackHole3D.Entity.getBatchEntityInfo([curBatchId]);
+                            console.log('data', data);
+                            // BlackHole3D.Entity.endAddState();
+                            // BlackHole3D.Entity.exitEditMode();
+                        }, 100);
+                    },
                     RESystemEngineCreatedCallBack() {
                         var dataSetList = [
                             {
@@ -92,7 +105,7 @@
                     },
                     alert_click3() {
                         let batchEntity_point = new BlackHole3D.REBatchEntityInfo();
-                        batchEntity_point.batchEntityId = 'batchEntity_point_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_point.batchEntityId = 'batchEntity_point_01'; //shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
                         batchEntity_point.copyEntityList = [
                             {
                                 dataSetId: 'res_entity_anim_test02',
@@ -112,7 +125,7 @@
                         ];
                         batchEntity_point.showState = true;
                         batchEntity_point.type = 0;
-                        batchEntity_point.shpPotList = [[271.2752399083085, 422.6032112013012, 2.1626618233065997]];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        batchEntity_point.shpPotList = [[271.2752399083085, 422.6032112013012, 2.1626618233065997]]; // 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
                         batchEntity_point.editParam = {
                             distType: 0,
                             scaleRange: [0.3, 3],
@@ -124,7 +137,7 @@
                         };
 
                         let batchEntity_line = new BlackHole3D.REBatchEntityInfo();
-                        batchEntity_line.batchEntityId = 'batchEntity_line_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_line.batchEntityId = 'batchEntity_line_01'; //shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
                         batchEntity_line.copyEntityList = [
                             {
                                 dataSetId: 'res_entity_anim_test02',
@@ -181,7 +194,7 @@
                             [319.45721281822347, 411.96189993325606, 2.162596644110579],
                             [273.5527331015044, 387.80643935242153, 2.1625338860711167],
                             [314.92295194690587, 384.0428967070622, 2.1625402914422125],
-                        ];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        ]; // 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
                         batchEntity_line.editParam = {
                             distType: 0,
                             scaleRange: [0.3, 3],
@@ -193,7 +206,7 @@
                         };
 
                         let batchEntity_face = new BlackHole3D.REBatchEntityInfo();
-                        batchEntity_face.batchEntityId = 'batchEntity_face_01';//shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
+                        batchEntity_face.batchEntityId = 'batchEntity_face_01'; //shpPotList存在有效，可二次编辑，新增批次为该标识增加后缀
                         batchEntity_face.copyEntityList = [
                             {
                                 dataSetId: 'res_entity_anim_test02',
@@ -226,7 +239,7 @@
                             [256.4887616230648, 397.64450613278956, 2.1626522900214837],
                             [262.15679598544057, 387.7976147092089, 2.1626622288325805],
                             [269.95883303392816, 391.19317845488706, 2.1626447261728217],
-                        ];// 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
+                        ]; // 增加矢量点代表需要引擎自动创建对应的批次，可二次编辑，批次标识为batchEntityId增加后缀
                         batchEntity_face.editParam = {
                             distType: 0,
                             scaleRange: [0.3, 3],

@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3786
+﻿//版本：v3.2.0.3790
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -5536,14 +5536,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         var _bGenLine = isEmpty(volumeShpInfo.genLine) ? false : volumeShpInfo.genLine;
         var _uLineClr = isEmpty(volumeShpInfo.lineClr) ? 0xff0000ff : clrToU32(volumeShpInfo.lineClr);
         var _uLineWidth = isEmpty(volumeShpInfo.lineWidth) ? 2 : volumeShpInfo.lineWidth;
+        var _scrASDist = isEmpty(volumeShpInfo.scrASDist) ? -1 : volumeShpInfo.scrASDist;
+        var _scrVisDist = isEmpty(volumeShpInfo.scrVisDist) ? -1 : volumeShpInfo.scrVisDist;
 
         return Module.RealBIMWeb.AddCustomBVShp(
             volumeShpInfo.shpName,
             _groupName,
             _temparrpos,
             _uClr,
-            volumeShpInfo.scrASDist,
-            volumeShpInfo.scrVisDist,
+            _scrASDist,
+            _scrVisDist,
             _bContactSce,
             _bGenLine,
             _uLineClr,
@@ -12054,14 +12056,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Clip.setDataIntoClip = function (clipInfo) {
         if (isEmptyLog(clipInfo, 'clipInfo')) return;
+
+        const m_qRotation = isEmpty(clipInfo.rotate) ? [0, 0, 0, 1] : clipInfo.rotate;
+        const m_vTranslation = isEmpty(clipInfo.offset) ? [0, 0, 0] : clipInfo.offset;
+        const m_vScale = isEmpty(clipInfo.scale) ? [1, 1, 1] : clipInfo.scale;
+        const m_bSingleSurfaceClipping = isEmpty(clipInfo.isSingleSurfaceClip) ? false : clipInfo.isSingleSurfaceClip;
+        const m_vVer0 = isEmpty(clipInfo.pot1) ? [0, 0, 0] : clipInfo.pot1;
+        const m_vVer1 = isEmpty(clipInfo.pot2) ? [0, 0, 0] : clipInfo.pot2;
+        const m_vVer2 = isEmpty(clipInfo.pot3) ? [0, 0, 0] : clipInfo.pot3;
+
         var _clipInfo = {
-            m_qRotation: clipInfo.rotate,
-            m_vTranslation: clipInfo.offset,
-            m_vScale: clipInfo.scale,
-            m_bSingleSurfaceClipping: clipInfo.isSingleSurfaceClip,
-            m_vVer0: clipInfo.pot1,
-            m_vVer1: clipInfo.pot2,
-            m_vVer2: clipInfo.pot3,
+            m_qRotation: m_qRotation,
+            m_vTranslation: m_vTranslation,
+            m_vScale: m_vScale,
+            m_bSingleSurfaceClipping: m_bSingleSurfaceClipping,
+            m_vVer0: m_vVer0,
+            m_vVer1: m_vVer1,
+            m_vVer2: m_vVer2,
         };
         return Module.RealBIMWeb.SetSceneClippingInfoEdit(_clipInfo);
     };
@@ -12072,14 +12083,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Clip.setData = function (clipInfo) {
         if (isEmptyLog(clipInfo, 'clipInfo')) return;
+        
+        const m_qRotation = isEmpty(clipInfo.rotate) ? [0, 0, 0, 1] : clipInfo.rotate;
+        const m_vTranslation = isEmpty(clipInfo.offset) ? [0, 0, 0] : clipInfo.offset;
+        const m_vScale = isEmpty(clipInfo.scale) ? [1, 1, 1] : clipInfo.scale;
+        const m_bSingleSurfaceClipping = isEmpty(clipInfo.isSingleSurfaceClip) ? false : clipInfo.isSingleSurfaceClip;
+        const m_vVer0 = isEmpty(clipInfo.pot1) ? [0, 0, 0] : clipInfo.pot1;
+        const m_vVer1 = isEmpty(clipInfo.pot2) ? [0, 0, 0] : clipInfo.pot2;
+        const m_vVer2 = isEmpty(clipInfo.pot3) ? [0, 0, 0] : clipInfo.pot3;
+
         var _clipInfo = {
-            m_qRotation: clipInfo.rotate,
-            m_vTranslation: clipInfo.offset,
-            m_vScale: clipInfo.scale,
-            m_bSingleSurfaceClipping: clipInfo.isSingleSurfaceClip,
-            m_vVer0: clipInfo.pot1,
-            m_vVer1: clipInfo.pot2,
-            m_vVer2: clipInfo.pot3,
+            m_qRotation: m_qRotation,
+            m_vTranslation: m_vTranslation,
+            m_vScale: m_vScale,
+            m_bSingleSurfaceClipping: m_bSingleSurfaceClipping,
+            m_vVer0: m_vVer0,
+            m_vVer1: m_vVer1,
+            m_vVer2: m_vVer2,
         };
         return Module.RealBIMWeb.SetSceneClippingInfo(_clipInfo);
     };

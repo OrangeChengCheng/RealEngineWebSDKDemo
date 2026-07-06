@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>文本中转站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            padding-top: calc(env(safe-area-inset-top) + 16px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        textarea {
+            width: 100%;
+            min-height: 60vh;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.6;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: inherit;
+            background: #f8f9fa;
+            transition: background 0.2s;
+        }
+        textarea:focus {
+            background: white;
+        }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .btn-secondary:active {
+            background: #dee2e6;
+            transform: scale(0.96);
+        }
+        .btn-icon {
+            flex: 0 0 auto;
+            padding: 14px;
+        }
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            text-align: center;
+            max-width: 80%;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .info-bar {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            color: white;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #6c757d;
+            padding: 8px 16px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 文本中转站</h1>
+            <p>手机与电脑之间轻松传递文字</p>
+        </div>
+        
+        <div class="info-bar">
+            💡 使用方法：在手机上粘贴文本，点击"生成分享链接"，在电脑上打开链接即可复制内容
+        </div>
+        
+        <div class="card">
+            <textarea id="textInput" placeholder="在此输入或粘贴文本..."></textarea>
+            <div class="char-count" id="charCount">0 字符</div>
+        </div>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-secondary" onclick="clearText()">
+            🗑️ 清空
+        </button>
+        <button class="btn btn-secondary" onclick="generateShareLink()">
+            🔗 分享链接
+        </button>
+        <button class="btn btn-primary" onclick="copyText()">
+            📋 复制全部
+        </button>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const toast = document.getElementById('toast');
+        const charCount = document.getElementById('charCount');
+        
+        function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedText = urlParams.get('t');
+            if (encodedText) {
+                try {
+                    const decodedText = decodeURIComponent(atob(encodedText));
+                    textInput.value = decodedText;
+                    updateCharCount();
+                } catch (e) {
+                    console.error('Failed to decode text:', e);
+                }
+            }
+            
+            const savedText = localStorage.getItem('textShareContent');
+            if (savedText && !textInput.value) {
+                textInput.value = savedText;
+                updateCharCount();
+            }
+        }
+        
+        textInput.addEventListener('input', () => {
+            updateCharCount();
+            localStorage.setItem('textShareContent', textInput.value);
+        });
+        
+        function updateCharCount() {
+            const count = textInput.value.length;
+            charCount.textContent = `${count} 字符`;
+        }
+        
+        function copyText() {
+            const text = textInput.value;
+            if (!text) {
+                showToast('没有内容可复制');
+                return;
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✓ 复制成功');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '0';
+            textarea.setAttribute('readonly', '');
+            document.body.appendChild(textarea);
+            
+            const selection = document.getSelection();
+            const selectedRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+            
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('✓ 复制成功');
+                } else {
+                    showToast('复制失败，请手动复制');
+                }
+            } catch (err) {
+                showToast('复制失败，请手动复制');
+            }
+            
+            document.body.removeChild(textarea);
+            
+            if (selectedRange) {
+                selection.removeAllRanges();
+                selection.addRange(selectedRange);
+            }
+        }
+
+        function clearText() {
+            if (!textInput.value) return;
+            if (confirm('确定要清空所有内容吗？')) {
+                textInput.value = '';
+                localStorage.removeItem('textShareContent');
+                updateCharCount();
+                showToast('已清空');
+            }
+        }
+        
+        function generateShareLink() {
+            const text = textInput.value;
+            if (!text) {
+                showToast('请先输入内容');
+                return;
+            }
+            
+            try {
+                const encodedText = btoa(encodeURIComponent(text));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?t=${encodedText}`;
+                
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        showToast('✓ 分享链接已复制');
+                    }).catch(() => {
+                        fallbackCopy(shareUrl);
+                    });
+                } else {
+                    fallbackCopy(shareUrl);
+                }
+            } catch (e) {
+                showToast('生成链接失败');
+            }
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
