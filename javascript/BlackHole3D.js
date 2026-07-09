@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3790
+﻿//版本：v3.2.0.3794
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -100,6 +100,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REAddProjFinish_Web', REAddProjFinish_Web); //投射添加完成回调事件
         document.addEventListener('RELineAddEntityCheck_Web', RELineAddEntityCheck_Web); //批量添加单构件线添加模式检查回调事件
         document.addEventListener('REPlyAddEntityCheck_Web', REPlyAddEntityCheck_Web); //批量添加单构件面添加模式检查回调事件
+        document.addEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web); //批量添加单构件点添加模式点击回调事件
+        document.addEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web); //批量添加单构件结束添加编辑回调事件
 
         return bool;
     };
@@ -134,6 +136,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REProjPosChange_Web', REProjPosChange_Web);
         document.removeEventListener('REEditProjFinish_Web', REEditProjFinish_Web);
         document.removeEventListener('REAddProjFinish_Web', REAddProjFinish_Web);
+        document.removeEventListener('RELineAddEntityCheck_Web', RELineAddEntityCheck_Web);
+        document.removeEventListener('REPlyAddEntityCheck_Web', REPlyAddEntityCheck_Web);
+        document.removeEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web);
+        document.removeEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web);
     }
 
     // MARK 回调事件
@@ -374,6 +380,20 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function REPlyAddEntityCheck_Web(e) {
         const re_event = new CustomEvent('REPlyAddEntityCheck', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REPointAddEntityClick_Web(e) {
+        const re_event = new CustomEvent('REPointAddEntityClick', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REEditEntityFinish_Web(e) {
+        const re_event = new CustomEvent('REEditEntityFinish', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event);
@@ -13855,6 +13875,18 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Entity.getBatchEditDistType = function (batchId) {
         if (isEmptyLog(batchId, 'batchId')) return false;
         return Module.RealBIMWeb.GetEntityEditDistType(batchId);
+    };
+
+    /**
+     * 获取失败的构面构线的批次标志集合
+     */
+    Module.Entity.getErrorDrawBatchIds = function () {
+        const _arrAllBatchID = Module.RealBIMWeb.GetErrorEntityEditName();
+        const allBatchIdList = [];
+        for (let i = 0; i < _arrAllBatchID.size(); i++) {
+            allBatchIdList.push(_arrAllBatchID.get(i));
+        }
+        return allBatchIdList;
     };
 
     class REEntityTempTranInfo {

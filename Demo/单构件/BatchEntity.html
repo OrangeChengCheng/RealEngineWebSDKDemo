@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-06-29 15:33:57
+ * @LastEditTime: 2026-07-09 10:19:51
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -42,18 +42,22 @@
                 created() {
                     document.addEventListener('RELineAddEntityCheck', this.RELineAddEntityCheck);
                     document.addEventListener('REPlyAddEntityCheck', this.REPlyAddEntityCheck);
-                    document.addEventListener('REExitEntityEditMode', this.REExitEntityEditMode);
+                    document.addEventListener('REPointAddEntityClick', this.REPointAddEntityClick);
                     document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
+                    document.addEventListener('REEditEntityFinish_Web', this.REEditEntityFinish_Web);
                 },
                 mounted() {},
                 methods: {
+                    REEditEntityFinish_Web() {
+                        console.log('--- 结束编辑添加');
+                    },
                     RELineAddEntityCheck() {
                         console.log('--- 线模式 添加检查回调');
                     },
                     REPlyAddEntityCheck() {
                         console.log('--- 面模式 添加检查回调');
                     },
-                    REExitEntityEditMode() {
+                    REPointAddEntityClick() {
                         console.log('--- 单构件编辑模式 点选添加结束');
                         setTimeout(() => {
                             const curBatchId = BlackHole3D.Entity.getCurBatchId();
