@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2026-07-02 12:03:23
+ * @LastEditTime: 2026-07-29 11:50:09
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -47,7 +47,7 @@
         <!-- 引擎初始化 -->
         <script type="text/javascript">
             function RESystemEngineCreatedCallBack() {
-                BlackHole3D.Common.setFakeSphMode(true);
+                // BlackHole3D.Common.setFakeSphMode(true);
                 var dataSetList = [
                     {
                         dataSetId: 'res_jifang',
@@ -67,17 +67,7 @@
                 BlackHole3D.Common.setPageLoadLev(2);
             }
             function REDataSetLoadFinishCallBack() {
-                //添加系统UI面板单次点击按钮
-                var btnInfo = new BlackHole3D.REUIBtnInfo();
-                btnInfo.uiID = 'btn_003';
-
-                var statePar1 = new BlackHole3D.REUIBtnStateInfo();
-                statePar1.text = '';
-                statePar1.hintText = '自定义按钮';
-                statePar1.texPath = 'https://demo.bjblackhole.com/demopage/examplesImgs/particle/fire.png';
-
-                btnInfo.stateParList = [statePar1];
-                BlackHole3D.Graphics.createSysPanelBtn(btnInfo);
+                
             }
         </script>
     </body>
