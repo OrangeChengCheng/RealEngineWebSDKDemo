@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3794
+﻿//版本：v3.2.0.3821
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -1570,6 +1570,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _terrSph = isEmpty(dataSetModel.terrSph) ? true : dataSetModel.terrSph;
             let _dataSetSGContent = isEmpty(dataSetModel.dataSetSGContent) ? '' : dataSetModel.dataSetSGContent;
             var _isMainProj = (typeof clearLoaded == 'undefined' || clearLoaded) && i == 0 ? true : false;
+            var _strStreamResPath = '';
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
                 m_sVer0: -1,
@@ -1614,7 +1615,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         _preciseCRS,
                         _terrImgShpAlone,
                         _terrSuffix,
-                        _terrSph
+                        _terrSph,
+                        _strStreamResPath
                     );
                 } else {
                     Module.RealBIMWeb.LoadMainSceExt(
@@ -1636,7 +1638,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         _preciseCRS,
                         _terrImgShpAlone,
                         _terrSuffix,
-                        _terrSph
+                        _terrSph,
+                        _strStreamResPath
                     );
                 }
             } else {
@@ -10298,6 +10301,29 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.GetSceneNodeEditable(dataSetId);
     };
 
+    /**
+     * 设置位置编辑面板上的按钮状态
+     * @param {Number} btnId //按钮标识 0：平移按钮，1：旋转按钮，2：缩放按钮，3：指定轴心按钮，4：聚焦已选节点按钮，255：上述所有
+     * @param {Number} state //按钮状态 0：禁用，1：激活
+     */
+    Module.Edit.setEditPlaneBtnState = function (btnId, state) {
+        Module.RealBIMWeb.SetPosMatchBtnState(btnId, state);
+    };
+
+    /**
+     * 获取位置编辑面板上的数据 注：获取的是当前面板显示的可编辑的信息数据，而非位置变换信息
+     */
+    Module.Edit.getEditPlaneData = function () {
+        const cInfo = Module.RealBIMWeb.GetPosMatchTranValue();
+        return {
+            offset: cInfo.m_vDvec3Value1,
+            rotateAngle: cInfo.m_vDvec3Value2,
+            rotate: cInfo.m_vDquatValue1,
+            center: cInfo.m_vDvec3Value3,
+            scale: cInfo.m_dValue1,
+        };
+    };
+
     // MOD-- 测量（Measure） <---
     Module.Measure = typeof Module.Measure !== 'undefined' ? Module.Measure : {}; //增加 Measure 模块
 
@@ -12103,7 +12129,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Clip.setData = function (clipInfo) {
         if (isEmptyLog(clipInfo, 'clipInfo')) return;
-        
+
         const m_qRotation = isEmpty(clipInfo.rotate) ? [0, 0, 0, 1] : clipInfo.rotate;
         const m_vTranslation = isEmpty(clipInfo.offset) ? [0, 0, 0] : clipInfo.offset;
         const m_vScale = isEmpty(clipInfo.scale) ? [1, 1, 1] : clipInfo.scale;
@@ -12185,6 +12211,55 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Clip.getClipOptState = function () {
         if (!Module.RealBIMWeb.IsClipObjectValid()) return 0; //不在剖切模式下
         return Module.RealBIMWeb.IsSinglePlaneClipping() ? 1 : 2;
+    };
+
+    // MARK 渲染效果
+
+    /**
+     * 设置包围盒缩放的最小阈值 注：最小阈值不能小于0，小于0按照0处理
+     * @param {Number} minScale //最小阈值，
+     */
+    Module.Clip.setClipBoxMinScale = function (minScale) {
+        Module.RealBIMWeb.SetClipBoxMinScale(minScale);
+    };
+
+    /**
+     * 获取包围盒缩放的最小阈值
+     */
+    Module.Clip.getClipBoxMinScale = function () {
+        return Module.RealBIMWeb.SetClipBoxMinScale();
+    };
+
+    /**
+     * 设置包围盒缩放的操作箭头颜色
+     * @param {REColor} color //箭头颜色（REColor 类型）
+     */
+    Module.Clip.setClipBoxArrowColor = function (color) {
+        const _color = isEmpty(color) ? 0x7fff0000 : clrToU32(color);
+        Module.RealBIMWeb.SetClipBoxArrowClrInfo(_color);
+    };
+
+    /**
+     * 获取包围盒缩放的操作箭头颜色
+     */
+    Module.Clip.getClipBoxArrowColor = function () {
+        const _uClr = Module.RealBIMWeb.GetClipBoxArrowClrInfo();
+        return clrU32ToClr(_uClr);
+    };
+
+    /**
+     * 设置是否显示包围盒箭头效果 注：包围盒箭头效果和包围盒面效果操作互斥
+     * @param {Boolean} show //是否显示
+     */
+    Module.Clip.setClipBoxArrowShow = function (show) {
+        Module.RealBIMWeb.SetClipBoxArrowShow(show);
+    };
+
+    /**
+     * 获取是否显示包围盒箭头效果
+     */
+    Module.Clip.getClipBoxArrowShow = function () {
+        return Module.RealBIMWeb.SetClipBoxArrowShow();
     };
 
     // MARK 体剖切
@@ -13764,7 +13839,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Entity.getBatchEditParam = function (batchId) {
         if (isEmptyLog(batchId, 'batchId')) return null;
-        const _cInfo = Module.RealBIMWeb.SetEntityEditParam(batchId, _mode, _totalNum, _dist);
+        const _cInfo = Module.RealBIMWeb.GetEntityEditParam(batchId);
         return { mode: _cInfo.m_u32Value1, totalNum: _cInfo.m_u32Value2, dist: _cInfo.m_dValue1 };
     };
 
@@ -17298,7 +17373,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         });
         let _visible = isEmpty(visible) ? true : visible;
 
-        return Module.RealBIMWeb.SetFrustumProjInfoVisible(_vector_projectionI_id, _visible);
+        Module.RealBIMWeb.SetFrustumProjInfoVisible(_vector_projectionI_id, _visible);
     };
 
     /**
@@ -19215,7 +19290,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             'Extrude',
             'Monomer',
             'Particle',
+            'Projection',
             'Math',
+            'Tool',
         ]; // 这里放所有要处理的模块名
 
         // -------------------------- 安全包装方法：仅包装调用逻辑，不解析内部变量 --------------------------

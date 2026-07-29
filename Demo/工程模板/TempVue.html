@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-06-18 12:06:35
+ * @LastEditTime: 2026-07-28 11:22:15
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -18,6 +18,10 @@
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
         <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+        <script src="https://npm.elemecdn.com/vconsole@latest/dist/vconsole.min.js"></script>
+        <script>
+            new VConsole();
+        </script>
     </head>
 
     <body>
@@ -34,16 +38,14 @@
                 data() {
                     return {};
                 },
-                created() {
-                },
+                created() {},
                 mounted() {},
                 methods: {
                     RESystemEngineCreatedCallBack() {
                         var dataSetList = [
                             {
                                 dataSetId: 'res_jifang',
-                                resourcesAddress:
-                                    'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
                             },
                         ];
                         BlackHole3D.Model.loadDataSet(dataSetList);

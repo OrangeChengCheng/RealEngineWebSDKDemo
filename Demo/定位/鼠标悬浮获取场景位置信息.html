@@ -1,0 +1,95 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-07-29 11:01:40
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+        <script src="https://npm.elemecdn.com/vconsole@latest/dist/vconsole.min.js"></script>
+        <script>
+            new VConsole();
+        </script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div id="id_option_area">
+                <el-button type="primary" @click="alert_click">开启鼠标悬浮</el-button>
+                <el-button type="primary" @click="alert_click2">结束鼠标悬浮</el-button>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {};
+                },
+                created() {
+                    document.addEventListener('RESystemMouseHover', this.RESystemMouseHover); //鼠标悬停事件
+                    document.addEventListener('RECustomProbeFinish', this.RECustomProbeFinish); //自定义探测回调事件
+                },
+                mounted() {},
+                methods: {
+                    RESystemMouseHover(e) {
+                        console.log(e.detail);
+                        var camInfo = BlackHole3D.Camera.getCamLocate();
+                        const dir = BlackHole3D.Math.getDirection(camInfo.camPos, e.detail.selPos);
+                        console.log(dir);
+                        var res = BlackHole3D.Probe.setCustomProbeExecute(camInfo.camPos, dir, 1);
+                    },
+                    RECustomProbeFinish(e) {
+                        if (e.detail.succeed) {
+                            console.log(e.detail);
+                            //以获取点位信息创建锚点
+                            var anc = new BlackHole3D.REAncInfo();
+                            anc.ancName = 'ray-model-unite';
+                            anc.pos = e.detail.selPos;
+                            anc.textInfo = '';
+                            anc.picPath = 'https://demo.bjblackhole.com/demopage/examplesImgs/bubbler.png';
+                            anc.picWidth = 60;
+                            anc.picHeight = 60;
+                            anc.ancSize = 60;
+                            anc.texBias = [0, 0];
+                            anc.texFocus = [30, 0];
+                            BlackHole3D.Anchor.addAnc([anc]);
+                        }
+                    },
+                    RESystemEngineCreatedCallBack() {
+                        var dataSetList = [
+                            {
+                                dataSetId: 'res_jifang',
+                                resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res03&path=res_jifang',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    alert_click() {
+                        BlackHole3D.Probe.setMouseHoverEventTime(1.0);
+                    },
+                    alert_click2() {
+                        BlackHole3D.Probe.setMouseHoverEventTime(99999999.9);
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
