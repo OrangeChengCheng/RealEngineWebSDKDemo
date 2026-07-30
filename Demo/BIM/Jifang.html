@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2026-07-29 11:50:09
+ * @LastEditTime: 2026-07-30 09:46:45
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -46,6 +46,10 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
+            document.addEventListener('REAddEntityFinish', REAddEntityFinish);
+            function REAddEntityFinish(e) {
+                console.log('--- 单构件添加', e);
+            }
             function RESystemEngineCreatedCallBack() {
                 // BlackHole3D.Common.setFakeSphMode(true);
                 var dataSetList = [
@@ -66,9 +70,7 @@
                 BlackHole3D.Common.setExpectMaxInstDrawFaceNum(20000000);
                 BlackHole3D.Common.setPageLoadLev(2);
             }
-            function REDataSetLoadFinishCallBack() {
-                
-            }
+            function REDataSetLoadFinishCallBack() {}
         </script>
     </body>
 </html>
