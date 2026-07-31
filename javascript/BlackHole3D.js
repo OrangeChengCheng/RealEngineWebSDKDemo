@@ -516,6 +516,19 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         Module.RealBIMWeb.SetURLGolExtProxy('', '', '');
     };
 
+    /**
+     * 设置流式资源处理的基础信息 注：需要在加载模型前设置才有效
+     * @param {String} signalURL //信令服务器URL
+     * @param {String} domainName //要连接的资源处理程序所在的域ID(如url_res02)
+     */
+    Module.setStreamResBaseInfo = function (signalURL, domainName) {
+        if (isEmptyLog(signalURL, 'signalURL')) return;
+        if (isEmptyLog(domainName, 'domainName')) return;
+        const _signalURL = isEmpty(signalURL) ? '' : signalURL;
+        const _domainName = isEmpty(domainName) ? '' : domainName;
+        Module.RealBIMWeb.SetStreamResBaseInfo(_signalURL, _domainName);
+    };
+
     // MARK 效果展示
     /**
      * 设置窗口的显示模式，此接口适用于需要双屏显示，以及需要单双屏切换的应用场景。
@@ -1492,6 +1505,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.dataSetSGContent = null; //表示项目对应的主场景组文件内容字符串
             this.useWMS = false; // 表示是否使用Web地图发布服务信息
             this.wmsInfo = null; // Web地图发布服务信息 （REWMSInfo 类型），useWMS=true有效
+            this.streamResPath = null; // 表示项目在进行流式资源处理时的服务端模板根目录
         }
     }
     ExtModule.REDataSet = REDataSet;
@@ -1570,7 +1584,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             var _terrSph = isEmpty(dataSetModel.terrSph) ? true : dataSetModel.terrSph;
             let _dataSetSGContent = isEmpty(dataSetModel.dataSetSGContent) ? '' : dataSetModel.dataSetSGContent;
             var _isMainProj = (typeof clearLoaded == 'undefined' || clearLoaded) && i == 0 ? true : false;
-            var _strStreamResPath = '';
+            var _strStreamResPath = isEmpty(dataSetModel.streamResPath) ? '' : dataSetModel.streamResPath;
             var intprojid = Module.RealBIMWeb.ConvGolStrID2IntID(dataSetModel.dataSetId);
             var _ver = {
                 m_sVer0: -1,
