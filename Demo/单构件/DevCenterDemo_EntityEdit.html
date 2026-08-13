@@ -1,0 +1,475 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-08-13 17:15:42
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+
+            <div id="id_option_area" v-if="!hasSelectedEntity">
+                <el-button type="primary" :loading="tree.loading" :disabled="tree.loaded" @click="handle_loadEntity(tree)">
+                    {{ tree.loaded ? '单构件（树）已加载' : '加载单构件（树）' }}
+                </el-button>
+                <el-button
+                    type="primary"
+                    :loading="tree.placing"
+                    :disabled="!tree.loaded || anyPlacing"
+                    style="margin-left: 10px"
+                    @click="handle_placeEntity(tree)"
+                    >放置单构件（树）
+                </el-button>
+                <el-button
+                    type="primary"
+                    :loading="person.loading"
+                    :disabled="person.loaded"
+                    style="margin-left: 10px"
+                    @click="handle_loadEntity(person)">
+                    {{ person.loaded ? '单构件（人）已加载' : '加载单构件（人）' }}
+                </el-button>
+                <el-button
+                    type="primary"
+                    :loading="person.placing"
+                    :disabled="!person.loaded || anyPlacing"
+                    style="margin-left: 10px"
+                    @click="handle_placeEntity(person)"
+                    >放置单构件（人）
+                </el-button>
+            </div>
+
+            <div id="id_option_area" v-else>
+                <el-button type="primary" @click="copyEntity">复制</el-button>
+                <el-button type="primary" style="margin-left: 10px" @click="lineCopyEntity">划线复制</el-button>
+                <el-button type="primary" style="margin-left: 10px" @click="areaCopyEntity">区域复制</el-button>
+            </div>
+
+            <!--复制参数面板-->
+            <div id="id_option_area_2" v-if="hasSelectedEntity">
+                <div style="display: flex; align-items: center; flex-shrink: 0">
+                    <span style="font-size: 13px; color: #000000; margin-right: 5px">随机大小</span>
+                    <el-input-number
+                        v-model="randomScaleMin"
+                        :min="0"
+                        :step="0.1"
+                        :precision="2"
+                        size="small"
+                        controls-position="right"
+                        style="width: 110px"
+                        @change="change_randomScaleMin"></el-input-number>
+                    <span style="font-size: 13px; color: #000000; margin: 0 3px">~</span>
+                    <el-input-number
+                        v-model="randomScaleMax"
+                        :min="0"
+                        :step="0.1"
+                        :precision="2"
+                        size="small"
+                        controls-position="right"
+                        style="width: 110px"
+                        @change="change_randomScaleMax"></el-input-number>
+                </div>
+
+                <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 16px">
+                    <span style="font-size: 13px; color: #000000; margin-right: 5px">随机旋转</span>
+                    <el-input-number
+                        v-model="randomRotateMin"
+                        :min="0"
+                        :step="1"
+                        :precision="0"
+                        size="small"
+                        controls-position="right"
+                        style="width: 100px"
+                        @change="change_randomRotateMin"></el-input-number>
+                    <span style="font-size: 13px; color: #000000; margin: 0 3px">~</span>
+                    <el-input-number
+                        v-model="randomRotateMax"
+                        :min="0"
+                        :step="1"
+                        :precision="0"
+                        size="small"
+                        controls-position="right"
+                        style="width: 100px"
+                        @change="change_randomRotateMax"></el-input-number>
+                </div>
+
+                <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 16px">
+                    <span style="font-size: 13px; color: #000000; margin-right: 5px">数量/距离</span>
+                    <el-input-number
+                        v-model="copyCount"
+                        :min="1"
+                        :step="1"
+                        :precision="0"
+                        size="small"
+                        controls-position="right"
+                        style="width: 100px"
+                        @change="change_copyCount"></el-input-number>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        tree: {
+                            key: 'tree',
+                            dataSetId: '单构件_树',
+                            loaded: false,
+                            loading: false,
+                            placing: false,
+                        },
+                        person: {
+                            key: 'person',
+                            dataSetId: '单构件_人',
+                            loaded: false,
+                            loading: false,
+                            placing: false,
+                        },
+                        // 记录当前正在加载的构件项
+                        currentLoadingItem: null,
+                        // 记录当前正在放置的构件项
+                        currentPlacingItem: null,
+                        // 放置状态：0-无操作 1-放置中 2-放置结束
+                        place_state: 0,
+                        // 当前选中的单构件信息，不为null代表选中构件，显示复制参数面板
+                        selectedEntity: null,
+                        // 复制操作参数
+                        randomScaleMin: 0.5, // 随机大小下限
+                        randomScaleMax: 1.5, // 随机大小上限
+                        randomRotateMin: 0, // 随机旋转角度下限(角度)
+                        randomRotateMax: 60, // 随机旋转角度上限(角度)
+                        copyCount: 5, // 复制数量/间距
+                        copy_state: 0, // 复制状态 0无操作 1普通复制 2划线/区域复制
+                    };
+                },
+                created() {
+                    // 注册引擎事件回调
+                    document.addEventListener('RELineAddEntityCheck', this.RELineAddEntityCheck);
+                    document.addEventListener('REPlyAddEntityCheck', this.REPlyAddEntityCheck);
+                    document.addEventListener('REPointAddEntityClick', this.REPointAddEntityClick);
+                    document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
+                    document.addEventListener('REEditEntityFinish', this.REEditEntityFinish);
+                },
+                computed: {
+                    // 是否存在正在放置的构件
+                    anyPlacing() {
+                        return this.tree.placing || this.person.placing;
+                    },
+                    // 是否选中构件，控制复制按钮与参数面板显示
+                    hasSelectedEntity() {
+                        return this.selectedEntity != null;
+                    },
+                },
+                methods: {
+                    /**
+                     * 放置构件完成回调
+                     */
+                    REAddEntityFinish(e) {
+                        if (this.currentPlacingItem && this.place_state === 2) {
+                            this.currentPlacingItem.placing = false;
+                            BlackHole3D.Entity.endAddState();
+                            BlackHole3D.Entity.exitEditMode();
+                            this.place_state = 0;
+                            this.currentPlacingItem = null;
+                        }
+                    },
+
+                    /**
+                     * 数据集加载完成回调
+                     */
+                    REDataSetLoadFinishCallBack(e) {
+                        if (this.currentLoadingItem) {
+                            this.currentLoadingItem.loading = false;
+                            this.currentLoadingItem.loaded = true;
+                            this.currentLoadingItem = null;
+                        }
+                    },
+
+                    /**
+                     * 构件选中回调
+                     */
+                    RESystemSelElementCallBack(e) {
+                        const selElem = BlackHole3D.Probe.getCurSelInfo();
+                        // 复制交互过程中忽略选择
+                        if (this.copy_state) return;
+                        this.selectedEntity = null;
+
+                        if (selElem.selType !== 'BIMElem') return;
+                        if (selElem.dataSetId === '场景模型') {
+                            BlackHole3D.BIM.delAllSelElems();
+                            return;
+                        }
+
+                        const allEntityType = BlackHole3D.Entity.getEntitys(
+                            selElem.dataSetId,
+                            BlackHole3D.Entity.getAllTypeNames(selElem.dataSetId)[0]
+                        );
+                        // 修复bug：使用===判断，不是赋值=
+                        const selEntityInfo = allEntityType.filter((item) => item.elemId === selElem.elemId);
+                        if (selEntityInfo && selEntityInfo.length > 0) {
+                            this.selectedEntity = selEntityInfo[0];
+                        }
+                    },
+
+                    RESystemSelShpElementCallBack() {},
+
+                    /**
+                     * 编辑模式结束回调
+                     */
+                    REEditEntityFinish() {
+                        console.log("添加模式结束");
+                        if (this.selectedEntity && this.copy_state) {
+                            BlackHole3D.Entity.exitEditMode();
+                            REWebSDK_closeMouseTip();
+                            this.copy_state = 0;
+                        }
+                        if (this.place_state == 1) {
+                            BlackHole3D.Entity.exitEditMode();
+                            REWebSDK_closeMouseTip();
+                            this.place_state = 0;
+                            this.currentPlacingItem.placing = false;
+                            this.currentPlacingItem = null;
+                        }
+                    },
+
+                    RELineAddEntityCheck() {},
+                    REPlyAddEntityCheck() {},
+
+                    /**
+                     * 鼠标点击添加构件回调
+                     */
+                    REPointAddEntityClick() {
+                        console.log("点模式-点选");
+                        if (this.place_state == 1) {
+                            REWebSDK_closeMouseTip();
+                            this.place_state = 2;
+                        }
+                    },
+
+                    /**
+                     * 引擎初始化完成回调
+                     */
+                    RESystemEngineCreatedCallBack() {
+                        const dataSetList = [
+                            {
+                                dataSetId: '场景模型',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+
+                    /**
+                     * 加载构件数据集
+                     * @param {Object} item tree/person配置对象
+                     */
+                    handle_loadEntity(item) {
+                        if (item.loaded || item.loading) return;
+                        item.loading = true;
+                        this.currentLoadingItem = item;
+
+                        let dataSetList = [];
+                        if (item.dataSetId === '单构件_树') {
+                            dataSetList = [
+                                {
+                                    dataSetId: '单构件_树',
+                                    resourcesAddress:
+                                        'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1fce276a289987947d0986eeabf918',
+                                },
+                            ];
+                        } else if (item.dataSetId === '单构件_人') {
+                            dataSetList = [
+                                {
+                                    dataSetId: '单构件_人',
+                                    resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_xiaoren',
+                                },
+                            ];
+                        }
+                        BlackHole3D.Model.loadDataSet(dataSetList, false);
+                    },
+
+                    /**
+                     * 开始放置构件
+                     * @param {Object} item tree/person配置对象
+                     */
+                    handle_placeEntity(item) {
+                        if (!item.loaded || item.placing || this.anyPlacing) return;
+                        item.placing = true;
+                        this.currentPlacingItem = item;
+
+                        const editState = BlackHole3D.Entity.getEditMode();
+                        if (editState) return;
+                        BlackHole3D.Entity.enterEditMode();
+
+                        const dateId = new Date().getTime();
+                        let batchId = '';
+                        const batchEntityList = [];
+                        let editParam = new BlackHole3D.REEntityEditParam();
+
+                        if (item.dataSetId === '单构件_树') {
+                            batchId = 'batch_point_place_tree_' + dateId;
+                            const entity = new BlackHole3D.REEntityInfo();
+                            entity.dataSetId = '单构件_树';
+                            entity.entityType = BlackHole3D.Entity.getAllTypeNames('单构件_树')[0];
+                            entity.elemId = 0;
+
+                            const batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                            batchEntity_point.batchEntityId = '';
+                            batchEntity_point.copyEntityList = [entity];
+                            batchEntity_point.showState = false;
+                            batchEntity_point.type = 0;
+                            batchEntityList.push(batchEntity_point);
+
+                            editParam.distType = 0;
+                            editParam.mode = 0;
+                            editParam.scaleRange = [1.0, 1.0];
+                            editParam.rotateRange = [0.0, 0.0];
+                        } else if (item.dataSetId === '单构件_人') {
+                            batchId = 'batch_point_place_person_' + dateId;
+                            const entity = new BlackHole3D.REEntityInfo();
+                            entity.dataSetId = '单构件_人';
+                            entity.entityType = BlackHole3D.Entity.getAllTypeNames('单构件_人')[0];
+                            entity.elemId = 0;
+
+                            const batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                            batchEntity_point.batchEntityId = '';
+                            batchEntity_point.copyEntityList = [entity];
+                            batchEntity_point.showState = false;
+                            batchEntity_point.type = 0;
+                            batchEntityList.push(batchEntity_point);
+
+                            editParam.distType = 0;
+                            editParam.mode = 0;
+                            editParam.scaleRange = [1.0, 1.0];
+                            editParam.rotateRange = [0.0, 0.0];
+                        }
+
+                        BlackHole3D.Entity.startAddState(batchId, 0, batchEntityList, editParam);
+                        REWebSDK_openMouseTip('canvas', '左键点击放置，右键结束');
+                        this.place_state = 1;
+                    },
+
+                    // 参数输入框变更回调
+                    change_randomScaleMin(val) {},
+                    change_randomScaleMax(val) {},
+                    change_randomRotateMin(val) {},
+                    change_randomRotateMax(val) {},
+                    change_copyCount(val) {},
+
+                    /**
+                     * 普通单点复制 按钮直接调用
+                     */
+                    copyEntity() {
+                        if (!this.selectedEntity) return;
+                        const editState = BlackHole3D.Entity.getEditMode();
+                        if (editState) return;
+                        BlackHole3D.Entity.enterEditMode();
+
+                        const dateId = new Date().getTime();
+                        const batchId = 'batch_point_copy_' + dateId;
+                        const batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_point.batchEntityId = '';
+                        batchEntity_point.copyEntityList = [this.selectedEntity];
+                        batchEntity_point.showState = false;
+                        batchEntity_point.type = 0;
+                        const batchEntityList = [batchEntity_point];
+
+                        const editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.scaleRange = [this.randomScaleMin, this.randomScaleMax];
+                        editParam.rotateRange = [this.randomRotateMin, this.randomRotateMax];
+
+                        BlackHole3D.Entity.startAddState(batchId, 0, batchEntityList, editParam);
+                        REWebSDK_openMouseTip('canvas', '左键点击复制，右键结束');
+                        this.copy_state = 1;
+                        BlackHole3D.BIM.delAllSelElems();
+                    },
+
+                    /**
+                     * 划线复制 按钮直接调用
+                     */
+                    lineCopyEntity() {
+                        if (!this.selectedEntity) return;
+                        const editState = BlackHole3D.Entity.getEditMode();
+                        if (editState) return;
+                        BlackHole3D.Entity.enterEditMode();
+
+                        const dateId = new Date().getTime();
+                        const batchId = 'batch_line_copy_' + dateId;
+                        const batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_point.batchEntityId = '';
+                        batchEntity_point.copyEntityList = [this.selectedEntity];
+                        batchEntity_point.showState = true;
+                        batchEntity_point.type = 1;
+                        const batchEntityList = [batchEntity_point];
+
+                        const editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 1;
+                        editParam.dist = this.copyCount;
+                        editParam.scaleRange = [this.randomScaleMin, this.randomScaleMax];
+                        editParam.rotateRange = [this.randomRotateMin, this.randomRotateMax];
+
+                        BlackHole3D.Entity.startAddState(batchId, 1, batchEntityList, editParam);
+                        REWebSDK_openMouseTip('canvas', '左键点击创建点，右键结束');
+                        this.copy_state = 2;
+                        BlackHole3D.BIM.delAllSelElems();
+                    },
+
+                    /**
+                     * 区域复制 按钮直接调用
+                     */
+                    areaCopyEntity() {
+                        if (!this.selectedEntity) return;
+                        const editState = BlackHole3D.Entity.getEditMode();
+                        if (editState) return;
+                        BlackHole3D.Entity.enterEditMode();
+
+                        const dateId = new Date().getTime();
+                        const batchId = 'batch_face_copy_' + dateId;
+                        const batchEntity_point = new BlackHole3D.REBatchEntityInfo();
+                        batchEntity_point.batchEntityId = '';
+                        batchEntity_point.copyEntityList = [this.selectedEntity];
+                        batchEntity_point.showState = true;
+                        batchEntity_point.type = 2;
+                        const batchEntityList = [batchEntity_point];
+
+                        const editParam = new BlackHole3D.REEntityEditParam();
+                        editParam.distType = 0;
+                        editParam.mode = 0;
+                        editParam.totalNum = this.copyCount;
+                        editParam.scaleRange = [this.randomScaleMin, this.randomScaleMax];
+                        editParam.rotateRange = [this.randomRotateMin, this.randomRotateMax];
+
+                        BlackHole3D.Entity.startAddState(batchId, 2, batchEntityList, editParam);
+                        REWebSDK_openMouseTip('canvas', '左键点击创建点，右键结束');
+                        this.copy_state = 2;
+                        BlackHole3D.BIM.delAllSelElems();
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>

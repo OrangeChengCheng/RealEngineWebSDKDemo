@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3856
+﻿//版本：v3.2.0.3869
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -102,6 +102,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REPlyAddEntityCheck_Web', REPlyAddEntityCheck_Web); //批量添加单构件面添加模式检查回调事件
         document.addEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web); //批量添加单构件点添加模式点击回调事件
         document.addEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web); //批量添加单构件结束添加编辑回调事件
+        document.addEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web); //系统UI面板变化回调事件
 
         return bool;
     };
@@ -140,6 +141,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REPlyAddEntityCheck_Web', REPlyAddEntityCheck_Web);
         document.removeEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web);
         document.removeEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web);
+        document.removeEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web);
     }
 
     // MARK 回调事件
@@ -394,6 +396,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function REEditEntityFinish_Web(e) {
         const re_event = new CustomEvent('REEditEntityFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function RESysUIPanelChange_Web(e) {
+        const re_event = new CustomEvent('RESysUIPanelChange', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event);
@@ -13519,7 +13528,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _cEditParam = {
                     m_uDistType: isEmpty(batchEntity.editParam.distType) ? 1 : batchEntity.editParam.distType,
                     m_vScaleRange: isEmpty(batchEntity.editParam.scaleRange) ? [1.0, 1.0] : batchEntity.editParam.scaleRange,
-                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange) ? [0, 0] : batchEntity.editParam.rotateRange,
+                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange)
+                        ? [0, 0]
+                        : [Module.Math.degToRad(batchEntity.editParam.rotateRange[0]), Module.Math.degToRad(batchEntity.editParam.rotateRange[1])],
                     m_uMode: isEmpty(batchEntity.editParam.mode) ? 1 : batchEntity.editParam.mode,
                     m_uTotalNum: isEmpty(batchEntity.editParam.totalNum) ? 10.0 : batchEntity.editParam.totalNum,
                     m_dDist: isEmpty(batchEntity.editParam.dist) ? 10.0 : batchEntity.editParam.dist,
@@ -13554,7 +13565,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             _cBatchEditParam = {
                 m_uDistType: isEmpty(editParam.distType) ? 1 : editParam.distType,
                 m_vScaleRange: isEmpty(editParam.scaleRange) ? [1.0, 1.0] : editParam.scaleRange,
-                m_vRotateAngle: isEmpty(editParam.rotateRange) ? [0, 0] : editParam.rotateRange,
+                m_vRotateAngle: isEmpty(editParam.rotateRange)
+                    ? [0, 0]
+                    : [Module.Math.degToRad(editParam.rotateRange[0]), Module.Math.degToRad(editParam.rotateRange[1])],
                 m_uMode: isEmpty(editParam.mode) ? 1 : editParam.mode,
                 m_uTotalNum: isEmpty(editParam.totalNum) ? 10.0 : editParam.totalNum,
                 m_dDist: isEmpty(editParam.dist) ? 10.0 : editParam.dist,
@@ -13724,7 +13737,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 _cEditParam = {
                     m_uDistType: isEmpty(batchEntity.editParam.distType) ? 1 : batchEntity.editParam.distType,
                     m_vScaleRange: isEmpty(batchEntity.editParam.scaleRange) ? [1.0, 1.0] : batchEntity.editParam.scaleRange,
-                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange) ? [0, 0] : batchEntity.editParam.rotateRange,
+                    m_vRotateAngle: isEmpty(batchEntity.editParam.rotateRange)
+                        ? [0, 0]
+                        : [Module.Math.degToRad(batchEntity.editParam.rotateRange[0]), Module.Math.degToRad(batchEntity.editParam.rotateRange[1])],
                     m_uMode: isEmpty(batchEntity.editParam.mode) ? 1 : batchEntity.editParam.mode,
                     m_uTotalNum: isEmpty(batchEntity.editParam.totalNum) ? 10.0 : batchEntity.editParam.totalNum,
                     m_dDist: isEmpty(batchEntity.editParam.dist) ? 10.0 : batchEntity.editParam.dist,
@@ -13798,7 +13813,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             const editParam = new REEntityEditParam();
             editParam.distType = _cEntityEdit.m_cParam.m_uDistType;
             editParam.scaleRange = _cEntityEdit.m_cParam.m_vScaleRange;
-            editParam.rotateRange = _cEntityEdit.m_cParam.m_vRotateAngle;
+            editParam.rotateRange = [
+                Module.Math.radToDeg(_cEntityEdit.m_cParam.m_vRotateAngle[0]),
+                Module.Math.radToDeg(_cEntityEdit.m_cParam.m_vRotateAngle[1]),
+            ];
             editParam.mode = _cEntityEdit.m_cParam.m_uMode;
             editParam.totalNum = _cEntityEdit.m_cParam.m_uTotalNum;
             editParam.dist = _cEntityEdit.m_cParam.m_dDist;
@@ -18178,6 +18196,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         tranInfo.rotate = cInfo.m_qRotate;
         tranInfo.offset = cInfo.m_vOffset;
         return tranInfo;
+    };
+
+    /**
+     * 角度转弧度
+     * @param {number} deg // 角度
+     * @return {number} 弧度
+     */
+    Module.Math.degToRad = function (deg) {
+        return (deg * Math.PI) / 180;
+    };
+
+    /**
+     * 弧度转角度
+     * @param {number} rad // 弧度
+     * @return {number} 角度
+     */
+    Module.Math.radToDeg = function (rad) {
+        return (rad * 180) / Math.PI;
     };
 
     // MOD-- 工具函数（Tool） <---

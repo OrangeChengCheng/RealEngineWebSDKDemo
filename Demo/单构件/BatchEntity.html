@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-07-27 15:46:26
+ * @LastEditTime: 2026-08-11 16:32:47
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -16,8 +16,8 @@
         <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
-        <!-- <script async type="text/javascript" src="../DevCenterConfig.js"></script> -->
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script> -->
+        <script async type="text/javascript" src="../DevCenterConfig.js"></script>
     </head>
 
     <body>
@@ -79,6 +79,8 @@
                             },
                             {
                                 dataSetId: 'res_entity_anim_test02',
+                                // resourcesAddress: 'http://192.168.31.6:8088/blackhole3D/EngineRes/RequestEngineRes?dir=url_res_d&path=3a1fce276a289987947d0986eeabf918',
+                                // resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_xiaoren',
                                 resourcesAddress: 'https://demo.bjblackhole.com/default.aspx?dir=url_res02&path=res_entity_anim_test02',
                             },
                         ];
@@ -272,6 +274,7 @@
                         let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
                         entity.dataSetId = 'res_entity_anim_test02';
                         entity.entityType = '[glb]out1';
+                        // entity.entityType = '1';
                         entity.elemId = 0; //自定义构件id，不可重复，重复添加失败
 
                         let batchEntity_line = new BlackHole3D.REBatchEntityInfo();
@@ -284,8 +287,9 @@
 
                         let editParam = new BlackHole3D.REEntityEditParam();
                         editParam.distType = 0;
-                        editParam.mode = 0;
-                        editParam.totalNum = 5;
+                        editParam.mode = 1;
+                        editParam.totalNum = 0;
+                        editParam.dist = 10;
                         editParam.castToGround = true;
                         editParam.scaleRange = [0.3, 3.0];
                         editParam.rotateRange = [0.1, 2.0];

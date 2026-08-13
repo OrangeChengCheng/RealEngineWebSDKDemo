@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-03-18 17:42:38
- * @LastEditTime: 2026-07-30 09:46:45
+ * @LastEditTime: 2026-08-11 12:15:05
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -46,9 +46,9 @@
         <script async type="text/javascript" src="../Engine.js"></script>
         <!-- 引擎初始化 -->
         <script type="text/javascript">
-            document.addEventListener('REAddEntityFinish', REAddEntityFinish);
-            function REAddEntityFinish(e) {
-                console.log('--- 单构件添加', e);
+            document.addEventListener('RESysUIPanelChange', RESysUIPanelChange);
+            function RESysUIPanelChange(e) {
+                console.log('--- UI面板从尺寸发生变化', e.detail);
             }
             function RESystemEngineCreatedCallBack() {
                 // BlackHole3D.Common.setFakeSphMode(true);
