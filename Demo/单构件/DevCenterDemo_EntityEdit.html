@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-08-13 17:15:42
+ * @LastEditTime: 2026-08-14 10:25:12
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -25,32 +25,16 @@
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
 
             <div id="id_option_area" v-if="!hasSelectedEntity">
-                <el-button type="primary" :loading="tree.loading" :disabled="tree.loaded" @click="handle_loadEntity(tree)">
-                    {{ tree.loaded ? '单构件（树）已加载' : '加载单构件（树）' }}
+                <el-button type="primary" :loading="btnLoading(tree)" :disabled="btnDisabled(tree)" @click="handle_entityClick(tree)">
+                    {{ btnText(tree) }}
                 </el-button>
                 <el-button
                     type="primary"
-                    :loading="tree.placing"
-                    :disabled="!tree.loaded || anyPlacing"
+                    :loading="btnLoading(person)"
+                    :disabled="btnDisabled(person)"
                     style="margin-left: 10px"
-                    @click="handle_placeEntity(tree)"
-                    >放置单构件（树）
-                </el-button>
-                <el-button
-                    type="primary"
-                    :loading="person.loading"
-                    :disabled="person.loaded"
-                    style="margin-left: 10px"
-                    @click="handle_loadEntity(person)">
-                    {{ person.loaded ? '单构件（人）已加载' : '加载单构件（人）' }}
-                </el-button>
-                <el-button
-                    type="primary"
-                    :loading="person.placing"
-                    :disabled="!person.loaded || anyPlacing"
-                    style="margin-left: 10px"
-                    @click="handle_placeEntity(person)"
-                    >放置单构件（人）
+                    @click="handle_entityClick(person)">
+                    {{ btnText(person) }}
                 </el-button>
             </div>
 
@@ -63,7 +47,15 @@
             <!--复制参数面板-->
             <div id="id_option_area_2" v-if="hasSelectedEntity">
                 <div style="display: flex; align-items: center; flex-shrink: 0">
-                    <span style="font-size: 13px; color: #000000; margin-right: 5px">随机大小</span>
+                    <span
+                        style="
+                            font-size: 13px;
+                            color: #000000;
+                            text-shadow: 0.5px 0 #ffffff, -0.5px 0 #ffffff, 0 0.5px #ffffff, 0 -0.5px #ffffff;
+                            margin-right: 5px;
+                        "
+                        >随机大小</span
+                    >
                     <el-input-number
                         v-model="randomScaleMin"
                         :min="0"
@@ -73,7 +65,7 @@
                         controls-position="right"
                         style="width: 110px"
                         @change="change_randomScaleMin"></el-input-number>
-                    <span style="font-size: 13px; color: #000000; margin: 0 3px">~</span>
+                    <span style="font-size: 13px; color: #ffffff; margin: 0 3px">~</span>
                     <el-input-number
                         v-model="randomScaleMax"
                         :min="0"
@@ -86,7 +78,15 @@
                 </div>
 
                 <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 16px">
-                    <span style="font-size: 13px; color: #000000; margin-right: 5px">随机旋转</span>
+                    <span
+                        style="
+                            font-size: 13px;
+                            color: #000000;
+                            text-shadow: 0.5px 0 #ffffff, -0.5px 0 #ffffff, 0 0.5px #ffffff, 0 -0.5px #ffffff;
+                            margin-right: 5px;
+                        "
+                        >随机旋转</span
+                    >
                     <el-input-number
                         v-model="randomRotateMin"
                         :min="0"
@@ -96,7 +96,7 @@
                         controls-position="right"
                         style="width: 100px"
                         @change="change_randomRotateMin"></el-input-number>
-                    <span style="font-size: 13px; color: #000000; margin: 0 3px">~</span>
+                    <span style="font-size: 13px; color: #ffffff; margin: 0 3px">~</span>
                     <el-input-number
                         v-model="randomRotateMax"
                         :min="0"
@@ -109,7 +109,15 @@
                 </div>
 
                 <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 16px">
-                    <span style="font-size: 13px; color: #000000; margin-right: 5px">数量/距离</span>
+                    <span
+                        style="
+                            font-size: 13px;
+                            color: #000000;
+                            text-shadow: 0.5px 0 #ffffff, -0.5px 0 #ffffff, 0 0.5px #ffffff, 0 -0.5px #ffffff;
+                            margin-right: 5px;
+                        "
+                        >数量/距离</span
+                    >
                     <el-input-number
                         v-model="copyCount"
                         :min="1"
@@ -220,7 +228,6 @@
                             selElem.dataSetId,
                             BlackHole3D.Entity.getAllTypeNames(selElem.dataSetId)[0]
                         );
-                        // 修复bug：使用===判断，不是赋值=
                         const selEntityInfo = allEntityType.filter((item) => item.elemId === selElem.elemId);
                         if (selEntityInfo && selEntityInfo.length > 0) {
                             this.selectedEntity = selEntityInfo[0];
@@ -233,7 +240,7 @@
                      * 编辑模式结束回调
                      */
                     REEditEntityFinish() {
-                        console.log("添加模式结束");
+                        console.log('添加模式结束');
                         if (this.selectedEntity && this.copy_state) {
                             BlackHole3D.Entity.exitEditMode();
                             REWebSDK_closeMouseTip();
@@ -255,7 +262,6 @@
                      * 鼠标点击添加构件回调
                      */
                     REPointAddEntityClick() {
-                        console.log("点模式-点选");
                         if (this.place_state == 1) {
                             REWebSDK_closeMouseTip();
                             this.place_state = 2;
@@ -274,6 +280,39 @@
                             },
                         ];
                         BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+
+                    /**
+                     * 按钮文案：未加载→加载，已加载→放置
+                     */
+                    btnText(item) {
+                        return item.loaded
+                            ? '放置单构件（' + (item.key === 'tree' ? '树' : '人') + '）'
+                            : '加载单构件（' + (item.key === 'tree' ? '树' : '人') + '）';
+                    },
+                    /**
+                     * 按钮loading：加载中或放置中
+                     */
+                    btnLoading(item) {
+                        return item.loading || item.placing;
+                    },
+                    /**
+                     * 按钮禁用：加载中、或已加载但任意构件正在放置（放置互斥）
+                     */
+                    btnDisabled(item) {
+                        if (item.loading) return true;
+                        if (item.loaded && this.anyPlacing) return true;
+                        return false;
+                    },
+                    /**
+                     * 按钮统一入口：根据 loaded 状态分发到加载/放置
+                     */
+                    handle_entityClick(item) {
+                        if (item.loaded) {
+                            this.handle_placeEntity(item);
+                        } else {
+                            this.handle_loadEntity(item);
+                        }
                     },
 
                     /**
