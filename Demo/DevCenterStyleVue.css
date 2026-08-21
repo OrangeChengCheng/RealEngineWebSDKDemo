@@ -25,13 +25,20 @@ body {
     flex: 1;
 }
 
+.el-button {
+    height: 32px !important;
+    padding: 8px 15px !important;
+    min-height: 30px !important;
+    font-size: 13px !important;
+}
+
 #id_option_area {
     position: absolute;
     top: 10px;
     z-index: 1;
     left: 60px;
     right: 150px;
-    height: 40px;
+    height: 30px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -43,13 +50,54 @@ body {
     z-index: 1;
     left: 60px;
     right: 150px;
-    height: 40px;
+    height: 30px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
 }
 
+#id_option_area_3 {
+    position: absolute;
+    top: 90px;
+    z-index: 1;
+    left: 60px;
+    right: 150px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
 
+.re-margin-L10 {
+    margin-left: 10px;
+}
+
+.re-absolue-panel {
+    position: absolute;
+    z-index: 1;
+    left: 60px;
+    right: 150px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.re-panel {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.re-text {
+    font-size: 13px;
+    color: #000000;
+    text-shadow: 0.5px 0 #ffffff, -0.5px 0 #ffffff, 0 0.5px #ffffff, 0 -0.5px #ffffff;
+    margin-right: 5px;
+}
 
 .color-picker {
     position: relative;

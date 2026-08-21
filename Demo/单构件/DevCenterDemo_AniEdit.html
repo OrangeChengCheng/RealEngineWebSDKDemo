@@ -1,0 +1,445 @@
+<!--
+ * @Author: Lemon C
+ * @Date: 2025-11-07 10:55:10
+ * @LastEditTime: 2026-08-21 15:14:10
+-->
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0" />
+        <title>RealEngineWebSDKDemo</title>
+        <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
+        <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
+        <script src="https://npm.elemecdn.com/element-plus"></script>
+        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" /> -->
+        <link rel="stylesheet" href="../DevCenterStyleVue.css" />
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+            <div class="re-absolue-panel" style="top: 10px" v-if="statePanel">
+                <el-button type="primary" @click="addAniClick">添加动画</el-button>
+                <el-button type="primary" @click="playStateClick">{{playStateTitle}}</el-button>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="typePanel">
+                <el-button type="primary" @click="lastClick(0)">上一级</el-button>
+                <el-button type="primary" @click="editTypeClick(1)">位置动画</el-button>
+                <el-button type="primary" @click="editTypeClick(3)">路径动画</el-button>
+                <el-button type="primary" @click="editTypeClick(2)">跟随动画</el-button>
+                <el-button type="primary" @click="editTypeClick(4)">显隐动画</el-button>
+            </div>
+            <div class="re-absolue-panel" style="top: 50px" v-if="typePanel">
+                <el-button type="primary" @click="editTypeClick(5)">爆炸动画</el-button>
+                <el-button type="primary" @click="editTypeClick(6)">自定义控制动画</el-button>
+                <el-button type="primary" @click="editTypeClick(7)">材质动画</el-button>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(1)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(1)">创建位置动画</el-button>
+                    <el-button type="primary" @click="saveKeyframeClick(1)">保存关键帧</el-button>
+                </div>
+            </div>
+
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(3)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(3)">创建路径动画</el-button>
+                </div>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(2)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(2, 1)">创建跟随动画（位置）</el-button>
+                    <el-button type="primary" @click="addAniEditClick(2, 2)">创建跟随动画（路径）</el-button>
+                </div>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(4)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(4)">创建显隐动画</el-button>
+                    <el-button type="primary" @click="saveKeyframeClick(4)">保存关键帧</el-button>
+                    <div class="re-panel re-margin-L10">
+                        <span class="re-text">显隐：</span>
+                        <el-switch v-model="aniVisibility" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(5)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(5)">创建爆炸动画</el-button>
+                    <el-button type="primary" @click="saveKeyframeClick(5)">保存关键帧</el-button>
+                </div>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(6)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(6)">创建自定义控制动画</el-button>
+                    <el-button type="primary" @click="saveKeyframeClick(6)">保存关键帧</el-button>
+                    <div class="re-panel re-margin-L10">
+                        <span class="re-text">控制动画名称：</span>
+                        <el-select v-model="entityAniName" placeholder="请选择" style="width: 100px">
+                            <el-option v-for="item in entityAniNameOptions" :key="item.value" :label="item.label" :value="item.value" />
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <div class="re-absolue-panel" style="top: 50px" v-if="ctrlPanelState(6)">
+                <div class="re-panel">
+                    <span class="re-text">进度：</span>
+                    <el-slider style="width: 400px" v-model="aniCtrlPos" :min="0" :max="1" :step="0.05" show-input />
+                </div>
+                <div class="re-panel re-margin-L10">
+                    <span class="re-text">反向：</span>
+                    <el-switch v-model="aniReversed" />
+                </div>
+            </div>
+            <div class="re-absolue-panel" style="top: 10px" v-if="ctrlPanelState(7)">
+                <el-button type="primary" @click="lastClick(1)">上一级</el-button>
+                <div class="re-panel re-margin-L10">
+                    <el-button type="primary" @click="addAniEditClick(7)">创建材质动画</el-button>
+                    <el-button type="primary" @click="saveKeyframeClick(7)">保存关键帧</el-button>
+                    <div class="re-panel re-margin-L10">
+                        <span class="re-text">颜色：</span>
+                        <el-color-picker v-model="selectedColor" show-alpha />
+                    </div>
+                </div>
+            </div>
+            <div class="re-absolue-panel" :style="timelineStyle" v-if="timelineState">
+                <div class="re-panel">
+                    <span class="re-text">编辑动画时间轴：</span>
+                    <el-slider style="width: 400px" v-model="timeline" :min="0" :max="100" :step="1" show-input />
+                </div>
+            </div>
+        </div>
+
+        <!-- UI 相关逻辑 -->
+        <script>
+            const app = Vue.createApp({
+                data() {
+                    return {
+                        editState: false, // 编辑状态
+                        playState: false, // 播放状态
+                        groupName: 'AniEditGroupName', // 动画编辑组标识
+                        entityDataSetId: 'jxb', // 单构件数据集标识
+                        timeLen: 100.0, // 总时长（秒）
+                        statePanel: true, // 状态面板
+                        typePanel: false, // 类型面板
+                        ctrlPanel: false, // 控制面板
+                        aniVisibility: true, // 显隐动画显示隐藏
+                        aniReversed: false, // 控制动画反向操作
+                        timeline: 0, // 时间轴时刻
+                        curEditType: 0, //0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画
+                        selectedColor: 'rgba(255, 0, 0, 1.0)', //颜色
+                        aniCtrlPos: 0, //控制动画进度
+                        entityAniName: 'base', //单构件动画名称
+                        entityAniNameOptions: [
+                            {
+                                value: 'base',
+                                label: '基座',
+                            },
+                            {
+                                value: 'armA',
+                                label: '大臂',
+                            },
+                            {
+                                value: 'armB',
+                                label: '小臂',
+                            },
+                            {
+                                value: 'gunBase',
+                                label: '爪臂',
+                            },
+                            {
+                                value: 'gun',
+                                label: '探头',
+                            },
+                        ],
+                    };
+                },
+                computed: {
+                    editStateTitle() {
+                        return this.editState ? '退出编辑模式' : '进入编辑模式';
+                    },
+                    playStateTitle() {
+                        return this.playState ? '停止并重置动画' : '播放动画';
+                    },
+                    ctrlPanelState() {
+                        return (type) => {
+                            return type == this.curEditType;
+                        };
+                    },
+                    timelineState() {
+                        switch (this.curEditType) {
+                            case 1:
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                                return true;
+                            case 2:
+                            case 3:
+                                return false;
+                            default:
+                                return false;
+                        }
+                    },
+                    timelineStyle() {
+                        switch (this.curEditType) {
+                            case 1:
+                            case 4:
+                            case 5:
+                            case 7:
+                                return { top: '50px' };
+                            case 6:
+                                return { top: '90px' };
+                            default:
+                                return { top: '0px' };
+                        }
+                    },
+                },
+                created() {
+                    document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
+                },
+                mounted() {},
+                methods: {
+                    RESystemSelShpElementCallBack() {},
+                    RESystemEngineCreatedCallBack() {
+                        const dataSetList = [
+                            {
+                                dataSetId: '场景模型',
+                                resourcesAddress:
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                            },
+                            {
+                                dataSetId: 'jxb',
+                                resourcesAddress: 'https://realbim.bjblackhole.cn:8009/default.aspx?dir=url_res02&path=res_ani/003',
+                            },
+                        ];
+                        BlackHole3D.Model.loadDataSet(dataSetList);
+                    },
+                    REAddEntityFinish() {
+                        ElementPlus.ElMessage.success('单构件加载完成');
+                    },
+                    RESystemSelElementCallBack(e) {
+                        const selElem = BlackHole3D.Probe.getCurSelInfo();
+                        if (selElem.selType !== 'BIMElem') return;
+                        if (selElem.dataSetId === '场景模型') {
+                            BlackHole3D.BIM.delAllSelElems();
+                            return;
+                        }
+                        console.log(selElem);
+                    },
+
+                    REDataSetLoadFinishCallBack(e) {
+                        this.loadEntity();
+                    },
+                    loadEntity() {
+                        let typeNames = BlackHole3D.Entity.getAllTypeNames('jxb'); //获取所有的实例类型名称
+                        if (typeNames.length) {
+                            let entityList = [];
+                            let base = [300.0, 410.0, 3.0];
+                            let id = 1;
+                            for (let i = 0; i < 6; i++) {
+                                for (let j = 0; j < 6; j++) {
+                                    for (let k = 0; k < 6; k++) {
+                                        let entity = new BlackHole3D.REEntityInfo(); //创建实例信息对象
+                                        entity.dataSetId = 'jxb';
+                                        entity.entityType = typeNames[0];
+                                        entity.elemId = id; //自定义构件id，不可重复，重复添加失败
+                                        ++id;
+                                        entity.scale = [2.0, 2.0, 2.0]; // 缩放
+                                        entity.rotate = [0.0, 0.0, 0.0, 1.0]; // 旋转
+                                        entity.offset = [base[0] + i * 3, base[1] + j * 3, base[2] + k * 3]; // 平移
+                                        entity.dataSetCRS = ''; // 坐标系标识
+                                        entityList.push(entity);
+                                    }
+                                }
+                            }
+                            BlackHole3D.Entity.addEntities(entityList); //添加实例对象
+                        }
+                    },
+
+                    editStateClick() {
+                        if (!this.editState) {
+                            BlackHole3D.Entity.startAniEditMode();
+                            BlackHole3D.Entity.addAniGroup(this.groupName, this.timeLen);
+                        } else {
+                            BlackHole3D.Entity.endAniEditMode();
+                        }
+                        this.editState = !this.editState;
+                    },
+                    playStateClick() {
+                        if (!this.playState) {
+                            BlackHole3D.Entity.startPlayAniGroup(this.groupName);
+                        } else {
+                            BlackHole3D.Entity.stopPlayAniGroup(this.groupName);
+                        }
+                        this.playState = !this.playState;
+                    },
+                    addAniClick() {
+                        this.statePanel = false;
+                        this.typePanel = true;
+                        BlackHole3D.Entity.startAniEditMode();
+                        BlackHole3D.Entity.addAniGroup(this.groupName, this.timeLen);
+                    },
+                    lastClick(type) {
+                        if (type == 0) {
+                            this.statePanel = true;
+                            this.typePanel = false;
+                            BlackHole3D.Entity.endAniEditMode();
+                        } else if (type == 1) {
+                            this.typePanel = true;
+                        }
+                        this.curEditType = 0;
+                        REWebSDK_closeMouseTip();
+                    },
+                    editTypeClick(type) {
+                        this.curEditType = type;
+                        this.typePanel = false;
+                        this.timeline = 0;
+                    },
+                    addAniEditClick(type, mode = 0) {
+                        if (type == 1) {
+                            BlackHole3D.Entity.addAniEditCommon(this.groupName, 'AniEdit_Common', this.entityDataSetId, 1, [0, 30]);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_Common', 1);
+                        } else if (type == 3) {
+                            BlackHole3D.Entity.addAniEditPath(this.groupName, 'AniEdit_Path', this.entityDataSetId, 2, [0, 30]);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_Path', 3);
+                            BlackHole3D.Entity.setAniEditPathSelfDir(this.groupName, 'AniEdit_Path', [0, 1, 0]);
+                            REWebSDK_openMouseTip('canvas', '左键点击划线，右键结束');
+                        } else if (type == 2) {
+                            const groupInfo = BlackHole3D.Entity.getEntityAniEditDatas()[0];
+                            if (mode == 1) {
+                                if (!groupInfo.aniEditCommonList.length) {
+                                    ElementPlus.ElMessage.error('请先添加位置动画');
+                                    return;
+                                }
+                                BlackHole3D.Entity.addAniEditRelevance(
+                                    this.groupName,
+                                    'AniEdit_Relevance_1',
+                                    this.entityDataSetId,
+                                    3,
+                                    'AniEdit_Common',
+                                    1,
+                                    [0, 26]
+                                );
+                                BlackHole3D.Entity.addAniEditRelevance(
+                                    this.groupName,
+                                    'AniEdit_Relevance_2',
+                                    this.entityDataSetId,
+                                    4,
+                                    'AniEdit_Common',
+                                    1,
+                                    [2, 26]
+                                );
+                            } else if (mode == 2) {
+                                if (!groupInfo.aniEditPathList.length) {
+                                    ElementPlus.ElMessage.error('请先添加路径动画');
+                                    return;
+                                }
+                                BlackHole3D.Entity.addAniEditRelevance(
+                                    this.groupName,
+                                    'AniEdit_Relevance_3',
+                                    this.entityDataSetId,
+                                    6,
+                                    'AniEdit_Path',
+                                    3,
+                                    [0, 26]
+                                );
+                                BlackHole3D.Entity.addAniEditRelevance(
+                                    this.groupName,
+                                    'AniEdit_Relevance_4',
+                                    this.entityDataSetId,
+                                    7,
+                                    'AniEdit_Path',
+                                    3,
+                                    [8, 26]
+                                );
+                            }
+                        } else if (type == 4) {
+                            BlackHole3D.Entity.addAniEditVisibility(this.groupName, 'AniEdit_Visibility', this.entityDataSetId, 7, [0, 30]);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_Visibility', 4);
+                        } else if (type == 5) {
+                            const elemInfoList = [];
+                            let _count = 6 * 6 * 2; //*6
+                            for (let i = 0; i < _count; i++) {
+                                elemInfoList.push({ dataSetId: this.entityDataSetId, elemId: i + 1 });
+                            }
+                            BlackHole3D.Entity.addAniEditExplode(this.groupName, 'AniEdit_Explode', [0, 30], elemInfoList);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_Explode', 5);
+                        } else if (type == 6) {
+                            BlackHole3D.Entity.addAniEditCustomCtrl(this.groupName, 'AniEdit_CustomCtrl', this.entityDataSetId, 13, [0, 30]);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_CustomCtrl', 6);
+                        } else if (type == 7) {
+                            console.log(this.selectedColor);
+                            BlackHole3D.Entity.addAniEditTexture(this.groupName, 'AniEdit_Texture', this.entityDataSetId, 2, [0, 30]);
+                            BlackHole3D.Entity.setActivatedEditInfo(this.groupName, 'AniEdit_Texture', 7);
+                        }
+                    },
+                    saveKeyframeClick(type) {
+                        if (type == 1) {
+                            BlackHole3D.Entity.saveKeyframeToCommon(this.groupName, 'AniEdit_Common', this.timeline);
+                        } else if (type == 4) {
+                            BlackHole3D.Entity.setAniEditVisibilityInfo(this.groupName, 'AniEdit_Visibility', this.timeline, this.aniVisibility);
+                        } else if (type == 5) {
+                            BlackHole3D.Entity.setAniEditExplodeWeight(this.groupName, 'AniEdit_Explode', this.timeline, [
+                                1.0 * this.timeline * 0.3,
+                                1.0 * this.timeline * 0.3,
+                                1.0 * this.timeline * 0.3,
+                            ]);
+                            BlackHole3D.Entity.setAniEditExplodeWeight(this.groupName, 'AniEdit_Explode', 30 - this.timeline, [
+                                1.0 * this.timeline * 0.3,
+                                1.0 * this.timeline * 0.3,
+                                1.0 * this.timeline * 0.3,
+                            ]);
+                        } else if (type == 6) {
+                            BlackHole3D.Entity.saveKeyframeToCustomCtrl(
+                                this.groupName,
+                                'AniEdit_CustomCtrl',
+                                this.entityAniName,
+                                this.timeline,
+                                this.aniCtrlPos,
+                                this.aniReversed
+                            );
+                        } else if (type == 7) {
+                            const inner = this.selectedColor.replace('rgba(', '').replace(')', '');
+                            const clrArr = inner.split(',').map((item) => Number(item.trim()));
+                            const [colorR, colorG, colorB, colorA] = clrArr;
+                            const alpha = Math.round(colorA * 255);
+
+                            const clrBlend = new BlackHole3D.REEntityAniClrBlendInfo();
+                            clrBlend.elemClr = new BlackHole3D.REColor(colorR, colorG, colorB, alpha);
+                            clrBlend.clrWeight = 255;
+                            clrBlend.alphaWeight = 255;
+                            clrBlend.elemEmis = 0;
+                            clrBlend.elemEmisPercent = 0;
+                            clrBlend.elemSmooth = 0;
+                            clrBlend.elemMetal = 0;
+                            clrBlend.elemSmmePercent = 0;
+                            clrBlend.useNewAlpha = true;
+                            clrBlend.useNewClr = true;
+                            clrBlend.useNewEmis = false;
+                            clrBlend.useNewSmoothMetal = false;
+
+                            BlackHole3D.Entity.setAniEditTextureInfo(this.groupName, 'AniEdit_Texture', this.timeline, clrBlend);
+                        }
+                    },
+                },
+            });
+
+            app.use(ElementPlus);
+            const vm = app.mount('#app');
+            window.vm = vm;
+        </script>
+    </body>
+</html>
