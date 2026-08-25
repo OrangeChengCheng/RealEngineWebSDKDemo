@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-08-21 15:14:10
+ * @LastEditTime: 2026-08-24 11:02:57
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -13,8 +13,7 @@
         <script src="https://npm.elemecdn.com/vue@3/dist/vue.global.prod.js"></script>
         <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
         <script src="https://npm.elemecdn.com/element-plus"></script>
-        <!-- <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" /> -->
-        <link rel="stylesheet" href="../DevCenterStyleVue.css" />
+        <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
         <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
         <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
@@ -131,7 +130,7 @@
                         playState: false, // 播放状态
                         groupName: 'AniEditGroupName', // 动画编辑组标识
                         entityDataSetId: 'jxb', // 单构件数据集标识
-                        timeLen: 100.0, // 总时长（秒）
+                        totalTime: 100.0, // 总时长（秒）
                         statePanel: true, // 状态面板
                         typePanel: false, // 类型面板
                         ctrlPanel: false, // 控制面板
@@ -272,7 +271,7 @@
                     editStateClick() {
                         if (!this.editState) {
                             BlackHole3D.Entity.startAniEditMode();
-                            BlackHole3D.Entity.addAniGroup(this.groupName, this.timeLen);
+                            BlackHole3D.Entity.addAniGroup(this.groupName, this.totalTime);
                         } else {
                             BlackHole3D.Entity.endAniEditMode();
                         }
@@ -290,7 +289,7 @@
                         this.statePanel = false;
                         this.typePanel = true;
                         BlackHole3D.Entity.startAniEditMode();
-                        BlackHole3D.Entity.addAniGroup(this.groupName, this.timeLen);
+                        BlackHole3D.Entity.addAniGroup(this.groupName, this.totalTime);
                     },
                     lastClick(type) {
                         if (type == 0) {
@@ -388,22 +387,22 @@
                     },
                     saveKeyframeClick(type) {
                         if (type == 1) {
-                            BlackHole3D.Entity.saveKeyframeToCommon(this.groupName, 'AniEdit_Common', this.timeline);
+                            BlackHole3D.Entity.setAniEditCommonInfo(this.groupName, 'AniEdit_Common', this.timeline);
                         } else if (type == 4) {
                             BlackHole3D.Entity.setAniEditVisibilityInfo(this.groupName, 'AniEdit_Visibility', this.timeline, this.aniVisibility);
                         } else if (type == 5) {
-                            BlackHole3D.Entity.setAniEditExplodeWeight(this.groupName, 'AniEdit_Explode', this.timeline, [
+                            BlackHole3D.Entity.setAniEditExplodeInfo(this.groupName, 'AniEdit_Explode', this.timeline, [
                                 1.0 * this.timeline * 0.3,
                                 1.0 * this.timeline * 0.3,
                                 1.0 * this.timeline * 0.3,
                             ]);
-                            BlackHole3D.Entity.setAniEditExplodeWeight(this.groupName, 'AniEdit_Explode', 30 - this.timeline, [
+                            BlackHole3D.Entity.setAniEditExplodeInfo(this.groupName, 'AniEdit_Explode', 30 - this.timeline, [
                                 1.0 * this.timeline * 0.3,
                                 1.0 * this.timeline * 0.3,
                                 1.0 * this.timeline * 0.3,
                             ]);
                         } else if (type == 6) {
-                            BlackHole3D.Entity.saveKeyframeToCustomCtrl(
+                            BlackHole3D.Entity.setAniEditCustomCtrlInfo(
                                 this.groupName,
                                 'AniEdit_CustomCtrl',
                                 this.entityAniName,

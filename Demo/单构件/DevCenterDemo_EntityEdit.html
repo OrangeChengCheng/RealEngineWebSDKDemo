@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-08-14 11:55:03
+ * @LastEditTime: 2026-08-24 10:02:05
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -14,8 +14,10 @@
         <link rel="stylesheet" href="https://npm.elemecdn.com/element-plus/dist/index.css" />
         <script src="https://npm.elemecdn.com/element-plus"></script>
         <link rel="stylesheet" href="https://demo.bjblackhole.com/devcenter/css/DevCenterStyleVue.css" />
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/RealBIMWeb.js"></script>
-        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/BlackHole3D.js"></script>
+        <!-- <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/sdk/BlackHole3D.js"></script> -->
+        <script async type="text/javascript" src="../../javascript/RealBIMWeb.js"></script>
+        <script async type="text/javascript" src="../../javascript/BlackHole3D.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/DevCenterConfig.js"></script>
         <script async type="text/javascript" src="https://demo.bjblackhole.com/devcenter/js/mouse-tip.js"></script>
     </head>
@@ -276,7 +278,8 @@
                             {
                                 dataSetId: '场景模型',
                                 resourcesAddress:
-                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
+                                    'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=res_skybox',
+                                    // 'https://engine3.bjblackhole.com/engineweb/api/autoconvert/EngineRes/RequestEngineRes?dir=url_res04&path=3a162cb19bba1113bef6d7cc3151e24e',
                             },
                         ];
                         BlackHole3D.Model.loadDataSet(dataSetList);
@@ -341,7 +344,7 @@
                                 },
                             ];
                         }
-                        BlackHole3D.Model.loadDataSet(dataSetList, false);
+                        BlackHole3D.Model.loadDataSet(dataSetList, true);
                     },
 
                     /**

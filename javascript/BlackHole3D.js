@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3898
+﻿//版本：v3.2.0.3905
 const isPhoneMode = false;
 const hasNewEntity = false;
 const hasEntityAniEdit = false;
@@ -7272,6 +7272,24 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return Module.RealBIMWeb.SetHugeObjDiffCoef(dataSetId, '', _diffCoef);
     };
 
+    /**
+     * 设置点云模型可视信息 注：只对点云数据有效
+     * @param {String} dataSetId //数据集标识
+     * @param {dvec4} dists //可视信息（四元素数组）【启动缩放距离, 最远可视距离, 在启动距离上的矩形像素长度，在启动距离上的矩形像素宽度】，矩形大小会随相对启动距离的范围进行缩放，小于启动距离放大，大于启动距离缩小
+     */
+    Module.BIM.setPointCloudDistsInfo = function (dataSetId, dists) {
+        if (!checkArrCountLog(dists, 'dists', 4)) return false;
+        return Module.RealBIMWeb.SetUnVerHugeGroupDistsInfo(dataSetId, dists);
+    }
+
+    /**
+     * 获取点云模型可视信息 注：只对点云数据有效
+     * @param {String} dataSetId //数据集标识
+     */
+    Module.BIM.getPointCloudDistsInfo = function (dataSetId) {
+        return Module.RealBIMWeb.GetUnVerHugeGroupDistsInfo(dataSetId);
+    }
+
     // MARK 骨骼动画
 
     class REGolBoneLocInfo {
@@ -14074,10 +14092,10 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     /**
      * 创建一个动画编辑组
      * @param {String} groupName //编辑动画集合的组名称
-     * @param {number} timeLen //创建动画总时长
+     * @param {number} totalTime //创建动画总时长
      */
-    Module.Entity.addAniGroup = function (groupName, timeLen) {
-        Module.RealBIMWeb.AddAAniGroup(groupName, timeLen);
+    Module.Entity.addAniGroup = function (groupName, totalTime) {
+        Module.RealBIMWeb.AddAAniGroup(groupName, totalTime);
     };
 
     /**
@@ -14119,13 +14137,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 保存一个关键帧到位置动画编辑
+     * 设置一个关键帧的位置动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
-     * @param {number} timeLen //关键帧时刻
+     * @param {number} time //关键帧时刻
      */
-    Module.Entity.saveKeyframeToCommon = function (groupName, aniId, timeLen) {
-        Module.RealBIMWeb.SaveAKeyToEntity(groupName, aniId, timeLen);
+    Module.Entity.setAniEditCommonInfo = function (groupName, aniId, time) {
+        Module.RealBIMWeb.SaveAKeyToEntity(groupName, aniId, time);
     };
 
     /**
@@ -14192,13 +14210,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置爆炸动画在某一时刻的爆炸权重
+     * 设置一个关键帧的爆炸动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
      * @param {number} time //时刻
      * @param {dvec3} weight //三个方向的爆炸权重（三元素数组）【主方向权重, 主方向的垂直方向1权重, 主方向的垂直方向2权重】
      */
-    Module.Entity.setAniEditExplodeWeight = function (groupName, aniId, time, weight) {
+    Module.Entity.setAniEditExplodeInfo = function (groupName, aniId, time, weight) {
         return Module.RealBIMWeb.SetExplodeAniWeight(groupName, aniId, time, weight);
     };
 
@@ -14215,7 +14233,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 保存一个关键帧到自定义控制动画编辑
+     * 设置一个关键帧的自定义控制动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
      * @param {String} ctrlName //控制动作名称
@@ -14223,7 +14241,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {number} pos //控制动画进度
      * @param {boolean} posReversed //是否反向
      */
-    Module.Entity.saveKeyframeToCustomCtrl = function (groupName, aniId, ctrlName, time, pos, posReversed) {
+    Module.Entity.setAniEditCustomCtrlInfo = function (groupName, aniId, ctrlName, time, pos, posReversed) {
         Module.RealBIMWeb.SaveAKeyToCustomCtrlAni(groupName, aniId, ctrlName, time, pos, posReversed);
     };
 
@@ -14255,7 +14273,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置显隐动画信息
+     * 设置一个关键帧的显隐动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
      * @param {number} time //关键帧时刻
@@ -14278,7 +14296,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置材质动画信息
+     * 设置一个关键帧的材质动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
      * @param {number} time //关键帧时刻
@@ -14496,7 +14514,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         //动画编辑组信息
         constructor() {
             this.groupName = null; //动画编辑组名称
-            this.timeLen = 180.0; //动画总时长
+            this.totalTime = 180.0; //动画总时长
             this.aniEditCommonList = null; //所有位置编辑动画编辑数据集合（REEntityAniEditCommon 类型）
             this.aniEditRelevanceList = null; //所有关联动画编辑数据集合（REEntityAniEditRelevance 类型）
             this.aniEditPathList = null; //所有路径动画编辑数据集合（REEntityAniEditPath 类型）
@@ -14522,8 +14540,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有动画实体编辑数据合集
             const _arrEntityAniEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_COMMON_W();
             {
-                for (let j = 0; j < groupInfo.aniEditCommonList.length; j++) {
-                    const commonInfo = groupInfo.aniEditCommonList[j];
+                const aniEditCommonList = isEmpty(groupInfo.aniEditCommonList) ? [] : groupInfo.aniEditCommonList;
+                for (let j = 0; j < aniEditCommonList.length; j++) {
+                    const commonInfo = aniEditCommonList[j];
 
                     const _arrTimes = new Module.RE_Vector_double();
                     for (let k = 0; k < commonInfo.timeList.length; k++) {
@@ -14562,8 +14581,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有关联动画编辑数据合集
             const _arrEntityRelevanceEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_RELEVANCE_W();
             {
-                for (let j = 0; j < groupInfo.aniEditRelevanceList.length; j++) {
-                    const relevanceInfo = groupInfo.aniEditRelevanceList[j];
+                const aniEditRelevanceList = isEmpty(groupInfo.aniEditRelevanceList) ? [] : groupInfo.aniEditRelevanceList;
+                for (let j = 0; j < aniEditRelevanceList.length; j++) {
+                    const relevanceInfo = aniEditRelevanceList[j];
                     const _cRelevance = {
                         m_strName: relevanceInfo.aniId,
                         m_vTimeRange: relevanceInfo.timeRange,
@@ -14586,8 +14606,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有路径动画编辑数据合集
             const _arrEntityPathEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_PATH_W();
             {
-                for (let j = 0; j < groupInfo.aniEditPathList.length; j++) {
-                    const pathInfo = groupInfo.aniEditPathList[j];
+                const aniEditPathList = isEmpty(groupInfo.aniEditPathList) ? [] : groupInfo.aniEditPathList;
+                for (let j = 0; j < aniEditPathList.length; j++) {
+                    const pathInfo = aniEditPathList[j];
 
                     const _arrPathPoints = new Module.RE_Vector_dvec3();
                     for (let k = 0; k < pathInfo.pathPointList.length; k++) {
@@ -14615,8 +14636,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有显隐动画编辑数据合集
             const _arrEntityVisibilityEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_VISIBILITY_W();
             {
-                for (let j = 0; j < groupInfo.aniEditVisibilityList.length; j++) {
-                    const visibilityInfo = groupInfo.aniEditVisibilityList[j];
+                const aniEditVisibilityList = isEmpty(groupInfo.aniEditVisibilityList) ? [] : groupInfo.aniEditVisibilityList;
+                for (let j = 0; j < aniEditVisibilityList.length; j++) {
+                    const visibilityInfo = aniEditVisibilityList[j];
 
                     const _arrTimes = new Module.RE_Vector_double();
                     for (let k = 0; k < visibilityInfo.timeList.length; k++) {
@@ -14643,8 +14665,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有爆炸动画数据合集
             const _arrEntityExplodeEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_EXPLODE_W();
             {
-                for (let j = 0; j < groupInfo.aniEditExplodeList.length; j++) {
-                    const explodeInfo = groupInfo.aniEditExplodeList[j];
+                const aniEditExplodeList = isEmpty(groupInfo.aniEditExplodeList) ? [] : groupInfo.aniEditExplodeList;
+                for (let j = 0; j < aniEditExplodeList.length; j++) {
+                    const explodeInfo = aniEditExplodeList[j];
 
                     const _arrTimes = new Module.RE_Vector_double();
                     for (let k = 0; k < explodeInfo.timeList.length; k++) {
@@ -14693,8 +14716,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有自定义动画数据合集
             const _arrEntityCustomEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_CUSTOM_W();
             {
-                for (let j = 0; j < groupInfo.aniEditCustomCtrlList.length; j++) {
-                    const customCtrlInfo = groupInfo.aniEditCustomCtrlList[j];
+                const aniEditCustomCtrlList = isEmpty(groupInfo.aniEditCustomCtrlList) ? [] : groupInfo.aniEditCustomCtrlList;
+                for (let j = 0; j < aniEditCustomCtrlList.length; j++) {
+                    const customCtrlInfo = aniEditCustomCtrlList[j];
 
                     const _arrCtrlNames = new Module.RE_Vector_WStr();
                     for (let k = 0; k < customCtrlInfo.ctrlNameList.length; k++) {
@@ -14742,8 +14766,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             //所有材质动画数据合集
             const _arrEntityTextureEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_TEXTURE_W();
             {
-                for (let j = 0; j < groupInfo.aniEditTextureList.length; j++) {
-                    const textureInfo = groupInfo.aniEditTextureList[j];
+                const aniEditTextureList = isEmpty(groupInfo.aniEditTextureList) ? [] : groupInfo.aniEditTextureList;
+                for (let j = 0; j < aniEditTextureList.length; j++) {
+                    const textureInfo = aniEditTextureList[j];
 
                     const _arrTimes = new Module.RE_Vector_double();
                     for (let k = 0; k < textureInfo.timeList.length; k++) {
@@ -14812,7 +14837,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             const _cGroup = {
                 m_strGroupName: groupInfo.groupName,
-                m_dTimeLen: groupInfo.timeLen,
+                m_dTimeLen: groupInfo.totalTime,
                 m_arrEntityAniEditDatas: _arrEntityAniEditDatas,
                 m_arrEntityRelevanceEditDatas: _arrEntityRelevanceEditDatas,
                 m_arrEntityPathEditDatas: _arrEntityPathEditDatas,
@@ -15140,7 +15165,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
             const groupInfo = {
                 groupName: _cGroup.m_strGroupName,
-                timeLen: _cGroup.m_dTimeLen,
+                totalTime: _cGroup.m_dTimeLen,
                 aniEditCommonList: allTran,
                 aniEditRelevanceList: allRelevance,
                 aniEditPathList: allPath,
