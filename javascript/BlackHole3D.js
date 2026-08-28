@@ -1,6 +1,6 @@
-﻿//版本：v3.2.0.3909
+﻿//版本：v3.2.0.3914
 const isPhoneMode = false;
-const hasNewEntity = false;
+const hasNewEntity = true;
 const hasEntityAniEdit = false;
 const discardHint = true;
 const sharding = true;
@@ -536,6 +536,41 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         const _signalURL = isEmpty(signalURL) ? '' : signalURL;
         const _domainName = isEmpty(domainName) ? '' : domainName;
         Module.RealBIMWeb.SetStreamResBaseInfo(_signalURL, _domainName);
+    };
+
+    class RERenderStat {
+        constructor() {
+            this.drawFaceNum = 0; //渲染的面数
+            this.drawVertexNum = 0; //渲染的顶点数
+            this.totalDrawCallNum = 0; //总的绘制调用数
+            this.curFps = 0; //当前fps
+            this.fps = 0; //fps
+            this.time = 0; //时间
+            this.misc0 = 0; //杂项0
+            this.misc1 = 0; //杂项1
+            this.misc2 = 0; //杂项2
+        }
+    }
+    ExtModule.RERenderStat = RERenderStat;
+
+    /**
+     * 获取最近一次开始渲染到现在的渲染统计信息
+     */
+    Module.getRenderStat = function () {
+        const dFrameInterval = Module.RealBIMWeb.GetFrameInterval();
+        const dAvgFrameInterval = Module.RealBIMWeb.GetAvgFrameInterval();
+        const cStat = Module.RealBIMWeb.GetRenderStat();
+        const statInfo = new Module.RERenderStat();
+        statInfo.drawFaceNum = cStat.m_uDrawFaceNum;
+        statInfo.drawVertexNum = cStat.m_uDrawVertexNum;
+        statInfo.totalDrawCallNum = cStat.m_uTotalDrawCallNum;
+        statInfo.curFps = 1.0 / dFrameInterval;
+        statInfo.fps = 1.0 / dAvgFrameInterval;
+        statInfo.time = dAvgFrameInterval * 1000.0;
+        statInfo.misc0 = cStat.m_uMisc0;
+        statInfo.misc1 = cStat.m_uMisc1;
+        statInfo.misc2 = cStat.m_uMisc2;
+        return statInfo;
     };
 
     // MARK 效果展示
@@ -7280,7 +7315,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.BIM.setPointCloudDistsInfo = function (dataSetId, dists) {
         if (!checkArrCountLog(dists, 'dists', 4)) return false;
         return Module.RealBIMWeb.SetUnVerHugeGroupDistsInfo(dataSetId, dists);
-    }
+    };
 
     /**
      * 获取点云模型可视信息 注：只对点云数据有效
@@ -7288,7 +7323,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.BIM.getPointCloudDistsInfo = function (dataSetId) {
         return Module.RealBIMWeb.GetUnVerHugeGroupDistsInfo(dataSetId);
-    }
+    };
 
     // MARK 骨骼动画
 
@@ -14179,15 +14214,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {dvec2} timeRange //该构件相对所在组的动画时间【起始，结束】
      */
     Module.Entity.addAniEditRelevance = function (groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, timeRange) {
-        return Module.RealBIMWeb.AddRelevanceAni(
-            groupName,
-            aniId,
-            dataSetId,
-            elemId,
-            relevanceAniId,
-            relevanceAniType,
-            timeRange
-        );
+        return Module.RealBIMWeb.AddRelevanceAni(groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, timeRange);
     };
 
     /**
