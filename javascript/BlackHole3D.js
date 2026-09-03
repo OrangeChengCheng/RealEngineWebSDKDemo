@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3919
+﻿//版本：v3.2.0.3932
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -103,6 +103,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web); //批量添加单构件点添加模式点击回调事件
         document.addEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web); //批量添加单构件结束添加编辑回调事件
         document.addEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web); //系统UI面板变化回调事件
+        document.addEventListener('REEntityAniEditPathAddFinish_Web', REEntityAniEditPathAddFinish_Web); //单构件动画编辑路径动画完成添加回调事件
 
         return bool;
     };
@@ -142,6 +143,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REPointAddEntityClick_Web', REPointAddEntityClick_Web);
         document.removeEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web);
         document.removeEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web);
+        document.removeEventListener('REEntityAniEditPathAddFinish_Web', REEntityAniEditPathAddFinish_Web);
     }
 
     // MARK 回调事件
@@ -403,6 +405,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function RESysUIPanelChange_Web(e) {
         const re_event = new CustomEvent('RESysUIPanelChange', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REEntityAniEditPathAddFinish_Web(e) {
+        const re_event = new CustomEvent('REEntityAniEditPathAddFinish', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event);
@@ -14134,6 +14143,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
+     * 设置动画编辑组动画时长
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {number} totalTime //创建动画总时长
+     */
+    Module.Entity.setAniGroupTotalTime = function (groupName, totalTime) {
+        Module.RealBIMWeb.SetAniGroupTimeLen(groupName, totalTime);
+    };
+
+    /**
      * 设置当前激活动画信息
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
@@ -14153,10 +14171,45 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     /**
      * 设置当前编辑时刻，让组动画到设置时刻
+     * @param {String} groupName //编辑动画集合的组名称
      * @param {number} time //当前时刻
      */
-    Module.Entity.setCurAniEditTime = function (time) {
-        Module.RealBIMWeb.SetCurAniEditTime(time);
+    Module.Entity.setCurAniEditTime = function (groupName, time) {
+        Module.RealBIMWeb.SetCurAniEditTime(groupName, time);
+    };
+
+    /**
+     * 设置动画时间范围
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     * @param {dvec2} timeRange //该构件相对所在组的动画时间【起始，结束】
+     */
+    Module.Entity.setAniEditTimeRange = function (groupName, aniId, aniType, timeRange) {
+        return Module.RealBIMWeb.SetAniTimeRange(groupName, aniId, aniType, timeRange);
+    };
+
+    /**
+     * 设置动画激活状态
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     * @param {boolean} enable //是否启用
+     */
+    Module.Entity.setAniEditEnable = function (groupName, aniId, aniType, enable) {
+        return Module.RealBIMWeb.SetAniEnable(groupName, aniId, aniType, enable);
+    };
+
+    /**
+     * 删除一个动画关键帧
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     * @param {Number} delTime //要删除的关键帧时刻
+     * @param {String} ctrlName //控制动作名称，如果类型是控制动画需要填写动作名称
+     */
+    Module.Entity.delKeyframe = function (groupName, aniId, aniType, delTime, ctrlName) {
+        return Module.RealBIMWeb.DeleteEntityAniKey(groupName, aniId, aniType, delTime, ctrlName);
     };
 
     /**
@@ -14349,59 +14402,62 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 播放一组动画
+     * 创建一个批量动画编辑
      * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {array} elemInfoList //所有批量单构件信息集合（REElemInfo 类型）
+     * @param {dvec2} timeRange //该构件相对所在组的动画时间【起始，结束】
+     * @param {Number} entityType //实体类型 0 ：表示HugeMode模型 1 ：表示gpur(单构件)模型
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 6: 自定义控制动画 7: 材质动画
      */
-    Module.Entity.startPlayAniGroup = function (groupName) {
-        Module.RealBIMWeb.PlayGroupAnim(groupName);
+    Module.Entity.addAniEditMulti = function (groupName, aniId, elemInfoList, timeRange, entityType, aniType) {
+        const _count = elemInfoList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (let i = 0; i < _count; ++i) {
+            const elemInfo = elemInfoList[i];
+            _elemIds.set([elemInfo.elemId, Module.RealBIMWeb.ConvGolStrID2IntID(elemInfo.dataSetId)], i * 2);
+        }
+        return Module.RealBIMWeb.AddEntityMultiAni(groupName, aniId, timeRange, _elemIds.byteLength, _elemIds.byteOffset, entityType, aniType);
     };
 
     /**
-     * 停止组动画播放
+     * 设置批量动画id集合
      * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {array} elemInfoList //所有批量单构件信息集合（REElemInfo 类型）
      */
-    Module.Entity.stopPlayAniGroup = function (groupName) {
-        Module.RealBIMWeb.StopGroupAnim(groupName);
+    Module.Entity.setAniEditMultiElemIdList = function (groupName, aniId, elemInfoList) {
+        const _count = elemInfoList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (let i = 0; i < _count; ++i) {
+            const elemInfo = elemInfoList[i];
+            _elemIds.set([elemInfo.elemId, Module.RealBIMWeb.ConvGolStrID2IntID(elemInfo.dataSetId)], i * 2);
+        }
+        return Module.RealBIMWeb.UpdateMultiAniEntityId(groupName, aniId, _elemIds.byteLength, _elemIds.byteOffset);
     };
 
     /**
-     * 暂停组动画播放
+     * 设置批量动画是否保持相对位置
      * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {boolean} useRelativeLocation //是否保持相对位置
      */
-    Module.Entity.pausePlayAniGroup = function (groupName) {
-        Module.RealBIMWeb.PauseGroupAnim(groupName);
+    Module.Entity.setAniEditMultiRelativeLoc = function (groupName, aniId, useRelativeLocation) {
+        return Module.RealBIMWeb.SetMultiAniUseRelativeLocation(groupName, aniId, useRelativeLocation);
     };
 
     /**
-     * 跳转到下一帧
+     * 设置批量动画各个动画间的间隔时长
      * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} intervalTime //各个动画间的间隔时长
      */
-    Module.Entity.setKeyframeToNext = function (groupName) {
-        Module.RealBIMWeb.SkipGroupAnimToNextKey(groupName);
-    };
-
-    /**
-     * 跳转到上一帧
-     * @param {String} groupName //编辑动画集合的组名称
-     */
-    Module.Entity.setKeyframeToLast = function (groupName) {
-        Module.RealBIMWeb.SkipGroupAnimToLastKey(groupName);
-    };
-
-    /**
-     * 跳转到第一帧
-     * @param {String} groupName //编辑动画集合的组名称
-     */
-    Module.Entity.setKeyframeToBegin = function (groupName) {
-        Module.RealBIMWeb.SkipGroupAnimToBegin(groupName);
-    };
-
-    /**
-     * 跳转到最后一帧
-     * @param {String} groupName //编辑动画集合的组名称
-     */
-    Module.Entity.setKeyframeToEnd = function (groupName) {
-        Module.RealBIMWeb.SkipGroupAnimToEnd(groupName);
+    Module.Entity.SetAniEditMultiIntervalTime = function (groupName, aniId, intervalTime) {
+        return Module.RealBIMWeb.SetMultiAniIntervalTime(groupName, aniId, intervalTime);
     };
 
     class REEntityAniEditCommon {
@@ -14414,6 +14470,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.originalLoc = null; //被编辑单构件原始位置（RELocInfo 类型）
             this.timeList = null; //关键帧时刻列表
             this.keyframeList = null; //关键帧列表（与timeList对应）（REKeyFrameInfo 类型）
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditCommon = REEntityAniEditCommon;
@@ -14427,7 +14485,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.elemId = null; //被编辑的构件标识
             this.originalLoc = null; //被编辑单构件原始位置（RELocInfo 类型）
             this.relevanceAniId = null; //被关联的动画标识
-            this.relevanceAniType = null; //被关联动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画
+            this.relevanceAniType = null; //被关联动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditRelevance = REEntityAniEditRelevance;
@@ -14442,6 +14502,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.originalLoc = null; //被编辑单构件原始位置（RELocInfo 类型）
             this.pathPointList = null; //路径顶点集合（三元素数组集合）
             this.selfVect = [1.0, 0.0, 0.0]; //表示单构件自身姿态正方向（三元素数组）
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditPath = REEntityAniEditPath;
@@ -14455,6 +14517,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.elemId = null; //被编辑的构件标识
             this.timeList = null; //关键帧时刻列表
             this.keyframeList = null; //关键帧列表（与timeList对应）（布尔值类型）
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditVisibility = REEntityAniEditVisibility;
@@ -14473,6 +14537,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.verticalDir2 = [0.0, 0.0, 1.0]; //爆炸主方向的垂直方向2（三元素数组）
             this.timeList = null; //关键帧时刻列表
             this.keyframeList = null; //关键帧列表（与timeList对应）（三元素类型）【mainDir权重, verticalDir1权重, verticalDir2权重】
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditExplode = REEntityAniEditExplode;
@@ -14486,6 +14552,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.elemId = null; //被编辑的构件标识
             this.ctrlNameList = null; //控制动作名称集合
             this.ctrlAniList = null; //控制动作的动画信息集合（与ctrlNameList对应）（REEntityAniCtrlInfo 类型）
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditCustomCtrl = REEntityAniEditCustomCtrl;
@@ -14514,6 +14582,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.originalClrBlend = null; //被编辑单构件原始颜色混合信息（REEntityAniClrBlendInfo 类型）
             this.timeList = null; //关键帧时刻列表
             this.keyframeList = null; //关键帧列表（与timeList对应）（REEntityAniClrBlendInfo 类型）
+            this.multiUnit = false; //是否是批量动画的单元数据
+            this.enable = true; //是否激活
         }
     }
     ExtModule.REEntityAniEditTexture = REEntityAniEditTexture;
@@ -14537,6 +14607,22 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     }
     ExtModule.REEntityAniClrBlendInfo = REEntityAniClrBlendInfo;
 
+    class REEntityAniEditMulti {
+        // 批量动画编辑信息
+        constructor() {
+            this.aniId = null; //动画编辑标识
+            this.entityType = 1; //模型类型 0 ：表示HugeMode模型 1 ：表示gpur(单构件)模型
+            this.elemInfoList = null; //所有单构件信息集合（REElemInfo 类型）
+            this.originalLocList = null; //被编辑单构件集合原始位置（RELocInfo 类型）（与elemInfoList对应）
+            this.aniType = null; //该批量动画实际的动画类型（爆炸动画无法操作）  0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+            this.unitAniId = null; //该批量动画实际的动画单元编辑数据标识
+            this.useRelativeLocation = false; //是否保持相对位置
+            this.intervalTime = 0; //各个动画间的间隔时长
+            this.enable = true; //是否激活
+        }
+    }
+    ExtModule.REEntityAniEditMulti = REEntityAniEditMulti;
+
     class REEntityAniEditGroup {
         //动画编辑组信息
         constructor() {
@@ -14549,6 +14635,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.aniEditExplodeList = null; //所有爆炸动画编辑数据集合（REEntityAniEditExplode 类型）
             this.aniEditCustomCtrlList = null; //所有自定义控制动画编辑数据集合（REEntityAniEditCustomCtrl 类型）
             this.aniEditTextureList = null; //所有材质动画编辑数据集合（REEntityAniEditTexture 类型）
+            this.aniEditMultiList = null; //所有批量动画编辑数据集合（REEntityAniEditMulti 类型）
         }
     }
     ExtModule.REEntityAniEditGroup = REEntityAniEditGroup;
@@ -14600,6 +14687,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_arrTimes: _arrTimes,
                         m_arrKeys: _arrKeys,
+                        m_bMultUnit: isEmpty(commonInfo.multiUnit) ? false : commonInfo.multiUnit,
+                        m_bEnable: isEmpty(commonInfo.enable) ? true : commonInfo.enable,
                     };
                     _arrEntityAniEditDatas.push_back(_cCommon);
                 }
@@ -14625,6 +14714,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_strRelevanceName: relevanceInfo.relevanceAniId,
                         m_eRelevanceAniType: eval(Module.REEntityAnimEditEm[relevanceInfo.relevanceAniType]),
+                        m_bMultUnit: isEmpty(relevanceInfo.multiUnit) ? false : relevanceInfo.multiUnit,
+                        m_bEnable: isEmpty(relevanceInfo.enable) ? true : relevanceInfo.enable,
                     };
                     _arrEntityRelevanceEditDatas.push_back(_cRelevance);
                 }
@@ -14655,6 +14746,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_arrPathPoints: _arrPathPoints,
                         m_vSelfDir: pathInfo.selfVect,
+                        m_bMultUnit: isEmpty(pathInfo.multiUnit) ? false : pathInfo.multiUnit,
+                        m_bEnable: isEmpty(pathInfo.enable) ? true : pathInfo.enable,
                     };
                     _arrEntityPathEditDatas.push_back(_cPath);
                 }
@@ -14684,6 +14777,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_arrTimes: _arrTimes,
                         m_arrVisibilityStatus: _arrVisibilityStatus,
+                        m_bMultUnit: isEmpty(visibilityInfo.multiUnit) ? false : visibilityInfo.multiUnit,
+                        m_bEnable: isEmpty(visibilityInfo.enable) ? true : visibilityInfo.enable,
                     };
                     _arrEntityVisibilityEditDatas.push_back(_cVisibility);
                 }
@@ -14735,6 +14830,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         m_vVerticalDir2: explodeInfo.verticalDir2,
                         m_arrTimes: _arrTimes,
                         m_arrWeight: _arrWeight,
+                        m_bMultUnit: isEmpty(explodeInfo.multiUnit) ? false : explodeInfo.multiUnit,
+                        m_bEnable: isEmpty(explodeInfo.enable) ? true : explodeInfo.enable,
                     };
                     _arrEntityExplodeEditDatas.push_back(_cExplode);
                 }
@@ -14785,6 +14882,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_arrCtrlNames: _arrCtrlNames,
                         m_arrCtrlAniInfos: _arrCtrlAniInfos,
+                        m_bMultUnit: isEmpty(customCtrlInfo.multiUnit) ? false : customCtrlInfo.multiUnit,
+                        m_bEnable: isEmpty(customCtrlInfo.enable) ? true : customCtrlInfo.enable,
                     };
                     _arrEntityCustomEditDatas.push_back(_cCustomCtrl);
                 }
@@ -14857,8 +14956,51 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_arrTimes: _arrTimes,
                         m_arrTimeClrDatas: _arrTimeClrDatas,
+                        m_bMultUnit: isEmpty(textureInfo.multiUnit) ? false : textureInfo.multiUnit,
+                        m_bEnable: isEmpty(textureInfo.enable) ? true : textureInfo.enable,
                     };
                     _arrEntityTextureEditDatas.push_back(_cTexture);
+                }
+            }
+
+            //所有批量动画数据合集
+            const _arrEntityMultiEditDatas = new Module.RE_Vector_ENTITY_ANI_EDIT_MULTI_W();
+            {
+                const aniEditMultiList = isEmpty(groupInfo.aniEditMultiList) ? [] : groupInfo.aniEditMultiList;
+                for (let j = 0; j < aniEditMultiList.length; j++) {
+                    const multiInfo = aniEditMultiList[j];
+
+                    const _arrEntityIds = new Module.RE_Vector_GOL_ENTITY_ID();
+                    for (let k = 0; k < multiInfo.elemInfoList.length; k++) {
+                        const elemInfo = multiInfo.elemInfoList[k];
+                        const _cElem = {
+                            m_uInstID_L32: elemInfo.elemId,
+                            m_uInstID_H32: Module.RealBIMWeb.ConvGolStrID2IntID(elemInfo.dataSetId),
+                        };
+                        _arrEntityIds.push_back(_cElem);
+                    }
+                    const _arrOriginalLocs = new Module.RE_Vector_ENTITY_LOC_TRANS();
+                    for (let k = 0; k < multiInfo.originalLocList.length; k++) {
+                        const locInfo = multiInfo.originalLocList[k];
+                        const _cLoc = {
+                            m_vOffset: locInfo.offset,
+                            m_vScale: locInfo.scale,
+                            m_qRotate: locInfo.rotate,
+                        };
+                        _arrOriginalLocs.push_back(_cLoc);
+                    }
+                    const _cMulti = {
+                        m_strName: multiInfo.aniId,
+                        m_uEntityType: isEmpty(multiInfo.entityType) ? 1 : multiInfo.entityType,
+                        m_arrEntityIds: _arrEntityIds,
+                        m_arrOriginalLocs: _arrOriginalLocs,
+                        m_uUnitAniType: multiInfo.aniType,
+                        m_strUnitAniName: multiInfo.unitAniId,
+                        m_bUseRelativeLocation: multiInfo.useRelativeLocation,
+                        m_dIntervalTime: multiInfo.intervalTime,
+                        m_bEnable: isEmpty(multiInfo.enable) ? true : multiInfo.enable,
+                    };
+                    _arrEntityMultiEditDatas.push_back(_cMulti);
                 }
             }
 
@@ -14872,6 +15014,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 m_arrEntityExplodeEditDatas: _arrEntityExplodeEditDatas,
                 m_arrEntityCustomEditDatas: _arrEntityCustomEditDatas,
                 m_arrEntityTextureEditDatas: _arrEntityTextureEditDatas,
+                m_arrEntityMultiEditDatas: _arrEntityMultiEditDatas,
             };
             _arrAllEntityAniEditDatas.push_back(_cGroup);
         }
@@ -14880,10 +15023,15 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取所有编辑动画组信息
+     * 获取一批编辑动画组信息
+     * @param {Array} groupNameList //需要获取的动画组名称集合, 为空数组代表获取所有
      */
-    Module.Entity.getEntityAniEditDatas = function () {
-        const _arrEntityAniEditGroup = Module.RealBIMWeb.GetEntityAniEditDatas();
+    Module.Entity.getEntityAniEditDatas = function (groupNameList) {
+        const _arrGroupNames = new Module.RE_Vector_WStr();
+        groupNameList.forEach((groupName) => {
+            _arrGroupNames.push_back(groupName);
+        });
+        const _arrEntityAniEditGroup = Module.RealBIMWeb.GetEntityAniEditDatas(_arrGroupNames);
 
         var allGroup = [];
         for (let i = 0; i < _arrEntityAniEditGroup.size(); i++) {
@@ -14926,6 +15074,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         timeList: allTime,
                         keyframeList: allKeyFrame,
+                        multiUnit: _cConmon.m_bMultUnit,
+                        enable: _cConmon.m_bEnable,
                     };
                     allTran.push(tranInfo);
                 }
@@ -14950,6 +15100,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         relevanceAniId: _cRelevance.m_strRelevanceName,
                         relevanceAniType: _cRelevance.m_eRelevanceAniType.value, // 暂时只有：位移，路径，控制动画，爆炸
+                        multiUnit: _cRelevance.m_bMultUnit,
+                        enable: _cRelevance.m_bEnable,
                     };
                     allRelevance.push(relevanceInfo);
                 }
@@ -14979,6 +15131,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         pathPointList: allPathPoint,
                         selfVect: _cPath.m_vSelfDir,
+                        multiUnit: _cPath.m_bMultUnit,
+                        enable: _cPath.m_bEnable,
                     };
                     allPath.push(pathInfo);
                 }
@@ -15009,6 +15163,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cVisibility.m_uEntityID.m_uInstID_H32),
                         timeList: allTime,
                         keyframeList: allKeyframe,
+                        multiUnit: _cVisibility.m_bMultUnit,
+                        enable: _cVisibility.m_bEnable,
                     };
                     allVisibility.push(visibilityInfo);
                 }
@@ -15066,6 +15222,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         verticalDir2: _cExplode.m_vVerticalDir2,
                         timeList: allTime,
                         keyframeList: allWeight,
+                        multiUnit: _cExplode.m_bMultUnit,
+                        enable: _cExplode.m_bEnable,
                     };
                     allExplode.push(explodeInfo);
                 }
@@ -15119,6 +15277,8 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cCustom.m_uEntityID.m_uInstID_H32),
                         ctrlNameList: allCtrlName,
                         ctrlAniList: allCtrlAni,
+                        multiUnit: _cCustom.m_bMultUnit,
+                        enable: _cCustom.m_bEnable,
                     };
                     allCustom.push(customInfo);
                 }
@@ -15185,8 +15345,53 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         originalClrBlend: _cClrOriginal,
                         timeList: allTime,
                         keyframeList: allClr,
+                        multiUnit: _cTexture.m_bMultUnit,
+                        enable: _cTexture.m_bEnable,
                     };
                     allTexture.push(textureInfo);
+                }
+            }
+
+            //所有批量动画数据合集
+            const allMulti = [];
+            {
+                const _arrEntityMultiEditDatas = _cGroup.m_arrEntityMultiEditDatas;
+                for (let j = 0; j < _arrEntityMultiEditDatas.size(); j++) {
+                    const _cMulti = _arrEntityMultiEditDatas.get(j);
+
+                    const allElemInfo = [];
+                    for (let k = 0; k < _cMulti.m_arrEntityIds.size(); k++) {
+                        const _cElem = _cMulti.m_arrEntityIds.get(k);
+                        const elemInfo = {
+                            dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cElem.m_uInstID_H32),
+                            elemId: _cElem.m_uInstID_L32,
+                        };
+                        allElemInfo.push(elemInfo);
+                    }
+
+                    const arrOriginalLocs = [];
+                    for (let k = 0; k < _cMulti.m_arrOriginalLocs.size(); k++) {
+                        const _cLoc = _cMulti.m_arrOriginalLocs.get(k);
+                        const originalLocInfo = {
+                            offset: _cLoc.m_vOffset,
+                            scale: _cLoc.m_vScale,
+                            rotate: _cLoc.m_qRotate,
+                        };
+                        arrOriginalLocs.push(originalLocInfo);
+                    }
+
+                    const multiInfo = {
+                        aniId: _cMulti.m_strName,
+                        entityType: _cMulti.m_uEntityType,
+                        elemInfoList: allElemInfo,
+                        originalLocList: arrOriginalLocs,
+                        aniType: _cMulti.m_uUnitAniType,
+                        unitAniId: _cMulti.m_strUnitAniName,
+                        useRelativeLocation: _cMulti.m_bUseRelativeLocation,
+                        intervalTime: _cMulti.m_dIntervalTime,
+                        enable: _cMulti.m_bEnable,
+                    };
+                    allMulti.push(multiInfo);
                 }
             }
 
@@ -15200,10 +15405,532 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                 aniEditExplodeList: allExplode,
                 aniEditCustomCtrlList: allCustom,
                 aniEditTextureList: allTexture,
+                aniEditMultiList: allMulti,
             };
             allGroup.push(groupInfo);
         }
         return allGroup;
+    };
+
+    /**
+     * 获取指定编辑动画信息
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     */
+    Module.Entity.getEntityAniEditData = function (groupName, aniId, aniType) {
+        const _cGroup = Module.RealBIMWeb.GetEntityAniEditData(groupName, aniId, aniType);
+
+        //所有动画实体编辑数据合集
+        const allTran = [];
+        {
+            const _arrEntityAniEditDatas = _cGroup.m_arrEntityAniEditDatas;
+            for (let j = 0; j < _arrEntityAniEditDatas.size(); j++) {
+                const _cConmon = _arrEntityAniEditDatas.get(j);
+
+                const allTime = [];
+                for (let k = 0; k < _cConmon.m_arrTimes.size(); k++) {
+                    const _cTime = _cConmon.m_arrTimes.get(k);
+                    allTime.push(_cTime);
+                }
+
+                const allKeyFrame = [];
+                for (let k = 0; k < _cConmon.m_arrKeys.size(); k++) {
+                    const _cKeyFrame = _cConmon.m_arrKeys.get(k);
+                    const keyFrameInfo = {
+                        pos: _cKeyFrame.m_dPos,
+                        scale: _cKeyFrame.m_vScale,
+                        rotate: _cKeyFrame.m_qRotate,
+                        offset: _cKeyFrame.m_vOffset,
+                    };
+                    allKeyFrame.push(keyFrameInfo);
+                }
+
+                const tranInfo = {
+                    aniId: _cConmon.m_strName,
+                    timeRange: _cConmon.m_vTimeRange,
+                    elemId: _cConmon.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cConmon.m_uEntityID.m_uInstID_H32),
+                    originalLoc: {
+                        offset: _cConmon.m_vOriginalLoc.m_vOffset,
+                        scale: _cConmon.m_vOriginalLoc.m_vScale,
+                        rotate: _cConmon.m_vOriginalLoc.m_qRotate,
+                    },
+                    timeList: allTime,
+                    keyframeList: allKeyFrame,
+                    multiUnit: _cConmon.m_bMultUnit,
+                    enable: _cConmon.m_bEnable,
+                };
+                allTran.push(tranInfo);
+            }
+        }
+
+        //所有关联动画编辑数据合集
+        const allRelevance = [];
+        {
+            const _arrEntityRelevanceEditDatas = _cGroup.m_arrEntityRelevanceEditDatas;
+            for (let j = 0; j < _arrEntityRelevanceEditDatas.size(); j++) {
+                const _cRelevance = _arrEntityRelevanceEditDatas.get(j);
+
+                const relevanceInfo = {
+                    aniId: _cRelevance.m_strName,
+                    timeRange: _cRelevance.m_vTimeRange,
+                    elemId: _cRelevance.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cRelevance.m_uEntityID.m_uInstID_H32),
+                    originalLoc: {
+                        offset: _cRelevance.m_vOriginalLoc.m_vOffset,
+                        scale: _cRelevance.m_vOriginalLoc.m_vScale,
+                        rotate: _cRelevance.m_vOriginalLoc.m_qRotate,
+                    },
+                    relevanceAniId: _cRelevance.m_strRelevanceName,
+                    relevanceAniType: _cRelevance.m_eRelevanceAniType.value, // 暂时只有：位移，路径，控制动画，爆炸
+                    multiUnit: _cRelevance.m_bMultUnit,
+                    enable: _cRelevance.m_bEnable,
+                };
+                allRelevance.push(relevanceInfo);
+            }
+        }
+
+        //所有路径动画编辑数据合集
+        const allPath = [];
+        {
+            const _arrEntityPathEditDatas = _cGroup.m_arrEntityPathEditDatas;
+            for (let j = 0; j < _arrEntityPathEditDatas.size(); j++) {
+                const _cPath = _arrEntityPathEditDatas.get(j);
+
+                const allPathPoint = [];
+                for (let k = 0; k < _cPath.m_arrPathPoints.size(); k++) {
+                    const _cPathPoint = _cPath.m_arrPathPoints.get(k);
+                    allPathPoint.push(_cPathPoint);
+                }
+                const pathInfo = {
+                    aniId: _cPath.m_strName,
+                    timeRange: _cPath.m_vTimeRange,
+                    elemId: _cPath.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cPath.m_uEntityID.m_uInstID_H32),
+                    originalLoc: {
+                        offset: _cPath.m_vOriginalLoc.m_vOffset,
+                        scale: _cPath.m_vOriginalLoc.m_vScale,
+                        rotate: _cPath.m_vOriginalLoc.m_qRotate,
+                    },
+                    pathPointList: allPathPoint,
+                    selfVect: _cPath.m_vSelfDir,
+                    multiUnit: _cPath.m_bMultUnit,
+                    enable: _cPath.m_bEnable,
+                };
+                allPath.push(pathInfo);
+            }
+        }
+
+        //所有显隐动画编辑数据合集
+        const allVisibility = [];
+        {
+            const _arrEntityVisibilityEditDatas = _cGroup.m_arrEntityVisibilityEditDatas;
+            for (let j = 0; j < _arrEntityVisibilityEditDatas.size(); j++) {
+                const _cVisibility = _arrEntityVisibilityEditDatas.get(j);
+
+                const allTime = [];
+                for (let k = 0; k < _cVisibility.m_arrTimes.size(); k++) {
+                    const _cTime = _cVisibility.m_arrTimes.get(k);
+                    allTime.push(_cTime);
+                }
+                const allKeyframe = [];
+                for (let k = 0; k < _cVisibility.m_arrVisibilityStatus.size(); k++) {
+                    const _cKeyframe = _cVisibility.m_arrVisibilityStatus.get(k);
+                    allKeyframe.push(_cKeyframe);
+                }
+
+                const visibilityInfo = {
+                    aniId: _cVisibility.m_strName,
+                    timeRange: _cVisibility.m_vTimeRange,
+                    elemId: _cVisibility.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cVisibility.m_uEntityID.m_uInstID_H32),
+                    timeList: allTime,
+                    keyframeList: allKeyframe,
+                    multiUnit: _cVisibility.m_bMultUnit,
+                    enable: _cVisibility.m_bEnable,
+                };
+                allVisibility.push(visibilityInfo);
+            }
+        }
+
+        //所有爆炸动画数据合集
+        const allExplode = [];
+        {
+            const _arrEntityExplodeEditDatas = _cGroup.m_arrEntityExplodeEditDatas;
+            for (let j = 0; j < _arrEntityExplodeEditDatas.size(); j++) {
+                const _cExplode = _arrEntityExplodeEditDatas.get(j);
+
+                const allElemInfo = [];
+                for (let k = 0; k < _cExplode.m_arrEntityIds.size(); k++) {
+                    const _cElem = _cExplode.m_arrEntityIds.get(k);
+                    const elemInfo = {
+                        dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cElem.m_uInstID_H32),
+                        elemId: _cElem.m_uInstID_L32,
+                    };
+                    allElemInfo.push(elemInfo);
+                }
+
+                const allOriginalLoc = [];
+                for (let k = 0; k < _cExplode.m_arrOriginalLoc.size(); k++) {
+                    const _cLoc = _cExplode.m_arrOriginalLoc.get(k);
+                    const originalLocInfo = {
+                        offset: _cLoc.m_vOffset,
+                        scale: _cLoc.m_vScale,
+                        rotate: _cLoc.m_qRotate,
+                    };
+                    allOriginalLoc.push(originalLocInfo);
+                }
+
+                const allTime = [];
+                for (let k = 0; k < _cExplode.m_arrTimes.size(); k++) {
+                    const _cTime = _cExplode.m_arrTimes.get(k);
+                    allTime.push(_cTime);
+                }
+
+                const allWeight = [];
+                for (let k = 0; k < _cExplode.m_arrWeight.size(); k++) {
+                    const _cWeight = _cExplode.m_arrWeight.get(k);
+                    allWeight.push(_cWeight);
+                }
+
+                const explodeInfo = {
+                    aniId: _cExplode.m_strName,
+                    timeRange: _cExplode.m_vTimeRange,
+                    elemInfoList: allElemInfo,
+                    originalLocList: allOriginalLoc,
+                    centerPos: _cExplode.m_vCenterPos,
+                    weight: _cExplode.m_dWeight,
+                    mainDir: _cExplode.m_vMainDir,
+                    verticalDir1: _cExplode.m_vVerticalDir1,
+                    verticalDir2: _cExplode.m_vVerticalDir2,
+                    timeList: allTime,
+                    keyframeList: allWeight,
+                    multiUnit: _cExplode.m_bMultUnit,
+                    enable: _cExplode.m_bEnable,
+                };
+                allExplode.push(explodeInfo);
+            }
+        }
+
+        //所有自定义动画数据合集
+        const allCustom = [];
+        {
+            const _arrEntityCustomEditDatas = _cGroup.m_arrEntityCustomEditDatas;
+            for (let j = 0; j < _arrEntityCustomEditDatas.size(); j++) {
+                const _cCustom = _arrEntityCustomEditDatas.get(j);
+
+                const allCtrlName = [];
+                for (let k = 0; k < _cCustom.m_arrCtrlNames.size(); k++) {
+                    const _cCtrlName = _cCustom.m_arrCtrlNames.get(k);
+                    allCtrlName.push(_cCtrlName);
+                }
+
+                const allCtrlAni = [];
+                for (let k = 0; k < _cCustom.m_arrCtrlAniInfos.size(); k++) {
+                    const _cCtrlAni = _cCustom.m_arrCtrlAniInfos.get(k);
+
+                    const allTime = [];
+                    for (let k = 0; k < _cCtrlAni.m_arrTimes.size(); k++) {
+                        const _cTime = _cCtrlAni.m_arrTimes.get(k);
+                        allTime.push(_cTime);
+                    }
+
+                    const allPos = [];
+                    for (let k = 0; k < _cCtrlAni.m_arrPos.size(); k++) {
+                        const _cPos = _cCtrlAni.m_arrPos.get(k);
+                        allPos.push(_cPos);
+                    }
+
+                    const ctrlAniInfo = {
+                        loop: _cCtrlAni.m_bLoop,
+                        loopTime: _cCtrlAni.m_dLoopTime,
+                        turn: _cCtrlAni.m_bTurn,
+                        loopSection: _cCtrlAni.m_vLoopSection,
+                        posReversed: _cCtrlAni.m_bPosReversed,
+                        timeList: allTime,
+                        keyframeList: allPos,
+                    };
+                    allCtrlAni.push(ctrlAniInfo);
+                }
+
+                const customInfo = {
+                    aniId: _cCustom.m_strName,
+                    timeRange: _cCustom.m_vTimeRange,
+                    elemId: _cCustom.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cCustom.m_uEntityID.m_uInstID_H32),
+                    ctrlNameList: allCtrlName,
+                    ctrlAniList: allCtrlAni,
+                    multiUnit: _cCustom.m_bMultUnit,
+                    enable: _cCustom.m_bEnable,
+                };
+                allCustom.push(customInfo);
+            }
+        }
+
+        //所有材质动画数据合集
+        const allTexture = [];
+        {
+            const _arrEntityTextureEditDatas = _cGroup.m_arrEntityTextureEditDatas;
+            for (let j = 0; j < _arrEntityTextureEditDatas.size(); j++) {
+                const _cTexture = _arrEntityTextureEditDatas.get(j);
+
+                const allTime = [];
+                for (let k = 0; k < _cTexture.m_arrTimes.size(); k++) {
+                    const _cTime = _cTexture.m_arrTimes.get(k);
+                    allTime.push(_cTime);
+                }
+
+                const allClr = [];
+                for (let k = 0; k < _cTexture.m_arrTimeClrDatas.size(); k++) {
+                    const _cClr = _cTexture.m_arrTimeClrDatas.get(k);
+                    const clrBlendInfo = {
+                        elemClr: new Module.REColor(_cClr.m_uNewR, _cClr.m_uNewG, _cClr.m_uNewB, _cClr.m_uNewAlpha),
+                        clrWeight: _cClr.m_uNewRGBAmp,
+                        alphaWeight: _cClr.m_uNewAlphaAmp,
+                        elemEmis: _cClr.m_uNewEmis,
+                        elemEmisPercent: _cClr.m_uNewEmisAmp,
+                        elemSmooth: Math.round(((_cClr.m_uNewSmMe && 0x3f) / 63.0) * 255.0),
+                        elemMetal: Math.round(((_cClr.m_uNewSmMe >> 6) / 3.0) * 255.0),
+                        elemSmmePercent: _cClr.m_uNewSmMeAmp,
+                        useNewAlpha: false,
+                        useNewClr: false,
+                        useNewEmis: false,
+                        useNewSmoothMetal: false,
+                    };
+                    allClr.push(clrBlendInfo);
+                }
+
+                const _cClrOriginal = {
+                    elemClr: new Module.REColor(
+                        _cTexture.m_cClrOriginal.m_uNewR,
+                        _cTexture.m_cClrOriginal.m_uNewG,
+                        _cTexture.m_cClrOriginal.m_uNewB,
+                        _cTexture.m_cClrOriginal.m_uNewAlpha
+                    ),
+                    clrWeight: _cTexture.m_cClrOriginal.m_uNewRGBAmp,
+                    alphaWeight: _cTexture.m_cClrOriginal.m_uNewAlphaAmp,
+                    elemEmis: _cTexture.m_cClrOriginal.m_uNewEmis,
+                    elemEmisPercent: _cTexture.m_cClrOriginal.m_uNewEmisAmp,
+                    elemSmooth: Math.round(((_cTexture.m_cClrOriginal.m_uNewSmMe && 0x3f) / 63.0) * 255.0),
+                    elemMetal: Math.round(((_cTexture.m_cClrOriginal.m_uNewSmMe >> 6) / 3.0) * 255.0),
+                    elemSmmePercent: _cTexture.m_cClrOriginal.m_uNewSmMeAmp,
+                    useNewAlpha: 0,
+                    useNewClr: 0,
+                    useNewEmis: 0,
+                    useNewSmoothMetal: 0,
+                };
+
+                const textureInfo = {
+                    aniId: _cTexture.m_strName,
+                    timeRange: _cTexture.m_vTimeRange,
+                    elemId: _cTexture.m_uEntityID.m_uInstID_L32,
+                    dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cTexture.m_uEntityID.m_uInstID_H32),
+                    originalClrBlend: _cClrOriginal,
+                    timeList: allTime,
+                    keyframeList: allClr,
+                    multiUnit: _cTexture.m_bMultUnit,
+                    enable: _cTexture.m_bEnable,
+                };
+                allTexture.push(textureInfo);
+            }
+        }
+
+        //所有批量动画数据合集
+        const allMulti = [];
+        {
+            const _arrEntityMultiEditDatas = _cGroup.m_arrEntityMultiEditDatas;
+            for (let j = 0; j < _arrEntityMultiEditDatas.size(); j++) {
+                const _cMulti = _arrEntityMultiEditDatas.get(j);
+
+                const allElemInfo = [];
+                for (let k = 0; k < _cMulti.m_arrEntityIds.size(); k++) {
+                    const _cElem = _cMulti.m_arrEntityIds.get(k);
+                    const elemInfo = {
+                        dataSetId: Module.RealBIMWeb.ConvGolIntID2StrID(_cElem.m_uInstID_H32),
+                        elemId: _cElem.m_uInstID_L32,
+                    };
+                    allElemInfo.push(elemInfo);
+                }
+
+                const arrOriginalLocs = [];
+                for (let k = 0; k < _cMulti.m_arrOriginalLocs.size(); k++) {
+                    const _cLoc = _cMulti.m_arrOriginalLocs.get(k);
+                    const originalLocInfo = {
+                        offset: _cLoc.m_vOffset,
+                        scale: _cLoc.m_vScale,
+                        rotate: _cLoc.m_qRotate,
+                    };
+                    arrOriginalLocs.push(originalLocInfo);
+                }
+
+                const multiInfo = {
+                    aniId: _cMulti.m_strName,
+                    entityType: _cMulti.m_uEntityType,
+                    elemInfoList: allElemInfo,
+                    originalLocList: arrOriginalLocs,
+                    aniType: _cMulti.m_uUnitAniType,
+                    unitAniId: _cMulti.m_strUnitAniName,
+                    useRelativeLocation: _cMulti.m_bUseRelativeLocation,
+                    intervalTime: _cMulti.m_dIntervalTime,
+                    enable: _cMulti.m_bEnable,
+                };
+                allMulti.push(multiInfo);
+            }
+        }
+
+        const groupInfo = {
+            groupName: _cGroup.m_strGroupName,
+            totalTime: _cGroup.m_dTimeLen,
+            aniEditCommonList: allTran,
+            aniEditRelevanceList: allRelevance,
+            aniEditPathList: allPath,
+            aniEditVisibilityList: allVisibility,
+            aniEditExplodeList: allExplode,
+            aniEditCustomCtrlList: allCustom,
+            aniEditTextureList: allTexture,
+            aniEditMultiList: allMulti,
+        };
+
+        return groupInfo;
+    };
+
+    /**
+     * 获取当前系统中所有动画组
+     */
+    Module.Entity.getAllGroupNames = function () {
+        const _arrAllGroupName = Module.RealBIMWeb.GetAllGroupNames();
+        const allGroupNameList = [];
+        for (let i = 0; i < _arrAllGroupName.size(); i++) {
+            allGroupNameList.push(_arrAllGroupName.get(i));
+        }
+        return allGroupNameList;
+    };
+
+    /**
+     * 获取一个组中所有动画名称
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.getAllAniIdByGroup = function (groupName) {
+        const _arrAllAniId = Module.RealBIMWeb.GetAllAniNameByGroup(groupName);
+        const allAniIdList = [];
+        for (let i = 0; i < _arrAllAniId.size(); i++) {
+            allAniIdList.push(_arrAllAniId.get(i));
+        }
+        return allAniIdList;
+    };
+
+    /**
+     * 删除一个动画组
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.delAniEditGroup = function (groupName) {
+        Module.RealBIMWeb.DeleteAniEditGroup(groupName);
+    };
+
+    /**
+     * 删除一个动画编辑数据
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Number} aniType //批量编辑的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     */
+    Module.Entity.delAniEditData = function (groupName, aniId, aniType) {
+        Module.RealBIMWeb.DeleteAniEditData(groupName, aniId, aniType);
+    };
+
+    /**
+     * 获取可创建的动画类型
+     * @param {array} elemInfoList //所有批量单构件信息集合（REElemInfo 类型）
+     */
+    Module.Entity.getAllAniEditType = function (elemInfoList) {
+        const _count = elemInfoList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (let i = 0; i < _count; ++i) {
+            const elemInfo = elemInfoList[i];
+            _elemIds.set([elemInfo.elemId, Module.RealBIMWeb.ConvGolStrID2IntID(elemInfo.dataSetId)], i * 2);
+        }
+        const arrType = Module.RealBIMWeb.GetAllowAniTypesById(_elemIds.byteLength, _elemIds.byteOffset);
+        const typeList = [];
+        for (let i = 0; i < arrType.size(); i++) {
+            typeList.push(arrType.get(i));
+        }
+        return typeList;
+    };
+
+    /**
+     * 检查要创建的动画类型在当前组是否冲突
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {array} elemInfoList //所有批量单构件信息集合（REElemInfo 类型）
+     * @param {Number} aniType //要创建的动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+     */
+    Module.Entity.checkAniEditCreateIsConflict = function (groupName, elemInfoList, aniType) {
+        const _count = elemInfoList.length;
+        var _moemory = (_count * 8).toString();
+        Module.RealBIMWeb.ReAllocHeapViews(_moemory); //分配空间
+        var _elemIds = Module.RealBIMWeb.GetHeapView_U32(0);
+        for (let i = 0; i < _count; ++i) {
+            const elemInfo = elemInfoList[i];
+            _elemIds.set([elemInfo.elemId, Module.RealBIMWeb.ConvGolStrID2IntID(elemInfo.dataSetId)], i * 2);
+        }
+        return Module.RealBIMWeb.CheckAniCreateIsConflict(groupName, _elemIds.byteLength, _elemIds.byteOffset, aniType);
+    };
+
+    /**
+     * 播放一组动画
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.startPlayAniGroup = function (groupName) {
+        Module.RealBIMWeb.PlayGroupAnim(groupName);
+    };
+
+    /**
+     * 停止组动画播放
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.stopPlayAniGroup = function (groupName) {
+        Module.RealBIMWeb.StopGroupAnim(groupName);
+    };
+
+    /**
+     * 暂停组动画播放
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.pausePlayAniGroup = function (groupName) {
+        Module.RealBIMWeb.PauseGroupAnim(groupName);
+    };
+
+    /**
+     * 跳转到下一帧
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.setKeyframeToNext = function (groupName) {
+        Module.RealBIMWeb.SkipGroupAnimToNextKey(groupName);
+    };
+
+    /**
+     * 跳转到上一帧
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.setKeyframeToLast = function (groupName) {
+        Module.RealBIMWeb.SkipGroupAnimToLastKey(groupName);
+    };
+
+    /**
+     * 跳转到第一帧
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.setKeyframeToBegin = function (groupName) {
+        Module.RealBIMWeb.SkipGroupAnimToBegin(groupName);
+    };
+
+    /**
+     * 跳转到最后一帧
+     * @param {String} groupName //编辑动画集合的组名称
+     */
+    Module.Entity.setKeyframeToEnd = function (groupName) {
+        Module.RealBIMWeb.SkipGroupAnimToEnd(groupName);
     };
 
     // MARK 渲染效果
@@ -20417,6 +21144,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         'Module.RE_ANI_EDIT_TYPE.ANI_EXPLODE', //爆炸动画
         'Module.RE_ANI_EDIT_TYPE.ANI_CUSTOM', //自定义控制动画
         'Module.RE_ANI_EDIT_TYPE.ANI_TEXTURE', //材质动画
+        'Module.RE_ANI_EDIT_TYPE.ANI_MULIT', //批量动画
     ];
     ExtModule.REEntityAnimEditEm = REEntityAnimEditEm;
 
