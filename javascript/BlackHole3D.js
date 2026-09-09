@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3934
+﻿//版本：v3.2.0.3935
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -8967,7 +8967,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 设置地形数据层单元的透明度
+     * 设置地形数据层单元的透明度 注：如果是合并地形数据，不能隐藏作为基底的地形数据，第一个加载的地形数据为基底数据
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {String} unitId //层单元标识
      * @param {RETerrResEm} resType //地形资源数据类型 （RETerrResEm 类型）
