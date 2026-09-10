@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3935
+﻿//版本：v3.2.0.3936
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -14318,11 +14318,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} aniId //动画标识
      * @param {String} ctrlName //控制动作名称
      * @param {number} time //关键帧时刻
-     * @param {number} pos //控制动画进度
-     * @param {boolean} posReversed //是否反向
+     * @param {number} pos //控制动画进度，取值范围【0, 1】
+     * @param {boolean} reversed //是否反向，当前关键帧到下一个关键帧区间的动画方向
      */
-    Module.Entity.setAniEditCustomCtrlInfo = function (groupName, aniId, ctrlName, time, pos, posReversed) {
-        Module.RealBIMWeb.SaveAKeyToCustomCtrlAni(groupName, aniId, ctrlName, time, pos, posReversed);
+    Module.Entity.setAniEditCustomCtrlInfo = function (groupName, aniId, ctrlName, time, pos, reversed) {
+        Module.RealBIMWeb.SaveAKeyToCustomCtrlAni(groupName, aniId, ctrlName, time, pos, reversed);
     };
 
     /**
@@ -14332,12 +14332,12 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} ctrlName //控制动作名称
      * @param {boolean} loop //是否循环
      * @param {number} loopTime //循环周期
-     * @param {boolean} turn //是否往复运动
+     * @param {boolean} loopTurn //循环是否往复运动
      * @param {dvec2} loopSection //循环区间（二元素数组）（x可以大于y，但不可以等于）
-     * @param {boolean} posReversed //是否反向（如：loopSection值为[0.2, 0.6], posReversed=fasle: loopSection->0.2-0.6, posReversed=true: loopSection->0.6-0.2）
+     * @param {boolean} loopReversed //循环是否反向（如：loopSection值为[0.2, 0.6], loopReversed=fasle: loopSection->0.2-0.6, loopReversed=true: loopSection->0.6-0.2）
      */
-    Module.Entity.setAniEditCustomCtrlLoop = function (groupName, aniId, time, loop, turn, loopTime, loopSection, posReversed) {
-        return Module.RealBIMWeb.SetCustomCtrlAniLoop(groupName, aniId, time, loop, turn, loopTime, loopSection, posReversed);
+    Module.Entity.setAniEditCustomCtrlLoop = function (groupName, aniId, time, loop, loopTurn, loopTime, loopSection, loopReversed) {
+        return Module.RealBIMWeb.SetCustomCtrlAniLoop(groupName, aniId, time, loop, loopTurn, loopTime, loopSection, loopReversed);
     };
 
     /**
@@ -14563,11 +14563,11 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         constructor() {
             this.loop = false; //是否循环（和关键帧操作互斥）
             this.loopTime = 0.0; //循环周期
-            this.turn = false; //是否往复运动
+            this.loopTurn = false; //循环是否往复运动
             this.loopSection = [0.0, 0.0]; //循环区间（二元素数组）
-            this.posReversed = false; //是否反向（如：loopSection值为[0.2, 0.6], posReversed=fasle: loopSection->0.2-0.6, posReversed=true: loopSection->0.6-0.2）
+            this.loopReversed = false; //循环是否反向（如：loopSection值为[0.2, 0.6], loopReversed=fasle: loopSection->0.2-0.6, loopReversed=true: loopSection->0.6-0.2）
             this.timeList = null; //关键帧时刻列表（和循环操作互斥）
-            this.keyframeList = null; //关键帧列表（控制动作时刻对应的动画进度，与timeList对应）（数值类型）（数值绝对值表示动画进度，>0表示正向，<0表示反向）
+            this.keyframeList = null; //关键帧列表（控制动作时刻对应的动画进度，与timeList对应）（数值类型）（数值绝对值表示动画进度，>0表示正向，<0表示反向，作用于当前关键帧到下一个关键帧之间的动画方向）
         }
     }
     ExtModule.REEntityAniCtrlInfo = REEntityAniCtrlInfo;
@@ -14864,9 +14864,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         const _cCtrlAni = {
                             m_bLoop: ctrlAniInfo.loop,
                             m_dLoopTime: ctrlAniInfo.loopTime,
-                            m_bTurn: ctrlAniInfo.turn,
+                            m_bTurn: ctrlAniInfo.loopTurn,
                             m_vLoopSection: ctrlAniInfo.loopSection,
-                            m_bPosReversed: ctrlAniInfo.posReversed,
+                            m_bPosReversed: ctrlAniInfo.loopReversed,
                             m_arrTimes: _arrTimes,
                             m_arrPos: _arrPos,
                         };
@@ -15261,9 +15261,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         const ctrlAniInfo = {
                             loop: _cCtrlAni.m_bLoop,
                             loopTime: _cCtrlAni.m_dLoopTime,
-                            turn: _cCtrlAni.m_bTurn,
+                            loopTurn: _cCtrlAni.m_bTurn,
                             loopSection: _cCtrlAni.m_vLoopSection,
-                            posReversed: _cCtrlAni.m_bPosReversed,
+                            loopReversed: _cCtrlAni.m_bPosReversed,
                             timeList: allTime,
                             keyframeList: allPos,
                         };
@@ -15645,9 +15645,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     const ctrlAniInfo = {
                         loop: _cCtrlAni.m_bLoop,
                         loopTime: _cCtrlAni.m_dLoopTime,
-                        turn: _cCtrlAni.m_bTurn,
+                        loopTurn: _cCtrlAni.m_bTurn,
                         loopSection: _cCtrlAni.m_vLoopSection,
-                        posReversed: _cCtrlAni.m_bPosReversed,
+                        loopReversed: _cCtrlAni.m_bPosReversed,
                         timeList: allTime,
                         keyframeList: allPos,
                     };
