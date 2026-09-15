@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3936
+﻿//版本：v3.2.0.3948
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -104,6 +104,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.addEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web); //批量添加单构件结束添加编辑回调事件
         document.addEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web); //系统UI面板变化回调事件
         document.addEventListener('REEntityAniEditPathAddFinish_Web', REEntityAniEditPathAddFinish_Web); //单构件动画编辑路径动画完成添加回调事件
+        document.addEventListener('REEntityAniEditCommonPosChanged_Web', REEntityAniEditCommonPosChanged_Web); //单构件动画编辑位置动画拖动gizmo构件位置变化回调事件
 
         return bool;
     };
@@ -144,6 +145,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         document.removeEventListener('REEditEntityFinish_Web', REEditEntityFinish_Web);
         document.removeEventListener('RESysUIPanelChange_Web', RESysUIPanelChange_Web);
         document.removeEventListener('REEntityAniEditPathAddFinish_Web', REEntityAniEditPathAddFinish_Web);
+        document.removeEventListener('REEntityAniEditCommonPosChanged_Web', REEntityAniEditCommonPosChanged_Web);
     }
 
     // MARK 回调事件
@@ -412,6 +414,13 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
 
     function REEntityAniEditPathAddFinish_Web(e) {
         const re_event = new CustomEvent('REEntityAniEditPathAddFinish', {
+            detail: e.detail,
+        });
+        document.dispatchEvent(re_event);
+    }
+
+    function REEntityAniEditCommonPosChanged_Web(e) {
+        const re_event = new CustomEvent('REEntityAniEditCommonPosChanged', {
             detail: e.detail,
         });
         document.dispatchEvent(re_event);
@@ -2989,7 +2998,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     Module.Coordinate.getDataSetTransform = function (dataSetId) {
         if (isEmptyLog(dataSetId, 'dataSetId')) return;
         var _tranform = Module.RealBIMWeb.GetMainSceTransform(dataSetId);
-        var locInfo = new RELocInfo();
+        var locInfo = new Module.RELocInfo();
         locInfo.scale = _tranform.m_vScale;
         locInfo.rotate = _tranform.m_qRotate;
         locInfo.offset = _tranform.m_vOffset;
@@ -14235,6 +14244,75 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
+     * 设置是否打开gizmo位置调整模式 注：只有在单构件动画编辑&位置编辑模式下，并且需要激活状态，出现gizmo只有有效，鼠标点击改变gizmo的中心点坐标
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {Boolean} enable //是否打开
+     */
+    Module.Entity.setAniEditCommonGizmoLocEdit = function (groupName, aniId, enable) {
+        Module.RealBIMWeb.SetEntityAniEditIsEditGizmoLoc(groupName, aniId, enable);
+    };
+
+    /**
+     * 获取是否打开gizmo位置调整模式
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     */
+    Module.Entity.getAniEditCommonGizmoLocEdit = function (groupName, aniId) {
+        return Module.RealBIMWeb.GetEntityAniEditIsEditGizmoLoc(groupName, aniId);
+    };
+
+    /**
+     * 设置gizmo中心点位置 注：只有在单构件动画编辑&位置编辑模式下，并且需要激活状态，出现gizmo只有有效，设置完成gizmo刷新调整位置
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {dvec3} gizmoLoc //gizmo中心点位置（三元素数组）
+     */
+    Module.Entity.setAniEditCommonGizmoLoc = function (groupName, aniId, gizmoLoc) {
+        Module.RealBIMWeb.SetEntityAniEditGizmoLoc(groupName, aniId, gizmoLoc);
+    };
+
+    /**
+     * 获取gizmo中心点位置
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     */
+    Module.Entity.getAniEditCommonGizmoLoc = function (groupName, aniId) {
+        return Module.RealBIMWeb.GetEntityAniEditGizmoLoc(groupName, aniId);
+    };
+
+    /**
+     * 设置动画编辑单构件仿射变换并刷新gizmo位置 注：没有进入编辑模式，未展示gizmo时，设置完成单构件进行偏移，展示gizmo时，gizmo同步刷新位置， 不支持缩放数据修改，设置无效
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {RELocInfo} entiyLoc //单构件仿射变换信息（RELocInfo 类型）
+     */
+    Module.Entity.setAniEditCommonEntityLoc = function (groupName, aniId, entiyLoc) {
+        var _transinfo = {
+            m_vScale: entiyLoc.offset,
+            m_qRotate: entiyLoc.rotate,
+            m_vOffset: [1e30, 1e30, 1e30],
+        };
+        Module.RealBIMWeb.SetCommonAniEditEntityLoc(groupName, aniId, _transinfo);
+    };
+
+    /**
+     * 获取动画编辑单构件仿射变换信息
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     */
+    Module.Entity.getAniEditCommonEntityLoc = function (groupName, aniId) {
+        var _tranform = Module.RealBIMWeb.GetCommonAniEditEntityLoc(groupName, aniId);
+        var locInfo = new RELocInfo();
+        locInfo.scale = _tranform.m_vScale;
+        locInfo.rotate = _tranform.m_qRotate;
+        locInfo.offset = _tranform.m_vOffset;
+        return locInfo;
+    };
+
+
+
+    /**
      * 创建一个路径动画编辑
      * @param {String} groupName //编辑动画集合的组名称
      * @param {String} aniId //动画标识
@@ -14264,10 +14342,23 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {number} elemId //构件标识
      * @param {String} relevanceAniId //被关联的动画标识
      * @param {number} relevanceAniType //被关联动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画
+     * @param {String} relevanceCtrlName //表示控制动画名称，relevanceAniType=6有效
      * @param {dvec2} timeRange //该构件相对所在组的动画时间【起始，结束】
      */
-    Module.Entity.addAniEditRelevance = function (groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, timeRange) {
-        return Module.RealBIMWeb.AddRelevanceAni(groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, timeRange);
+    Module.Entity.addAniEditRelevance = function (groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, relevanceCtrlName, timeRange) {
+        return Module.RealBIMWeb.AddRelevanceAni(groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, relevanceCtrlName, timeRange);
+    };
+
+    /**
+     * 设置一个关键帧的跟随动画信息
+     * @param {String} groupName //编辑动画集合的组名称
+     * @param {String} aniId //动画标识
+     * @param {String} relevanceAniId //被关联的动画标识
+     * @param {number} relevanceAniType //被关联动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画
+     * @param {String} relevanceCtrlName //表示控制动画名称，relevanceAniType=6有效
+     */
+    Module.Entity.setAniEditRelevanceInfo = function (groupName, aniId, relevanceAniId, relevanceAniType, relevanceCtrlName) {
+        return Module.RealBIMWeb.SetRelevanceAniInfo(groupName, aniId, relevanceAniId, relevanceAniType, relevanceCtrlName);
     };
 
     /**
@@ -14486,6 +14577,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             this.originalLoc = null; //被编辑单构件原始位置（RELocInfo 类型）
             this.relevanceAniId = null; //被关联的动画标识
             this.relevanceAniType = null; //被关联动画类型 0: 未知类型 1: 世界空间下的通用动画类型 2:跟随动画 3: 世界空间下的路径动画 4: 显隐动画 5: 爆炸动画 6: 自定义控制动画 7: 材质动画 8：批量动画
+            this.relevanceCtrlName = null; //表示控制动画名称，relevanceAniType=6有效
             this.multiUnit = false; //是否是批量动画的单元数据
             this.enable = true; //是否激活
         }
@@ -14714,6 +14806,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_strRelevanceName: relevanceInfo.relevanceAniId,
                         m_eRelevanceAniType: eval(Module.REEntityAnimEditEm[relevanceInfo.relevanceAniType]),
+                        m_strRelevanceCtrlAniName: isEmpty(relevanceInfo.relevanceCtrlName) ? "" : relevanceInfo.relevanceCtrlName,
                         m_bMultUnit: isEmpty(relevanceInfo.multiUnit) ? false : relevanceInfo.multiUnit,
                         m_bEnable: isEmpty(relevanceInfo.enable) ? true : relevanceInfo.enable,
                     };
@@ -15100,6 +15193,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         relevanceAniId: _cRelevance.m_strRelevanceName,
                         relevanceAniType: _cRelevance.m_eRelevanceAniType.value, // 暂时只有：位移，路径，控制动画，爆炸
+                        relevanceCtrlName: _cRelevance.m_strRelevanceCtrlAniName,
                         multiUnit: _cRelevance.m_bMultUnit,
                         enable: _cRelevance.m_bEnable,
                     };
@@ -15484,6 +15578,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                     },
                     relevanceAniId: _cRelevance.m_strRelevanceName,
                     relevanceAniType: _cRelevance.m_eRelevanceAniType.value, // 暂时只有：位移，路径，控制动画，爆炸
+                    relevanceCtrlName: _cRelevance.m_strRelevanceCtrlAniName,
                     multiUnit: _cRelevance.m_bMultUnit,
                     enable: _cRelevance.m_bEnable,
                 };

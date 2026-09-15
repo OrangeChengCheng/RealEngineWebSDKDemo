@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-08-20 18:10:15
+ * @LastEditTime: 2026-09-10 15:26:37
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -27,7 +27,7 @@
     <body>
         <div id="app">
             <canvas id="canvas" style="width: 100%; height: 100%" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
-            <div class="re-absolue-panel" style="top: 10px;">
+            <div class="re-absolue-panel" style="top: 10px">
                 <el-button type="primary" @click="alert_click">按钮点击</el-button>
             </div>
         </div>
@@ -50,11 +50,12 @@
                         ];
                         BlackHole3D.Model.loadDataSet(dataSetList);
                     },
-                    alert_click() {
-                        console.log('-------------');
-
-                        ElementPlus.ElMessage.error('Oops, this is a error message.');
+                    RESystemSelElementCallBack() {
+                        const selElem = BlackHole3D.Probe.getCurSelInfo();
+                        if (selElem.selType !== 'BIMElem') return;
+                        console.log(selElem);
                     },
+                    RESystemSelShpElementCallBack(){},
                 },
             });
 

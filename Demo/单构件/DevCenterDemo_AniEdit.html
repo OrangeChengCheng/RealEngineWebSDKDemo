@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-09-03 17:15:58
+ * @LastEditTime: 2026-09-14 18:19:38
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -259,9 +259,11 @@
                 created() {
                     document.addEventListener('REAddEntityFinish', this.REAddEntityFinish);
                     document.addEventListener('REEntityAniEditPathAddFinish', this.REEntityAniEditPathAddFinish);
+                    document.addEventListener('REEntityAniEditCommonPosChanged', this.REEntityAniEditCommonPosChanged);
                 },
                 mounted() {},
                 methods: {
+                    REEntityAniEditCommonPosChanged(e) {console.log(e.detail);},
                     RESystemSelShpElementCallBack() {},
                     REEntityAniEditPathAddFinish() {
                         REWebSDK_closeMouseTip();
@@ -476,11 +478,11 @@
                                 1.0 * this.timeline * 0.3,
                                 1.0 * this.timeline * 0.3,
                             ]);
-                            BlackHole3D.Entity.setAniEditExplodeInfo(this.groupName, 'AniEdit_Explode', 30 - this.timeline, [
-                                1.0 * this.timeline * 0.3,
-                                1.0 * this.timeline * 0.3,
-                                1.0 * this.timeline * 0.3,
-                            ]);
+                            // BlackHole3D.Entity.setAniEditExplodeInfo(this.groupName, 'AniEdit_Explode', 30 - this.timeline, [
+                            //     1.0 * this.timeline * 0.3,
+                            //     1.0 * this.timeline * 0.3,
+                            //     1.0 * this.timeline * 0.3,
+                            // ]);
                         } else if (type == 6) {
                             const aniEditId = this.multiEditType ? 'AniEdit_Multi_CustomCtrl' : 'AniEdit_CustomCtrl';
                             BlackHole3D.Entity.setAniEditCustomCtrlInfo(
@@ -514,6 +516,7 @@
 
                             BlackHole3D.Entity.setAniEditTextureInfo(this.groupName, aniEditId, this.timeline, clrBlend);
                         }
+                        BlackHole3D.Entity.setCurAniEditTime(this.groupName, this.timeline);
                     },
                     selElemClick() {
                         this.multiSelState = !this.multiSelState;
