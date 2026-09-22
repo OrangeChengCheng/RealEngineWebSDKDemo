@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3948
+﻿//版本：v3.2.0.3966
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -2113,7 +2113,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
             }
         }
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems('', '', _elemIds.byteLength, _elemIds.byteOffset, backDepth, _locType);
+        Module.RealBIMWeb.FocusCamToSubElems('', '', _elemIds.byteLength, _elemIds.byteOffset, backDepth, _locType, 1.0);
     };
 
     /**
@@ -2121,14 +2121,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} dataSetId //数据集的唯一标识名
      * @param {Number} backDepth //相机后退强度（如果相机距离构件太近或太远，都可以通过此参数调整）
      * @param {RECamDirEm} locType //相机朝向 RECamDirEm 枚举值
+     * @param {Number} locTime //相机的运动速度（秒） 默认1.0
      */
-    Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth, locType) {
+    Module.Camera.setCamLocateToDataSet = function (dataSetId, backDepth, locType, locTime) {
         var _projname = '';
         if (!isEmpty(dataSetId)) {
             _projname = dataSetId;
         }
         var _locType = isEmpty(locType) ? eval(RECamDirEm.CAM_DIR_DEFAULT) : eval(locType);
-        Module.RealBIMWeb.FocusCamToSubElems(_projname, '', 0, 0, backDepth, _locType);
+        const _locTime = isEmpty(locTime) ? 1.0 : locTime;
+        Module.RealBIMWeb.FocusCamToSubElems(_projname, '', 0, 0, backDepth, _locType, _locTime);
     };
 
     /**
@@ -14289,9 +14291,9 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      */
     Module.Entity.setAniEditCommonEntityLoc = function (groupName, aniId, entiyLoc) {
         var _transinfo = {
-            m_vScale: entiyLoc.offset,
+            m_vScale: [1e30, 1e30, 1e30],
             m_qRotate: entiyLoc.rotate,
-            m_vOffset: [1e30, 1e30, 1e30],
+            m_vOffset: entiyLoc.offset,
         };
         Module.RealBIMWeb.SetCommonAniEditEntityLoc(groupName, aniId, _transinfo);
     };
