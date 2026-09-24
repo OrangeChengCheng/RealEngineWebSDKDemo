@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3966
+﻿//版本：v3.2.0.3968
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
