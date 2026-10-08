@@ -1,7 +1,7 @@
 <!--
  * @Author: Lemon C
  * @Date: 2025-11-07 10:55:10
- * @LastEditTime: 2026-09-10 15:26:37
+ * @LastEditTime: 2026-09-30 16:47:50
 -->
 <!DOCTYPE html>
 <html lang="en-us">
@@ -42,6 +42,7 @@
                 mounted() {},
                 methods: {
                     RESystemEngineCreatedCallBack() {
+                        BlackHole3D.Common.setFakeSphMode(false);
                         var dataSetList = [
                             {
                                 dataSetId: 'res_jifang',

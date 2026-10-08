@@ -1,4 +1,4 @@
-﻿//版本：v3.2.0.3968
+﻿//版本：v3.2.0.3974
 const isPhoneMode = false;
 const hasNewEntity = true;
 const hasEntityAniEdit = false;
@@ -1907,7 +1907,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
     };
 
     /**
-     * 获取当前加载的所有数据集id
+     * 获取当前相机方位信息
      */
     Module.Camera.getCamLocate = function () {
         var camLoc = new RECamLoc();
@@ -1921,6 +1921,66 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         camLoc.camUpDir = _camUpDir;
         camLoc.camRightDir = _camRightDir;
         return camLoc;
+    };
+
+    /**
+     * 获取相机运动轨迹中指定进度的相机方位信息
+     * @param {RECamLoc} srcCamLoc //初始相机方位信息
+     * @param {RECamLoc} destCamLoc //目标相机方位信息
+     * @param {number} ratio //运动轨迹进度比例，取值范围【0,1】
+     */
+    Module.Camera.getCamLocateRatio = function (srcCamLoc, destCamLoc, ratio) {
+        if (isEmptyLog(srcCamLoc, 'srcCamLoc')) return;
+        if (isEmptyLog(destCamLoc, 'destCamLoc')) return;
+
+        const _ratio = isEmpty(ratio) ? 0 : ratio;
+
+        // 判断camRotate是否有效：数组不存在1e30
+        const _isRotateValid = (camLoc) => !camLoc.camRotate.some(v => v === 1e30);
+        // 判断camDir是否有效：数组不存在1e30
+        const _isDirValid = (camLoc) => !camLoc.camDir.some(v => v === 1e30);
+
+        // src、dest 都是四元数有效模式
+        if (_isRotateValid(srcCamLoc) && _isRotateValid(destCamLoc)) {
+
+            const _cCamLoc_r = Module.RealBIMWeb.GetCamLocationRatio(
+                srcCamLoc.camPos,
+                srcCamLoc.camRotate,
+                destCamLoc.camPos,
+                destCamLoc.camRotate,
+                _ratio
+            );
+
+            const _cCamLoc_dir = Module.RealBIMWeb.ConvCamRotate_Q2D(_cCamLoc_r.m_qCamRotate);
+            var camLoc = new RECamLoc();
+            camLoc.camPos = _cCamLoc_r.m_vCamPos;
+            camLoc.camRotate = _cCamLoc_r.m_qCamRotate;
+            camLoc.camDir = _cCamLoc_dir;
+            return camLoc;
+        }
+        // src、dest 都是方向向量有效模式
+        else if (_isDirValid(srcCamLoc) && _isDirValid(destCamLoc)) {
+
+            const _cCamLoc_d = Module.RealBIMWeb.GetCamLocationRatio_Dir(
+                srcCamLoc.camPos,
+                srcCamLoc.camDir,
+                destCamLoc.camPos,
+                destCamLoc.camDir,
+                _ratio
+            );
+
+            const _cCamLoc_rotate = Module.RealBIMWeb.ConvCamRotate_D2Q(_cCamLoc_d.m_vCamDir);
+            var camLoc = new RECamLoc();
+            camLoc.camPos = _cCamLoc_d.m_vCamPos;
+            camLoc.camRotate = _cCamLoc_rotate;
+            camLoc.camDir = _cCamLoc_d.m_vCamDir;
+            return camLoc;
+        }
+        else {
+            logErr("数据类型不匹配");
+            return null;
+        }
+
     };
 
     class REGisCamLoc {
@@ -14312,8 +14372,6 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
         return locInfo;
     };
 
-
-
     /**
      * 创建一个路径动画编辑
      * @param {String} groupName //编辑动画集合的组名称
@@ -14347,7 +14405,16 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
      * @param {String} relevanceCtrlName //表示控制动画名称，relevanceAniType=6有效
      * @param {dvec2} timeRange //该构件相对所在组的动画时间【起始，结束】
      */
-    Module.Entity.addAniEditRelevance = function (groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, relevanceCtrlName, timeRange) {
+    Module.Entity.addAniEditRelevance = function (
+        groupName,
+        aniId,
+        dataSetId,
+        elemId,
+        relevanceAniId,
+        relevanceAniType,
+        relevanceCtrlName,
+        timeRange
+    ) {
         return Module.RealBIMWeb.AddRelevanceAni(groupName, aniId, dataSetId, elemId, relevanceAniId, relevanceAniType, relevanceCtrlName, timeRange);
     };
 
@@ -14808,7 +14875,7 @@ var CreateBlackHoleWebSDK = function (ExtModule) {
                         },
                         m_strRelevanceName: relevanceInfo.relevanceAniId,
                         m_eRelevanceAniType: eval(Module.REEntityAnimEditEm[relevanceInfo.relevanceAniType]),
-                        m_strRelevanceCtrlAniName: isEmpty(relevanceInfo.relevanceCtrlName) ? "" : relevanceInfo.relevanceCtrlName,
+                        m_strRelevanceCtrlAniName: isEmpty(relevanceInfo.relevanceCtrlName) ? '' : relevanceInfo.relevanceCtrlName,
                         m_bMultUnit: isEmpty(relevanceInfo.multiUnit) ? false : relevanceInfo.multiUnit,
                         m_bEnable: isEmpty(relevanceInfo.enable) ? true : relevanceInfo.enable,
                     };
